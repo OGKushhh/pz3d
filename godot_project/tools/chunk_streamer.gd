@@ -12,6 +12,7 @@ extends Node3D
 const CityConfig = preload("res://tools/city_config.gd")
 const SpatialIndex = preload("res://tools/spatial_index.gd")
 const RoadNetwork = preload("res://tools/road_network.gd")
+const PlanGrid = preload("res://tools/plan_grid.gd")
 
 var player: Node3D
 var stream_radius: int = 2
@@ -20,6 +21,7 @@ var roads: RoadNetwork
 var manifest: Dictionary = {}
 var asset_cache: Dictionary = {}
 var rng: RandomNumberGenerator
+var plan_grid: PlanGrid
 var _loaded: Dictionary = {}
 var _stats: Dictionary = {}
 
@@ -47,6 +49,8 @@ func _ready() -> void:
     rng.seed = 1337
     roads.generate(rng)
     roads.mark_roads_in_index(spatial, CityConfig.SPATIAL_CELL_M)
+	plan_grid = PlanGrid.new()
+	plan_grid.build(roads, 1337)
 
 func _process(_delta: float) -> void:
     if player == null or manifest.is_empty():
@@ -109,7 +113,7 @@ func _build_chunk(key: Vector2i) -> void:
 
         for bx in range(block_count):
             for bz in range(block_count):
-                if crng.randf() > fill:
+                if crng.randf() > plan_grid.sample_density(block_origin):
                     continue
                 var block_origin: Vector3 = origin + Vector3(bx * block_size, 0, bz * block_size)
                 var target: int = crng.randi_range(int(fill * 30), int(fill * 60))  # was 10-30

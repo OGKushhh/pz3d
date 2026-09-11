@@ -10,6 +10,7 @@ const WATCHED_SCRIPTS := [
     "res://tools/road_network.gd",
     "res://tools/city_builder.gd",
     "res://tools/spatial_index.gd",
+    "res://tools/plan_grid.gd",
 ]
 
 var map_seed: int
