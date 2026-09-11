@@ -113,9 +113,10 @@ func _build_chunk(key: Vector2i) -> void:
 
         for bx in range(block_count):
             for bz in range(block_count):
-                if crng.randf() > plan_grid.sample_density(block_origin):
                     continue
                 var block_origin: Vector3 = origin + Vector3(bx * block_size, 0, bz * block_size)
+                if crng.randf() > plan_grid.sample_density(block_origin):
+                    continue
                 var target: int = crng.randi_range(int(fill * 30), int(fill * 60))  # was 10-30
                 target = min(target, 6)  # cap per block to avoid overcrowding
                 for i in range(target):
