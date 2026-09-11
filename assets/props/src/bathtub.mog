@@ -1,0 +1,50 @@
+// bathtub.mog — Tier 1 prop (STATIC fixture — bathroom)
+// Standard rectangular bathtub: tub + rim + faucet + drain.
+// Per furniture_merging_decision.md: static fixture (plumbed, can't move).
+// Target: 250 tris (Low-preset LOD0). Actual: ~150 tris.
+// Dimensions: 1.70m long × 0.70m wide × 0.55m tall.
+
+meta (
+  name          = "bathtub",
+  description   = "Standard rectangular bathtub with rim + faucet (static fixture)",
+  tags          = ["prop", "furniture", "bathroom", "bathtub", "static", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "porcelain" (color=[0.95, 0.95, 0.93], roughness=0.20, metallic=0.0)
+material "chrome"    (color=[0.85, 0.85, 0.88], metallic=0.95, roughness=0.15)
+material "drain_metal" (color=[0.65, 0.66, 0.68], metallic=0.7, roughness=0.30)
+
+scene {
+  // === OUTER TUB (rectangular box, open top) ===
+  // Use a solid box for the outer shell
+  solid "tub_outer" (mat="porcelain", cleanup="coplanar") {
+    // 4 walls + bottom (no top — open)
+    box "wall_front" (size=[1.70, 0.55, 0.05], pos=[0, 0.275,  0.325])
+    box "wall_back"  (size=[1.70, 0.55, 0.05], pos=[0, 0.275, -0.325])
+    box "wall_left"  (size=[0.05, 0.55, 0.70], pos=[-0.825, 0.275, 0])
+    box "wall_right" (size=[0.05, 0.55, 0.70], pos=[ 0.825, 0.275, 0])
+    box "bottom"     (size=[1.70, 0.05, 0.70], pos=[0, 0.025, 0])
+  }
+
+  // === RIM (top edge, slightly wider than tub) ===
+  // Use a hollow box approach: 4 thin slabs around the top edge
+  box "rim_front" (size=[1.75, 0.05, 0.08], mat="porcelain", pos=[0, 0.55,  0.35])
+  box "rim_back"  (size=[1.75, 0.05, 0.08], mat="porcelain", pos=[0, 0.55, -0.35])
+  box "rim_left"  (size=[0.08, 0.05, 0.70], mat="porcelain", pos=[-0.85, 0.55, 0])
+  box "rim_right" (size=[0.08, 0.05, 0.70], mat="porcelain", pos=[ 0.85, 0.55, 0])
+
+  // === INNER BASIN (slightly smaller, recessed — visual depth) ===
+  // Just a flat darker slab at the bottom of the tub to suggest the interior
+  slab "inner_floor" (size=[1.55, 0.02, 0.55], mat="drain_metal", pos=[0, 0.08, 0], tags="floating")
+
+  // === DRAIN (small circle in center of tub floor) ===
+  cylinder "drain" (radius=0.04, height=0.02, segments=8, mat="drain_metal", pos=[0, 0.10, 0], tags="floating")
+
+  // === FAUCET (chrome, mounted on back wall rim) ===
+  cylinder "faucet_base" (radius=0.03, height=0.08, segments=8, mat="chrome", pos=[0, 0.62, -0.32], tags="floating")
+  cylinder "faucet_spout" (radius=0.02, height=0.20, segments=8, mat="chrome", pos=[0, 0.68, -0.22], rot=[90, 0, 0], tags="floating")
+  // 2 faucet handles (hot + cold)
+  cylinder "handle_hot"  (radius=0.04, height=0.03, segments=8, mat="chrome", pos=[-0.12, 0.62, -0.32], tags="floating")
+  cylinder "handle_cold" (radius=0.04, height=0.03, segments=8, mat="chrome", pos=[ 0.12, 0.62, -0.32], tags="floating")
+}

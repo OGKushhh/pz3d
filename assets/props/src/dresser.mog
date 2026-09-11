@@ -1,0 +1,27 @@
+// dresser.mog
+meta (name="dresser", description="Tall dresser with 4 drawers", tags=["prop","furniture","dresser","dynamic","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.45,0.28,0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30,0.18,0.10], roughness=0.75)
+material "handle_metal" (color=[0.45,0.45,0.48], metallic=0.7, roughness=0.30)
+scene {
+  solid "carcass" (mat="wood_dark", cleanup="coplanar") {
+    box "back" (size=[0.95, 1.15, 0.02], pos=[0, 0.60, -0.24])
+    box "left" (size=[0.04, 1.20, 0.50], pos=[-0.48, 0.60, 0])
+    box "right" (size=[0.04, 1.20, 0.50], pos=[ 0.48, 0.60, 0])
+    box "top" (size=[1.00, 0.04, 0.55], pos=[0, 1.18, 0])
+    box "bottom" (size=[1.00, 0.04, 0.55], pos=[0, 0.02, 0])
+    box "shelf_1" (size=[0.92, 0.02, 0.48], pos=[0, 0.30, 0])
+    box "shelf_2" (size=[0.92, 0.02, 0.48], pos=[0, 0.60, 0])
+    box "shelf_3" (size=[0.92, 0.02, 0.48], pos=[0, 0.90, 0])
+  }
+  // 4 drawer fronts
+  box "drawer_1" (size=[0.92, 0.26, 0.02], mat="wood_oak", pos=[0, 0.16, 0.25], tags="floating")
+  box "drawer_2" (size=[0.92, 0.26, 0.02], mat="wood_oak", pos=[0, 0.45, 0.25], tags="floating")
+  box "drawer_3" (size=[0.92, 0.26, 0.02], mat="wood_oak", pos=[0, 0.75, 0.25], tags="floating")
+  box "drawer_4" (size=[0.92, 0.26, 0.02], mat="wood_oak", pos=[0, 1.05, 0.25], tags="floating")
+  // Handles
+  box "handle_1" (size=[0.20, 0.02, 0.02], mat="handle_metal", pos=[0, 0.16, 0.27], tags="floating")
+  box "handle_2" (size=[0.20, 0.02, 0.02], mat="handle_metal", pos=[0, 0.45, 0.27], tags="floating")
+  box "handle_3" (size=[0.20, 0.02, 0.02], mat="handle_metal", pos=[0, 0.75, 0.27], tags="floating")
+  box "handle_4" (size=[0.20, 0.02, 0.02], mat="handle_metal", pos=[0, 1.05, 0.27], tags="floating")
+}

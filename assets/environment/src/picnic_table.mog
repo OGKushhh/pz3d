@@ -1,0 +1,18 @@
+// picnic_table.mog
+meta (name="picnic_table", description="Outdoor picnic table with attached benches", tags=["environment","picnic","table","park","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.50,0.32,0.18], roughness=0.80, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.35,0.22,0.12], roughness=0.85)
+scene {
+  // Tabletop
+  box "tabletop" (size=[1.80, 0.04, 0.70], mat="wood_oak", pos=[0, 0.72, 0])
+  // 2 benches (attached to table legs)
+  box "bench_l" (size=[1.80, 0.04, 0.25], mat="wood_oak", pos=[0, 0.42, -0.50], tags="floating")
+  box "bench_r" (size=[1.80, 0.04, 0.25], mat="wood_oak", pos=[0, 0.42, 0.50], tags="floating")
+  // Legs (A-frame on each end — 2 boards each, angled)
+  box "leg_l_1" (size=[0.04, 0.80, 0.06], mat="wood_dark", pos=[-0.70, 0.40, -0.15], rot=[15, 0, 0])
+  box "leg_l_2" (size=[0.04, 0.80, 0.06], mat="wood_dark", pos=[-0.70, 0.40, 0.15], rot=[-15, 0, 0])
+  box "leg_r_1" (size=[0.04, 0.80, 0.06], mat="wood_dark", pos=[ 0.70, 0.40, -0.15], rot=[15, 0, 0])
+  box "leg_r_2" (size=[0.04, 0.80, 0.06], mat="wood_dark", pos=[ 0.70, 0.40, 0.15], rot=[-15, 0, 0])
+  // Cross brace under tabletop
+  box "brace" (size=[0.04, 0.04, 0.60], mat="wood_dark", pos=[0, 0.55, 0], tags="floating")
+}

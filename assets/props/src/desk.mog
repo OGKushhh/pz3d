@@ -1,0 +1,44 @@
+// desk.mog — Tier 1 prop (dynamic furniture)
+// Writing desk: top + 3 drawers + 4 legs.
+// Target: 600 tris (High-preset LOD0). Actual: ~300 tris.
+// Dimensions: 1.20m wide × 0.60m deep × 0.75m tall.
+
+meta (
+  name          = "desk",
+  description   = "Writing desk with 3 drawers and 4 legs",
+  tags          = ["prop", "furniture", "desk", "dynamic", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wood_oak"  (color=[0.45, 0.28, 0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30, 0.18, 0.10], roughness=0.75)
+material "handle_metal" (color=[0.45, 0.45, 0.48], metallic=0.7, roughness=0.30)
+
+scene {
+  // === TABLETOP (overlaps with legs + drawer unit) ===
+  rounded_box "top" (size=[1.20, 0.06, 0.60], radius=0.015, mat="wood_oak", pos=[0, 0.70, 0])
+
+  // === APRON (skirt under top) ===
+  box "apron_front" (size=[1.10, 0.08, 0.025], mat="wood_dark", pos=[0, 0.66, 0.28])
+  box "apron_back"  (size=[1.10, 0.08, 0.025], mat="wood_dark", pos=[0, 0.66, -0.28])
+
+  // === 4 LEGS (overlap with apron) ===
+  box "leg_fl" (size=[0.07, 0.71, 0.07], mat="wood_dark", pos=[-0.55, 0.345,  0.25])
+  box "leg_fr" (size=[0.07, 0.71, 0.07], mat="wood_dark", pos=[ 0.55, 0.345,  0.25])
+  box "leg_bl" (size=[0.07, 0.71, 0.07], mat="wood_dark", pos=[-0.55, 0.345, -0.25])
+  box "leg_br" (size=[0.07, 0.71, 0.07], mat="wood_dark", pos=[ 0.55, 0.345, -0.25])
+
+  // === DRAWER UNIT (right side, between legs) ===
+  // Drawer unit body (overlaps with apron above)
+  box "drawer_body" (size=[0.45, 0.55, 0.50], mat="wood_dark", pos=[0.30, 0.40, 0])
+
+  // 3 drawer fronts (decorative panels)
+  box "drawer_1" (size=[0.40, 0.15, 0.02], mat="wood_oak", pos=[0.30, 0.55, 0.26], tags="floating")
+  box "drawer_2" (size=[0.40, 0.15, 0.02], mat="wood_oak", pos=[0.30, 0.38, 0.26], tags="floating")
+  box "drawer_3" (size=[0.40, 0.15, 0.02], mat="wood_oak", pos=[0.30, 0.21, 0.26], tags="floating")
+
+  // Drawer handles (small horizontal bars)
+  box "handle_1" (size=[0.15, 0.02, 0.02], mat="handle_metal", pos=[0.30, 0.55, 0.28], tags="floating")
+  box "handle_2" (size=[0.15, 0.02, 0.02], mat="handle_metal", pos=[0.30, 0.38, 0.28], tags="floating")
+  box "handle_3" (size=[0.15, 0.02, 0.02], mat="handle_metal", pos=[0.30, 0.21, 0.28], tags="floating")
+}

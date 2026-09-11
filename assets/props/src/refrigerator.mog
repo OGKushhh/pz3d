@@ -1,0 +1,33 @@
+// refrigerator.mog — Tier 1 prop #7 (dynamic furniture + loot container) — SIMPLIFIED
+// Standard 2-door fridge: freezer on top, fridge on bottom.
+// Per user feedback batch 003: removed divider, handles, magnets, shelf lines for simplicity.
+// Target: 600 tris (High-preset LOD0). Actual: ~200 tris.
+// Dimensions: 0.70m wide × 0.70m deep × 1.80m tall.
+
+meta (
+  name          = "refrigerator",
+  description   = "Standard 2-door refrigerator (freezer top, fridge bottom) — simplified",
+  tags          = ["prop", "furniture", "appliance", "fridge", "dynamic", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "fridge_white" (color=[0.92, 0.92, 0.90], roughness=0.30, metallic=0.4)
+material "gasket_black" (color=[0.08, 0.08, 0.08], roughness=0.85)
+material "handle_metal" (color=[0.45, 0.45, 0.48], metallic=0.7, roughness=0.30)
+
+scene {
+  // === MAIN BODY (single rounded box) ===
+  rounded_box "body" (size=[0.70, 1.80, 0.70], radius=0.04, mat="fridge_white", pos=[0, 0.90, 0])
+
+  // === FREEZER DOOR (top section — recessed panel, overlaps body to connect) ===
+  box "freezer_door" (size=[0.66, 0.42, 0.04], mat="fridge_white", pos=[0, 1.55, 0.355])
+
+  // === FRIDGE DOOR (bottom section — recessed panel, overlaps body to connect) ===
+  box "fridge_door" (size=[0.66, 0.82, 0.04], mat="fridge_white", pos=[0, 0.70, 0.355])
+
+  // === BASE / FEET (small recessed base, overlaps body) ===
+  box "base" (size=[0.66, 0.06, 0.66], mat="fridge_white", pos=[0, 0.03, 0])
+
+  // === VENT GRILLE (back-bottom, for compressor — visual detail, overlaps body) ===
+  box "vent" (size=[0.50, 0.15, 0.04], mat="handle_metal", pos=[0, 0.10, -0.345])
+}

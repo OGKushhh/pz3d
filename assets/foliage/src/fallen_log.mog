@@ -1,0 +1,12 @@
+// fallen_log.mog
+meta (name="fallen_log", description="Fallen tree log on ground", tags=["foliage","log","forest","tier1"], mogen_version="0.1.12")
+material "bark_brown" (color=[0.35,0.25,0.18], roughness=0.90, uv_mode="tile", uv_scale=2.0)
+material "bark_dark" (color=[0.20,0.15,0.10], roughness=0.95)
+material "moss_green" (color=[0.30,0.40,0.20], roughness=0.85)
+scene {
+  // Main log body (horizontal cylinder, lying on ground)
+  cylinder "log" (radius=0.15, height=1.50, segments=12, mat="bark_brown", pos=[0, 0.15, 0], rot=[0, 0, 90])
+  // End caps (2 darker discs at each end — suggests cut/broken log)
+  cylinder "end_l" (radius=0.15, height=0.02, segments=12, mat="bark_dark", pos=[-0.75, 0.15, 0], rot=[0, 0, 90], tags="floating")
+  cylinder "end_r" (radius=0.15, height=0.02, segments=12, mat="bark_dark", pos=[ 0.75, 0.15, 0], rot=[0, 0, 90], tags="floating")
+}

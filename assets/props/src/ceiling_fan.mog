@@ -1,0 +1,21 @@
+// ceiling_fan.mog
+meta (name="ceiling_fan", description="Ceiling fan with 4 blades and light", tags=["prop","furniture","fan","ceiling","light","tier1"], mogen_version="0.1.12")
+material "body_white" (color=[0.85,0.85,0.82], roughness=0.40, metallic=0.3)
+material "blade_wood" (color=[0.50,0.32,0.18], roughness=0.70, uv_mode="tile", uv_scale=1.0)
+material "bulb_glass" (color=[0.95,0.90,0.70], roughness=0.10, emissive=[0.8,0.7,0.4], emissive_strength=0.8)
+scene {
+  // Mount (at ceiling height y=2.40)
+  cylinder "mount" (radius=0.06, height=0.04, segments=12, mat="body_white", pos=[0, 2.38, 0])
+  // Downrod
+  cylinder "rod" (radius=0.02, height=0.30, segments=8, mat="body_white", pos=[0, 2.21, 0])
+  // Motor housing
+  cylinder "motor" (radius=0.10, height=0.12, segments=12, mat="body_white", pos=[0, 2.00, 0])
+  // 4 blades (flat boxes radiating outward)
+  array (count=4, step=[0, 0, 0], axis="y", angle=90) {
+    box "blade" (size=[0.60, 0.02, 0.12], mat="blade_wood", pos=[0.35, 1.98, 0])
+  }
+  // Light (small sphere at bottom of motor)
+  sphere "bulb" (radius=0.05, mat="bulb_glass", pos=[0, 1.90, 0], tags="floating")
+  // Light node
+  light "fan_light" (kind=point, pos=[0, 1.88, 0], color=[1.0, 0.85, 0.5], intensity=4.0, range=6.0)
+}

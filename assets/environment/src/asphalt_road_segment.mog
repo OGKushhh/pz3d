@@ -1,0 +1,34 @@
+// asphalt_road_segment.mog — Tier 1 Style Anchor #9
+// 10-meter asphalt road segment with curb + sidewalk + dashed center line.
+// Target: 200 tris (High-preset LOD0).
+// Dimensions: 10m long (X) × 6m wide (Z, full road) × 0.15m tall (curbs).
+
+meta (
+  name          = "asphalt_road_segment",
+  description   = "10m asphalt road segment with curbs, sidewalks, lane lines",
+  tags          = ["environment", "road", "asphalt", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "asphalt"    (color=[0.18, 0.18, 0.20], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "curb"       (color=[0.65, 0.65, 0.62], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "sidewalk"   (color=[0.72, 0.70, 0.66], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "lane_line"  (color=[0.95, 0.92, 0.55], roughness=0.6, emissive=[0.3, 0.3, 0.0], emissive_strength=0.2)
+
+scene {
+  // === MAIN ASPHALT (center 4m wide, 10m long) ===
+  slab "asphalt" (size=[10.0, 0.05, 4.0], mat="asphalt", pos=[0, 0.025, 0])
+
+  // === CURBS (raised 0.10m, overlap asphalt to merge) ===
+  box "curb_l" (size=[10.0, 0.15, 0.20], mat="curb", pos=[0, 0.075,  2.05])
+  box "curb_r" (size=[10.0, 0.15, 0.20], mat="curb", pos=[0, 0.075, -2.05])
+
+  // === SIDEWALKS (1.5m wide, overlap with curbs) ===
+  slab "sidewalk_l" (size=[10.0, 0.10, 1.50], mat="sidewalk", pos=[0, 0.05,  2.90])
+  slab "sidewalk_r" (size=[10.0, 0.10, 1.50], mat="sidewalk", pos=[0, 0.05, -2.90])
+
+  // === DASHED CENTER LINE (3 yellow dashes) ===
+  slab "dash_1" (size=[1.50, 0.06, 0.08], mat="lane_line", pos=[-3.0, 0.055, 0])
+  slab "dash_2" (size=[1.50, 0.06, 0.08], mat="lane_line", pos=[ 0.0, 0.055, 0])
+  slab "dash_3" (size=[1.50, 0.06, 0.08], mat="lane_line", pos=[ 3.0, 0.055, 0])
+}

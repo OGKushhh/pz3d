@@ -1,0 +1,45 @@
+// bench_park.mog — Tier 1 environment prop — v2 FIXED
+// Park bench with wooden seat, backrest, and metal frame.
+// FIX from v1: backrest slats + back legs were tagged floating (disconnected).
+//   Now: back legs overlap with seat slats (connect to frame), backrest slats
+//   overlap with back legs. Everything is structurally connected.
+// Target: 250 tris (Low-preset LOD0). Actual: ~130 tris.
+// Dimensions: 1.50m wide × 0.50m deep × 0.45m tall (seat height).
+
+meta (
+  name          = "bench_park",
+  description   = "Park bench with wooden seat and metal frame (fixed connections)",
+  tags          = ["environment", "bench", "park", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wood_oak" (color=[0.45, 0.28, 0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "frame_metal" (color=[0.20, 0.22, 0.25], roughness=0.50, metallic=0.7)
+
+scene {
+  // === METAL FRAME (2 L-shaped side pieces, each = vertical back post + horizontal seat support + foot) ===
+  // Left side
+  solid "frame_l" (mat="frame_metal", cleanup="coplanar") {
+    // Vertical back post (goes from ground up to backrest height)
+    box "back_post_l" (size=[0.04, 0.80, 0.04], pos=[-0.73, 0.40, -0.25])
+    // Horizontal seat support (connects to back post at seat height)
+    box "seat_support_l" (size=[0.04, 0.04, 0.30], pos=[-0.73, 0.45, -0.10])
+    // Foot (horizontal on ground for stability)
+    box "foot_l" (size=[0.04, 0.03, 0.30], pos=[-0.73, 0.015, -0.10])
+  }
+  // Right side (mirror)
+  solid "frame_r" (mat="frame_metal", cleanup="coplanar") {
+    box "back_post_r" (size=[0.04, 0.80, 0.04], pos=[ 0.73, 0.40, -0.25])
+    box "seat_support_r" (size=[0.04, 0.04, 0.30], pos=[ 0.73, 0.45, -0.10])
+    box "foot_r" (size=[0.04, 0.03, 0.30], pos=[ 0.73, 0.015, -0.10])
+  }
+
+  // === SEAT (3 wooden slats, overlap with seat supports to connect) ===
+  box "slat_1" (size=[1.50, 0.04, 0.12], mat="wood_oak", pos=[0, 0.47, 0.05])
+  box "slat_2" (size=[1.50, 0.04, 0.12], mat="wood_oak", pos=[0, 0.47, -0.08])
+  box "slat_3" (size=[1.50, 0.04, 0.12], mat="wood_oak", pos=[0, 0.47, -0.21])
+
+  // === BACKREST (2 horizontal slats, overlap with back posts to connect) ===
+  box "back_1" (size=[1.50, 0.04, 0.12], mat="wood_oak", pos=[0, 0.72, -0.25])
+  box "back_2" (size=[1.50, 0.04, 0.12], mat="wood_oak", pos=[0, 0.57, -0.25])
+}

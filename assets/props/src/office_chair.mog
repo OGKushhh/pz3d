@@ -1,0 +1,48 @@
+// office_chair.mog — Tier 1 Style Anchor #2
+// Standard office chair: swivel base, gas cylinder, seat, backrest, armrests.
+// Target: 600 tris (per locked poly budget).
+// Coordinate system: glTF (right-handed, +Y up, -Z forward).
+// Dimensions: 0.65m wide × 0.65m deep × 1.10m tall.
+
+meta (
+  name          = "office_chair",
+  description   = "Standard swivel office chair with armrests",
+  tags          = ["prop", "furniture", "chair", "office", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "fabric_black"   (color=[0.08, 0.08, 0.10], roughness=0.85)
+material "plastic_black"  (color=[0.10, 0.10, 0.12], roughness=0.45)
+material "metal_chrome"   (color=[0.78, 0.78, 0.82], metallic=0.85, roughness=0.18)
+
+scene {
+  // 5-star base (legs radiating from center)
+  group "base" (mat="plastic_black") {
+    cylinder "hub" (radius=0.04, height=0.06, segments=12, pos=[0, 0.04, 0])
+    // 5 legs in a star pattern
+    array (count=5, step=[0, 0, 0], axis="y", angle=72) {
+      box "leg" (size=[0.30, 0.04, 0.06], pos=[0.13, 0.03, 0], rot=[0, 0, 0])
+    }
+    // 5 casters at the end of each leg
+    array (count=5, step=[0, 0, 0], axis="y", angle=72) {
+      sphere "caster" (radius=0.025, pos=[0.27, 0.025, 0])
+    }
+  }
+
+  // Gas cylinder (vertical shaft) — overlaps with hub above (y=0.07) so they merge
+  cylinder "gas_cylinder" (radius=0.025, height=0.50, segments=16, mat="metal_chrome", pos=[0, 0.30, 0])
+
+  // Seat base (flat disc) — overlaps with top of gas cylinder
+  cylinder "seat_disk" (radius=0.30, height=0.06, segments=24, mat="plastic_black", pos=[0, 0.51, 0])
+  // Seat cushion (rounded top)
+  rounded_box "seat_cushion" (size=[0.50, 0.10, 0.45], radius=0.04, mat="fabric_black", pos=[0, 0.59, 0])
+
+  // Backrest — overlaps with seat cushion (bottom at y=0.55, cushion top at y=0.64)
+  rounded_box "backrest" (size=[0.48, 0.55, 0.08], radius=0.04, mat="fabric_black", pos=[0, 0.83, -0.18], rot=[8, 0, 0])
+
+  // Armrests (left + right) — posts overlap with seat disk
+  capsule "arm_l_post" (radius=0.018, height=0.30, mat="plastic_black", pos=[-0.27, 0.70, 0.0])
+  capsule "arm_r_post" (radius=0.018, height=0.30, mat="plastic_black", pos=[ 0.27, 0.70, 0.0])
+  box "arm_l_pad" (size=[0.08, 0.03, 0.20], mat="plastic_black", pos=[-0.27, 0.86, 0.0])
+  box "arm_r_pad" (size=[0.08, 0.03, 0.20], mat="plastic_black", pos=[ 0.27, 0.86, 0.0])
+}

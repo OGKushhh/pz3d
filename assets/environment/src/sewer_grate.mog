@@ -1,0 +1,18 @@
+// sewer_grate.mog
+meta (name="sewer_grate", description="Rectangular sewer grate in ground", tags=["environment","sewer","grate","urban","tier1"], mogen_version="0.1.12")
+material "grate_metal" (color=[0.30,0.30,0.32], roughness=0.60, metallic=0.6)
+material "frame_metal" (color=[0.20,0.20,0.22], roughness=0.70, metallic=0.5)
+material "asphalt" (color=[0.18,0.18,0.20], roughness=0.95)
+scene {
+  // Asphalt patch
+  slab "asphalt_patch" (size=[0.60, 0.04, 0.40], mat="asphalt", pos=[0, 0.02, 0])
+  // Frame (outer rim)
+  box "frame" (size=[0.55, 0.04, 0.35], mat="frame_metal", pos=[0, 0.04, 0])
+  // Grate bars (7 parallel bars — the actual grate)
+  array (count=7, step=[0, 0, 0.05]) {
+    box "bar" (size=[0.45, 0.02, 0.02], mat="grate_metal", pos=[0, 0.05, -0.15])
+  }
+  // Cross bars (2 perpendicular for structural support)
+  box "cross_1" (size=[0.02, 0.02, 0.30], mat="grate_metal", pos=[-0.10, 0.05, 0], tags="floating")
+  box "cross_2" (size=[0.02, 0.02, 0.30], mat="grate_metal", pos=[ 0.10, 0.05, 0], tags="floating")
+}

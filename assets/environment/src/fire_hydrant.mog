@@ -1,0 +1,46 @@
+// fire_hydrant.mog — Tier 1 environment prop
+// Standard red fire hydrant: base + body + cap + 2 side outlets + 1 top outlet.
+// Target: 200 tris (Low-preset LOD0). Actual: ~150 tris.
+// Dimensions: 0.30m wide × 0.70m tall.
+
+meta (
+  name          = "fire_hydrant",
+  description   = "Standard red fire hydrant",
+  tags          = ["environment", "fire_hydrant", "urban", "suburban", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "hydrant_red" (color=[0.65, 0.15, 0.10], roughness=0.50, metallic=0.3)
+material "cap_red" (color=[0.55, 0.12, 0.08], roughness=0.50, metallic=0.3)
+material "outlet_brass" (color=[0.85, 0.65, 0.20], metallic=0.85, roughness=0.25)
+material "base_concrete" (color=[0.55, 0.53, 0.50], roughness=0.90)
+
+scene {
+  // === CONCRETE BASE (small pad on ground) ===
+  cylinder "base" (radius=0.18, height=0.06, segments=12, mat="base_concrete", pos=[0, 0.03, 0])
+
+  // === LOWER BODY (wide bottom flange) ===
+  cylinder "body_bottom" (radius=0.12, height=0.10, segments=12, mat="hydrant_red", pos=[0, 0.11, 0])
+
+  // === MAIN BODY (narrower vertical column) ===
+  cylinder "body_main" (radius=0.09, height=0.38, segments=12, mat="hydrant_red", pos=[0, 0.33, 0])
+
+  // === BODY NECK (slightly narrower section before cap) ===
+  cylinder "body_neck" (radius=0.07, height=0.08, segments=12, mat="hydrant_red", pos=[0, 0.52, 0])
+
+  // === TOP CAP (dome-shaped — use a hemisphere approximation via short wide cylinder) ===
+  cylinder "cap" (radius=0.10, height=0.08, segments=12, mat="cap_red", pos=[0, 0.59, 0])
+  // Cap dome (smaller cylinder on top)
+  cylinder "cap_dome" (radius=0.08, height=0.06, segments=12, mat="cap_red", pos=[0, 0.65, 0])
+
+  // === 2 SIDE OUTLETS (horizontal brass cylinders on left + right) ===
+  cylinder "outlet_l" (radius=0.04, height=0.10, segments=8, mat="outlet_brass", pos=[-0.13, 0.30, 0], rot=[0, 0, 90])
+  cylinder "outlet_r" (radius=0.04, height=0.10, segments=8, mat="outlet_brass", pos=[ 0.13, 0.30, 0], rot=[0, 0, 90])
+
+  // Side outlet caps (small brass caps on ends of outlets)
+  cylinder "cap_l" (radius=0.045, height=0.03, segments=8, mat="outlet_brass", pos=[-0.18, 0.30, 0], rot=[0, 0, 90])
+  cylinder "cap_r" (radius=0.045, height=0.03, segments=8, mat="outlet_brass", pos=[ 0.18, 0.30, 0], rot=[0, 0, 90])
+
+  // === TOP OUTLET (small brass nozzle on top of cap) ===
+  cylinder "top_outlet" (radius=0.025, height=0.04, segments=8, mat="outlet_brass", pos=[0, 0.67, 0])
+}

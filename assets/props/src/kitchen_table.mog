@@ -1,0 +1,16 @@
+// kitchen_table.mog — Small round kitchen table
+meta (name="kitchen_table", description="Small round kitchen table with center pedestal", tags=["prop","furniture","table","kitchen","dynamic","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.45,0.28,0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30,0.18,0.10], roughness=0.75)
+scene {
+  // Round tabletop (use cylinder)
+  cylinder "top" (radius=0.50, height=0.06, segments=20, mat="wood_oak", pos=[0, 0.70, 0])
+  // Pedestal (single center column)
+  cylinder "pedestal" (radius=0.06, height=0.65, segments=8, mat="wood_dark", pos=[0, 0.37, 0])
+  // Base (wider disc at bottom for stability)
+  cylinder "base" (radius=0.25, height=0.04, segments=16, mat="wood_dark", pos=[0, 0.04, 0])
+  // 3 feet (small pads under base)
+  cylinder "foot_1" (radius=0.04, height=0.02, segments=8, mat="wood_dark", pos=[0.18, 0.01, 0], tags="floating")
+  cylinder "foot_2" (radius=0.04, height=0.02, segments=8, mat="wood_dark", pos=[-0.09, 0.01, 0.16], tags="floating")
+  cylinder "foot_3" (radius=0.04, height=0.02, segments=8, mat="wood_dark", pos=[-0.09, 0.01, -0.16], tags="floating")
+}

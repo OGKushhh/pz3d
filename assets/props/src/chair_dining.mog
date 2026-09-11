@@ -1,0 +1,21 @@
+// chair_dining.mog
+meta (name="chair_dining", description="Simple dining chair (different from office_chair)", tags=["prop","furniture","chair","dining","dynamic","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.45,0.28,0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30,0.18,0.10], roughness=0.75)
+scene {
+  // Seat
+  rounded_box "seat" (size=[0.45, 0.04, 0.45], radius=0.01, mat="wood_oak", pos=[0, 0.45, 0])
+  // Backrest (vertical, with 2 horizontal slats)
+  box "backrest_top" (size=[0.45, 0.04, 0.03], mat="wood_oak", pos=[0, 0.85, -0.21])
+  box "backrest_bot" (size=[0.45, 0.04, 0.03], mat="wood_oak", pos=[0, 0.55, -0.21])
+  // 2 vertical backrest supports
+  box "back_post_l" (size=[0.04, 0.45, 0.03], mat="wood_oak", pos=[-0.20, 0.65, -0.21])
+  box "back_post_r" (size=[0.04, 0.45, 0.03], mat="wood_oak", pos=[ 0.20, 0.65, -0.21])
+  // 4 legs (overlap with seat to connect)
+  box "leg_fl" (size=[0.04, 0.45, 0.04], mat="wood_dark", pos=[-0.20, 0.225, 0.20])
+  box "leg_fr" (size=[0.04, 0.45, 0.04], mat="wood_dark", pos=[ 0.20, 0.225, 0.20])
+  box "leg_bl" (size=[0.04, 0.45, 0.04], mat="wood_dark", pos=[-0.20, 0.225, -0.20])
+  box "leg_br" (size=[0.04, 0.45, 0.04], mat="wood_dark", pos=[ 0.20, 0.225, -0.20])
+  // Lower stretcher (horizontal bar between back legs for stability)
+  box "stretcher" (size=[0.04, 0.03, 0.35], mat="wood_dark", pos=[0, 0.15, -0.20], tags="floating")
+}

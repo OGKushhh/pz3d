@@ -1,0 +1,55 @@
+// bookshelf.mog — Tier 1 prop #4 (dynamic furniture) — FIXED orientation
+// Tall wooden bookshelf with 5 shelves. Books face +Z (default camera direction).
+// FIX from v1: back panel was at +Z (so camera saw the back). Now back panel is at -Z,
+// and books/open side faces +Z (toward default camera).
+// Target: 600 tris (High-preset LOD0 standard prop). Actual: ~400 tris.
+// Dimensions: 1.0m wide × 0.30m deep × 1.80m tall.
+
+meta (
+  name          = "bookshelf",
+  description   = "Tall wooden bookshelf with 5 shelves — books face +Z",
+  tags          = ["prop", "furniture", "bookshelf", "dynamic", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wood_oak"  (color=[0.45, 0.28, 0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30, 0.18, 0.10], roughness=0.75)
+material "book_red"   (color=[0.55, 0.15, 0.10], roughness=0.80)
+material "book_blue"  (color=[0.15, 0.25, 0.45], roughness=0.80)
+material "book_green" (color=[0.20, 0.35, 0.18], roughness=0.80)
+material "book_yellow" (color=[0.70, 0.55, 0.20], roughness=0.80)
+
+scene {
+  // === SHELF CARCASS (back + 2 sides + top + bottom) ===
+  // Back panel now at -Z (z=-0.13) so the open side (with books) faces +Z
+  solid "carcass" (mat="wood_dark", cleanup="coplanar") {
+    box "back" (size=[0.90, 1.70, 0.02], pos=[0, 0.90, -0.13])
+    box "side_l" (size=[0.04, 1.80, 0.28], pos=[-0.48, 0.90, 0])
+    box "side_r" (size=[0.04, 1.80, 0.28], pos=[ 0.48, 0.90, 0])
+    box "top" (size=[1.00, 0.04, 0.30], pos=[0, 1.78, 0])
+    box "bottom" (size=[1.00, 0.04, 0.30], pos=[0, 0.02, 0])
+  }
+
+  // === 4 INTERIOR SHELVES ===
+  box "shelf_1" (size=[0.92, 0.025, 0.27], mat="wood_oak", pos=[0, 0.36, 0])
+  box "shelf_2" (size=[0.92, 0.025, 0.27], mat="wood_oak", pos=[0, 0.72, 0])
+  box "shelf_3" (size=[0.92, 0.025, 0.27], mat="wood_oak", pos=[0, 1.08, 0])
+  box "shelf_4" (size=[0.92, 0.025, 0.27], mat="wood_oak", pos=[0, 1.44, 0])
+
+  // === DECORATIVE BOOKS (positioned toward +Z so visible from front) ===
+  // Books are at z=+0.05 (near front edge of shelf, visible from +Z camera)
+  box "book_1a" (size=[0.08, 0.28, 0.20], mat="book_red",    pos=[-0.35, 0.50, 0.05])
+  box "book_1b" (size=[0.06, 0.28, 0.20], mat="book_blue",   pos=[-0.25, 0.50, 0.05])
+  box "book_1c" (size=[0.07, 0.28, 0.20], mat="book_green",  pos=[-0.15, 0.50, 0.05])
+  box "book_1d" (size=[0.08, 0.28, 0.20], mat="book_yellow", pos=[-0.05, 0.50, 0.05])
+  box "book_2a" (size=[0.08, 0.28, 0.20], mat="book_blue",   pos=[0.20, 0.86, 0.05])
+  box "book_2b" (size=[0.07, 0.28, 0.20], mat="book_red",    pos=[0.30, 0.86, 0.05])
+  box "book_2c" (size=[0.06, 0.28, 0.20], mat="book_green",  pos=[0.40, 0.86, 0.05])
+  box "book_3a" (size=[0.08, 0.28, 0.20], mat="book_yellow", pos=[-0.35, 1.22, 0.05])
+  box "book_3b" (size=[0.07, 0.28, 0.20], mat="book_red",    pos=[-0.25, 1.22, 0.05])
+  box "book_3c" (size=[0.08, 0.28, 0.20], mat="book_blue",   pos=[-0.10, 1.22, 0.05])
+  // Leaning book (rotated around Z axis for visual interest)
+  box "book_3d" (size=[0.08, 0.28, 0.20], mat="book_green",  pos=[0.05, 1.20, 0.05], rot=[0, 0, 25])
+  box "book_4a" (size=[0.08, 0.28, 0.20], mat="book_red",    pos=[0.30, 1.58, 0.05])
+  box "book_4b" (size=[0.07, 0.28, 0.20], mat="book_yellow", pos=[0.40, 1.58, 0.05])
+}

@@ -1,0 +1,24 @@
+// traffic_cone.mog — Tier 1 environment prop
+// Standard orange traffic cone: conical body + square base.
+// Target: 100 tris (Low-preset LOD0). Actual: ~30 tris.
+// Dimensions: 0.30m base × 0.50m tall.
+
+meta (
+  name          = "traffic_cone",
+  description   = "Standard orange traffic cone with reflective stripe",
+  tags          = ["environment", "traffic_cone", "road", "urban", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "cone_orange" (color=[0.90, 0.40, 0.10], roughness=0.60, emissive=[0.3, 0.15, 0.0], emissive_strength=0.2)
+material "base_black" (color=[0.10, 0.10, 0.12], roughness=0.85)
+material "stripe_white" (color=[0.92, 0.92, 0.88], roughness=0.50, emissive=[0.3, 0.3, 0.3], emissive_strength=0.3)
+
+scene {
+  // === SQUARE BASE ===
+  box "base" (size=[0.30, 0.03, 0.30], mat="base_black", pos=[0, 0.015, 0])
+
+  // === CONE BODY (tapered — use cone primitive) ===
+  // No stripe, no tip cap — just clean cone per user feedback
+  cone "body" (radius=0.10, height=0.50, sides=12, mat="cone_orange", pos=[0, 0.28, 0])
+}

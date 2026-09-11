@@ -1,0 +1,24 @@
+// water_tower_small.mog — Small suburban water tower
+meta (name="water_tower_small", description="Small suburban water tower on legs", tags=["environment","water_tower","suburban","tier1"], mogen_version="0.1.12")
+material "tank_metal" (color=[0.50,0.48,0.45], roughness=0.60, metallic=0.6)
+material "leg_metal" (color=[0.25,0.25,0.28], roughness=0.50, metallic=0.7)
+material "trim_red" (color=[0.55,0.20,0.15], roughness=0.50)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+scene {
+  // Concrete base
+  slab "base" (size=[4.0, 0.10, 4.0], mat="concrete", pos=[0, 0.05, 0])
+  // 4 legs (angled inward)
+  cylinder "leg_fl" (radius=0.06, height=5.00, segments=8, mat="leg_metal", pos=[-1.20, 2.50, 1.20], rot=[10, 0, -8])
+  cylinder "leg_fr" (radius=0.06, height=5.00, segments=8, mat="leg_metal", pos=[ 1.20, 2.50, 1.20], rot=[10, 0, 8])
+  cylinder "leg_bl" (radius=0.06, height=5.00, segments=8, mat="leg_metal", pos=[-1.20, 2.50, -1.20], rot=[-10, 0, -8])
+  cylinder "leg_br" (radius=0.06, height=5.00, segments=8, mat="leg_metal", pos=[ 1.20, 2.50, -1.20], rot=[-10, 0, 8])
+  // Tank (cylinder on its side — horizontal)
+  cylinder "tank" (radius=1.50, height=3.00, segments=16, mat="tank_metal", pos=[0, 5.50, 0], rot=[0, 0, 90])
+  // Tank end caps (slightly raised rims)
+  cylinder "cap_l" (radius=1.52, height=0.10, segments=16, mat="trim_red", pos=[-1.50, 5.50, 0], rot=[0, 0, 90], tags="floating")
+  cylinder "cap_r" (radius=1.52, height=0.10, segments=16, mat="trim_red", pos=[ 1.50, 5.50, 0], rot=[0, 0, 90], tags="floating")
+  // Top platform (small slab on top of tank)
+  slab "platform" (size=[2.80, 0.05, 2.80], mat="leg_metal", pos=[0, 7.05, 0], tags="floating")
+  // Ladder (simple — vertical cylinder on one leg)
+  cylinder "ladder" (radius=0.02, height=4.80, segments=6, mat="leg_metal", pos=[1.25, 2.40, 0], tags="floating")
+}

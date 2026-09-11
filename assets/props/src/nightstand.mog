@@ -1,0 +1,19 @@
+// nightstand.mog
+meta (name="nightstand", description="Small bedside table with 1 drawer + 1 shelf", tags=["prop","furniture","nightstand","dynamic","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.45,0.28,0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30,0.18,0.10], roughness=0.75)
+material "handle_metal" (color=[0.45,0.45,0.48], metallic=0.7, roughness=0.30)
+scene {
+  rounded_box "top" (size=[0.40, 0.04, 0.35], radius=0.015, mat="wood_oak", pos=[0, 0.55, 0])
+  box "apron_front" (size=[0.36, 0.08, 0.02], mat="wood_dark", pos=[0, 0.48, 0.165])
+  box "apron_back" (size=[0.36, 0.08, 0.02], mat="wood_dark", pos=[0, 0.48, -0.165])
+  box "leg_fl" (size=[0.04, 0.55, 0.04], mat="wood_dark", pos=[-0.17, 0.275, 0.15])
+  box "leg_fr" (size=[0.04, 0.55, 0.04], mat="wood_dark", pos=[ 0.17, 0.275, 0.15])
+  box "leg_bl" (size=[0.04, 0.55, 0.04], mat="wood_dark", pos=[-0.17, 0.275, -0.15])
+  box "leg_br" (size=[0.04, 0.55, 0.04], mat="wood_dark", pos=[ 0.17, 0.275, -0.15])
+  // Drawer
+  box "drawer_front" (size=[0.36, 0.15, 0.02], mat="wood_oak", pos=[0, 0.40, 0.165], tags="floating")
+  box "drawer_handle" (size=[0.12, 0.02, 0.02], mat="handle_metal", pos=[0, 0.40, 0.175], tags="floating")
+  // Lower shelf
+  box "shelf" (size=[0.36, 0.02, 0.31], mat="wood_dark", pos=[0, 0.20, 0])
+}

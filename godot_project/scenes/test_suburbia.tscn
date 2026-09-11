@@ -1,0 +1,198 @@
+[gd_scene load_steps=24 format=3 uid="uid://b77mazar_suburbia"]
+
+[ext_resource type="PackedScene" path="res://assets/buildings/suburban_house_v2.glb" id="1_sub"]
+[ext_resource type="PackedScene" path="res://assets/buildings/two_story_colonial.glb" id="2_col"]
+[ext_resource type="PackedScene" path="res://assets/buildings/bungalow.glb" id="3_bun"]
+[ext_resource type="PackedScene" path="res://assets/buildings/house_modern.glb" id="4_mod"]
+[ext_resource type="PackedScene" path="res://assets/buildings/house_split_level.glb" id="5_spl"]
+[ext_resource type="PackedScene" path="res://assets/foliage/oak_tree.glb" id="6_oak"]
+[ext_resource type="PackedScene" path="res://assets/foliage/pine_tree.glb" id="7_pine"]
+[ext_resource type="PackedScene" path="res://assets/environment/street_light.glb" id="8_light"]
+[ext_resource type="PackedScene" path="res://assets/environment/mailbox.glb" id="9_mail"]
+[ext_resource type="PackedScene" path="res://assets/environment/fire_hydrant.glb" id="10_hyd"]
+[ext_resource type="PackedScene" path="res://assets/environment/school_bus.glb" id="11_bus"]
+[ext_resource type="PackedScene" path="res://assets/environment/playground_slide.glb" id="12_sli"]
+[ext_resource type="PackedScene" path="res://assets/environment/swing_set.glb" id="13_swi"]
+[ext_resource type="PackedScene" path="res://assets/environment/picnic_table.glb" id="14_pic"]
+[ext_resource type="PackedScene" path="res://assets/environment/bench_park.glb" id="15_ben"]
+[ext_resource type="PackedScene" path="res://assets/environment/garden_gnome.glb" id="16_gno"]
+[ext_resource type="Script" path="res://scripts/screenshot.gd" id="17_screenshot"]
+
+[sub_resource type="BoxShape3D" id="ground_col"]
+size = Vector3(200, 1, 200)
+
+[sub_resource type="CapsuleShape3D" id="player_col"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="BoxMesh" id="ground_mesh"]
+size = Vector3(200, 1, 200)
+
+[sub_resource type="BoxMesh" id="road_mesh"]
+size = Vector3(200, 0.02, 6)
+
+[sub_resource type="StandardMaterial3D" id="grass_mat"]
+albedo_color = Color(0.25, 0.45, 0.18, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="road_mat"]
+albedo_color = Color(0.18, 0.18, 0.2, 1)
+roughness = 0.95
+
+[sub_resource type="Environment" id="env_mazar"]
+background_mode = 1
+background_color = Color(0.35, 0.38, 0.42, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.45, 0.48, 0.52, 1)
+ambient_light_energy = 0.6
+fog_enabled = true
+fog_light_color = Color(0.35, 0.38, 0.42, 1)
+fog_density = 0.012
+
+[sub_resource type="GDScript" id="player_script"]
+script/source = "extends CharacterBody3D
+const WALK_SPEED = 5.0
+const SPRINT_SPEED = 8.0
+const MOUSE_SENS = 0.002
+const EYE_HEIGHT = 1.65
+var gravity = 9.8
+var current_speed = WALK_SPEED
+func _ready():
+    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+    $Camera3D.position.y = EYE_HEIGHT
+func _input(event):
+    if event is InputEventMouseMotion:
+        rotate_y(-event.relative.x * MOUSE_SENS)
+        $Camera3D.rotate_x(-event.relative.y * MOUSE_SENS)
+        $Camera3D.rotation.x = clamp($Camera3D.rotation.x, -1.5, 1.5)
+    if event.is_action_pressed(\"ui_cancel\"):
+        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+func _physics_process(delta):
+    if not is_on_floor():
+        velocity.y -= gravity * delta
+    if Input.is_action_just_pressed(\"jump\") and is_on_floor():
+        velocity.y = 4.5
+    if Input.is_action_pressed(\"sprint\"):
+        current_speed = SPRINT_SPEED
+    else:
+        current_speed = WALK_SPEED
+    var input_dir = Input.get_vector(\"move_left\", \"move_right\", \"move_forward\", \"move_back\")
+    var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+    if direction:
+        velocity.x = direction.x * current_speed
+        velocity.z = direction.z * current_speed
+    else:
+        velocity.x = move_toward(velocity.x, 0, current_speed * delta * 10)
+        velocity.z = move_toward(velocity.z, 0, current_speed * delta * 10)
+    move_and_slide()
+"
+
+[node name="SuburbiaTest" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env_mazar")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.7, -0.5, 0.5, 0, 0.7, 0.7, -0.7, -0.5, 0.5, -50, 80, -50)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 2.5
+shadow_enabled = true
+directional_shadow_max_distance = 100.0
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("ground_mesh")
+material_override = SubResource("grass_mat")
+
+[node name="GroundCollider" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("ground_col")
+
+[node name="Road" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+mesh = SubResource("road_mesh")
+material_override = SubResource("road_mat")
+
+[node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 20)
+script = SubResource("player_script")
+
+[node name="Camera3D" type="Camera3D" parent="Player"]
+fov = 75.0
+near = 0.05
+far = 150.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("player_col")
+
+[node name="House1" parent="." instance=ExtResource("1_sub")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, -10)
+
+[node name="House2" parent="." instance=ExtResource("2_col")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, -10)
+
+[node name="House3" parent="." instance=ExtResource("3_bun")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, 10)
+
+[node name="House4" parent="." instance=ExtResource("4_mod")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 10)
+
+[node name="House5" parent="." instance=ExtResource("5_spl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -25)
+
+[node name="OakTree1" parent="." instance=ExtResource("6_oak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -5)
+
+[node name="OakTree2" parent="." instance=ExtResource("6_oak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -5)
+
+[node name="OakTree3" parent="." instance=ExtResource("6_oak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 5)
+
+[node name="PineTree1" parent="." instance=ExtResource("7_pine")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 5)
+
+[node name="StreetLight1" parent="." instance=ExtResource("8_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0)
+
+[node name="StreetLight2" parent="." instance=ExtResource("8_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 0)
+
+[node name="Mailbox1" parent="." instance=ExtResource("9_mail")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -8)
+
+[node name="Mailbox2" parent="." instance=ExtResource("9_mail")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, -8)
+
+[node name="FireHydrant" parent="." instance=ExtResource("10_hyd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Bus" parent="." instance=ExtResource("11_bus")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 0, 18)
+
+[node name="Slide" parent="." instance=ExtResource("12_sli")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 0, 15)
+
+[node name="SwingSet" parent="." instance=ExtResource("13_swi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 0, 20)
+
+[node name="PicnicTable" parent="." instance=ExtResource("14_pic")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, 18)
+
+[node name="Bench1" parent="." instance=ExtResource("15_ben")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 15)
+
+[node name="Bench2" parent="." instance=ExtResource("15_ben")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 15)
+
+[node name="Gnome1" parent="." instance=ExtResource("16_gno")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, -14)
+
+[node name="Gnome2" parent="." instance=ExtResource("16_gno")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, -14)
+
+[node name="Screenshotter" type="Node" parent="."]
+script = ExtResource("17_screenshot")
+

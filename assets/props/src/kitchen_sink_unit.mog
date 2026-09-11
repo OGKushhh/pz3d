@@ -1,0 +1,44 @@
+// kitchen_sink_unit.mog — Tier 1 prop (modular kitchen piece #1)
+// Single kitchen counter section with sink + faucet. Designed to be placed
+// side-by-side with kitchen_stove_unit and kitchen_empty_counter to form any layout.
+// Per PZ-style: each kitchen piece is a separate prop, not a fixed L-shape.
+// Target: 250 tris (standard prop). Actual: ~150 tris.
+// Dimensions: 1.0m wide × 0.60m deep × 0.90m tall (standard counter height).
+
+meta (
+  name          = "kitchen_sink_unit",
+  description   = "Kitchen counter section with sink + faucet (modular)",
+  tags          = ["prop", "furniture", "kitchen", "modular", "static", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "counter_top"  (color=[0.20, 0.20, 0.22], roughness=0.30, metallic=0.2)
+material "cabinet_wood" (color=[0.55, 0.40, 0.25], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "sink_steel"   (color=[0.78, 0.80, 0.82], roughness=0.20, metallic=0.85)
+material "faucet_chrome" (color=[0.85, 0.85, 0.88], metallic=0.95, roughness=0.15)
+material "handle_metal" (color=[0.45, 0.45, 0.48], metallic=0.7, roughness=0.30)
+
+scene {
+  // === CARCASS (back + 2 sides + top + bottom, all merged) ===
+  solid "carcass" (mat="cabinet_wood", cleanup="coplanar") {
+    box "back"   (size=[1.00, 0.85, 0.05], pos=[0, 0.425, -0.275])
+    box "left"   (size=[0.05, 0.85, 0.60], pos=[-0.475, 0.425, 0])
+    box "right"  (size=[0.05, 0.85, 0.60], pos=[ 0.475, 0.425, 0])
+    box "bottom" (size=[1.00, 0.05, 0.60], pos=[0, 0.025, 0])
+  }
+
+  // === COUNTERTOP (overlaps with carcass top) ===
+  slab "counter_top" (size=[1.02, 0.06, 0.62], mat="counter_top", pos=[0, 0.83, 0])
+
+  // === SINK (recessed into countertop) ===
+  box "sink_basin" (size=[0.60, 0.06, 0.40], mat="sink_steel", pos=[0, 0.85, 0])
+
+  // === FAUCET (vertical pipe + horizontal spout + handle, all overlap) ===
+  cylinder "faucet_pipe" (radius=0.02, height=0.30, segments=8, mat="faucet_chrome", pos=[0, 0.98, -0.15])
+  cylinder "faucet_spout" (radius=0.02, height=0.20, segments=8, mat="faucet_chrome", pos=[0, 1.08, -0.05], rot=[90, 0, 0])
+  box "faucet_handle" (size=[0.05, 0.05, 0.10], mat="faucet_chrome", pos=[-0.02, 1.10, -0.15])
+
+  // === CABINET DOOR (front face — decorative panel, tagged floating) ===
+  box "cabinet_door" (size=[0.90, 0.70, 0.04], mat="cabinet_wood", pos=[0, 0.45, 0.30], tags="floating")
+  box "door_handle" (size=[0.15, 0.02, 0.04], mat="handle_metal", pos=[0, 0.45, 0.32], tags="floating")
+}

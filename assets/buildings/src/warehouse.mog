@@ -1,0 +1,83 @@
+// warehouse.mog — Large industrial warehouse
+meta (name="warehouse", description="Large industrial warehouse with roll-up door", tags=["building","warehouse","industrial","tier1"], mogen_version="0.1.12")
+material "wall_metal" (color=[0.45,0.45,0.48], roughness=0.60, metallic=0.5, uv_mode="tile", uv_scale=3.0)
+material "roof_metal" (color=[0.30,0.30,0.32], roughness=0.60, metallic=0.6)
+material "trim_dark" (color=[0.15,0.15,0.18], roughness=0.50, metallic=0.7)
+material "door_metal" (color=[0.50,0.50,0.52], roughness=0.50, metallic=0.6)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "window_glass" (color=[0.40,0.50,0.55], transmission=0.40, roughness=0.10)
+material "asphalt" (color=[0.18,0.18,0.20], roughness=0.95)
+
+module "warehouse_window" () {
+  box "frame" (size=[1.20, 0.80, 0.04], mat="trim_dark")
+  box "glass" (size=[1.05, 0.65, 0.02], mat="window_glass", pos=[0,0,-0.03])
+}
+
+scene {
+  slab "ground" (size=[20.0, 0.04, 16.0], mat="asphalt")
+  slab "foundation" (size=[12.4, 0.20, 8.4], mat="concrete", pos=[0, 0.02, 0])
+
+  // Front wall — big roll-up door + 1 side door + 2 windows
+  wall "front_wall" (size=[12.0, 4.0, 0.20], pos=[0, 2.10, -4.0], holes=[
+    [0.0, -1.00, 5.00, 4.00],  // Roll-up door: 5 wide × 4 tall, centered
+    [-4.50, -1.50, 1.00, 2.00],  // Side door: left of roll-up
+    [4.00, 0.50, 1.20, 0.80],  // Window right of door
+    [-4.50, 1.20, 1.20, 0.80],  // Window above side door
+  ])
+
+  // Back wall — 4 windows
+  wall "back_wall" (size=[12.0, 4.0, 0.20], pos=[0, 2.10, 4.0], holes=[
+    [-4.00, 1.20, 1.20, 0.80],
+    [-1.33, 1.20, 1.20, 0.80],
+    [ 1.33, 1.20, 1.20, 0.80],
+    [ 4.00, 1.20, 1.20, 0.80],
+  ])
+
+  // Left wall — 3 windows
+  wall "left_wall" (size=[8.0, 4.0, 0.20], pos=[-6.0, 2.10, 0], rot=[0, 90, 0], holes=[
+    [-2.50, 1.20, 1.20, 0.80],
+    [ 0.00, 1.20, 1.20, 0.80],
+    [ 2.50, 1.20, 1.20, 0.80],
+  ])
+
+  // Right wall — 3 windows
+  wall "right_wall" (size=[8.0, 4.0, 0.20], pos=[6.0, 2.10, 0], rot=[0, 90, 0], holes=[
+    [-2.50, 1.20, 1.20, 0.80],
+    [ 0.00, 1.20, 1.20, 0.80],
+    [ 2.50, 1.20, 1.20, 0.80],
+  ])
+
+  slab "floor" (size=[12.0, 0.10, 8.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "ceiling" (size=[12.0, 0.10, 8.0], mat="wall_metal", pos=[0, 4.10, 0])
+  slab "roof" (size=[12.4, 0.10, 8.4], mat="roof_metal", pos=[0, 4.20, 0])
+
+  // Roll-up door (recessed panel with horizontal lines)
+  group "roll_door" (pos=[0, 1.10, -4.0]) {
+    inset_box "panel" (size=[4.90, 3.90, 0.08], face="front", amount=0.08, depth=0.04, mat="door_metal")
+    box "line_1" (size=[4.80, 0.02, 0.02], mat="trim_dark", pos=[0, 1.40, -0.10], tags="floating")
+    box "line_2" (size=[4.80, 0.02, 0.02], mat="trim_dark", pos=[0, 0.70, -0.10], tags="floating")
+    box "line_3" (size=[4.80, 0.02, 0.02], mat="trim_dark", pos=[0, 0.00, -0.10], tags="floating")
+    box "line_4" (size=[4.80, 0.02, 0.02], mat="trim_dark", pos=[0, -0.70, -0.10], tags="floating")
+    box "line_5" (size=[4.80, 0.02, 0.02], mat="trim_dark", pos=[0, -1.40, -0.10], tags="floating")
+  }
+
+  // Side door
+  group "side_door" (pos=[-4.50, 0.60, -4.0]) {
+    box "frame" (size=[1.10, 2.10, 0.04], mat="trim_dark")
+    box "panel" (size=[0.95, 1.95, 0.04], mat="door_metal", pos=[0, 0, -0.05])
+  }
+
+  // Windows
+  group "wf_r" (pos=[4.00, 2.60, -4.0]) { use "warehouse_window" () }
+  group "wf_sl" (pos=[-4.50, 3.30, -4.0]) { use "warehouse_window" () }
+  group "wb_1" (pos=[-4.00, 3.30, 4.0]) { use "warehouse_window" () }
+  group "wb_2" (pos=[-1.33, 3.30, 4.0]) { use "warehouse_window" () }
+  group "wb_3" (pos=[ 1.33, 3.30, 4.0]) { use "warehouse_window" () }
+  group "wb_4" (pos=[ 4.00, 3.30, 4.0]) { use "warehouse_window" () }
+  group "wl_1" (pos=[-6.0, 3.30, -2.50], rot=[0,90,0]) { use "warehouse_window" () }
+  group "wl_2" (pos=[-6.0, 3.30, 0.00], rot=[0,90,0]) { use "warehouse_window" () }
+  group "wl_3" (pos=[-6.0, 3.30, 2.50], rot=[0,90,0]) { use "warehouse_window" () }
+  group "wr_1" (pos=[ 6.0, 3.30, -2.50], rot=[0,90,0]) { use "warehouse_window" () }
+  group "wr_2" (pos=[ 6.0, 3.30, 0.00], rot=[0,90,0]) { use "warehouse_window" () }
+  group "wr_3" (pos=[ 6.0, 3.30, 2.50], rot=[0,90,0]) { use "warehouse_window" () }
+}

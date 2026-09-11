@@ -1,0 +1,28 @@
+// microwave.mog
+meta (name="microwave", description="Countertop microwave oven", tags=["prop","furniture","microwave","kitchen","static","tier1"], mogen_version="0.1.12")
+material "case_white" (color=[0.90,0.90,0.88], roughness=0.30, metallic=0.3)
+material "window_dark" (color=[0.15,0.15,0.18], roughness=0.10, metallic=0.5)
+material "handle_metal" (color=[0.45,0.45,0.48], metallic=0.7, roughness=0.30)
+material "button_dark" (color=[0.20,0.20,0.22], roughness=0.60, metallic=0.4)
+scene {
+  // Main body
+  rounded_box "body" (size=[0.50, 0.30, 0.40], radius=0.02, mat="case_white", pos=[0, 0.15, 0])
+  // Door (front face, recessed)
+  box "door" (size=[0.46, 0.26, 0.02], mat="case_white", pos=[0, 0.15, 0.20], tags="floating")
+  // Window (dark glass on door)
+  box "window" (size=[0.25, 0.20, 0.01], mat="window_dark", pos=[-0.08, 0.15, 0.21], tags="floating")
+  // Door handle (vertical bar on right side of door)
+  box "handle" (size=[0.03, 0.20, 0.03], mat="handle_metal", pos=[0.20, 0.15, 0.21], tags="floating")
+  // Control panel (right side of front)
+  box "panel" (size=[0.10, 0.20, 0.02], mat="case_white", pos=[0.18, 0.15, 0.21], tags="floating")
+  // 4 buttons
+  cylinder "btn_1" (radius=0.012, height=0.01, segments=8, mat="button_dark", pos=[0.16, 0.22, 0.22], tags="floating")
+  cylinder "btn_2" (radius=0.012, height=0.01, segments=8, mat="button_dark", pos=[0.20, 0.22, 0.22], tags="floating")
+  cylinder "btn_3" (radius=0.012, height=0.01, segments=8, mat="button_dark", pos=[0.16, 0.15, 0.22], tags="floating")
+  cylinder "btn_4" (radius=0.012, height=0.01, segments=8, mat="button_dark", pos=[0.20, 0.15, 0.22], tags="floating")
+  // Feet (4 small pads)
+  box "foot_fl" (size=[0.03, 0.02, 0.03], mat="case_white", pos=[-0.22, 0.01, 0.17])
+  box "foot_fr" (size=[0.03, 0.02, 0.03], mat="case_white", pos=[ 0.22, 0.01, 0.17])
+  box "foot_bl" (size=[0.03, 0.02, 0.03], mat="case_white", pos=[-0.22, 0.01, -0.17])
+  box "foot_br" (size=[0.03, 0.02, 0.03], mat="case_white", pos=[ 0.22, 0.01, -0.17])
+}

@@ -1,0 +1,84 @@
+// church_small.mog — Small chapel
+meta (name="church_small", description="Small chapel with steeple and arched door", tags=["building","church","chapel","rural","tier1"], mogen_version="0.1.12")
+material "wall_stone" (color=[0.55,0.50,0.45], roughness=0.90, uv_mode="tile", uv_scale=3.0)
+material "roof_tile" (color=[0.40,0.20,0.15], roughness=0.80, uv_mode="tile", uv_scale=4.0)
+material "trim_white" (color=[0.92,0.91,0.86], roughness=0.60)
+material "window_glass" (color=[0.30,0.40,0.55], transmission=0.40, roughness=0.10, emissive=[0.2,0.3,0.4], emissive_strength=0.3)
+material "door_wood" (color=[0.30,0.20,0.12], roughness=0.70)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "grass" (color=[0.25,0.45,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+material "cross_gold" (color=[0.85,0.65,0.15], metallic=0.9, roughness=0.3, emissive=[0.4,0.3,0.05], emissive_strength=0.5)
+
+module "church_window" () {
+  // Arched window — use chamfered box for the frame
+  chamfered_box "frame" (size=[0.80, 1.50, 0.06], radius=0.04, mat="trim_white")
+  box "glass" (size=[0.65, 1.30, 0.02], mat="window_glass", pos=[0, 0, -0.03])
+  // Mullion
+  box "mullion_v" (size=[0.03, 1.30, 0.02], mat="trim_white", pos=[0, 0, -0.04], tags="floating")
+}
+
+scene {
+  slab "ground" (size=[14.0, 0.04, 10.0], mat="grass")
+  slab "foundation" (size=[6.4, 0.20, 5.4], mat="concrete", pos=[0, 0.02, 0])
+
+  // Front wall — arched door + 2 windows
+  wall "front_wall" (size=[6.0, 3.50, 0.20], pos=[0, 1.95, -2.5], holes=[
+    [0.0, -0.55, 1.20, 2.30],  // Arched door
+    [-1.80, 0.30, 0.80, 1.50],
+    [ 1.80, 0.30, 0.80, 1.50],
+  ])
+  // Back wall — 3 windows
+  wall "back_wall" (size=[6.0, 3.50, 0.20], pos=[0, 1.95, 2.5], holes=[
+    [-1.80, 0.30, 0.80, 1.50],
+    [ 0.00, 0.30, 0.80, 1.50],
+    [ 1.80, 0.30, 0.80, 1.50],
+  ])
+  // Side walls — 2 windows each
+  wall "left_wall" (size=[5.0, 3.50, 0.20], pos=[-3.0, 1.95, 0], rot=[0, 90, 0], holes=[
+    [-1.20, 0.30, 0.80, 1.50],
+    [ 1.20, 0.30, 0.80, 1.50],
+  ])
+  wall "right_wall" (size=[5.0, 3.50, 0.20], pos=[3.0, 1.95, 0], rot=[0, 90, 0], holes=[
+    [-1.20, 0.30, 0.80, 1.50],
+    [ 1.20, 0.30, 0.80, 1.50],
+  ])
+
+  slab "floor" (size=[6.0, 0.10, 5.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "ceiling" (size=[6.0, 0.10, 5.0], mat="wall_stone", pos=[0, 3.70, 0])
+
+  // === ROOF (gable, runs along X-axis) ===
+  prism "roof" (size=[6.6, 1.30, 5.6], pos=[0, 4.35, 0], mat="roof_tile")
+
+  // === STEEPLE (square tower at front, above entrance) ===
+  // Steeple base (square box)
+  box "steeple_base" (size=[1.00, 1.50, 1.00], mat="wall_stone", pos=[0, 4.50, -1.5])
+  // Steeple spire (pyramid on top)
+  pyramid "steeple_spire" (radius=0.75, height=2.00, sides=4, mat="roof_tile", pos=[0, 6.25, -1.5], rot=[0, 45, 0])
+  // Cross on top
+  box "cross_v" (size=[0.05, 0.40, 0.05], mat="cross_gold", pos=[0, 7.50, -1.5], tags="floating")
+  box "cross_h" (size=[0.20, 0.05, 0.05], mat="cross_gold", pos=[0, 7.40, -1.5], tags="floating")
+
+  // === ARCHED DOOR ===
+  group "door_group" (pos=[0, 0.85, -2.5]) {
+    chamfered_box "frame" (size=[1.40, 2.40, 0.06], radius=0.06, mat="trim_white")
+    chamfered_box "panel_l" (size=[0.50, 2.10, 0.05], radius=0.02, mat="door_wood", pos=[-0.28, -0.05, -0.08])
+    chamfered_box "panel_r" (size=[0.50, 2.10, 0.05], radius=0.02, mat="door_wood", pos=[ 0.28, -0.05, -0.08])
+    sphere "knob_l" (radius=0.04, mat="brass", pos=[-0.10, -0.10, -0.13])
+    sphere "knob_r" (radius=0.04, mat="brass", pos=[ 0.10, -0.10, -0.13])
+  }
+
+  // === WINDOWS ===
+  group "wf_l" (pos=[-1.80, 2.25, -2.5]) { use "church_window" () }
+  group "wf_r" (pos=[ 1.80, 2.25, -2.5]) { use "church_window" () }
+  group "wb_l" (pos=[-1.80, 2.25, 2.5]) { use "church_window" () }
+  group "wb_c" (pos=[ 0.00, 2.25, 2.5]) { use "church_window" () }
+  group "wb_r" (pos=[ 1.80, 2.25, 2.5]) { use "church_window" () }
+  group "wl_f" (pos=[-3.0, 2.25, -1.20], rot=[0,90,0]) { use "church_window" () }
+  group "wl_b" (pos=[-3.0, 2.25, 1.20], rot=[0,90,0]) { use "church_window" () }
+  group "wr_f" (pos=[ 3.0, 2.25, -1.20], rot=[0,90,0]) { use "church_window" () }
+  group "wr_b" (pos=[ 3.0, 2.25, 1.20], rot=[0,90,0]) { use "church_window" () }
+
+  // Steps
+  slab "steps" (size=[1.60, 0.06, 0.30], mat="concrete", pos=[0, 0.03, -2.70], tags="floating")
+}

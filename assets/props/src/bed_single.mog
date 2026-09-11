@@ -1,0 +1,51 @@
+// bed_single.mog — Tier 1 prop #5 (dynamic furniture)
+// Single bed with frame, mattress, pillow, blanket. Dynamic — can be moved (heavy).
+// Target: 600 tris (High-preset LOD0). Actual: ~350 tris.
+// Dimensions: 1.0m wide × 2.0m long × 0.55m tall.
+
+meta (
+  name          = "bed_single",
+  description   = "Single bed with frame, mattress, pillow, blanket",
+  tags          = ["prop", "furniture", "bed", "dynamic", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wood_oak"   (color=[0.40, 0.25, 0.12], roughness=0.75)
+material "mattress"   (color=[0.88, 0.86, 0.80], roughness=0.85)
+material "pillow"      (color=[0.92, 0.92, 0.88], roughness=0.90)
+material "blanket_blue" (color=[0.18, 0.30, 0.50], roughness=0.80)
+material "sheet_white"  (color=[0.95, 0.95, 0.92], roughness=0.85)
+
+scene {
+  // === BED FRAME (4 legs + 2 side rails + 2 end rails + base) ===
+  solid "frame" (mat="wood_oak", cleanup="coplanar") {
+    // 4 legs at corners
+    box "leg_fl" (size=[0.08, 0.30, 0.08], pos=[-0.46, 0.15, -0.92])
+    box "leg_fr" (size=[0.08, 0.30, 0.08], pos=[ 0.46, 0.15, -0.92])
+    box "leg_bl" (size=[0.08, 0.30, 0.08], pos=[-0.46, 0.15,  0.92])
+    box "leg_br" (size=[0.08, 0.30, 0.08], pos=[ 0.46, 0.15,  0.92])
+    // Side rails (long sides)
+    box "rail_l" (size=[0.04, 0.15, 1.84], pos=[-0.48, 0.20, 0])
+    box "rail_r" (size=[0.04, 0.15, 1.84], pos=[ 0.48, 0.20, 0])
+    // End rails (short sides)
+    box "rail_f" (size=[1.00, 0.15, 0.04], pos=[0, 0.20, -0.94])
+    box "rail_b" (size=[1.00, 0.15, 0.04], pos=[0, 0.20,  0.94])
+    // Base slats (solid slab for simplicity)
+    slab "base" (size=[0.92, 0.04, 1.84], pos=[0, 0.30, 0])
+  }
+
+  // === HEADBOARD (at +Z end) ===
+  box "headboard" (size=[1.00, 0.45, 0.04], mat="wood_oak", pos=[0, 0.55, 0.94])
+
+  // === MATTRESS (overlaps with base to connect) ===
+  rounded_box "mattress" (size=[0.92, 0.15, 1.80], radius=0.04, mat="mattress", pos=[0, 0.36, 0])
+
+  // === SHEET (overlaps with mattress top — sits 0.02m into mattress) ===
+  rounded_box "sheet" (size=[0.94, 0.04, 1.60], radius=0.02, mat="sheet_white", pos=[0, 0.49, 0.10])
+
+  // === BLANKET (overlaps with mattress + sheet) ===
+  rounded_box "blanket" (size=[0.94, 0.08, 0.50], radius=0.03, mat="blanket_blue", pos=[0, 0.47, -0.65])
+
+  // === PILLOW (overlaps with mattress + sheet at head) ===
+  rounded_box "pillow" (size=[0.60, 0.10, 0.35], radius=0.04, mat="pillow", pos=[0, 0.52, 0.70])
+}

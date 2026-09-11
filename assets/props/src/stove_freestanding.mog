@@ -1,0 +1,30 @@
+// stove_freestanding.mog
+meta (name="stove_freestanding", description="Freestanding kitchen stove with oven", tags=["prop","furniture","stove","kitchen","static","tier1"], mogen_version="0.1.12")
+material "stove_white" (color=[0.90,0.90,0.88], roughness=0.30, metallic=0.4)
+material "stove_metal" (color=[0.18,0.18,0.20], roughness=0.40, metallic=0.6)
+material "burner_black" (color=[0.08,0.08,0.08], roughness=0.85)
+material "oven_glass" (color=[0.15,0.15,0.18], roughness=0.20, metallic=0.5)
+material "handle_metal" (color=[0.45,0.45,0.48], metallic=0.7, roughness=0.30)
+scene {
+  // Main body
+  rounded_box "body" (size=[0.60, 0.95, 0.60], radius=0.02, mat="stove_white", pos=[0, 0.475, 0])
+  // Cooktop (metal, slightly raised)
+  slab "cooktop" (size=[0.58, 0.02, 0.58], mat="stove_metal", pos=[0, 0.91, 0])
+  // 4 burners
+  cylinder "burner_fl" (radius=0.07, height=0.01, segments=12, mat="burner_black", pos=[-0.13, 0.925, 0.13])
+  cylinder "burner_fr" (radius=0.07, height=0.01, segments=12, mat="burner_black", pos=[ 0.13, 0.925, 0.13])
+  cylinder "burner_bl" (radius=0.07, height=0.01, segments=12, mat="burner_black", pos=[-0.13, 0.925, -0.13])
+  cylinder "burner_br" (radius=0.07, height=0.01, segments=12, mat="burner_black", pos=[ 0.13, 0.925, -0.13])
+  // Oven door (front, lower 2/3)
+  box "oven_door" (size=[0.50, 0.50, 0.02], mat="stove_metal", pos=[0, 0.40, 0.29], tags="floating")
+  box "oven_window" (size=[0.35, 0.25, 0.02], mat="oven_glass", pos=[0, 0.40, 0.30], tags="floating")
+  box "oven_handle" (size=[0.40, 0.03, 0.03], mat="handle_metal", pos=[0, 0.68, 0.30], tags="floating")
+  // Control panel (top front, above oven door)
+  box "control_panel" (size=[0.50, 0.10, 0.02], mat="stove_metal", pos=[0, 0.78, 0.29], tags="floating")
+  cylinder "knob_1" (radius=0.025, height=0.02, segments=8, mat="handle_metal", pos=[-0.15, 0.78, 0.30], tags="floating")
+  cylinder "knob_2" (radius=0.025, height=0.02, segments=8, mat="handle_metal", pos=[-0.05, 0.78, 0.30], tags="floating")
+  cylinder "knob_3" (radius=0.025, height=0.02, segments=8, mat="handle_metal", pos=[ 0.05, 0.78, 0.30], tags="floating")
+  cylinder "knob_4" (radius=0.025, height=0.02, segments=8, mat="handle_metal", pos=[ 0.15, 0.78, 0.30], tags="floating")
+  // Backsplash (vertical panel at back of cooktop)
+  box "backsplash" (size=[0.58, 0.15, 0.02], mat="stove_white", pos=[0, 1.00, -0.29])
+}

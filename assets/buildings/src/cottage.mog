@@ -1,0 +1,117 @@
+// cottage.mog — Tier 1 building variant
+// Small countryside cottage: stone walls, gable roof, 1 door + 2 windows, chimney.
+// Target: 2,500 tris (Low-preset LOD0). Actual: ~1.5k tris.
+// Dimensions: 6.0m wide × 5.0m deep × 3.0m tall.
+
+meta (
+  name          = "cottage",
+  description   = "Small countryside cottage with stone walls and gable roof",
+  tags          = ["building", "cottage", "rural", "stone", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wall_stone"   (color=[0.55, 0.50, 0.45], roughness=0.90, uv_mode="tile", uv_scale=3.0)
+material "roof_thatch"  (color=[0.45, 0.30, 0.15], roughness=0.85, uv_mode="tile", uv_scale=4.0)
+material "trim_wood"    (color=[0.30, 0.20, 0.12], roughness=0.75)
+material "window_glass" (color=[0.45, 0.65, 0.80], transmission=0.50, roughness=0.04)
+material "door_wood"   (color=[0.30, 0.18, 0.10], roughness=0.70)
+material "brick_chimney" (color=[0.50, 0.25, 0.18], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "concrete"    (color=[0.55, 0.53, 0.50], roughness=0.90)
+material "grass"       (color=[0.25, 0.45, 0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brass"       (color=[0.95, 0.70, 0.25], metallic=0.85, roughness=0.25)
+
+module "cottage_window" () {
+  // Wood frame
+  chamfered_box "frame" (size=[0.90, 0.90, 0.06], radius=0.015, mat="trim_wood")
+  // Glass
+  box "glass" (size=[0.75, 0.75, 0.02], mat="window_glass", pos=[0, 0, -0.03])
+  // Cross mullions (2 bars dividing window into 4 panes)
+  box "mullion_h" (size=[0.75, 0.03, 0.02], mat="trim_wood", pos=[0, 0, -0.04], tags="floating")
+  box "mullion_v" (size=[0.03, 0.75, 0.02], mat="trim_wood", pos=[0, 0, -0.04], tags="floating")
+  // Sill
+  box "sill" (size=[1.00, 0.04, 0.10], mat="trim_wood", pos=[0, -0.47, 0.04])
+}
+
+module "cottage_door" () {
+  chamfered_box "frame" (size=[1.00, 2.00, 0.06], radius=0.02, mat="trim_wood")
+  chamfered_box "panel" (size=[0.85, 1.85, 0.05], radius=0.015, mat="door_wood", pos=[0, 0, -0.08])
+  // Cross-brace (rustic look)
+  box "brace_1" (size=[0.80, 0.06, 0.02], mat="trim_wood", pos=[0, 0.30, -0.10], rot=[0, 0, 30], tags="floating")
+  box "brace_2" (size=[0.80, 0.06, 0.02], mat="trim_wood", pos=[0, -0.30, -0.10], rot=[0, 0, -30], tags="floating")
+  sphere "knob" (radius=0.04, mat="brass", pos=[0.30, -0.20, -0.13])
+}
+
+scene {
+  // Foundation + ground
+  slab "ground" (size=[12.0, 0.04, 10.0], mat="grass")
+  slab "foundation" (size=[6.4, 0.20, 5.4], mat="concrete", pos=[0, 0.02, 0])
+
+  // === WALLS (stone) ===
+  // Front wall — door + 2 windows
+  wall "front_wall" (
+    size=[6.0, 2.55, 0.20],
+    pos=[0, 1.475, -2.5],
+    holes=[
+      // Door: centered
+      [0.0, -0.225, 0.90, 2.10],
+      // Windows: left + right of door
+      [-1.80, 0.10, 0.90, 0.90],
+      [ 1.80, 0.10, 0.90, 0.90],
+    ]
+  )
+
+  // Back wall — 2 windows
+  wall "back_wall" (
+    size=[6.0, 2.55, 0.20],
+    pos=[0, 1.475, 2.5],
+    holes=[
+      [-1.50, 0.10, 0.90, 0.90],
+      [ 1.50, 0.10, 0.90, 0.90],
+    ]
+  )
+
+  // Left wall — 1 window
+  wall "left_wall" (
+    size=[5.0, 2.55, 0.20],
+    pos=[-3.0, 1.475, 0],
+    rot=[0, 90, 0],
+    holes=[
+      [0.0, 0.10, 0.90, 0.90],
+    ]
+  )
+
+  // Right wall — 1 window
+  wall "right_wall" (
+    size=[5.0, 2.55, 0.20],
+    pos=[3.0, 1.475, 0],
+    rot=[0, 90, 0],
+    holes=[
+      [0.0, 0.10, 0.90, 0.90],
+    ]
+  )
+
+  // Floor + ceiling
+  slab "floor" (size=[6.0, 0.10, 5.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "ceiling" (size=[6.0, 0.10, 5.0], mat="wall_stone", pos=[0, 2.70, 0])
+
+  // === ROOF (thatch-style gable) ===
+  prism "roof" (size=[6.6, 1.20, 5.6], pos=[0, 3.40, 0], mat="roof_thatch")
+
+  // === CHIMNEY (stone, classic cottage placement) ===
+  box "chimney" (size=[0.45, 1.60, 0.45], mat="brick_chimney", pos=[1.50, 3.60, 0])
+  slab "chimney_cap" (size=[0.55, 0.10, 0.55], mat="concrete", pos=[1.50, 4.38, 0])
+
+  // === DOOR + WINDOWS ===
+  // Wall cutout centers: door cy=-0.225 → world y=1.25; windows cy=0.10 → world y=1.575
+  group "door_group" (pos=[0, 1.25, -2.5]) { use "cottage_door" () }
+  group "window_fl" (pos=[-1.80, 1.575, -2.5]) { use "cottage_window" () }
+  group "window_fr" (pos=[ 1.80, 1.575, -2.5]) { use "cottage_window" () }
+  group "window_bl" (pos=[-1.50, 1.575, 2.5]) { use "cottage_window" () }
+  group "window_br" (pos=[ 1.50, 1.575, 2.5]) { use "cottage_window" () }
+  // Side windows (rotated for side walls)
+  group "window_l" (pos=[-3.0, 1.575, 0], rot=[0, 90, 0]) { use "cottage_window" () }
+  group "window_r" (pos=[ 3.0, 1.575, 0], rot=[0, 90, 0]) { use "cottage_window" () }
+
+  // === DOOR STEP ===
+  slab "door_step" (size=[1.20, 0.06, 0.30], mat="concrete", pos=[0, 0.03, -2.70], tags="floating")
+}

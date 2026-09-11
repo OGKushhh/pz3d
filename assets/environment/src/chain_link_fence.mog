@@ -1,0 +1,20 @@
+// chain_link_fence.mog
+meta (name="chain_link_fence", description="Chain-link fence segment with 2 posts + mesh + top rail", tags=["environment","fence","chain_link","industrial","tier1"], mogen_version="0.1.12")
+material "post_metal" (color=[0.30,0.32,0.35], roughness=0.50, metallic=0.7)
+material "mesh_grey" (color=[0.50,0.50,0.52], roughness=0.60, metallic=0.5, alpha_mode="blend", alpha=0.6)
+scene {
+  // 2 end posts
+  cylinder "post_l" (radius=0.03, height=1.50, segments=8, mat="post_metal", pos=[-1.00, 0.75, 0])
+  cylinder "post_r" (radius=0.03, height=1.50, segments=8, mat="post_metal", pos=[ 1.00, 0.75, 0])
+  // Top rail (horizontal cylinder between posts)
+  cylinder "rail" (radius=0.02, height=2.00, segments=8, mat="post_metal", pos=[0, 1.48, 0], rot=[0, 0, 90])
+  // Mesh (thin plane between posts — semi-transparent)
+  plane "mesh" (size=[2.0, 1.0, 1.40], mat="mesh_grey", pos=[0, 0.70, 0])
+  // Mesh pattern detail (diagonal lines — 4 thin boxes suggesting chain pattern)
+  box "line_1" (size=[2.00, 0.02, 0.01], mat="post_metal", pos=[0, 0.40, 0.01], rot=[0, 0, 45], tags="floating")
+  box "line_2" (size=[2.00, 0.02, 0.01], mat="post_metal", pos=[0, 0.80, 0.01], rot=[0, 0, 45], tags="floating")
+  box "line_3" (size=[2.00, 0.02, 0.01], mat="post_metal", pos=[0, 1.10, 0.01], rot=[0, 0, 45], tags="floating")
+  box "line_4" (size=[2.00, 0.02, 0.01], mat="post_metal", pos=[0, 0.40, -0.01], rot=[0, 0, -45], tags="floating")
+  box "line_5" (size=[2.00, 0.02, 0.01], mat="post_metal", pos=[0, 0.80, -0.01], rot=[0, 0, -45], tags="floating")
+  box "line_6" (size=[2.00, 0.02, 0.01], mat="post_metal", pos=[0, 1.10, -0.01], rot=[0, 0, -45], tags="floating")
+}

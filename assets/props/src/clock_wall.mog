@@ -1,0 +1,21 @@
+// clock_wall.mog
+meta (name="clock_wall", description="Wall-mounted analog clock", tags=["prop","furniture","clock","wall","tier1"], mogen_version="0.1.12")
+material "frame_wood" (color=[0.40,0.25,0.12], roughness=0.70)
+material "face_white" (color=[0.92,0.92,0.88], roughness=0.85)
+material "hand_black" (color=[0.08,0.08,0.10], roughness=0.60)
+material "glass" (color=[0.85,0.85,0.88], roughness=0.05, transmission=0.80)
+material "brass" (color=[0.85,0.65,0.20], metallic=0.85, roughness=0.25)
+scene {
+  // Frame (outer ring — use a flat cylinder)
+  cylinder "frame" (radius=0.15, height=0.04, segments=24, mat="frame_wood", pos=[0, 0, 0])
+  // Clock face (white disc, slightly in front)
+  cylinder "face" (radius=0.13, height=0.02, segments=24, mat="face_white", pos=[0, 0, 0.025], tags="floating")
+  // Hour hand (short, pointing to 12)
+  box "hour_hand" (size=[0.02, 0.06, 0.005], mat="hand_black", pos=[0, 0.06, 0.04], tags="floating")
+  // Minute hand (longer, pointing to 12)
+  box "minute_hand" (size=[0.015, 0.10, 0.005], mat="hand_black", pos=[0, 0.10, 0.045], tags="floating")
+  // Center cap (small brass dot)
+  cylinder "center" (radius=0.015, height=0.01, segments=8, mat="brass", pos=[0, 0, 0.05], tags="floating")
+  // Glass (slightly in front of hands)
+  cylinder "glass" (radius=0.14, height=0.005, segments=24, mat="glass", pos=[0, 0, 0.055], tags="floating")
+}

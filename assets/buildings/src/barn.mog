@@ -1,0 +1,68 @@
+// barn.mog — Classic red barn
+meta (name="barn", description="Classic red barn with gambrel roof and large doors", tags=["building","barn","farm","rural","tier1"], mogen_version="0.1.12")
+material "barn_red" (color=[0.50,0.18,0.12], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_metal" (color=[0.35,0.25,0.20], roughness=0.60, metallic=0.4)
+material "trim_white" (color=[0.88,0.85,0.78], roughness=0.70)
+material "window_glass" (color=[0.35,0.45,0.50], transmission=0.30, roughness=0.10)
+material "door_wood" (color=[0.35,0.22,0.12], roughness=0.80)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "grass" (color=[0.25,0.45,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+
+module "barn_window" () {
+  box "frame" (size=[0.60, 0.60, 0.04], mat="trim_white")
+  box "glass" (size=[0.50, 0.50, 0.02], mat="window_glass", pos=[0,0,-0.03])
+}
+
+scene {
+  slab "ground" (size=[20.0, 0.04, 16.0], mat="grass")
+  slab "foundation" (size=[10.4, 0.20, 8.4], mat="concrete", pos=[0, 0.02, 0])
+
+  // Front wall — big sliding door + 1 window
+  wall "front_wall" (size=[10.0, 4.00, 0.20], pos=[0, 2.20, -4.0], holes=[
+    [0.0, -0.50, 4.00, 3.50],
+    [-3.50, 0.50, 0.60, 0.60],
+    [ 3.50, 0.50, 0.60, 0.60],
+  ])
+  wall "back_wall" (size=[10.0, 4.00, 0.20], pos=[0, 2.20, 4.0], holes=[
+    [-3.00, 0.50, 0.60, 0.60],
+    [ 0.00, 0.50, 0.60, 0.60],
+    [ 3.00, 0.50, 0.60, 0.60],
+  ])
+  wall "left_wall" (size=[8.0, 4.00, 0.20], pos=[-5.0, 2.20, 0], rot=[0, 90, 0], holes=[
+    [-2.00, 0.50, 0.60, 0.60],
+    [ 2.00, 0.50, 0.60, 0.60],
+  ])
+  wall "right_wall" (size=[8.0, 4.00, 0.20], pos=[5.0, 2.20, 0], rot=[0, 90, 0], holes=[
+    [-2.00, 0.50, 0.60, 0.60],
+    [ 2.00, 0.50, 0.60, 0.60],
+  ])
+
+  slab "floor" (size=[10.0, 0.10, 8.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "ceiling" (size=[10.0, 0.10, 8.0], mat="barn_red", pos=[0, 4.10, 0])
+  prism "roof" (size=[10.8, 1.80, 8.8], pos=[0, 5.00, 0], mat="roof_metal")
+
+  // Big sliding door (2 panels)
+  group "door_group" (pos=[0, 0.75, -4.0]) {
+    box "door_l" (size=[2.00, 3.50, 0.06], mat="door_wood", pos=[-1.05, 0, -0.02], tags="floating")
+    box "door_r" (size=[2.00, 3.50, 0.06], mat="door_wood", pos=[ 1.05, 0, -0.02], tags="floating")
+    // Z-bracing on doors
+    box "brace_l_1" (size=[1.90, 0.06, 0.02], mat="trim_white", pos=[-1.05, 0.80, -0.04], rot=[0,0,30], tags="floating")
+    box "brace_l_2" (size=[1.90, 0.06, 0.02], mat="trim_white", pos=[-1.05, -0.80, -0.04], rot=[0,0,-30], tags="floating")
+    box "brace_r_1" (size=[1.90, 0.06, 0.02], mat="trim_white", pos=[ 1.05, 0.80, -0.04], rot=[0,0,30], tags="floating")
+    box "brace_r_2" (size=[1.90, 0.06, 0.02], mat="trim_white", pos=[ 1.05, -0.80, -0.04], rot=[0,0,-30], tags="floating")
+  }
+
+  // Windows
+  group "wf_l" (pos=[-3.50, 2.70, -4.0]) { use "barn_window" () }
+  group "wf_r" (pos=[ 3.50, 2.70, -4.0]) { use "barn_window" () }
+  group "wb_l" (pos=[-3.00, 2.70, 4.0]) { use "barn_window" () }
+  group "wb_c" (pos=[ 0.00, 2.70, 4.0]) { use "barn_window" () }
+  group "wb_r" (pos=[ 3.00, 2.70, 4.0]) { use "barn_window" () }
+  group "wl_b" (pos=[-5.0, 2.70, -2.00], rot=[0,90,0]) { use "barn_window" () }
+  group "wl_f" (pos=[-5.0, 2.70, 2.00], rot=[0,90,0]) { use "barn_window" () }
+  group "wr_b" (pos=[ 5.0, 2.70, -2.00], rot=[0,90,0]) { use "barn_window" () }
+  group "wr_f" (pos=[ 5.0, 2.70, 2.00], rot=[0,90,0]) { use "barn_window" () }
+
+  // Roof vent (small box on roof peak)
+  box "vent" (size=[0.40, 0.30, 0.40], mat="trim_white", pos=[0, 6.00, 0], tags="floating")
+}

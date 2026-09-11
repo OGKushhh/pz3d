@@ -1,0 +1,16 @@
+// manhole_cover.mog
+meta (name="manhole_cover", description="Circular manhole cover in ground", tags=["environment","manhole","urban","tier1"], mogen_version="0.1.12")
+material "cover_metal" (color=[0.35,0.35,0.38], roughness=0.70, metallic=0.4)
+material "ring_metal" (color=[0.25,0.25,0.28], roughness=0.70, metallic=0.5)
+material "asphalt" (color=[0.18,0.18,0.20], roughness=0.95)
+scene {
+  // Asphalt patch (slightly different color than road — suggests repair)
+  slab "asphalt_patch" (size=[0.80, 0.04, 0.80], mat="asphalt", pos=[0, 0.02, 0])
+  // Outer ring (slightly raised)
+  cylinder "ring" (radius=0.32, height=0.04, segments=24, mat="ring_metal", pos=[0, 0.04, 0])
+  // Cover (inner disc, slightly lower than ring)
+  cylinder "cover" (radius=0.30, height=0.03, segments=24, mat="cover_metal", pos=[0, 0.045, 0])
+  // Cover pattern (cross lines — 2 thin raised bars)
+  box "line_h" (size=[0.50, 0.01, 0.02], mat="ring_metal", pos=[0, 0.06, 0], tags="floating")
+  box "line_v" (size=[0.02, 0.01, 0.50], mat="ring_metal", pos=[0, 0.06, 0], tags="floating")
+}

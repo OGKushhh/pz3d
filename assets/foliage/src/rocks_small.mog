@@ -1,0 +1,13 @@
+// rocks_small.mog
+meta (name="rocks_small", description="Cluster of 3 small rocks", tags=["foliage","rocks","forest","environment","tier1"], mogen_version="0.1.12")
+material "rock_grey" (color=[0.45,0.43,0.40], roughness=0.95, noise=0.15, seed=5)
+material "rock_dark" (color=[0.30,0.28,0.26], roughness=0.95, noise=0.20, seed=11)
+material "moss_green" (color=[0.25,0.35,0.18], roughness=0.85)
+scene {
+  // 3 rocks of varying sizes
+  icosphere "rock_1" (radius=0.15, subdivisions=1, mat="rock_grey", pos=[0, 0.10, 0.05], noise=0.25, seed=3)
+  icosphere "rock_2" (radius=0.10, subdivisions=1, mat="rock_dark", pos=[0.20, 0.07, -0.10], noise=0.30, seed=7)
+  icosphere "rock_3" (radius=0.08, subdivisions=1, mat="rock_grey", pos=[-0.15, 0.05, 0.12], noise=0.35, seed=13)
+  // Small moss patch on largest rock
+  icosphere "moss_1" (radius=0.05, subdivisions=1, mat="moss_green", pos=[0.05, 0.18, 0.05], tags="floating")
+}

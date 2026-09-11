@@ -1,0 +1,177 @@
+// apartment_small.mog — Tier 1 building variant
+// Small 2-story apartment building: 2 units, shared entrance, flat roof, balcony.
+// Target: 8,000 tris (Low-preset LOD0 hero building). Actual: ~3k tris.
+// Dimensions: 8.0m wide × 6.0m deep × 6.0m tall (2 stories).
+
+meta (
+  name          = "apartment_small",
+  description   = "Small 2-story apartment building with shared entrance and balcony",
+  tags          = ["building", "apartment", "residential", "urban", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wall_brick"   (color=[0.50, 0.30, 0.25], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "wall_stucco"  (color=[0.70, 0.65, 0.55], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_flat"    (color=[0.25, 0.22, 0.20], roughness=0.90)
+material "trim_white"   (color=[0.92, 0.91, 0.86], roughness=0.60)
+material "window_glass" (color=[0.40, 0.55, 0.65], transmission=0.50, roughness=0.04)
+material "door_wood"    (color=[0.30, 0.20, 0.12], roughness=0.65)
+material "balcony_metal" (color=[0.20, 0.22, 0.25], roughness=0.55, metallic=0.6)
+material "concrete"     (color=[0.55, 0.53, 0.50], roughness=0.90)
+material "brass"        (color=[0.95, 0.70, 0.25], metallic=0.85, roughness=0.25)
+
+module "apartment_window" () {
+  chamfered_box "frame" (size=[1.10, 1.20, 0.06], radius=0.015, mat="trim_white")
+  box "glass" (size=[0.95, 1.05, 0.02], mat="window_glass", pos=[0, 0, -0.03])
+  box "sill" (size=[1.20, 0.04, 0.10], mat="trim_white", pos=[0, -0.62, 0.04])
+}
+
+module "apartment_door" () {
+  chamfered_box "frame" (size=[1.00, 2.10, 0.06], radius=0.02, mat="trim_white")
+  chamfered_box "panel" (size=[0.85, 1.95, 0.05], radius=0.015, mat="door_wood", pos=[0, 0, -0.08])
+  sphere "knob" (radius=0.04, mat="brass", pos=[0.30, -0.10, -0.13])
+}
+
+scene {
+  // Foundation + ground
+  slab "ground" (size=[14.0, 0.04, 10.0], mat="concrete")
+  slab "foundation" (size=[8.4, 0.20, 6.4], mat="concrete", pos=[0, 0.02, 0])
+
+  // === GROUND FLOOR (brick) ===
+  // Front wall — shared entrance door + 2 windows (one per unit)
+  wall "front_wall_gf" (
+    size=[8.0, 2.80, 0.20],
+    pos=[0, 1.55, -3.0],
+    holes=[
+      // Shared entrance door (center)
+      [0.0, -0.35, 1.00, 2.10],
+      // Ground floor windows (left + right)
+      [-2.50, 0.20, 1.10, 1.20],
+      [ 2.50, 0.20, 1.10, 1.20],
+    ]
+  )
+
+  // Back wall — 2 windows + 1 back door
+  wall "back_wall_gf" (
+    size=[8.0, 2.80, 0.20],
+    pos=[0, 1.55, 3.0],
+    holes=[
+      [-2.50, 0.20, 1.10, 1.20],
+      [ 0.0, -0.35, 0.90, 2.10],
+      [ 2.50, 0.20, 1.10, 1.20],
+    ]
+  )
+
+  // Left wall — 1 window
+  wall "left_wall_gf" (
+    size=[6.0, 2.80, 0.20],
+    pos=[-4.0, 1.55, 0],
+    rot=[0, 90, 0],
+    holes=[
+      [0.0, 0.20, 1.10, 1.20],
+    ]
+  )
+
+  // Right wall — 1 window
+  wall "right_wall_gf" (
+    size=[6.0, 2.80, 0.20],
+    pos=[4.0, 1.55, 0],
+    rot=[0, 90, 0],
+    holes=[
+      [0.0, 0.20, 1.10, 1.20],
+    ]
+  )
+
+  // === UPPER FLOOR (stucco) ===
+  // Front wall — 4 windows (2 per unit)
+  wall "front_wall_uf" (
+    size=[8.0, 2.80, 0.20],
+    pos=[0, 4.35, -3.0],
+    holes=[
+      [-3.00, 0.20, 1.10, 1.20],
+      [-1.00, 0.20, 1.10, 1.20],
+      [ 1.00, 0.20, 1.10, 1.20],
+      [ 3.00, 0.20, 1.10, 1.20],
+    ]
+  )
+
+  // Back wall — 4 windows
+  wall "back_wall_uf" (
+    size=[8.0, 2.80, 0.20],
+    pos=[0, 4.35, 3.0],
+    holes=[
+      [-3.00, 0.20, 1.10, 1.20],
+      [-1.00, 0.20, 1.10, 1.20],
+      [ 1.00, 0.20, 1.10, 1.20],
+      [ 3.00, 0.20, 1.10, 1.20],
+    ]
+  )
+
+  // Left wall upper — 2 windows
+  wall "left_wall_uf" (
+    size=[6.0, 2.80, 0.20],
+    pos=[-4.0, 4.35, 0],
+    rot=[0, 90, 0],
+    holes=[
+      [-1.50, 0.20, 1.10, 1.20],
+      [ 1.50, 0.20, 1.10, 1.20],
+    ]
+  )
+
+  // Right wall upper — 2 windows
+  wall "right_wall_uf" (
+    size=[6.0, 2.80, 0.20],
+    pos=[4.0, 4.35, 0],
+    rot=[0, 90, 0],
+    holes=[
+      [-1.50, 0.20, 1.10, 1.20],
+      [ 1.50, 0.20, 1.10, 1.20],
+    ]
+  )
+
+  // Floor slabs (ground + upper + ceiling)
+  slab "ground_floor" (size=[8.0, 0.10, 6.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "upper_floor"  (size=[8.0, 0.10, 6.0], mat="wall_stucco", pos=[0, 2.95, 0])
+  slab "ceiling"       (size=[8.0, 0.10, 6.0], mat="wall_stucco", pos=[0, 5.75, 0])
+
+  // === FLAT ROOF ===
+  slab "roof" (size=[8.4, 0.10, 6.4], mat="roof_flat", pos=[0, 5.85, 0])
+
+  // === BALCONY (upper floor, front) ===
+  // Balcony slab (extends from front wall)
+  slab "balcony_slab" (size=[8.0, 0.10, 1.20], mat="concrete", pos=[0, 3.00, -3.55])
+  // Balcony railing (metal bars)
+  box "railing_front" (size=[8.0, 0.90, 0.04], mat="balcony_metal", pos=[0, 3.50, -4.10], tags="floating")
+  box "railing_left"  (size=[0.04, 0.90, 1.20], mat="balcony_metal", pos=[-4.00, 3.50, -3.55], tags="floating")
+  box "railing_right" (size=[0.04, 0.90, 1.20], mat="balcony_metal", pos=[ 4.00, 3.50, -3.55], tags="floating")
+
+  // === WINDOWS + DOORS ===
+  // Ground floor front
+  group "door_group" (pos=[0, 1.20, -3.0]) { use "apartment_door" () }
+  group "window_gf_fl" (pos=[-2.50, 1.75, -3.0]) { use "apartment_window" () }
+  group "window_gf_fr" (pos=[ 2.50, 1.75, -3.0]) { use "apartment_window" () }
+  // Ground floor back
+  group "window_gf_bl" (pos=[-2.50, 1.75, 3.0]) { use "apartment_window" () }
+  group "back_door_group" (pos=[0, 1.20, 3.0]) { use "apartment_door" () }
+  group "window_gf_br" (pos=[ 2.50, 1.75, 3.0]) { use "apartment_window" () }
+  // Side windows
+  group "window_gf_l" (pos=[-4.0, 1.75, 0], rot=[0, 90, 0]) { use "apartment_window" () }
+  group "window_gf_r" (pos=[ 4.0, 1.75, 0], rot=[0, 90, 0]) { use "apartment_window" () }
+  // Upper floor windows
+  group "window_uf_fl1" (pos=[-3.00, 4.55, -3.0]) { use "apartment_window" () }
+  group "window_uf_fl2" (pos=[-1.00, 4.55, -3.0]) { use "apartment_window" () }
+  group "window_uf_fr1" (pos=[ 1.00, 4.55, -3.0]) { use "apartment_window" () }
+  group "window_uf_fr2" (pos=[ 3.00, 4.55, -3.0]) { use "apartment_window" () }
+  group "window_uf_bl1" (pos=[-3.00, 4.55, 3.0]) { use "apartment_window" () }
+  group "window_uf_bl2" (pos=[-1.00, 4.55, 3.0]) { use "apartment_window" () }
+  group "window_uf_br1" (pos=[ 1.00, 4.55, 3.0]) { use "apartment_window" () }
+  group "window_uf_br2" (pos=[ 3.00, 4.55, 3.0]) { use "apartment_window" () }
+  // Side upper windows
+  group "window_uf_l1" (pos=[-4.0, 4.55, -1.50], rot=[0, 90, 0]) { use "apartment_window" () }
+  group "window_uf_l2" (pos=[-4.0, 4.55, 1.50], rot=[0, 90, 0]) { use "apartment_window" () }
+  group "window_uf_r1" (pos=[ 4.0, 4.55, -1.50], rot=[0, 90, 0]) { use "apartment_window" () }
+  group "window_uf_r2" (pos=[ 4.0, 4.55, 1.50], rot=[0, 90, 0]) { use "apartment_window" () }
+
+  // === DOOR STEP ===
+  slab "door_step" (size=[1.20, 0.06, 0.30], mat="concrete", pos=[0, 0.03, -3.20], tags="floating")
+}

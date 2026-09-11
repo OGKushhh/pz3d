@@ -1,0 +1,14 @@
+// hedge.mog
+meta (name="hedge", description="Trimmed rectangular hedge", tags=["foliage","hedge","suburban","tier1"], mogen_version="0.1.12")
+material "leaves_dark" (color=[0.18,0.35,0.15], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "leaves_light" (color=[0.25,0.42,0.20], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+scene {
+  // Main hedge body (rounded box for soft trimmed look)
+  rounded_box "body" (size=[1.00, 0.80, 0.50], radius=0.08, mat="leaves_dark", pos=[0, 0.42, 0])
+  // Lighter top surface (slightly raised slab)
+  slab "top" (size=[0.95, 0.05, 0.45], mat="leaves_light", pos=[0, 0.82, 0])
+  // Surface detail (small bumps via 3 small icospheres)
+  icosphere "bump_1" (radius=0.08, subdivisions=1, mat="leaves_light", pos=[-0.30, 0.82, 0.10], tags="floating")
+  icosphere "bump_2" (radius=0.07, subdivisions=1, mat="leaves_light", pos=[0.10, 0.83, -0.05], tags="floating")
+  icosphere "bump_3" (radius=0.06, subdivisions=1, mat="leaves_light", pos=[0.35, 0.82, 0.12], tags="floating")
+}

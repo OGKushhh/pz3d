@@ -1,0 +1,15 @@
+// bollard.mog
+meta (name="bollard", description="Traffic bollard post", tags=["environment","bollard","traffic","urban","tier1"], mogen_version="0.1.12")
+material "bollard_red" (color=[0.65,0.15,0.10], roughness=0.50, metallic=0.3)
+material "stripe_white" (color=[0.92,0.92,0.88], roughness=0.50)
+material "base_concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+scene {
+  // Concrete base
+  cylinder "base" (radius=0.10, height=0.05, segments=12, mat="base_concrete", pos=[0, 0.025, 0])
+  // Bollard body (red cylinder)
+  cylinder "body" (radius=0.06, height=0.70, segments=12, mat="bollard_red", pos=[0, 0.40, 0])
+  // White reflective stripe (around middle)
+  cylinder "stripe" (radius=0.065, height=0.05, segments=12, mat="stripe_white", pos=[0, 0.40, 0], tags="floating")
+  // Top cap (slightly domed)
+  cylinder "cap" (radius=0.06, height=0.05, segments=12, mat="bollard_red", pos=[0, 0.75, 0])
+}

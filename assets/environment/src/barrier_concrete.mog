@@ -1,0 +1,16 @@
+// barrier_concrete.mog
+meta (name="barrier_concrete", description="Concrete road barrier (Jersey barrier)", tags=["environment","barrier","concrete","road","tier1"], mogen_version="0.1.12")
+material "concrete_grey" (color=[0.60,0.58,0.55], roughness=0.90, uv_mode="tile", uv_scale=2.0)
+material "stripe_white" (color=[0.92,0.92,0.88], roughness=0.50, emissive=[0.3,0.3,0.3], emissive_strength=0.3)
+material "stripe_red" (color=[0.65,0.15,0.10], roughness=0.50)
+scene {
+  // Main body (trapezoidal shape — use a wedge or just a tapered box)
+  // Use a simple box for the body with a smaller box on top
+  solid "body" (mat="concrete_grey", cleanup="coplanar") {
+    box "base" (size=[1.00, 0.40, 0.50], pos=[0, 0.20, 0])
+    box "top" (size=[0.60, 0.40, 0.20], pos=[0, 0.60, 0])
+  }
+  // Reflective stripes (2 on front face — red + white)
+  box "stripe_red" (size=[1.00, 0.05, 0.02], mat="stripe_red", pos=[0, 0.30, 0.26], tags="floating")
+  box "stripe_white" (size=[1.00, 0.05, 0.02], mat="stripe_white", pos=[0, 0.20, 0.26], tags="floating")
+}

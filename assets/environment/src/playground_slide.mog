@@ -1,0 +1,26 @@
+// playground_slide.mog
+meta (name="playground_slide", description="Playground slide with ladder and chute", tags=["environment","playground","park","suburban","tier1"], mogen_version="0.1.12")
+material "frame_metal" (color=[0.25,0.60,0.25], roughness=0.50, metallic=0.5)
+material "slide_red" (color=[0.65,0.20,0.15], roughness=0.30, metallic=0.3)
+material "step_metal" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.7)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+scene {
+  // Base pad
+  slab "base" (size=[2.0, 0.04, 3.0], mat="concrete", pos=[0, 0.02, 0])
+  // Platform (top of slide)
+  box "platform" (size=[0.80, 0.05, 0.80], mat="frame_metal", pos=[0, 1.50, -0.80], tags="floating")
+  // Platform railings (2 sides — left + back)
+  box "rail_left" (size=[0.04, 0.40, 0.80], mat="frame_metal", pos=[-0.38, 1.72, -0.80], tags="floating")
+  box "rail_back" (size=[0.80, 0.40, 0.04], mat="frame_metal", pos=[0, 1.72, -1.18], tags="floating")
+  // Ladder (4 steps going up to platform)
+  box "ladder_side_l" (size=[0.04, 1.50, 0.04], mat="frame_metal", pos=[-0.30, 0.75, -0.30])
+  box "ladder_side_r" (size=[0.04, 1.50, 0.04], mat="frame_metal", pos=[ 0.30, 0.75, -0.30])
+  box "step_1" (size=[0.60, 0.03, 0.04], mat="step_metal", pos=[0, 0.35, -0.30], tags="floating")
+  box "step_2" (size=[0.60, 0.03, 0.04], mat="step_metal", pos=[0, 0.65, -0.45], tags="floating")
+  box "step_3" (size=[0.60, 0.03, 0.04], mat="step_metal", pos=[0, 0.95, -0.60], tags="floating")
+  box "step_4" (size=[0.60, 0.03, 0.04], mat="step_metal", pos=[0, 1.25, -0.75], tags="floating")
+  // Slide chute (angled box from platform to ground)
+  box "slide" (size=[0.50, 0.04, 2.00], mat="slide_red", pos=[0, 0.75, 0.50], rot=[40, 0, 0])
+  // Support post (front of slide)
+  cylinder "support" (radius=0.03, height=1.50, segments=8, mat="frame_metal", pos=[0, 0.75, 1.30])
+}

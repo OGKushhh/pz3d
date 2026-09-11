@@ -1,0 +1,23 @@
+// power_pole.mog
+meta (name="power_pole", description="Utility/power pole with crossbeams", tags=["environment","power_pole","utility","tier1"], mogen_version="0.1.12")
+material "pole_wood" (color=[0.40,0.28,0.15], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "crossbar_wood" (color=[0.45,0.30,0.18], roughness=0.85)
+material "insulator_grey" (color=[0.60,0.58,0.55], roughness=0.60, metallic=0.3)
+material "wire_dark" (color=[0.15,0.15,0.18], roughness=0.85)
+scene {
+  // Main pole (tall vertical cylinder)
+  cylinder "pole" (radius=0.10, height=8.00, segments=10, mat="pole_wood", pos=[0, 4.00, 0])
+  // 2 crossbeams (horizontal boxes near top)
+  box "crossbar_1" (size=[2.00, 0.08, 0.08], mat="crossbar_wood", pos=[0, 7.50, 0])
+  box "crossbar_2" (size=[1.50, 0.08, 0.08], mat="crossbar_wood", pos=[0, 7.00, 0])
+  // 6 insulators (small grey cylinders on crossbeams)
+  cylinder "ins_1" (radius=0.04, height=0.10, segments=8, mat="insulator_grey", pos=[-0.85, 7.59, 0])
+  cylinder "ins_2" (radius=0.04, height=0.10, segments=8, mat="insulator_grey", pos=[-0.30, 7.59, 0])
+  cylinder "ins_3" (radius=0.04, height=0.10, segments=8, mat="insulator_grey", pos=[ 0.30, 7.59, 0])
+  cylinder "ins_4" (radius=0.04, height=0.10, segments=8, mat="insulator_grey", pos=[ 0.85, 7.59, 0])
+  cylinder "ins_5" (radius=0.04, height=0.10, segments=8, mat="insulator_grey", pos=[-0.60, 7.09, 0])
+  cylinder "ins_6" (radius=0.04, height=0.10, segments=8, mat="insulator_grey", pos=[ 0.60, 7.09, 0])
+  // 2 wires (thin cylinders draping between insulators — simplified as straight lines)
+  cylinder "wire_1" (radius=0.005, height=1.20, segments=6, mat="wire_dark", pos=[0, 7.64, 0], rot=[0, 0, 90], tags="floating")
+  cylinder "wire_2" (radius=0.005, height=0.60, segments=6, mat="wire_dark", pos=[0, 7.14, 0], rot=[0, 0, 90], tags="floating")
+}

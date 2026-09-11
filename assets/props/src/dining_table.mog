@@ -1,0 +1,32 @@
+// dining_table.mog — Tier 1 Style Anchor #3
+// Simple wooden dining table: rectangular top + 4 legs.
+// Target: 800 tris (per locked poly budget).
+// Coordinate system: glTF (right-handed, +Y up, -Z forward).
+// Dimensions: 1.80m long × 0.90m wide × 0.75m tall.
+
+meta (
+  name          = "dining_table",
+  description   = "Simple wooden dining table, 4 legs, rectangular top",
+  tags          = ["prop", "furniture", "table", "dining", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wood_oak"  (color=[0.45, 0.28, 0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30, 0.18, 0.10], roughness=0.75)
+
+scene {
+  // Tabletop — 1.8m × 0.9m × 0.04m thick. Slightly overlapping with apron below.
+  rounded_box "top" (size=[1.80, 0.04, 0.90], radius=0.015, mat="wood_oak", pos=[0, 0.72, 0])
+
+  // Apron (skirt under the top, gives the table visual weight) — overlaps top by 0.01m
+  box "apron_front" (size=[1.60, 0.08, 0.025], mat="wood_dark", pos=[0, 0.67,  0.43])
+  box "apron_back"  (size=[1.60, 0.08, 0.025], mat="wood_dark", pos=[0, 0.67, -0.43])
+  box "apron_left"  (size=[0.025, 0.08, 0.85], mat="wood_dark", pos=[-0.80, 0.67, 0])
+  box "apron_right" (size=[0.025, 0.08, 0.85], mat="wood_dark", pos=[ 0.80, 0.67, 0])
+
+  // 4 legs — overlap with apron above so they merge
+  box "leg_fl" (size=[0.07, 0.71, 0.07], mat="wood_dark", pos=[-0.70, 0.345,  0.38])
+  box "leg_fr" (size=[0.07, 0.71, 0.07], mat="wood_dark", pos=[ 0.70, 0.345,  0.38])
+  box "leg_bl" (size=[0.07, 0.71, 0.07], mat="wood_dark", pos=[-0.70, 0.345, -0.38])
+  box "leg_br" (size=[0.07, 0.71, 0.07], mat="wood_dark", pos=[ 0.70, 0.345, -0.38])
+}

@@ -1,0 +1,18 @@
+// parking_meter.mog
+meta (name="parking_meter", description="Single parking meter on post", tags=["environment","parking_meter","urban","tier1"], mogen_version="0.1.12")
+material "pole_metal" (color=[0.30,0.32,0.35], roughness=0.50, metallic=0.7)
+material "meter_grey" (color=[0.45,0.45,0.48], roughness=0.40, metallic=0.5)
+material "screen_dark" (color=[0.10,0.15,0.20], roughness=0.10, emissive=[0.2,0.3,0.4], emissive_strength=0.5)
+material "coin_metal" (color=[0.65,0.55,0.20], metallic=0.7, roughness=0.40)
+scene {
+  // Pole
+  cylinder "pole" (radius=0.02, height=1.00, segments=8, mat="pole_metal", pos=[0, 0.50, 0])
+  // Pole base
+  cylinder "base" (radius=0.04, height=0.03, segments=8, mat="pole_metal", pos=[0, 0.015, 0])
+  // Meter head (box at top of pole)
+  box "head" (size=[0.15, 0.30, 0.10], mat="meter_grey", pos=[0, 1.10, 0])
+  // Screen (dark glass on front of head)
+  box "screen" (size=[0.10, 0.08, 0.01], mat="screen_dark", pos=[0, 1.18, 0.05], tags="floating")
+  // Coin slot
+  box "slot" (size=[0.03, 0.01, 0.02], mat="coin_metal", pos=[0, 1.08, 0.05], tags="floating")
+}

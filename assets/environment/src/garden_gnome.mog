@@ -1,0 +1,23 @@
+// garden_gnome.mog
+meta (name="garden_gnome", description="Classic garden gnome statue", tags=["environment","gnome","garden","suburban","tier1"], mogen_version="0.1.12")
+material "hat_red" (color=[0.55,0.15,0.10], roughness=0.70)
+material "face_pink" (color=[0.86,0.70,0.56], roughness=0.70)
+material "beard_white" (color=[0.90,0.88,0.82], roughness=0.85)
+material "coat_blue" (color=[0.20,0.30,0.50], roughness=0.70)
+material "boots_black" (color=[0.12,0.12,0.14], roughness=0.70)
+material "grass" (color=[0.25,0.45,0.18], roughness=0.85)
+scene {
+  // Base (grass patch)
+  slab "grass_patch" (size=[0.40, 0.04, 0.40], mat="grass", pos=[0, 0.02, 0])
+  // Body (coat — cone shape, approximate with cylinder)
+  cylinder "body" (radius=0.12, height=0.30, segments=12, mat="coat_blue", pos=[0, 0.20, 0])
+  // Head (sphere)
+  sphere "head" (radius=0.08, mat="face_pink", pos=[0, 0.42, 0])
+  // Beard (half-sphere on front of face)
+  sphere "beard" (radius=0.06, mat="beard_white", pos=[0, 0.38, 0.04], tags="floating")
+  // Hat (cone on top of head)
+  cone "hat" (radius=0.10, height=0.20, sides=12, mat="hat_red", pos=[0, 0.58, 0])
+  // 2 boots (small dark boxes at base)
+  box "boot_l" (size=[0.06, 0.05, 0.08], mat="boots_black", pos=[-0.04, 0.025, 0.03], tags="floating")
+  box "boot_r" (size=[0.06, 0.05, 0.08], mat="boots_black", pos=[ 0.04, 0.025, 0.03], tags="floating")
+}

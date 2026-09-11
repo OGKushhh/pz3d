@@ -1,0 +1,49 @@
+// flower_patch.mog — Tier 1 foliage variant
+// Small flower patch: 5 stems + flower heads in different colors.
+// Designed for MultiMeshInstance3D scatter in parks/gardens.
+// Target: 200 tris (Low-preset LOD0). Actual: ~120 tris.
+// Dimensions: ~0.40m wide × 0.40m deep × 0.30m tall.
+
+meta (
+  name          = "flower_patch",
+  description   = "Small flower patch with 5 stems and colored flower heads",
+  tags          = ["foliage", "flower", "garden", "park", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "stem_green" (color=[0.25, 0.45, 0.18], roughness=0.85)
+material "flower_red" (color=[0.75, 0.20, 0.20], roughness=0.70, emissive=[0.3, 0.1, 0.1], emissive_strength=0.2)
+material "flower_yellow" (color=[0.85, 0.70, 0.20], roughness=0.70, emissive=[0.3, 0.25, 0.1], emissive_strength=0.2)
+material "flower_purple" (color=[0.50, 0.25, 0.60], roughness=0.70, emissive=[0.2, 0.1, 0.25], emissive_strength=0.2)
+material "flower_white" (color=[0.92, 0.92, 0.88], roughness=0.75)
+material "leaf_dark" (color=[0.18, 0.35, 0.15], roughness=0.85)
+
+scene {
+  // 5 flower stems + heads, scattered in a small patch
+  // Each stem is a thin cylinder + a small sphere/icosphere flower head
+
+  // Flower 1 (front-left, red)
+  cylinder "stem_1" (radius=0.008, height=0.25, segments=5, mat="stem_green", pos=[-0.10, 0.125, 0.08], tags="floating")
+  icosphere "head_1" (radius=0.04, subdivisions=1, mat="flower_red", pos=[-0.10, 0.28, 0.08], tags="floating")
+
+  // Flower 2 (front-right, yellow, taller)
+  cylinder "stem_2" (radius=0.008, height=0.30, segments=5, mat="stem_green", pos=[0.12, 0.150, 0.10], tags="floating")
+  icosphere "head_2" (radius=0.045, subdivisions=1, mat="flower_yellow", pos=[0.12, 0.32, 0.10], tags="floating")
+
+  // Flower 3 (center, purple)
+  cylinder "stem_3" (radius=0.008, height=0.22, segments=5, mat="stem_green", pos=[0, 0.110, -0.05], tags="floating")
+  icosphere "head_3" (radius=0.035, subdivisions=1, mat="flower_purple", pos=[0, 0.24, -0.05], tags="floating")
+
+  // Flower 4 (back-left, white)
+  cylinder "stem_4" (radius=0.008, height=0.28, segments=5, mat="stem_green", pos=[-0.08, 0.140, -0.12], tags="floating")
+  icosphere "head_4" (radius=0.04, subdivisions=1, mat="flower_white", pos=[-0.08, 0.30, -0.12], tags="floating")
+
+  // Flower 5 (back-right, red, shorter)
+  cylinder "stem_5" (radius=0.008, height=0.20, segments=5, mat="stem_green", pos=[0.08, 0.100, -0.08], tags="floating")
+  icosphere "head_5" (radius=0.035, subdivisions=1, mat="flower_red", pos=[0.08, 0.22, -0.08], tags="floating")
+
+  // === LEAVES (3 small leaf clusters at base of stems) ===
+  icosphere "leaf_1" (radius=0.05, subdivisions=1, mat="leaf_dark", pos=[-0.05, 0.03, 0.05], tags="floating")
+  icosphere "leaf_2" (radius=0.04, subdivisions=1, mat="leaf_dark", pos=[0.10, 0.03, -0.05], tags="floating")
+  icosphere "leaf_3" (radius=0.04, subdivisions=1, mat="leaf_dark", pos=[-0.10, 0.03, -0.10], tags="floating")
+}

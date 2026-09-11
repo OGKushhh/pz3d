@@ -1,0 +1,11 @@
+// sandbag.mog
+meta (name="sandbag", description="Stack of 3 sandbags", tags=["environment","sandbag","barricade","tier1"], mogen_version="0.1.12")
+material "bag_tan" (color=[0.65,0.55,0.35], roughness=0.95, noise=0.05, seed=3)
+material "bag_dark" (color=[0.50,0.40,0.25], roughness=0.95, noise=0.08, seed=7)
+scene {
+  // Bottom row: 2 sandbags side by side
+  rounded_box "bag_1" (size=[0.30, 0.15, 0.40], radius=0.06, mat="bag_tan", pos=[-0.15, 0.075, 0])
+  rounded_box "bag_2" (size=[0.30, 0.15, 0.40], radius=0.06, mat="bag_dark", pos=[ 0.15, 0.075, 0])
+  // Top row: 1 sandbag centered
+  rounded_box "bag_3" (size=[0.30, 0.15, 0.40], radius=0.06, mat="bag_tan", pos=[0, 0.225, 0])
+}

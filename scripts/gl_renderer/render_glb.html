@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; overflow: hidden; background: #2a2d33; }
+  #info { position: absolute; top: 8px; left: 12px; color: #ddd; font: 14px sans-serif; }
+  #err  { position: absolute; top: 36px; left: 12px; color: #ff8080; font: 12px sans-serif; }
+</style>
+</head>
+<body>
+<div id="info">loading...</div>
+<div id="err"></div>
+<canvas id="c"></canvas>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader }    from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const url  = new URLSearchParams(location.search).get('glb');
+const size = parseInt(new URLSearchParams(location.search).get('size') || '1024');
+const yaw = parseFloat(new URLSearchParams(location.search).get('yaw') || '35') * Math.PI / 180;
+const pit = parseFloat(new URLSearchParams(location.search).get('pitch') || '20') * Math.PI / 180;
+const title = new URLSearchParams(location.search).get('title') || '';
+
+const canvas = document.getElementById('c');
+canvas.width = size; canvas.height = size;
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(size, size);
+renderer.setPixelRatio(1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x2a2d33);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 1000);
+
+const loader = new GLTFLoader();
+loader.load(url, (gltf) => {
+  const model = gltf.scene;
+
+  // center & scale to fit
+  const bbox = new THREE.Box3().setFromObject(model);
+  const center = bbox.getCenter(new THREE.Vector3());
+  const size3 = bbox.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size3.x, size3.y, size3.z);
+  const scale = 2.0 / maxDim;
+  model.scale.setScalar(scale);
+  model.position.sub(center.multiplyScalar(scale));
+
+  scene.add(model);
+
+  // place camera on a sphere of radius 3 looking at origin
+  const r = 3.2;
+  camera.position.set(
+    r * Math.cos(pit) * Math.sin(yaw),
+    r * Math.sin(pit),
+    r * Math.cos(pit) * Math.cos(yaw)
+  );
+  camera.lookAt(0, 0, 0);
+
+  document.getElementById('info').textContent = title;
+
+  renderer.render(scene, camera);
+  document.getElementById('info').textContent = title + '  [READY]';
+  window.__RENDER_DONE__ = true;
+}, undefined, (err) => {
+  document.getElementById('err').textContent = 'load error: ' + err.message;
+  window.__RENDER_DONE__ = true;
+});
+</script>
+</body>
+</html>

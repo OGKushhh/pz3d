@@ -1,0 +1,17 @@
+// radiator.mog
+meta (name="radiator", description="Wall-mounted heating radiator", tags=["prop","furniture","radiator","static","tier1"], mogen_version="0.1.12")
+material "radiator_white" (color=[0.90,0.90,0.88], roughness=0.40, metallic=0.3)
+material "pipe_metal" (color=[0.50,0.50,0.52], roughness=0.40, metallic=0.7)
+scene {
+  // Main body — use array of vertical fins to suggest radiator fins
+  // 8 vertical fins, each 0.08m wide, spaced 0.08m apart
+  array (count=8, step=[0.10, 0, 0]) {
+    box "fin" (size=[0.04, 0.45, 0.10], mat="radiator_white", pos=[0, 0.25, 0])
+  }
+  // Top + bottom rails (connect fins)
+  box "rail_top" (size=[0.80, 0.04, 0.10], mat="radiator_white", pos=[0.35, 0.47, 0])
+  box "rail_bot" (size=[0.80, 0.04, 0.10], mat="radiator_white", pos=[0.35, 0.03, 0])
+  // 2 pipes (bottom-left + bottom-right)
+  cylinder "pipe_l" (radius=0.015, height=0.10, segments=8, mat="pipe_metal", pos=[0.10, 0.55, 0], tags="floating")
+  cylinder "pipe_r" (radius=0.015, height=0.10, segments=8, mat="pipe_metal", pos=[0.70, 0.55, 0], tags="floating")
+}

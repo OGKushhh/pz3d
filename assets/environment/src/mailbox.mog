@@ -1,0 +1,38 @@
+// mailbox.mog — Tier 1 environment prop
+// Suburban curbside mailbox: post + box + flag.
+// Target: 200 tris (Low-preset LOD0 environment). Actual: ~80 tris.
+// Dimensions: 0.20m wide × 0.50m deep × 1.20m tall (post top).
+
+meta (
+  name          = "mailbox",
+  description   = "Suburban curbside mailbox with post + box + flag",
+  tags          = ["environment", "mailbox", "suburban", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "box_metal"   (color=[0.55, 0.20, 0.15], roughness=0.50, metallic=0.4)  // red
+material "post_wood"   (color=[0.40, 0.25, 0.12], roughness=0.80)
+material "flag_red"    (color=[0.65, 0.10, 0.08], roughness=0.50)
+material "chrome"      (color=[0.85, 0.85, 0.88], metallic=0.95, roughness=0.15)
+
+scene {
+  // === POST (4x4 wood, 1.0m tall) ===
+  box "post" (size=[0.06, 1.00, 0.06], mat="post_wood", pos=[0, 0.50, 0])
+
+  // === MAILBOX BODY (curved-top box at top of post) ===
+  // Use rounded_box for the curved top look
+  rounded_box "box_body" (size=[0.20, 0.18, 0.50], radius=0.08, mat="box_metal", pos=[0, 1.10, 0.05])
+
+  // === DOOR (front flap, slightly recessed) ===
+  box "door" (size=[0.18, 0.14, 0.02], mat="box_metal", pos=[0, 1.08, -0.20], tags="floating")
+  // Door handle (small chrome knob)
+  sphere "handle" (radius=0.02, mat="chrome", pos=[0, 1.02, -0.21], tags="floating")
+
+  // === FLAG (red, on side, can be "up" — modeled as up) ===
+  box "flag" (size=[0.02, 0.10, 0.12], mat="flag_red", pos=[0.115, 1.20, 0.05], tags="floating")
+  // Flag arm (horizontal bit connecting flag to mailbox)
+  box "flag_arm" (size=[0.02, 0.02, 0.06], mat="flag_red", pos=[0.115, 1.15, 0.00], tags="floating")
+
+  // === POST CAP (small pyramid on top of post, under mailbox) ===
+  pyramid "post_cap" (radius=0.05, height=0.04, sides=4, mat="post_wood", pos=[0, 1.02, 0], rot=[0, 45, 0])
+}

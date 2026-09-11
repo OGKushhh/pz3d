@@ -1,0 +1,29 @@
+// kitchen_wall_cabinet.mog — Tier 1 prop (modular kitchen piece #4)
+// Wall-mounted cabinet above counter. Empty (no glass door) for simplicity.
+// Placed at 1.50m height (above standard 0.90m counter).
+// Target: 250 tris (standard prop). Actual: ~60 tris.
+// Dimensions: 0.80m wide × 0.30m deep × 0.70m tall.
+
+meta (
+  name          = "kitchen_wall_cabinet",
+  description   = "Wall-mounted kitchen cabinet (modular, above counter)",
+  tags          = ["prop", "furniture", "kitchen", "cabinet", "modular", "static", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "cabinet_wood" (color=[0.55, 0.40, 0.25], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "handle_metal" (color=[0.45, 0.45, 0.48], metallic=0.7, roughness=0.30)
+
+scene {
+  // === CARCASS (single solid box, all sides merged) ===
+  solid "carcass" (mat="cabinet_wood", cleanup="coplanar") {
+    box "body" (size=[0.80, 0.70, 0.30], pos=[0, 0, 0])
+  }
+
+  // === 2 CABINET DOORS (front face — decorative panels, floating) ===
+  box "door_l" (size=[0.38, 0.60, 0.04], mat="cabinet_wood", pos=[-0.20, 0, 0.15], tags="floating")
+  box "door_r" (size=[0.38, 0.60, 0.04], mat="cabinet_wood", pos=[ 0.20, 0, 0.15], tags="floating")
+  // Handles
+  box "handle_l" (size=[0.08, 0.02, 0.04], mat="handle_metal", pos=[-0.05, 0, 0.17], tags="floating")
+  box "handle_r" (size=[0.08, 0.02, 0.04], mat="handle_metal", pos=[ 0.05, 0, 0.17], tags="floating")
+}

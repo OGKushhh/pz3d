@@ -1,0 +1,21 @@
+// traffic_light.mog
+meta (name="traffic_light", description="Traffic light pole with 3-light head", tags=["environment","traffic_light","road","urban","tier1"], mogen_version="0.1.12")
+material "pole_metal" (color=[0.25,0.25,0.28], roughness=0.50, metallic=0.7)
+material "head_metal" (color=[0.15,0.15,0.18], roughness=0.50, metallic=0.6)
+material "light_red" (color=[0.65,0.10,0.08], roughness=0.20, emissive=[0.8,0.1,0.05], emissive_strength=1.0)
+material "light_yellow" (color=[0.85,0.75,0.15], roughness=0.20, emissive=[0.8,0.7,0.1], emissive_strength=0.5)
+material "light_green" (color=[0.20,0.65,0.15], roughness=0.20, emissive=[0.1,0.7,0.1], emissive_strength=0.5)
+scene {
+  // Pole
+  cylinder "pole" (radius=0.05, height=3.00, segments=12, mat="pole_metal", pos=[0, 1.50, 0])
+  // Pole base
+  cylinder "base" (radius=0.10, height=0.05, segments=12, mat="pole_metal", pos=[0, 0.025, 0])
+  // Arm (horizontal cylinder extending outward)
+  cylinder "arm" (radius=0.03, height=0.50, segments=8, mat="pole_metal", pos=[0.25, 3.00, 0], rot=[0, 0, 90])
+  // Light head (vertical box at end of arm)
+  box "head" (size=[0.25, 0.70, 0.15], mat="head_metal", pos=[0.50, 2.95, 0])
+  // 3 lights (red top, yellow middle, green bottom)
+  cylinder "red" (radius=0.08, height=0.02, segments=12, mat="light_red", pos=[0.50, 3.20, 0.08], rot=[0, 90, 0])
+  cylinder "yellow" (radius=0.08, height=0.02, segments=12, mat="light_yellow", pos=[0.50, 2.95, 0.08], rot=[0, 90, 0])
+  cylinder "green" (radius=0.08, height=0.02, segments=12, mat="light_green", pos=[0.50, 2.70, 0.08], rot=[0, 90, 0])
+}

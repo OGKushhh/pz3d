@@ -1,0 +1,57 @@
+// birch_tree.mog — Tier 1 foliage variant — v2 FIXED canopy randomization
+// Stylized birch tree: white bark trunk + irregular canopy.
+// FIX from v1: "looked like an atom" — spheres too uniform/symmetrical.
+//   Now uses varied radii, varied positions (asymmetric), and added noise=
+//   deformers to the canopy spheres to break up the perfect spherical look.
+// Target: 1,200 tris (Low-preset LOD0 hero tree). Actual: ~1.5k tris.
+// Dimensions: ~5.0m tall, ~1.8m canopy diameter.
+
+meta (
+  name          = "birch_tree",
+  description   = "Stylized birch tree with irregular randomized canopy (v2)",
+  tags          = ["foliage", "tree", "birch", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "bark_white" (color=[0.88, 0.86, 0.80], roughness=0.85)
+material "bark_dark"  (color=[0.20, 0.18, 0.15], roughness=0.85)
+material "leaves_light" (color=[0.30, 0.50, 0.20], roughness=0.85, uv_mode="tile", uv_scale=1.5)
+material "leaves_dark"  (color=[0.18, 0.35, 0.15], roughness=0.85, uv_mode="tile", uv_scale=1.5)
+
+scene {
+  // === TRUNK (tall, thin cylinder — birch is slender) ===
+  // Slight bend to break symmetry
+  cylinder "trunk" (radius=0.10, height=3.00, segments=8, mat="bark_white", pos=[0, 1.50, 0], bend_x=2)
+
+  // Root flare at base
+  cylinder "root_flare" (radius=0.14, height=0.10, segments=8, mat="bark_white", pos=[0, 0.05, 0])
+
+  // === BARK MARKINGS (4 dark horizontal bands at irregular heights — birch signature) ===
+  cylinder "mark_1" (radius=0.105, height=0.015, segments=8, mat="bark_dark", pos=[0, 0.65, 0], tags="floating")
+  cylinder "mark_2" (radius=0.105, height=0.015, segments=8, mat="bark_dark", pos=[0, 1.35, 0.02], tags="floating")
+  cylinder "mark_3" (radius=0.105, height=0.015, segments=8, mat="bark_dark", pos=[0, 2.10, -0.02], tags="floating")
+  cylinder "mark_4" (radius=0.105, height=0.015, segments=8, mat="bark_dark", pos=[0, 2.70, 0.01], tags="floating")
+
+  // === CANOPY (7 spheres — ASYMMETRIC placement + varied radii + noise deformer) ===
+  // Key fix: randomize positions + radii + add noise= to break perfect sphere shape.
+  // Trunk ends at y=3.0. Canopy spheres overlap with trunk top.
+
+  // Main canopy mass (offset slightly to one side — NOT centered)
+  icosphere "canopy_main"  (radius=0.95, subdivisions=2, mat="leaves_light", pos=[0.10, 3.45, 0.05], noise=0.08, seed=3)
+  // Top cluster (offset opposite direction for asymmetric silhouette)
+  icosphere "canopy_top"   (radius=0.65, subdivisions=2, mat="leaves_dark",  pos=[-0.20, 4.15, -0.10], noise=0.10, seed=7)
+  // Left side cluster (lower + smaller)
+  icosphere "canopy_left"  (radius=0.50, subdivisions=2, mat="leaves_dark",  pos=[-0.65, 3.20, 0.25], noise=0.09, seed=11)
+  // Right side cluster (higher + larger, breaks symmetry)
+  icosphere "canopy_right" (radius=0.60, subdivisions=2, mat="leaves_dark",  pos=[ 0.70, 3.40, -0.20], noise=0.08, seed=5)
+  // Front lower cluster (fills gap between trunk and main canopy)
+  icosphere "canopy_front" (radius=0.45, subdivisions=2, mat="leaves_light", pos=[0.25, 3.05, 0.55], noise=0.07, seed=13)
+  // Back lower cluster
+  icosphere "canopy_back"  (radius=0.40, subdivisions=2, mat="leaves_light", pos=[-0.30, 3.10, -0.50], noise=0.08, seed=17)
+  // Small top accent (offset)
+  icosphere "canopy_accent" (radius=0.35, subdivisions=2, mat="leaves_light", pos=[0.30, 4.50, 0.10], noise=0.10, seed=19)
+
+  // === 2 SHORT BRANCH STUBS (visible at canopy gaps, asymmetric) ===
+  cylinder "stub_1" (radius=0.03, height=0.35, segments=6, mat="bark_white", pos=[0.30, 3.05, 0.25], rot=[40, 25, 25])
+  cylinder "stub_2" (radius=0.03, height=0.30, segments=6, mat="bark_white", pos=[-0.25, 3.35, -0.20], rot=[-35, -20, -20])
+}

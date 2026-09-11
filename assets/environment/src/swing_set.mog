@@ -1,0 +1,26 @@
+// swing_set.mog
+meta (name="swing_set", description="Playground swing set with 2 swings", tags=["environment","playground","park","suburban","tier1"], mogen_version="0.1.12")
+material "frame_metal" (color=[0.20,0.50,0.20], roughness=0.50, metallic=0.5)
+material "seat_black" (color=[0.12,0.12,0.14], roughness=0.70)
+material "chain_metal" (color=[0.50,0.50,0.52], roughness=0.40, metallic=0.7)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+scene {
+  slab "base" (size=[4.0, 0.04, 2.0], mat="concrete", pos=[0, 0.02, 0])
+  // A-frame: 2 legs on left, 2 legs on right, top bar
+  // Left legs (angled)
+  cylinder "leg_l_f" (radius=0.03, height=2.20, segments=8, mat="frame_metal", pos=[-1.50, 1.10, 0.50], rot=[8, 0, 0])
+  cylinder "leg_l_b" (radius=0.03, height=2.20, segments=8, mat="frame_metal", pos=[-1.50, 1.10, -0.50], rot=[-8, 0, 0])
+  cylinder "leg_r_f" (radius=0.03, height=2.20, segments=8, mat="frame_metal", pos=[ 1.50, 1.10, 0.50], rot=[8, 0, 0])
+  cylinder "leg_r_b" (radius=0.03, height=2.20, segments=8, mat="frame_metal", pos=[ 1.50, 1.10, -0.50], rot=[-8, 0, 0])
+  // Top bar
+  cylinder "top_bar" (radius=0.035, height=3.00, segments=8, mat="frame_metal", pos=[0, 2.20, 0], rot=[0, 0, 90], tags="floating")
+  // 2 swings (seat + 2 chains each)
+  // Swing 1 (left)
+  cylinder "chain_1_l" (radius=0.008, height=0.50, segments=6, mat="chain_metal", pos=[-0.50, 1.85, 0.10], tags="floating")
+  cylinder "chain_1_r" (radius=0.008, height=0.50, segments=6, mat="chain_metal", pos=[-0.50, 1.85, -0.10], tags="floating")
+  box "seat_1" (size=[0.30, 0.03, 0.15], mat="seat_black", pos=[-0.50, 1.55, 0], tags="floating")
+  // Swing 2 (right)
+  cylinder "chain_2_l" (radius=0.008, height=0.50, segments=6, mat="chain_metal", pos=[ 0.50, 1.85, 0.10], tags="floating")
+  cylinder "chain_2_r" (radius=0.008, height=0.50, segments=6, mat="chain_metal", pos=[ 0.50, 1.85, -0.10], tags="floating")
+  box "seat_2" (size=[0.30, 0.03, 0.15], mat="seat_black", pos=[ 0.50, 1.55, 0], tags="floating")
+}

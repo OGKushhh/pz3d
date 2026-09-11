@@ -1,0 +1,47 @@
+// tv.mog — Tier 1 prop (dynamic furniture + loot container)
+// Standard CRT-style TV: body + screen + 2 legs/stand.
+// Loot container for electronics.
+// Target: 250 tris (Low-preset LOD0). Actual: ~100 tris.
+// Dimensions: 0.60m wide × 0.45m deep × 0.50m tall.
+
+meta (
+  name          = "tv",
+  description   = "CRT-style TV with screen and stand (lootable for electronics)",
+  tags          = ["prop", "furniture", "tv", "electronics", "dynamic", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "case_black" (color=[0.10, 0.10, 0.12], roughness=0.60, metallic=0.3)
+material "screen_glass" (color=[0.08, 0.10, 0.15], roughness=0.10, metallic=0.5)
+material "screen_on" (color=[0.40, 0.45, 0.55], roughness=0.10, metallic=0.5, emissive=[0.3, 0.35, 0.45], emissive_strength=0.3)
+material "trim_grey" (color=[0.40, 0.42, 0.45], roughness=0.60, metallic=0.4)
+material "speaker_mesh" (color=[0.20, 0.20, 0.22], roughness=0.85)
+
+scene {
+  // === MAIN BODY (rounded box, CRT-style) ===
+  rounded_box "body" (size=[0.60, 0.45, 0.40], radius=0.04, mat="case_black", pos=[0, 0.30, 0])
+
+  // === SCREEN (recessed into front face) ===
+  box "screen" (size=[0.42, 0.32, 0.02], mat="screen_on", pos=[0, 0.35, 0.20])
+
+  // === SCREEN BEZEL (trim around screen) ===
+  box "bezel_top" (size=[0.50, 0.04, 0.02], mat="trim_grey", pos=[0, 0.53, 0.20], tags="floating")
+  box "bezel_bot" (size=[0.50, 0.04, 0.02], mat="trim_grey", pos=[0, 0.17, 0.20], tags="floating")
+  box "bezel_left" (size=[0.04, 0.36, 0.02], mat="trim_grey", pos=[-0.25, 0.35, 0.20], tags="floating")
+  box "bezel_right" (size=[0.04, 0.36, 0.02], mat="trim_grey", pos=[ 0.25, 0.35, 0.20], tags="floating")
+
+  // === SPEAKER GRILLE (right side of front face) ===
+  box "speaker" (size=[0.10, 0.30, 0.02], mat="speaker_mesh", pos=[0.20, 0.35, 0.20], tags="floating")
+
+  // === CONTROL KNOBS (2 small knobs on front, bottom right) ===
+  cylinder "knob_1" (radius=0.02, height=0.02, segments=8, mat="trim_grey", pos=[0.22, 0.20, 0.21], tags="floating")
+  cylinder "knob_2" (radius=0.02, height=0.02, segments=8, mat="trim_grey", pos=[0.26, 0.20, 0.21], tags="floating")
+
+  // === STAND/LEGS (2 small feet at bottom) ===
+  box "leg_l" (size=[0.10, 0.08, 0.15], mat="case_black", pos=[-0.20, 0.04, -0.10])
+  box "leg_r" (size=[0.10, 0.08, 0.15], mat="case_black", pos=[ 0.20, 0.04, -0.10])
+
+  // === ANTENNA (2 thin chrome rods at top — "rabbit ears") ===
+  cylinder "antenna_l" (radius=0.005, height=0.30, segments=6, mat="trim_grey", pos=[-0.10, 0.60, 0], rot=[0, 0, 20], tags="floating")
+  cylinder "antenna_r" (radius=0.005, height=0.30, segments=6, mat="trim_grey", pos=[ 0.10, 0.60, 0], rot=[0, 0, -20], tags="floating")
+}

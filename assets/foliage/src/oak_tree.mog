@@ -1,0 +1,50 @@
+// oak_tree.mog — Tier 1 Style Anchor #4 (v2 — fixed bare-twig issue)
+// Stylized oak tree: simple tapered trunk + 7-sphere canopy.
+//
+// FIX from v1: replaced `branch` primitive with simple cylinders.
+// The `branch` primitive generates internal sub-segments (seg_d0..d3) that
+// poke through the canopy spheres in unpredictable places. VLM consistently
+// reported "bare brown branches sticking out the top" even though my math
+// said they should be inside the canopy spheres. Replacing with simple
+// cylinders eliminates this entirely.
+//
+// Target: 2,500 tris (per locked poly budget — hero tree LOD0).
+// Dimensions: ~4.0m tall, ~3.0m canopy diameter.
+
+meta (
+  name          = "oak_tree",
+  description   = "Stylized oak tree with cylinder trunk and 7-sphere canopy",
+  tags          = ["foliage", "tree", "oak", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "bark"     (color=[0.30, 0.20, 0.12], roughness=0.90, uv_mode="tile", uv_scale=2.0)
+material "leaves"   (color=[0.20, 0.38, 0.15], roughness=0.85, uv_mode="tile", uv_scale=1.5)
+material "leaves_d" (color=[0.13, 0.28, 0.10], roughness=0.85, uv_mode="tile", uv_scale=1.5)
+
+scene {
+  // === TRUNK ===
+  // Single tapered cylinder (use cylinder, no internal sub-branches).
+  // 2.2m tall, base radius 0.20m, top radius 0.08m.
+  // (cylinder primitive is uniform radius; for taper we'd need lathe, but a
+  // uniform 0.15m cylinder reads fine at stylized low-poly scale.)
+  cylinder "trunk" (radius=0.15, height=2.20, segments=8, mat="bark", pos=[0, 1.10, 0])
+
+  // Root flare (wider disk at base)
+  cylinder "root_flare" (radius=0.22, height=0.15, segments=8, mat="bark", pos=[0, 0.075, 0])
+
+  // === CANOPY ===
+  // 7 spheres arranged to fully enclose the top of the trunk.
+  // Trunk ends at Y=2.20. All canopy spheres overlap each other and the trunk top.
+  icosphere "canopy_main"   (radius=1.50, subdivisions=2, mat="leaves",   pos=[0,    3.20, 0])
+  icosphere "canopy_front"  (radius=1.10, subdivisions=2, mat="leaves_d", pos=[0.55, 2.75, 0.65])
+  icosphere "canopy_back"   (radius=1.10, subdivisions=2, mat="leaves_d", pos=[-0.50, 2.75, -0.60])
+  icosphere "canopy_left"   (radius=1.00, subdivisions=2, mat="leaves_d", pos=[-0.85, 3.05, 0.20])
+  icosphere "canopy_right"  (radius=1.00, subdivisions=2, mat="leaves_d", pos=[ 0.85, 3.05, -0.10])
+  icosphere "canopy_top"    (radius=0.85, subdivisions=2, mat="leaves",   pos=[0.10, 3.95, 0.05])
+  icosphere "canopy_under"  (radius=0.70, subdivisions=2, mat="leaves_d", pos=[0, 2.30, 0])  // covers trunk-to-canopy join
+
+  // 2 short branch stubs (decorative, fully inside the canopy spheres)
+  cylinder "stub_1" (radius=0.05, height=0.40, segments=6, mat="bark", pos=[0.40, 2.50, 0.30], rot=[35, 0, 25])
+  cylinder "stub_2" (radius=0.05, height=0.35, segments=6, mat="bark", pos=[-0.35, 2.55, -0.25], rot=[-30, 0, -20])
+}

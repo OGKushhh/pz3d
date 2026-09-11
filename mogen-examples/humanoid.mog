@@ -1,0 +1,93 @@
+// Stylized blocky humanoid - a stress test for DSL character work.
+// Coordinate system: glTF (right-handed, +Y up, -Z forward).
+// All dimensions in metres. Character is ~1.75m tall.
+
+meta (
+  name          = "humanoid_blocky",
+  description   = "Stylized blocky humanoid with simple joint hierarchy",
+  tags          = ["character", "humanoid", "blocky", "stylized"],
+  mogen_version = "0.1.12"
+)
+
+material "skin"  (color=[0.86, 0.70, 0.56], roughness=0.7)
+material "hair"  (color=[0.18, 0.12, 0.08], roughness=0.8)
+material "shirt" (color=[0.20, 0.32, 0.45], roughness=0.75)
+material "pants" (color=[0.12, 0.13, 0.18], roughness=0.8)
+material "boots" (color=[0.08, 0.06, 0.05], roughness=0.6, metallic=0.05)
+material "eyes"  (color=[0.95, 0.95, 0.95], roughness=0.3, emissive=[0.1, 0.1, 0.1], emissive_strength=0.3)
+
+scene {
+  // Skeleton - hierarchical bones with envelope radii
+  skeleton "rig" {
+    bone "hips"      (pos=[0, 0.95, 0], envelope=0.30) {
+      bone "spine"   (pos=[0, 0.25, 0], envelope=0.35) {
+        bone "chest" (pos=[0, 0.25, 0], envelope=0.35) {
+          bone "neck" (pos=[0, 0.10, 0], envelope=0.15) {
+            bone "head" (pos=[0, 0.10, 0], envelope=0.20)
+          }
+          bone "shoulder_l" (pos=[-0.22, 0.05, 0], envelope=0.15) {
+            bone "upper_arm_l" (pos=[0, -0.20, 0], envelope=0.12) {
+              bone "forearm_l" (pos=[0, -0.25, 0], envelope=0.12)
+            }
+          }
+          bone "shoulder_r" (pos=[ 0.22, 0.05, 0], envelope=0.15) {
+            bone "upper_arm_r" (pos=[0, -0.20, 0], envelope=0.12) {
+              bone "forearm_r" (pos=[0, -0.25, 0], envelope=0.12)
+            }
+          }
+        }
+      }
+      bone "thigh_l" (pos=[-0.11, -0.05, 0], envelope=0.25) {
+        bone "shin_l" (pos=[0, -0.45, 0], envelope=0.22) {
+          bone "foot_l" (pos=[0, -0.42, 0.05], envelope=0.12)
+        }
+      }
+      bone "thigh_r" (pos=[ 0.11, -0.05, 0], envelope=0.25) {
+        bone "shin_r" (pos=[0, -0.45, 0], envelope=0.22) {
+          bone "foot_r" (pos=[0, -0.42, 0.05], envelope=0.12)
+        }
+      }
+    }
+  }
+
+  // Body meshes - envelope-weighted (skin= alone, no bind=)
+  // Positions are relative to scene origin; the auto-skinner distributes
+  // weights to the 4 nearest bones based on envelope radius overlap.
+  rounded_box "pelvis_mesh" (size=[0.30, 0.18, 0.20], radius=0.04, mat="pants", pos=[0, 0.95, 0], skin="rig")
+  rounded_box "torso_mesh"  (size=[0.42, 0.50, 0.25], radius=0.05, mat="shirt", pos=[0, 1.30, 0], skin="rig")
+  rounded_box "head_mesh"   (size=[0.22, 0.26, 0.22], radius=0.04, mat="skin",  pos=[0, 1.65, 0], skin="rig")
+  box        "hair_mesh"    (size=[0.24, 0.08, 0.24], mat="hair", pos=[0, 1.78, 0], skin="rig")
+  sphere     "eye_l_mesh"   (radius=0.022, mat="eyes", pos=[-0.05, 1.66, 0.115], skin="rig")
+  sphere     "eye_r_mesh"   (radius=0.022, mat="eyes", pos=[ 0.05, 1.66, 0.115], skin="rig")
+
+  // Arms - envelope-weighted across shoulder/upper_arm/forearm
+  capsule "upper_arm_l_mesh" (radius=0.055, height=0.22, mat="shirt", pos=[-0.27, 1.15, 0], skin="rig")
+  capsule "upper_arm_r_mesh" (radius=0.055, height=0.22, mat="shirt", pos=[ 0.27, 1.15, 0], skin="rig")
+  capsule "forearm_l_mesh"   (radius=0.05,  height=0.22, mat="skin",  pos=[-0.27, 0.85, 0], skin="rig")
+  capsule "forearm_r_mesh"   (radius=0.05,  height=0.22, mat="skin",  pos=[ 0.27, 0.85, 0], skin="rig")
+
+  // Legs - envelope-weighted across thigh/shin
+  capsule "thigh_l_mesh" (radius=0.07, height=0.40, mat="pants", pos=[-0.10, 0.70, 0], skin="rig")
+  capsule "thigh_r_mesh" (radius=0.07, height=0.40, mat="pants", pos=[ 0.10, 0.70, 0], skin="rig")
+  capsule "shin_l_mesh"  (radius=0.06, height=0.40, mat="pants", pos=[-0.10, 0.30, 0], skin="rig")
+  capsule "shin_r_mesh"  (radius=0.06, height=0.40, mat="pants", pos=[ 0.10, 0.30, 0], skin="rig")
+
+  // Boots - rigidly pinned to foot bone (accessory pattern)
+  rounded_box "boot_l_mesh" (size=[0.14, 0.10, 0.26], radius=0.03, mat="boots", pos=[-0.10, 0.05, 0.05], skin="rig", bind="foot_l")
+  rounded_box "boot_r_mesh" (size=[0.14, 0.10, 0.26], radius=0.03, mat="boots", pos=[ 0.10, 0.05, 0.05], skin="rig", bind="foot_r")
+
+  // Hinge joints on key articulations
+  joint "spine_pitch"  (type=hinge, pivot="spine",      axis=[1, 0, 0], limits=[-30, 30])
+  joint "neck_pitch"   (type=hinge, pivot="neck",      axis=[1, 0, 0], limits=[-20, 20])
+  joint "shoulder_l"   (type=hinge, pivot="shoulder_l", axis=[1, 0, 0], limits=[-90, 90])
+  joint "shoulder_r"   (type=hinge, pivot="shoulder_r", axis=[1, 0, 0], limits=[-90, 90])
+  joint "elbow_l"      (type=hinge, pivot="upper_arm_l", axis=[1, 0, 0], limits=[-120, 0])
+  joint "elbow_r"      (type=hinge, pivot="upper_arm_r", axis=[1, 0, 0], limits=[-120, 0])
+  joint "hip_l"        (type=hinge, pivot="thigh_l",    axis=[1, 0, 0], limits=[-60, 60])
+  joint "hip_r"        (type=hinge, pivot="thigh_r",    axis=[1, 0, 0], limits=[-60, 60])
+  joint "knee_l"       (type=hinge, pivot="shin_l",     axis=[1, 0, 0], limits=[-120, 0])
+  joint "knee_r"       (type=hinge, pivot="shin_r",     axis=[1, 0, 0], limits=[-120, 0])
+
+  // Procedural idle - tiny breathing motion on the spine joint
+  idle "breath" (target="spine_pitch", amplitude=2, hz=0.25)
+}

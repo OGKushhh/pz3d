@@ -1,0 +1,19 @@
+// stairs_wooden.mog
+meta (name="stairs_wooden", description="Wooden staircase section (straight run of 6 steps)", tags=["prop","furniture","stairs","static","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.45,0.28,0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30,0.18,0.10], roughness=0.75)
+material "stringer" (color=[0.40,0.25,0.12], roughness=0.75)
+scene {
+  // 2 stringers (side supports) — angled boxes
+  // Each step rises 0.17m and goes 0.25m deep. 6 steps = 1.02m rise, 1.5m run
+  box "stringer_l" (size=[0.04, 1.10, 1.60], mat="stringer", pos=[-0.52, 0.55, 0.80], rot=[35, 0, 0])
+  box "stringer_r" (size=[0.04, 1.10, 1.60], mat="stringer", pos=[ 0.52, 0.55, 0.80], rot=[35, 0, 0])
+  // 6 steps (treads) — each is a flat slab
+  array (count=6, step=[0, 0.17, 0.25]) {
+    box "tread" (size=[1.00, 0.04, 0.27], mat="wood_oak", pos=[0, 0.10, 0.13])
+  }
+  // 6 risers (vertical boards between treads)
+  array (count=6, step=[0, 0.17, 0.25]) {
+    box "riser" (size=[1.00, 0.15, 0.02], mat="wood_dark", pos=[0, 0.075, 0.0], tags="floating")
+  }
+}

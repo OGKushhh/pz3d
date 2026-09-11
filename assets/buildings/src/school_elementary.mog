@@ -1,0 +1,119 @@
+// school_elementary.mog — Small elementary school
+meta (name="school_elementary", description="Small 2-story elementary school, brick", tags=["building","school","institutional","tier1"], mogen_version="0.1.12")
+material "wall_brick" (color=[0.50,0.30,0.25], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_flat" (color=[0.25,0.22,0.20], roughness=0.90)
+material "trim_white" (color=[0.92,0.91,0.86], roughness=0.60)
+material "window_glass" (color=[0.40,0.55,0.65], transmission=0.50, roughness=0.04)
+material "door_wood" (color=[0.30,0.20,0.12], roughness=0.65)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "grass" (color=[0.25,0.45,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+
+module "school_window" () {
+  chamfered_box "frame" (size=[1.30, 1.20, 0.06], radius=0.015, mat="trim_white")
+  box "glass" (size=[1.15, 1.05, 0.02], mat="window_glass", pos=[0,0,-0.03])
+  box "mullion_h" (size=[1.15, 0.03, 0.02], mat="trim_white", pos=[0,0,-0.04], tags="floating")
+  box "mullion_v" (size=[0.03, 1.05, 0.02], mat="trim_white", pos=[0,0,-0.04], tags="floating")
+}
+
+module "school_door" () {
+  chamfered_box "frame" (size=[1.40, 2.30, 0.06], radius=0.02, mat="trim_white")
+  chamfered_box "panel" (size=[1.20, 2.10, 0.05], radius=0.015, mat="door_wood", pos=[0,0,-0.08])
+  box "window" (size=[0.80, 0.50, 0.02], mat="window_glass", pos=[0, 0.50, -0.10], tags="floating")
+  sphere "knob" (radius=0.04, mat="brass", pos=[0.45, -0.10, -0.13])
+}
+
+scene {
+  slab "ground" (size=[20.0, 0.04, 16.0], mat="grass")
+  slab "foundation" (size=[10.4, 0.20, 8.4], mat="concrete", pos=[0, 0.02, 0])
+
+  // Ground floor front — main entrance + 4 windows
+  wall "front_gf" (size=[10.0, 2.80, 0.20], pos=[0, 1.55, -4.0], holes=[
+    [0.0, -0.35, 1.40, 2.30],  // Main entrance (double-wide door)
+    [-3.50, 0.20, 1.30, 1.20],
+    [-1.50, 0.20, 1.30, 1.20],
+    [ 1.50, 0.20, 1.30, 1.20],
+    [ 3.50, 0.20, 1.30, 1.20],
+  ])
+  // Upper floor front — 5 windows
+  wall "front_uf" (size=[10.0, 2.80, 0.20], pos=[0, 4.35, -4.0], holes=[
+    [-4.00, 0.20, 1.30, 1.20],
+    [-2.00, 0.20, 1.30, 1.20],
+    [ 0.00, 0.20, 1.30, 1.20],
+    [ 2.00, 0.20, 1.30, 1.20],
+    [ 4.00, 0.20, 1.30, 1.20],
+  ])
+  // Back walls
+  wall "back_gf" (size=[10.0, 2.80, 0.20], pos=[0, 1.55, 4.0], holes=[
+    [-3.50, 0.20, 1.30, 1.20],
+    [-1.50, 0.20, 1.30, 1.20],
+    [ 1.50, 0.20, 1.30, 1.20],
+    [ 3.50, 0.20, 1.30, 1.20],
+  ])
+  wall "back_uf" (size=[10.0, 2.80, 0.20], pos=[0, 4.35, 4.0], holes=[
+    [-4.00, 0.20, 1.30, 1.20],
+    [-2.00, 0.20, 1.30, 1.20],
+    [ 0.00, 0.20, 1.30, 1.20],
+    [ 2.00, 0.20, 1.30, 1.20],
+    [ 4.00, 0.20, 1.30, 1.20],
+  ])
+  // Side walls — 4 windows each (2 per floor)
+  wall "left_gf" (size=[8.0, 2.80, 0.20], pos=[-5.0, 1.55, 0], rot=[0, 90, 0], holes=[
+    [-2.00, 0.20, 1.30, 1.20],
+    [ 2.00, 0.20, 1.30, 1.20],
+  ])
+  wall "left_uf" (size=[8.0, 2.80, 0.20], pos=[-5.0, 4.35, 0], rot=[0, 90, 0], holes=[
+    [-2.00, 0.20, 1.30, 1.20],
+    [ 2.00, 0.20, 1.30, 1.20],
+  ])
+  wall "right_gf" (size=[8.0, 2.80, 0.20], pos=[5.0, 1.55, 0], rot=[0, 90, 0], holes=[
+    [-2.00, 0.20, 1.30, 1.20],
+    [ 2.00, 0.20, 1.30, 1.20],
+  ])
+  wall "right_uf" (size=[8.0, 2.80, 0.20], pos=[5.0, 4.35, 0], rot=[0, 90, 0], holes=[
+    [-2.00, 0.20, 1.30, 1.20],
+    [ 2.00, 0.20, 1.30, 1.20],
+  ])
+
+  slab "floor_gf" (size=[10.0, 0.10, 8.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "floor_uf" (size=[10.0, 0.10, 8.0], mat="wall_brick", pos=[0, 2.95, 0])
+  slab "ceiling" (size=[10.0, 0.10, 8.0], mat="wall_brick", pos=[0, 5.75, 0])
+  slab "roof" (size=[10.4, 0.10, 8.4], mat="roof_flat", pos=[0, 5.85, 0])
+
+  // Main entrance door
+  group "main_door" (pos=[0, 1.05, -4.0]) { use "school_door" () }
+  // Ground floor front windows
+  group "wgf_f1" (pos=[-3.50, 1.95, -4.0]) { use "school_window" () }
+  group "wgf_f2" (pos=[-1.50, 1.95, -4.0]) { use "school_window" () }
+  group "wgf_f3" (pos=[ 1.50, 1.95, -4.0]) { use "school_window" () }
+  group "wgf_f4" (pos=[ 3.50, 1.95, -4.0]) { use "school_window" () }
+  // Upper floor front windows
+  group "wuf_f1" (pos=[-4.00, 4.75, -4.0]) { use "school_window" () }
+  group "wuf_f2" (pos=[-2.00, 4.75, -4.0]) { use "school_window" () }
+  group "wuf_f3" (pos=[ 0.00, 4.75, -4.0]) { use "school_window" () }
+  group "wuf_f4" (pos=[ 2.00, 4.75, -4.0]) { use "school_window" () }
+  group "wuf_f5" (pos=[ 4.00, 4.75, -4.0]) { use "school_window" () }
+  // Back windows (ground)
+  group "wgf_b1" (pos=[-3.50, 1.95, 4.0]) { use "school_window" () }
+  group "wgf_b2" (pos=[-1.50, 1.95, 4.0]) { use "school_window" () }
+  group "wgf_b3" (pos=[ 1.50, 1.95, 4.0]) { use "school_window" () }
+  group "wgf_b4" (pos=[ 3.50, 1.95, 4.0]) { use "school_window" () }
+  // Back windows (upper)
+  group "wuf_b1" (pos=[-4.00, 4.75, 4.0]) { use "school_window" () }
+  group "wuf_b2" (pos=[-2.00, 4.75, 4.0]) { use "school_window" () }
+  group "wuf_b3" (pos=[ 0.00, 4.75, 4.0]) { use "school_window" () }
+  group "wuf_b4" (pos=[ 2.00, 4.75, 4.0]) { use "school_window" () }
+  group "wuf_b5" (pos=[ 4.00, 4.75, 4.0]) { use "school_window" () }
+  // Side windows (rotated)
+  group "wgf_l1" (pos=[-5.0, 1.95, -2.00], rot=[0,90,0]) { use "school_window" () }
+  group "wgf_l2" (pos=[-5.0, 1.95, 2.00], rot=[0,90,0]) { use "school_window" () }
+  group "wuf_l1" (pos=[-5.0, 4.75, -2.00], rot=[0,90,0]) { use "school_window" () }
+  group "wuf_l2" (pos=[-5.0, 4.75, 2.00], rot=[0,90,0]) { use "school_window" () }
+  group "wgf_r1" (pos=[ 5.0, 1.95, -2.00], rot=[0,90,0]) { use "school_window" () }
+  group "wgf_r2" (pos=[ 5.0, 1.95, 2.00], rot=[0,90,0]) { use "school_window" () }
+  group "wuf_r1" (pos=[ 5.0, 4.75, -2.00], rot=[0,90,0]) { use "school_window" () }
+  group "wuf_r2" (pos=[ 5.0, 4.75, 2.00], rot=[0,90,0]) { use "school_window" () }
+
+  // Steps
+  slab "steps" (size=[2.00, 0.06, 0.40], mat="concrete", pos=[0, 0.03, -4.20], tags="floating")
+}

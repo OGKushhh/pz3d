@@ -1,0 +1,702 @@
+     1→# MoGen DSL reference
+     2→
+     3→`mogen` reads `.mog` source files, lowers them to an intermediate scene graph,
+     4→and exports glTF 2.0 GLB. This document is the authoritative reference for
+     5→the surface language: every node kind, every attribute, and the little bits of
+     6→grammar that sit between them. For a conceptual overview of the whole
+     7→pipeline, see [`ROADMAP.md`](./ROADMAP.md); for a worked catalog of reusable
+     8→modules, see [`modules.md`](./modules.md).
+     9→
+    10→- [Grammar at a glance](#grammar-at-a-glance)
+    11→- [Values and expressions](#values-and-expressions)
+    12→- [Common attributes](#common-attributes)
+    13→- [Placement shortcuts](#placement-shortcuts)
+    14→- [Scene structure](#scene-structure-scene-group)
+    15→- [Primitives](#primitives)
+    16→- [Materials](#materials)
+    17→- [Physics](#physics)
+    18→- [Decals](#decals)
+    19→- [Connectors](#connectors)
+    20→- [Attach: rigid alignment of two connector frames](#attach-rigid-alignment-of-two-connector-frames)
+    21→- [Conform: moulding a primitive onto a target surface](#conform-moulding-a-primitive-onto-a-target-surface)
+    22→- [Replicators: `mirror`, `array`, `stack`, `grid`](#replicators-mirror-array-stack-grid)
+    23→- [CSG: `union` / `difference` / `intersect`](#csg-union--difference--intersect)
+    24→- [Implicit-field blob: `blob`](#implicit-field-blob-blob)
+    25→- [Mesh subdivision: `subdivide`](#mesh-subdivision-subdivide)
+    26→- [Solid groups: `solid`](#solid-groups-solid)
+    27→- [Modules: `module` and `use`](#modules-module-and-use)
+    28→- [Imports: `import`](#imports-import)
+    29→- [Animation: `joint`, `clip`, templates](#animation-joint-clip-templates)
+    30→- [Skeletons and skinning: `skeleton`, `bone`, `skin=`, `bind=`](#skeletons-and-skinning-skeleton-bone-skin-bind)
+    31→- [Lights: `light`](#lights-light)
+    32→
+    33→---
+    34→
+    35→## Grammar at a glance
+    36→
+    37→A `.mog` file is a sequence of nodes. Every node shares the same shape:
+    38→
+    39→```
+    40→kind ["optional name"] [(attr=value, ...)] [{ child_nodes... }]
+    41→```
+    42→
+    43→- `kind` is an identifier like `box`, `cylinder`, `group`, `scene`, `material`, `joint`, …
+    44→- `name` is a quoted string. Some kinds require it (`material`, `module`, `joint`, `clip`, `connector`); most geometry kinds treat it as optional — when omitted the node's name defaults to its kind.
+    45→- `attr_list` is a comma-separated `key=value` sequence in parentheses.
+    46→- `block` is a brace-delimited list of child nodes.
+    47→
+    48→Comments run from `//` to the end of the line. Whitespace between tokens is
+    49→insignificant. The top of the file may contain `import`, `material`,
+    50→`module`, `joint`, and `clip` declarations; `scene { ... }` holds the
+    51→geometry itself.
+    52→
+    53→---
+    54→
+    55→## File metadata: `meta`
+    56→
+    57→An optional top-of-file block recording author-facing metadata about the
+    58→asset. Place at most once, before `material` / `scene` / `module`.
+    59→
+    60→```
+    61→meta (
+    62→  name = "wooden_chair",
+    63→  version = "1.2.0",
+    64→  description = "A simple four-legged dining chair.",
+    65→  tags = ["furniture", "chair", "wood"],
+    66→)
+    67→```
+    68→
+    69→| attr | type | source | notes |
+    70→|---|---|---|---|
+    71→| `name` | string | author | human-readable asset name |
+    72→| `version` | string | author | semver-style is conventional but not enforced |
+    73→| `mogen_version` | string | **toolchain** | auto-stamped on every save. Don't write it yourself. |
+    74→| `description` | string | author | one-line summary |
+    75→| `tags` | list of string | author | free-form labels |
+    76→| `style` | string | toolchain | visual-style hint from `mogen generate --style …`. Suggested values: `ps1`, `n64`, `low_poly`, `high_detail`, `arcade`, `voxel`, `cel_shaded`, `stylized_fantasy`, `cyberpunk`, `pixel_art`. Validator accepts any string; survives `modify`/`animate`/`repair` |
+    77→| `seed` | string | toolchain | random seed from `mogen generate`/`modify`; round-trips through edits |
+    78→| `thinking` | string | toolchain | per-file Gemini thinking budget stamped with `seed`; survives `modify` |
+    79→| `prompt` | string | toolchain | original NL prompt; round-trips through `modify` so the LLM can revise against original intent |
+    80→| `moghub_model_id` | string | toolchain | stamped by Studio's Publish after a successful MoGHub upload |
+    81→| `moghub_slug` | string | toolchain | MoGHub slug, paired with `moghub_model_id` |
+    82→| `moghub_version` | string | toolchain | last-published MoGHub version, paired with `moghub_model_id` |
+    83→
+    84→The block is informational — not consumed by the geometry pipeline. It
+    85→survives lowering on `SceneGraph::meta` for downstream tooling. Old files
+    86→without `meta` keep building; the toolchain inserts a fresh
+    87→`meta (mogen_version = "...")` line on next save.
+    88→
+    89→Diagnostics: `E0310` (no body block), `E0311` (no quoted name — use
+    90→`name=`), `E0312` (duplicate), `E0313` (must be top level), `W0107`
+    91→(`mogen_version` mismatch).
+    92→
+    93→---
+    94→
+    95→## Global settings
+    96→
+    97→Top-level directives that tune the build itself.
+    98→
+    99→| directive | value | effect |
+   100→|---|---|---|
+   101→| `lod_scale (value=N)` | number, default `1.0` | multiplies every primitive `segments`/`rings`/`samples` (implicit defaults *and* explicit values like `segments_u=64`) and `blob` `resolution`. `icosphere` `subdivisions` and any `subdivide=` post-pass step by `round(log2(N))` instead. Counts clamp to a per-primitive minimum |
+   102→
+   103→```
+   104→lod_scale (value=0.5)
+   105→
+   106→scene {
+   107→  sphere "head" (radius=0.5)         // 8 rings, 12 segments (default 16/24 halved)
+   108→  sphere "lod0" (radius=0.5, segments=48, rings=32)  // 16 rings, 24 segments (48/32 halved)
+   109→}
+   110→```
+   111→
+   112→Studio's "LOD scale" slider edits this directive in place; it clears the
+   113→directive at `1.0` so saved files stay clean.
+   114→
+   115→### Per-node `lod=` overrides
+   116→
+   117→Any geometry/group node accepts `lod=N`, which **multiplies** the active
+   118→LOD scale for that node's subtree. RAII-scoped (doesn't leak into siblings)
+   119→and compounds with the global setting. Per-primitive minimums still apply
+   120→(`lod=0.1` won't collapse a cylinder below three sides).
+   121→
+   122→```
+   123→scene {
+   124→  group "hero" (lod=2) {                  // boosted detail
+   125→    sphere "face" (radius=0.12)
+   126→  }
+   127→  sphere "background_rock" (radius=0.4, lod=0.5)  // halved detail
+   128→}
+   129→```
+   130→
+   131→---
+   132→
+   133→## Values and expressions
+   134→
+   135→Every `value` on the right side of an attribute is one of:
+   136→
+   137→| form | example | notes |
+   138→|---|---|---|
+   139→| number | `0.5`, `-90`, `1` | parsed as `f32` |
+   140→| length | `1.5m`, `90cm`, `18in`, `2ft` | a number with a unit suffix; normalised to metres (see [Length units](#length-units)) |
+   141→| vec3 | `[1.0, 0.5, 0.0]` | three expressions, comma-separated |
+   142→| list | `[0, 90]`, `[1, 2, 3, 4]` | arbitrary arity |
+   143→| string | `"wood"` | used for names and references |
+   144→| ident | `wood`, `y` | no quotes; used for axes and enum-like values |
+   145→| expression | `$height * 0.5`, `$r + 0.1`, `($a - $b) / 2` | arithmetic over `$param` refs |
+   146→| comparison | `$h > 0`, `$count == 4`, `$a != $b` | `<`, `<=`, `>`, `>=`, `==`, `!=` — used in `if` conditions and `for` ranges |
+   147→
+   148→Inside `module` bodies, expressions reference parameters as `$name`.
+   149→Operators: `+ - * /` (conventional precedence + parentheses) and the six
+   150→comparisons. Evaluated at module-expansion time; the scene graph never
+   151→sees `$name`.
+   152→
+   153→### Length units
+   154→
+   155→mogen's base unit is the **metre** — the glTF/Godot convention — so a bare
+   156→number is a length in metres (`size=[0.45, 0.04, 0.45]` is a 45 cm seat).
+   157→To write real-world dimensions directly — handy for accurate blueprints —
+   158→append a unit suffix to any number:
+   159→
+   160→| suffix | unit | metres |
+   161→|---|---|---|
+   162→| `mm` | millimetre | `0.001` |
+   163→| `cm` | centimetre | `0.01` |
+   164→| `m` | metre | `1.0` |
+   165→| `km` | kilometre | `1000.0` |
+   166→| `in` | inch | `0.0254` |
+   167→| `ft` | foot | `0.3048` |
+   168→| `yd` | yard | `0.9144` |
+   169→
+   170→```
+   171→box "wall"  (size=[2m, 100cm, 8in], pos=[3ft, 0, 0])
+   172→box "joist" (height=5ft + 6in)        // units compose through arithmetic
+   173→```
+   174→
+   175→The suffix is resolved to metres at **parse time**, so units flow through
+   176→every numeric position: scalars, `vec3` components, list items, and
+   177→`$param` arithmetic. Each component carries its own unit, so metric and
+   178→imperial can be mixed freely within one literal or expression.
+   179→
+   180→Length units are for **lengths only** — sizes, positions, radii, heights,
+   181→offsets. Rotations stay in degrees, `scale` stays a unit-less multiplier, and
+   182→counts / colours stay plain numbers; don't put a length suffix on those.
+   183→Because everything normalises to metres, a unit literal and its metre
+   184→equivalent lower to byte-identical geometry.
+   185→
+   186→### Weight units
+   187→
+   188→Weights follow the same scheme, normalising to the **kilogram**. A bare number
+   189→is kilograms. Used by [`physics`](#physics) (`weight=`) and the per-node
+   190→`weight=` override.
+   191→
+   192→| suffix | unit | metres → kg |
+   193→|---|---|---|
+   194→| `g` | gram | 0.001 |
+   195→| `kg` | kilogram | 1.0 |
+   196→| `t` | tonne | 1000 |
+   197→| `lb` | pound | 0.4536 |
+   198→| `oz` | ounce | 0.02835 |
+   199→| `st` | stone | 6.350 |
+   200→
+   201→A `physics` block's `weight=` is a weight **per cubic metre** — append `/m3`
+   202→(or `/m³`): `700kg/m3`, `0.7t/m3`. A bare `weight=` on a geometry node is a flat
+   203→mass (`5kg`). Mass and length suffixes are disjoint, so a literal's dimension is
+   204→never ambiguous.
+   205→
+   206→---
+   207→
+   208→## Common attributes
+   209→
+   210→These apply to every geometry node (`box`, `cylinder`, …) and to `group`:
+   211→
+   212→| attribute | value | effect |
+   213→|---|---|---|
+   214→| `pos` | `vec3` | translation in the parent's frame; default `[0, 0, 0]` |
+   215→| `rot` | `vec3` (Euler XYZ in **degrees**) or a list | rotation applied after translation; default identity |
+   216→| `scale` | scalar or `vec3` | uniform/per-axis scale; default `1` |
+   217→| `mat` | string or ident | references a declared `material` by name |
+   218→| `phys` | string or ident | references a declared `physics` substance by name; drives auto-computed weight + centre of gravity (see [Physics](#physics)) |
+   219→| `weight` | mass (`5kg`) | optional flat per-node weight override (a mass), for props whose weight shouldn't follow from their volume |
+   220→| `role` | string or ident | semantic label; written into the GLB `extras` block |
+   221→| `tags` | comma-separated string | free-form labels; also in `extras` |
+   222→
+   223→Transforms compose from child → parent along the scene hierarchy, exactly as
+   224→in glTF.
+   225→
+   226→---
+   227→
+   228→## Placement shortcuts
+   229→
+   230→Every node accepts ergonomic shortcuts on top of `pos`/`rot`/`size`.
+   231→Mix and match freely — the DSL does the arithmetic.
+   232→
+   233→### Per-component shortcuts
+   234→
+   235→| shortcut | replaces / overrides | notes |
+   236→|---|---|---|
+   237→| `x=`, `y=`, `z=` | individual components of `pos` | missing axes default to `pos`'s value, or `0` |
+   238→| `rx=`, `ry=`, `rz=` | individual components of `rot` (degrees) | same fallback; great for single-axis spins |
+   239→| `w=`, `h=`, `d=` | individual components of `size` (X, Y, Z) | for 2D primitives, `w`/`d` are used on `plane`/`curved_plane` (XZ) and `w`/`h` on `quad` (XY) |
+   240→
+   241→```
+   242→box (y=1.5, size=1)            // equivalent to pos=[0, 1.5, 0], size=[1,1,1]
+   243→box (size=[2, 2, 0.1], h=3)    // h overrides the middle component — width=2, height=3, depth=0.1
+   244→cylinder (rx=90, radius=0.2, height=1)   // lay a cylinder on its side
+   245→```
+   246→
+   247→### Scalar `size` (cube shorthand)
+   248→
+   249→Any primitive that takes `size=[…]` also accepts `size=<number>`, which
+   250→expands to a uniform vec3. `box (size=0.5)` is a half-metre cube.
+   251→
+   252→### `from` / `to` — axis-aligned box by corners
+   253→
+   254→On any primitive that uses `size`, `from=[x1,y1,z1]` + `to=[x2,y2,z2]` sets
+   255→`size` to `|to − from|` and `pos` to their midpoint. No "shift by half" math:
+   256→
+   257→```
+   258→box (from=[-2, 0, -1.5], to=[2, 2.8, -1.4], mat="wall")
+   259→// equivalent to: box (pos=[0, 1.4, -1.45], size=[4.0, 2.8, 0.1])
+   260→```
+   261→
+   262→### `anchor` — place by face, not centre
+   263→
+   264→Every primitive's `pos` controls where its **anchor point** lands, not where
+   265→its centre lands. The default anchor is `center`; `anchor=bottom` puts the
+   266→primitive's bottom face at `pos`, which is usually what "sit on the ground"
+   267→means. Values are underscore-joined tokens drawn from
+   268→`center`, `top`, `bottom`, `left`, `right`, `front`, `back`:
+   269→
+   270→```
+   271→box (y=0,  size=[1, 2, 1], anchor=bottom)           // bottom face on y=0
+   272→box (xyz, size=2,           anchor=bottom_left_front) // corner at the origin
+   273→```
+   274→
+   275→The anchor shifts mesh vertices so the chosen point lands at the local
+   276→origin; default face connectors (`top`, `bottom`, …) move with it.
+   277→
+   278→### Relative placement: `above`, `below`, `left_of`, `right_of`, `in_front_of`, `behind`
+   279→
+   280→Set one of these to the name of a **prior sibling** in the same parent; the
+   281→node is translated so its matching face is flush against the sibling's
+   282→opposite face, optionally plus `gap`. At most one may be set per node.
+   283→
+   284→```
+   285→group "chests" {
+   286→  box "chest_lo" (size=[0.8, 0.6, 0.5])
+   287→  box "chest_hi" (above="chest_lo", gap=0.02, size=[0.8, 0.6, 0.5])
+   288→}
+   289→```
+   290→
+   291→Resolution happens after the target's subtree is fully lowered (nested
+   292→geometry is in the AABB). Lookup is scoped to siblings in the same parent.
+   293→
+   294→---
+   295→
+   296→## Deformation modifiers
+   297→
+   298→Every primitive accepts a small set of common modifier attrs that perturb the
+   299→generated mesh between primitive construction and anchor placement. The point
+   300→is variety without authoring extra geometry — bent beams, weathered rocks,
+   301→melted candles, jelly blobs — using one or two extra attrs.
+   302→
+   303→| attribute | value | effect |
+   304→|---|---|---|
+   305→| `bend_x`, `bend_y`, `bend_z` | degrees | arc-length-preserving bend around the named axis. Length axis is the perpendicular one (Y for `bend_x`/`bend_z`, X for `bend_y`). |
+   306→| `twist_y` | degrees | helical twist around Y, from 0 at `y_min` to the full angle at `y_max`. |
+   307→| `taper` | ratio (1.0 = unchanged, 0.5 = half-width at top) | linear shrink along Y. |
+   308→| `droop` | amount (0..1 of length) | quadratic gravity-style sag along -Y; the base stays put, the top sinks by `amount * height`. |
+   309→| `noise` | 0..1 | coherent value-noise displacement along the vertex normal. Yields blobby "rock" texture. |
+   310→| `jitter` | 0..1 | per-vertex random displacement along the normal. Higher-frequency than `noise`, looks "jagged". |
+   311→| `faceted` | 0/1 | rebuild the mesh with three unique vertices per triangle and face-flat normals; reads as low-poly. |
+   312→| `seed` | integer | RNG seed for the stochastic modifiers (`noise`, `jitter`); same seed always reproduces the same shape. |
+   313→| `wave` | peak displacement (m) | sinusoidal displacement along the vertex normal — periodic ripples for water, jelly, ribbed metal, fabric. Pair with `wave_frequency`, `wave_axis`, `wave_phase`, `wave_range`. |
+   314→| `wave_frequency` | cycles/unit, default `1.0` | spatial frequency along `wave_axis`. `0.5` puts a crest every 2 m. |
+   315→| `wave_axis` | `"x"`/`"y"`/`"z"`, default `"x"` | axis the wave propagates along. |
+   316→| `wave_phase` | radians, default `0.0` | phase offset; lets sibling waves desync without animation. |
+   317→| `wave_range` | `[a, b]` | gates the wave to a normalised slice along `wave_axis` via smoothstep, matching `*_range` convention. |
+   318→
+   319→```
+   320→icosphere "rock"   (radius=0.4, noise=0.30, jitter=0.15, faceted=1, seed=7)
+   321→cylinder  "candle" (radius=0.18, height=0.7, droop=0.4, noise=0.05)
+   322→box       "beam"   (size=[0.2, 0.2, 3], twist_y=20, taper=0.7)
+   323→```
+   324→
+   325→Stochastic modifiers are deterministic for a given `seed`. Two unnamed
+   326→primitives with `noise=0.3` share the default seed (1) and produce
+   327→identical surfaces — set distinct seeds for sibling variety.
+   328→
+   329→Each modifier accepts `*_range=[a, b]` (`bend_x_range`, `bend_y_range`,
+   330→`bend_z_range`, `twist_y_range`, `taper_range`, `droop_range`,
+   331→`noise_range`, `jitter_range`) that gates the deformation along its length
+   332→axis: vertices below `a` are unchanged, `[a, b]` ramps in via smoothstep,
+   333→above `b` is full effect. Endpoints auto-normalise (`[1.0, 0.5]` →
+   334→`[0.5, 1.0]`).
+   335→
+   336→```
+   337→box "blade" (size=[0.06, 1.4, 0.01], bend_z=18, bend_z_range=[0.55, 1.0])
+   338→cylinder "spire" (radius=0.4, height=4.0, twist_y=70, twist_y_range=[0.6, 1.0])
+   339→```
+   340→
+   341→Default tessellation auto-bumps (×2 segments / +1 icosphere subdivision)
+   342→when a smooth deformer is present; explicit `segments=`/`rings=`/
+   343→`subdivisions=` always override. Modifiers don't apply to `mesh` (loaded
+   344→glb) primitives. See `examples/nature/asteroid_field.mog`.
+   345→
+   346→Implicit tessellation on curved primitives is also size-aware in authored
+   347→local units. Counts scale with the cube root of radius (or the primitive's
+   348→equivalent local extent), relative to the default-sized primitive: tiny rivets
+   349→and dimples no longer pay the same triangle count as a dome, while large props
+   350→gain detail without triangle count growing linearly with size. Explicit
+   351→`segments=`/`rings=` remains the exact author override. Placement `scale=` is
+   352→not part of this calculation because multiple placements may share one lowered
+   353→mesh; use explicit counts when an unusually scaled placement needs a different
+   354→mesh.
+   355→
+   356→---
+   357→
+   358→## Scene structure: `scene`, `group`
+   359→
+   360→```
+   361→scene {
+   362→  group "chair" (pos=[0, 0, 0]) {
+   363→    box "seat" (pos=[0, 0.5, 0], size=[1.0, 0.1, 1.0])
+   364→  }
+   365→}
+   366→```
+   367→
+   368→- `scene` is the root container. Exactly one per file is expected in practice; top-level nodes outside any `scene` are also lowered and become extra roots.
+   369→- `group` is a transform-only container — no geometry of its own, used to compose children and receive `pos`/`rot`/`scale`.
+   370→- `solid` behaves like `group` in the scene tree, but its same-material leaf children are CSG-unioned into a single mesh at export time. See [Solid groups](#solid-groups-solid) below.
+   371→
+   372→---
+   373→
+   374→## Primitives
+   375→
+   376→All primitives accept the common attributes above (`pos`, `rot`, `scale`,
+   377→`mat`, `role`, `tags`) plus the kind-specific attributes below.
+   378→
+   379→| kind | required attrs | other attrs |
+   380→|---|---|---|
+   381→| `box` | `size=[x,y,z]` | `faces=[…]` — six entries in `+X,-X,+Y,-Y,+Z,-Z` order for [per-face materials](#per-face-box-materials-faces); each is a material name or a `face("mat", uv_scale=…, uv_offset=…, uv_swap=…)` struct with an [authored UV transform](#authored-per-face-uv-transforms-face) |
+   382→| `plane` | `size=[x,_,z]` (Y ignored) | — |
+   383→| `quad` | `size=[w,h]` or `vec3` (w,h,_) | — |
+   384→| `cylinder` | `radius`, `height` | `segments` (default 24) |
+   385→| `cone` | `radius`, `height` | `segments` (default 24) |
+   386→| `sphere` | `radius` | `rings` (16), `segments` (24) |
+   387→| `capsule` | `radius`, `height` | `rings` (8), `segments` (24) |
+   388→| `torus` | `major`, `minor` | `major_segments` (24), `minor_segments` (12) |
+   389→| `prism` | `size=[x,y,z]` | triangular prism along +Z |
+   390→| `pyramid` | `radius`, `height`, `sides` | N-sided pyramid base |
+   391→| `disc` | `radius` | `segments` (24) |
+   392→| `icosphere` | `radius` | `subdivisions` (2) |
+   393→| `rounded_box` | `size=[x,y,z]`, `radius` | `segments` per corner (4) |
+   394→| `chamfered_box` | `size=[x,y,z]` | `radius` (bevel offset, 0.1) — sharp 45° bevels on all 12 edges + 8 corner triangles |
+   395→| `inset_box` | `size=[x,y,z]` | `face` (`"+y"`/`"-y"`/`"+x"`/`"-x"`/`"+z"`/`"-z"` or `"top"`/`"bottom"`/`"left"`/`"right"`/`"front"`/`"back"`, default `"+y"`), `amount` (inset, 0.1), `depth` (sink, 0.05) — five plain faces + one sunken panel |
+   396→| `wedge` | `size=[x,y,z]` | right-triangle prism — flat bottom on -Y, hypotenuse climbing toward +Y/+Z |
+   397→| `frustum` | `bottom=[w,d]`, `top=[w,d]`, `height` | truncated rectangular pyramid (defaults `bottom=[1,1]`, `top=[0.5,0.5]`, `height=1`) |
+   398→| `tube` | `outer`, `inner`, `height` | hollow cylinder (pipe / ring); `segments` (24) |
+   399→| `hemisphere` | `radius` | half-sphere, flat side on -Y; `rings` (8), `segments` (24) |
+   400→| `half_cylinder` | `radius`, `height` | D-profile half-cylinder, flat side facing -Z; `segments` (24) |
+   401→| `torus_arc` | `major`, `minor` | partial torus; `arc` (degrees, default 90) sweeps around +Y; `major_segments` (24), `minor_segments` (12) |
+   402→| `ellipsoid` | `size=[x,y,z]` | `rings` (16), `segments` (24); independent radii per axis |
+   403→| `superellipsoid` | `size=[x,y,z]` | `ew`, `ns` (1 = sphere, > 1 boxy, < 1 pinched), `rings` (16), `segments` (24) |
+   404→| `curved_plane` | `size=[x,z]` or `vec3` | `bend_u`, `bend_v` (degrees; arc angle along X/Z), `segments_u`/`segments_v` (12) |
+   405→| `lathe` | `profile=[[r,y], …]` | `segments` (24), `cap_ends` (1 = capped); profile authored bottom-to-top in `(radius, y)` pairs |
+   406→| `spline_tube` | `points=[[x,y,z], …]` | `radius` (scalar) or `radii=[…]` (per-point), `segments` (12), `samples` (8), `cap_ends` (1) |
+   407→| `spline_ribbon` | `points=[[x,y,z], …]` | `width` (scalar) or `widths=[…]` (per-point), `samples` (8), `twist` (degrees, default `0`); flat strip along a Catmull–Rom curve |
+   408→| `coil` | — | helical sweep. `radius` (0.5), `height` (1.0), `turns` (3), `profile_radius` (0.05), `segments` (12), `samples` per turn (16), `cap_ends` (1), `handedness` (`"right"`/`"left"`) |
+   409→| `heightfield` | — | XZ grid with fBm displacement. `size=[w,d]` (`[1, 1]`), `segments_u`/`segments_v` (32), `amplitude` (0.5), `octaves` (1..=8, default 3), `frequency` (1.0), `persistence` (0.5), `seed` (1). Layer `wave` on top for water |
+   410→| `bezier_patch` | `points=[…]` (exactly 16 control points, row-major u × v) | `segments_u`/`segments_v` (12). Bicubic Bézier surface — corners are `[0]`/`[3]`/`[12]`/`[15]`, inner four `[5]/[6]/[9]/[10]` shape the bulge |
+   411→| `metaball` | `points=[…]` (≥1) plus `radius=` or `radii=[…]` | `blend` (smooth-union radius, 0), `rings` (12), `segments` (16). Sugar over `union (smooth=k) { sphere … }` |
+   412→| `blob` | container with implicit-field children | true SDF + surface-nets mesh of any mix of `sphere` / `ellipsoid` / `box` / `rounded_box` / `capsule` / `cylinder` / `torus` children, smoothly blended. Each child may carry `op="subtract"` to carve a smooth cavity. See [Implicit-field blob](#implicit-field-blob-blob) |
+   413→| `extrude` | `points=[[x,z], …]` (closed CCW) | `hole=[[x,z], …]` (one CW inner contour), `height` (1.0), `taper` (1.0), `twist` (0), `caps` (1). Multi-hole: chain `extrude` + `difference` |
+   414→| `sweep` | `profile=[[x,y], …]` (closed CCW), `path=[[x,y,z], …]` | `samples` per segment (8), `twist` (uniform deg), `roll=[deg, …]`, `scale_along=[s, …]`, `caps` (1). Generalises `spline_tube`/`spline_ribbon` |
+   415→| `loft` | `points=[[x,z], …]`, `heights=[y, …]` | sections flat-packed in `points` (vertex counts must match); `samples` (4), `caps` (1) |
+   416→| `hull` | `points=[[x,y,z], …]` (≥4) | convex hull of the point cloud — the tightest closed manifold enclosing them. Interior points are ignored. Lossless sink for any convex polyhedron (sheared boxes, wedges, ramps) when no parametric primitive fits |
+   417→| `poly` | `points=[[x,y,z], …]`, `indices=[i0,i1,i2, …]` (triangles), `uvs=[[u,v], …]` (optional, one per point) | raw triangle mesh with **author-supplied per-vertex UVs** — the escape hatch for geometry whose texture mapping must be carried through verbatim (atlas sub-rectangles, engine-native faces a converter re-emits). Ignores the inherited UV mode; the `uvs=` list is the UV channel. Flat vs. smooth shading is decided by how you share vertices (own corners per face → flat; shared corners → smooth). One `mat=` per node |
+   418→| `leaf_card` | `size=[w,h]` | `cards` (2). Alpha-cutout foliage cluster — one quad + `cards-1` rotated copies sharing an XY plane. Pair with `alpha_mode="mask"` + `double_sided=1` |
+   419→| `mesh` | `src="path.glb"` | embed an external glTF binary as a single mesh. Path relative to the calling `.mog`. Source materials/skinning/animations are dropped — set them in the DSL |
+   420→| `branch` | — | procedural tree / vine / antler. See [Branch](#branch) below |
+   421→| `slab` | `size=[x,y,z]` | box alias; default anchor `bottom` (sits on ground) |
+   422→| `post` | `size=[x,y,z]` | box alias; default anchor `bottom` (pillar/leg) |
+   423→| `panel` | `size=[x,y,z]` | box alias; default anchor `back` (flat panel flush to a surface) |
+   424→| `wall` | `size=[x,y,z]` | `holes=[[x,y,w,h], …]` — rectangular cutouts through the Z axis |
+   425→
+   426→`plane` is XZ-aligned, `quad` is XY-aligned (UI-style panels).
+   427→
+   428→`curved_plane`, `lathe`, `spline_tube`, and `spline_ribbon` accept nested
+   429→list literals: `points=[[0, 0, 0], [1, 0.5, 0]]`. Inner lists must be
+   430→constant (no `$param`) — parameterise the whole node via a module wrapper.
+   431→`spline_tube`/`spline_ribbon` run Catmull–Rom with a parallel-transport
+   432→frame; `spline_ribbon` adds a `twist` that ramps roll around the path
+   433→tangent.
+   434→
+   435→`slab`, `post`, and `panel` are `box` aliases that only change the default
+   436→anchor (`bottom`/`bottom`/`back`). Override with `anchor=` if needed.
+   437→
+   438→`wall` is a box with rectangular cutouts along Z. Each hole is
+   439→`[cx, cy, w, h]` in the wall's local frame (X/Y are the face plane; Z is
+   440→cut through). Cutouts are CSG-differenced and welded at lowering, so a
+   441→single `wall` becomes one watertight mesh:
+   442→
+   443→```
+   444→wall "barracks" (size=[3, 3, 0.1], holes=[
+   445→  [-0.75, -0.4, 0.9, 2.0],   // door
+   446→  [ 0.9,  0.3, 0.8, 0.8],    // window
+   447→])
+   448→```
+   449→
+   450→### Per-face box materials (`faces=`)
+   451→
+   452→A `box` can carry a different material on each face via `faces=[…]` — exactly
+   453→six material names in the fixed order **`+X, -X, +Y, -Y, +Z, -Z`**:
+   454→
+   455→```
+   456→material "wood"  (color=[0.6, 0.4, 0.2])
+   457→material "metal" (color=[0.7, 0.7, 0.75], metallic=0.9)
+   458→
+   459→box "crate" (size=[2, 1, 1], faces=[
+   460→  "wood", "wood",   // +X, -X
+   461→  "metal",          // +Y (lid)
+   462→  "wood", "wood", "wood"  // -Y, +Z, -Z
+   463→])
+   464→```
+   465→
+   466→The box lowers to an editable wrapper (keeping its transform, anchor, and
+   467→connectors) plus one **frozen** child per distinct material — each a quad group
+   468→of just that material's faces. Faces sharing a material collapse into one child,
+   469→so the crate above becomes two children (`wood` ×5, `metal` ×1), not six. The
+   470→children have no AST of their own, so the Studio inspector redirects clicks to
+   471→the wrapper.
+   472→
+   473→An empty entry `""` falls back to the box's own `mat=` (or inherited material),
+   474→so you can override just the faces you care about:
+   475→
+   476→```
+   477→box "panel" (mat="body", faces=["", "", "label", "", "", ""])  // only +Y differs
+   478→```
+   479→
+   480→This is the migration sink for engine map blocks whose six faces each reference
+   481→a different tile texture.
+   482→
+   483→#### Authored per-face UV transforms (`face(...)`)
+   484→
+   485→By default each face's texture coordinates follow the material's UV mode
+   486→(`fit` = one copy per face, `tile` = 1 unit per metre). When a converter carries
+   487→its own per-face UV mapping (atlas sub-rectangles, engine-native tile offsets),
+   488→any entry in the `faces=` list may be a `face(...)` struct instead of a bare
+   489→string. It sets the material **and** an explicit UV transform baked verbatim
+   490→onto that face, bypassing the procedural projection:
+   491→
+   492→```
+   493→box "wall_seg" (size=[4, 3, 1], faces=[
+   494→  "wall", "wall", "wall", "wall",
+   495→  face("panel", uv_scale=[0.25, 0.333], uv_offset=[0, 0], uv_swap=false),  // +Z
+   496→  "wall"
+   497→])
+   498→```
+   499→
+   500→- **First argument** — the material name (same rules as the bare string; `""`
+   501→  falls back to the box's own material).
+   502→- `uv_scale=[sx, sy]` — per-axis scale; may be **negative** to mirror. Default `[1, 1]`.
+   503→- `uv_offset=[ox, oy]` — per-axis constant added after scaling. Default `[0, 0]`.
+   504→- `uv_swap=<bool>` — swap the two in-plane axes before scale/offset. Default `false`.
+   505→
+   506→All UV fields are optional; **`face("mat")` is identical to the bare `"mat"`**
+   507→(no authored transform → keep the default Fit/Tile UVs). Authored and bare
+   508→entries may be freely mixed in one list, and faces still group into frozen
+   509→children by material as above.
+   510→
+   511→The baked coordinate is face-local. For a face whose outward normal is on axis
+   512→*A*, the two in-plane axes are the other two in ascending index order
+   513→(`X→(Y,Z)`, `Y→(X,Z)`, `Z→(X,Y)`); the local coordinate on each is the vertex
+   514→offset from the box's minimum corner on that axis (`vertex + size/2`). The final
+   515→UV is `offset + scale * (swap ? swapped : local)`. Values are emitted **exactly
+   516→as computed** — never clamped or wrapped, so repeat/tile behaviour is left to the
+   517→sampler.
+   518→
+   519→### Branch
+   520→
+   521→`branch` is a procedural tree builder. One node expands into a recursive
+   522→cluster of `spline_tube` segments tapering from trunk to twigs, with
+   523→optional `leaf_card` clusters at the tips. Inner segments are
+   524→non-editable (deterministic function of `seed=`).
+   525→
+   526→| attribute | default | effect |
+   527→|---|---|---|
+   528→| `form` | `"decurrent"` | growth habit preset — see below. Sets sensible defaults for all attrs in this table; user attrs still win |
+   529→| `length` | `1.0` | trunk length (m) |
+   530→| `radius` | `0.05` | trunk base radius (m) |
+   531→| `depth` | `4` | recursion depth (number of branching levels) |
+   532→| `splits` | `2` | child branches per parent at each split |
+   533→| `length_falloff` | `0.7` | per-level length multiplier |
+   534→| `radius_falloff` | `0.6` | per-level radius multiplier |
+   535→| `branch_angle` | `35` | angle (degrees) child branches lean off the parent tangent |
+   536→| `roll` | `137.5` | roll (degrees) between successive children — the golden angle by default, breaks bilateral symmetry |
+   537→| `tropism` | `0.0` | bias toward +Y per segment (positive = upright trees, negative = drooping) |
+   538→| `bend` | `10` | random bend (degrees) added to each segment frame |
+   539→| `leader_bias` | `0.0` | `0.0`–`1.0` strength of central-leader behaviour. At `1.0` child 0 of every fork continues straight up at full length/radius (pine-like silhouette); at `0.0` all forks are equal (default broadleaf habit) |
+   540→| `multi_stem` | `1` | number of trunks emerging from the base. Only honoured by `form="shrub"`; ignored otherwise |
+   541→| `segments` | `8` | radial segments per spline_tube |
+   542→| `samples` | `4` | samples per spline segment |
+   543→| `seed` | `1` | RNG seed; same seed = identical tree |
+   544→| `jitter` | `0.2` | `0.0`–`1.0` random perturbation amount on lengths/angles |
+   545→| `leaves` | `1` | emit `leaf_card` clusters at terminal tips (`0` to disable) |
+   546→| `leaf_size` | `0.35` | leaf-card height (m) |
+   547→| `leaf_aspect` | `1.0` | leaf width / height ratio. `<1` for needle/willow leaves, `>1` for wide flat leaves |
+   548→| `leaf_cards` | `2` | crossed cards per leaf cluster (or fronds in the palm rosette) |
+   549→| `leaf_mat` | — | material name for leaves; defaults to inherited `mat=` |
+   550→
+   551→`form` values:
+   552→
+   553→| value | habit | distinctive defaults |
+   554→|---|---|---|
+   555→| `"decurrent"` | broadleaf tree (default — oak, maple) | equal forks, square leaves |
+   556→| `"excurrent"` | conifer (pine, spruce) | strong central leader, near-horizontal side branches, narrow needle leaves |
+   557→| `"weeping"` | willow | long branches with strong negative tropism (drooping), long narrow leaves |
+   558→| `"shrub"` | bush | several short trunks at the base (`multi_stem=4` by default), no leader |
+   559→| `"palm"` | palm | single straight trunk with a fan of frond-shaped cards at the tip; no recursive branching |
+   560→
+   561→Wrap a `branch` in a `group` with `scale=`/`rot=` for forests, antlers,
+   562→vines, root systems. Pair with stdlib `branch`/`leaf` for hand-tuned shapes.
+   563→
+   564→### Building
+   565→
+   566→`building` is a procedural building-interior generator. One node expands
+   567→into floor/ceiling slabs, perimeter walls with windows and entrance
+   568→cutouts, interior walls with door cutouts, and stamped door/window/skylight
+   569→modules. The generated subtree is stamped non-editable (pure function of
+   570→`seed=` plus the declared attrs). See `docs/building.md` for the full
+   571→spec, supported styles/roof shapes, and tranche status.
+   572→
+   573→| attribute | default | effect |
+   574→|---|---|---|
+   575→| `seed` | `1` | RNG seed; same seed = identical layout + geometry. |
+   576→| `style` | `"grid"` | Layout algorithm. T1-T2: `grid`, `apartment-block`. |
+   577→| `mat_style` | `""` | Free-text style hint forwarded to material/texture generation. |
+   578→| `floor_area` | `120` | Target floorplate area in m² (per floor). |
+   579→| `rooms` | `4` | Total rooms across all floors; distributed proportionally. |
+   580→| `floors_above` | `1` | Storeys above ground (incl. ground floor). |
+   581→| `floors_below` | `0` | Basement storeys. |
+   582→| `windows` | `0` | Total above-ground window count; distributed across above-ground storeys. Basements get none. |
+   583→| `skylights` | `0` | Top-storey ceiling cutouts. |
+   584→| `roof` | `"flat"` | Roof shape: `flat`, `pitched`, `gabled`, `hipped`, `mansard`, `shed`. |
+   585→| `roof_overhang` | _unset_ | Eaves projection past the walls (m) for `gabled`/`pitched`. Unset → `gabled` flush, `pitched` modest default. |
+   586→| `ceiling_height` | `2.6` | Clear height per storey (m). |
+   587→| `door_w`, `door_h` | `0.9, 2.1` | Door opening dimensions (m). |
+   588→| `window_w`, `window_h` | `1.2, 1.4` | Window opening dimensions (m, medium class). Small = ×0.6, large = ×1.4. |
+   589→| `wall_thickness` | `0.12` | Exterior / interior wall thickness (m). |
+   590→| `ceiling_thickness` | `0.2` | Slab thickness (m). |
+   591→| `entrances` | `1` | Ground-floor external door count. |
+   592→| `external_door` | `"door_simple"` | Stdlib / user module ref. Stamped at each entrance. |
+   593→| `internal_door` | `"door_simple"` | Stamped at each interior opening. |
+   594→| `window_small`, `window_medium`, `window_large` | `"window_simple"` | Per-class window module refs. |
+   595→| `skylight` | `"skylight_simple"` | Skylight module ref; carves the top ceiling slab. |
+   596→| `elevators` | `0` | Vertical shafts on the east side, stamped with `elevator_shaft_simple`. |
+   597→| `staircases` | `0` | One straight flight per storey transition, stamped with `stair_simple`. `W1113` warns if missing on multi-storey. |
+   598→
+   599→`building` accepts only `room_type` and `adjacency` children.
+   600→
+   601→```
+   602→room_type "<name>" (kind=public|private|service|utility|secure|staff_only,
+   603→                    density=0..10, mat="<material>",
+   604→                    min_area=…, max_area=…)
+   605→adjacency "<room_type>" (adjacent_to=["a", "b"], away_from=["c"])
+   606→```
+   607→
+   608→`kind` is required on `room_type`; `density` weights sampling (0 disables
+   609→the type); `mat` overrides per-room floor/wall material. Adjacency rules
+   610→are **soft** — the solver runs 10 sub-seeded layouts and keeps the
+   611→highest-scoring (`+1`/m of shared wall for `adjacent_to`, `-1`/m for
+   612→`away_from`). Referencing an undeclared room-type is a validation error.
+   613→
+   614→```
+   615→building "house" (seed=4, style="apartment-block",
+   616→                  floor_area=85, rooms=6, windows=6, mat="wood") {
+   617→  room_type "bedroom"  (kind=private, density=4)
+   618→  room_type "kitchen"  (kind=service, density=1, mat="tile")
+   619→  room_type "living"   (kind=public,  density=2)
+   620→  adjacency "kitchen"  (adjacent_to=["living"])
+   621→}
+   622→```
+   623→
+   624→Beyond geometry, `building` embeds **points of interest** as empty marker
+   625→nodes (`role`/`tags` in glTF extras) so an engine can place its own content:
+   626→`entrance` / `door` / `window` opening slots, per-room furniture markers when
+   627→`furnish=1` (`bed`, `desk`, …), and per-floor **vertical-circulation** anchors
+   628→— `stair_access` (one per storey, at each floor's stair entry platform) and
+   629→`elevator_stop` (one per served storey, anchored at the shaft centre on the
+   630→floor surface where the cab stops). Each circulation marker faces its shaft
+   631→door and carries a `floor=<n>` tag, so you can drop your own stairwell /
+   632→elevator models knowing exactly where each floor connects. `debug_show_poi=1`
+   633→gives every marker a small bright `building_poi_<role>` sphere so the
+   634→otherwise geometry-free anchors show in a preview.
+   635→
+   636→### Cave
+   637→
+   638→`cave` is a procedural cave generator. One node expands into a single
+   639→watertight rock shell — a bounding block hollowed by a smooth-blended field of
+   640→chamber and passage carvers (surface-nets meshed) — plus optional scattered
+   641→features. Chambers are organised into `levels` stacked horizontal layers
+   642→(separated by `level_gap` rock, joined by `level_links` vertical ramps); within
+   643→a layer they mix `spacing`-separated rooms with `overlap`-merged caverns.
+   644→Passages steeper than `max_slope` are rebuilt as switchback ramps so no walkable
+   645→surface exceeds the angle cap; and
+   646→`entrances` punch horizontal mouths out through the nearest side face so the
+   647→cave is enterable. The generated subtree is stamped non-editable (pure function
+   648→of `seed=` plus the declared attrs). See `docs/caves.md` for the full spec.
+   649→
+   650→| attribute | default | effect |
+   651→|---|---|---|
+   652→| `seed` | `1` | RNG seed; same seed = identical cave. |
+   653→| `size` | `[24, 10, 24]` | Outer rock-block dimensions `[width, height, depth]` (m); base sits on `y=0`. |
+   654→| `chambers` | `6` | Number of chambers carved. |
+   655→| `levels` | `2` | Stacked horizontal layers (floors). Each is its own chamber+passage network. |
+   656→| `level_gap` | `1.5` | Solid rock kept between layers (m). |
+   657→| `level_links` | `1` | Vertical ramps carved between each adjacent layer pair (clamped ≥ 1 when `levels > 1`). |
+   658→| `chamber_min`, `chamber_max` | `2.5, 5.0` | Chamber radius range (m). Auto-capped to fit a layer's height. |
+   659→| `spacing` | `2.0` | Minimum rock gap between same-layer chambers (m); keeps rooms distinct. |
+   660→| `overlap` | `0.35` | Probability a chamber merges with a same-layer neighbour into a larger cavern. `0` = all separate, `1` = all clustered. |
+   661→| `chamber_flatten` | `0.6` | Vertical squash (height = radius × this); < 1 keeps floors gentle. |
+   662→| `passage_radius` | `1.1` | Tunnel radius (m). |
+   663→| `loops` | `1` | Extra connections beyond the spanning tree, for looping layouts. |
+   664→| `max_slope` | `45` | Maximum walkable slope (degrees); steeper passages switchback. |
+   665→| `roughness` | `0.35` | Wall-noise amount `[0, 1]` for a natural stone finish. |
+   666→| `blend` | `1.5` | Smooth-union radius blending chambers + passages. |
+   667→| `margin` | `2.0` | Rock thickness kept around the void on every face (m). |
+   668→| `resolution` | `96` | Voxel-grid resolution (32–224). Higher = finer + slower. |
+   669→| `lod_scale` | `1.0` | Mesh-quality scale `[0.1, 1.0]`; scales rock voxel grid + decoration tessellation. Lower = fewer triangles. Layout / counts / POIs unaffected. |
+   670→| `entrances` | `1` | Horizontal mouths punched to a side face. A scalar `N` opens `N` on the surface (top) band; an array `[b0, b1, …]` opens them per band from the bottom up (index `0` = lowest), so e.g. `entrances=[1, 0, 1]` connects a chosen storey to an adjacent dungeon. Bands past the array end get none; mouths prefer chambers nearest a wall. |
+   671→| `mat` | `cave_rock` | Rock material; defaults to an auto-stamped grey stone. |
+   672→| `water_mat` | `cave_water` | Material for pools / lakes. |
+   673→| `rock_piles`, `pools`, `lakes`, `stalagmites`, `stalactites`, `columns` | `0` | Decoration counts scattered on chamber floors / ceilings (`columns` span floor→ceiling). |
+   674→| `mushrooms` | `0` | Mushroom-spot POI markers on chamber floors (empty nodes, no geometry). |
+   675→| `debug_hide_shell` | `0` | Debug: slice the front (+Z) half of the rock away to see the chambers in cross-section (like `building`'s `debug_hide_roof`). |
+   676→| `debug_show_poi` | `0` | Debug: give every point-of-interest marker a small bright per-kind `cave_poi_<kind>` sphere (colour-coded by group) so the empty markers are visible in a preview. |
+   677→
+   678→Beyond geometry, `cave` embeds **points of interest** as empty marker nodes
+   679→(`role`/`tags` in glTF extras) under a `points_of_interest` group:
+   680→`dead_end_chamber` (single-connection rooms), `column_base`, `ladder_anchor`
+   681→(passages steeper than `max_slope`) and `mushroom_spot`. See `docs/caves.md`.
+   682→
+   683→Decorations are placed by querying the **real carved floor / ceiling** under
+   684→each feature, so drips and boulders sit flush on the surface rather than the
+   685→geometric chamber bound. `cave` accepts only `feature` children, which tune one
+   686→decoration kind:
+   687→
+   688→```
+   689→feature "<name>" (kind=stalagmite|stalactite|column|rock_pile|pool|lake,
+   690→                  count=…, min_size=…, max_size=…, mat="<material>")
+   691→```
+   692→
+   693→`kind` is required. `count` overrides the matching top-level count knob;
+   694→`min_size`/`max_size` set the size range (m); `mat` overrides the material.
+   695→
+   696→```
+   697→cave "hollow" (seed=12, size=[26, 12, 26], chambers=7, levels=2,
+   698→               max_slope=45, entrances=2, mat="limestone",
+   699→               stalagmites=14, stalactites=10, pools=2) {
+   700→  feature "spires" (kind=stalagmite, min_size=0.3, max_size=1.1)
+
+[showing lines 1-700 of 2060; use offset=701 with limit to continue reading]

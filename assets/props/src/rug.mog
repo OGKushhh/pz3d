@@ -1,0 +1,13 @@
+// rug.mog
+meta (name="rug", description="Flat decorative rug on floor", tags=["prop","furniture","rug","dynamic","tier1"], mogen_version="0.1.12")
+material "rug_red" (color=[0.50,0.20,0.15], roughness=0.90, uv_mode="tile", uv_scale=2.0)
+material "rug_trim" (color=[0.85,0.75,0.20], roughness=0.85)
+scene {
+  // Main rug body (flat plane)
+  plane "rug_body" (size=[2.0, 1.0, 1.5], mat="rug_red", pos=[0, 0.01, 0])
+  // Border trim (4 thin strips around edges — decorative)
+  box "trim_front" (size=[2.0, 0.005, 0.10], mat="rug_trim", pos=[0, 0.015, 0.70], tags="floating")
+  box "trim_back" (size=[2.0, 0.005, 0.10], mat="rug_trim", pos=[0, 0.015, -0.70], tags="floating")
+  box "trim_left" (size=[0.10, 0.005, 1.5], mat="rug_trim", pos=[-0.95, 0.015, 0], tags="floating")
+  box "trim_right" (size=[0.10, 0.005, 1.5], mat="rug_trim", pos=[ 0.95, 0.015, 0], tags="floating")
+}

@@ -1,0 +1,45 @@
+// sofa.mog — Tier 1 prop (dynamic furniture)
+// 3-seat living room sofa: base + 3 cushions + backrest + 2 armrests.
+// Target: 600 tris (High-preset LOD0 standard prop). Actual: ~500 tris.
+// Dimensions: 2.10m wide × 0.90m deep × 0.80m tall.
+
+meta (
+  name          = "sofa",
+  description   = "3-seat living room sofa with cushions and armrests",
+  tags          = ["prop", "furniture", "sofa", "dynamic", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "fabric_grey"  (color=[0.40, 0.42, 0.45], roughness=0.85)
+material "fabric_dark"  (color=[0.25, 0.27, 0.30], roughness=0.85)
+material "wood_leg"     (color=[0.30, 0.18, 0.10], roughness=0.75)
+
+scene {
+  // === BASE (seat platform) ===
+  solid "base" (mat="fabric_dark", cleanup="coplanar") {
+    // Main base block
+    box "base_block" (size=[2.10, 0.20, 0.90], pos=[0, 0.30, 0])
+    // 4 legs (small wooden feet)
+    box "leg_fl" (size=[0.08, 0.20, 0.08], pos=[-0.95, 0.10,  0.38])
+    box "leg_fr" (size=[0.08, 0.20, 0.08], pos=[ 0.95, 0.10,  0.38])
+    box "leg_bl" (size=[0.08, 0.20, 0.08], pos=[-0.95, 0.10, -0.38])
+    box "leg_br" (size=[0.08, 0.20, 0.08], pos=[ 0.95, 0.10, -0.38])
+  }
+
+  // === BACKREST (vertical panel at back) ===
+  rounded_box "backrest" (size=[2.10, 0.45, 0.15], radius=0.05, mat="fabric_grey", pos=[0, 0.65, -0.38])
+
+  // === ARMRESTS (left + right) ===
+  rounded_box "arm_l" (size=[0.15, 0.35, 0.90], radius=0.05, mat="fabric_grey", pos=[-0.97, 0.55, 0])
+  rounded_box "arm_r" (size=[0.15, 0.35, 0.90], radius=0.05, mat="fabric_grey", pos=[ 0.97, 0.55, 0])
+
+  // === 3 SEAT CUSHIONS (sit on base, overlap with backrest) ===
+  rounded_box "cushion_l" (size=[0.65, 0.12, 0.80], radius=0.04, mat="fabric_grey", pos=[-0.65, 0.46, 0.02])
+  rounded_box "cushion_c" (size=[0.65, 0.12, 0.80], radius=0.04, mat="fabric_grey", pos=[ 0.00, 0.46, 0.02])
+  rounded_box "cushion_r" (size=[0.65, 0.12, 0.80], radius=0.04, mat="fabric_grey", pos=[ 0.65, 0.46, 0.02])
+
+  // === 3 BACK CUSHIONS (lean against backrest, overlap with seat cushions) ===
+  rounded_box "back_cushion_l" (size=[0.65, 0.40, 0.12], radius=0.05, mat="fabric_grey", pos=[-0.65, 0.65, -0.28])
+  rounded_box "back_cushion_c" (size=[0.65, 0.40, 0.12], radius=0.05, mat="fabric_grey", pos=[ 0.00, 0.65, -0.28])
+  rounded_box "back_cushion_r" (size=[0.65, 0.40, 0.12], radius=0.05, mat="fabric_grey", pos=[ 0.65, 0.65, -0.28])
+}

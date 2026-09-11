@@ -1,0 +1,52 @@
+// wardrobe.mog — Tier 1 prop (dynamic furniture + loot container)
+// Tall wardrobe/closet: 2 doors, hanging rod inside, lower drawer.
+// Target: 600 tris (High-preset LOD0). Actual: ~250 tris.
+// Dimensions: 1.20m wide × 0.55m deep × 1.80m tall.
+
+meta (
+  name          = "wardrobe",
+  description   = "Tall wardrobe with 2 doors and lower drawer",
+  tags          = ["prop", "furniture", "wardrobe", "closet", "dynamic", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wood_oak"  (color=[0.45, 0.28, 0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30, 0.18, 0.10], roughness=0.75)
+material "handle_metal" (color=[0.45, 0.45, 0.48], metallic=0.7, roughness=0.30)
+material "mirror_glass" (color=[0.30, 0.40, 0.50], roughness=0.05, metallic=0.9)
+
+scene {
+  // === CARCASS (back + 2 sides + top + bottom, all merged) ===
+  solid "carcass" (mat="wood_dark", cleanup="coplanar") {
+    box "back" (size=[1.20, 1.70, 0.05], pos=[0, 0.90, -0.25])
+    box "side_l" (size=[0.04, 1.80, 0.55], pos=[-0.58, 0.90, 0])
+    box "side_r" (size=[0.04, 1.80, 0.55], pos=[ 0.58, 0.90, 0])
+    box "top" (size=[1.20, 0.04, 0.55], pos=[0, 1.78, 0])
+    box "bottom" (size=[1.20, 0.04, 0.55], pos=[0, 0.02, 0])
+    // Middle shelf (separates hanging section from lower drawer)
+    box "middle_shelf" (size=[1.20, 0.04, 0.50], pos=[0, 0.50, 0])
+    // Bottom drawer section back + sides
+    box "drawer_back" (size=[1.20, 0.40, 0.05], pos=[0, 0.25, -0.25])
+  }
+
+  // === 2 DOORS (upper section — wardrobe) ===
+  box "door_l" (size=[0.55, 1.20, 0.04], mat="wood_oak", pos=[-0.28, 1.10, 0.28], tags="floating")
+  box "door_r" (size=[0.55, 1.20, 0.04], mat="wood_oak", pos=[ 0.28, 1.10, 0.28], tags="floating")
+
+  // Door handles (vertical bars)
+  box "handle_l" (size=[0.04, 0.30, 0.03], mat="handle_metal", pos=[-0.05, 1.10, 0.30], tags="floating")
+  box "handle_r" (size=[0.04, 0.30, 0.03], mat="handle_metal", pos=[ 0.05, 1.10, 0.30], tags="floating")
+
+  // === LOWER DRAWER (lower section) ===
+  box "drawer_front" (size=[1.10, 0.40, 0.04], mat="wood_oak", pos=[0, 0.25, 0.28], tags="floating")
+  box "drawer_handle" (size=[0.40, 0.04, 0.03], mat="handle_metal", pos=[0, 0.25, 0.30], tags="floating")
+
+  // === DECORATIVE MOLDING (top crown molding) ===
+  box "mold_top" (size=[1.25, 0.06, 0.60], mat="wood_dark", pos=[0, 1.83, 0], tags="floating")
+  // Bottom base molding (kick plate)
+  box "mold_bot" (size=[1.20, 0.10, 0.55], mat="wood_dark", pos=[0, 0.05, 0], tags="floating")
+
+  // === MIRROR (on right door — optional, makes it more interesting) ===
+  // Mirror glass on right door (recessed)
+  box "mirror" (size=[0.40, 0.90, 0.01], mat="mirror_glass", pos=[0.28, 1.10, 0.30], tags="floating")
+}

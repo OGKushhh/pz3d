@@ -1,0 +1,24 @@
+// mushrooms.mog
+meta (name="mushrooms", description="Cluster of 3 mushrooms", tags=["foliage","mushrooms","forest","tier1"], mogen_version="0.1.12")
+material "cap_red" (color=[0.65,0.15,0.10], roughness=0.60, emissive=[0.3,0.05,0.0], emissive_strength=0.2)
+material "cap_brown" (color=[0.45,0.30,0.18], roughness=0.70)
+material "stem_white" (color=[0.90,0.88,0.82], roughness=0.85)
+material "spots_white" (color=[0.92,0.92,0.88], roughness=0.75)
+scene {
+  // Mushroom 1 (larger, red cap with white spots — fly agaric)
+  cylinder "stem_1" (radius=0.02, height=0.10, segments=8, mat="stem_white", pos=[-0.05, 0.05, 0.02], tags="floating")
+  // Cap (use a hemisphere — approximate with a flattened sphere)
+  icosphere "cap_1" (radius=0.06, subdivisions=2, mat="cap_red", pos=[-0.05, 0.10, 0.02], tags="floating")
+  // White spots on cap (3 small spheres)
+  sphere "spot_1a" (radius=0.012, mat="spots_white", pos=[-0.07, 0.13, 0.04], tags="floating")
+  sphere "spot_1b" (radius=0.010, mat="spots_white", pos=[-0.04, 0.14, 0.00], tags="floating")
+  sphere "spot_1c" (radius=0.008, mat="spots_white", pos=[-0.02, 0.12, 0.05], tags="floating")
+
+  // Mushroom 2 (medium, brown cap)
+  cylinder "stem_2" (radius=0.015, height=0.08, segments=8, mat="stem_white", pos=[0.08, 0.04, -0.03])
+  icosphere "cap_2" (radius=0.045, subdivisions=2, mat="cap_brown", pos=[0.08, 0.08, -0.03])
+
+  // Mushroom 3 (small, brown cap)
+  cylinder "stem_3" (radius=0.012, height=0.06, segments=8, mat="stem_white", pos=[0.02, 0.03, -0.08])
+  icosphere "cap_3" (radius=0.035, subdivisions=2, mat="cap_brown", pos=[0.02, 0.06, -0.08])
+}

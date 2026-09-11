@@ -1,0 +1,35 @@
+// garden_shed_wood.mog — Wooden garden shed with window
+meta (name="garden_shed_wood", description="Small wooden garden shed with 1 window", tags=["building","shed","garden","wood","suburban","tier1"], mogen_version="0.1.12")
+material "wall_wood" (color=[0.55,0.40,0.25], roughness=0.80, uv_mode="tile", uv_scale=3.0)
+material "roof_tile" (color=[0.40,0.25,0.15], roughness=0.80, uv_mode="tile", uv_scale=3.0)
+material "trim_white" (color=[0.90,0.88,0.82], roughness=0.60)
+material "window_glass" (color=[0.40,0.55,0.65], transmission=0.50, roughness=0.04)
+material "door_wood" (color=[0.30,0.20,0.12], roughness=0.70)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "grass" (color=[0.25,0.45,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+scene {
+  slab "ground" (size=[6.0, 0.04, 5.0], mat="grass")
+  slab "foundation" (size=[2.8, 0.20, 2.4], mat="concrete", pos=[0, 0.02, 0])
+  // Front wall — door + small window
+  wall "front_wall" (size=[2.4, 2.30, 0.12], pos=[0, 1.30, -1.2], holes=[
+    [0.30, -0.20, 0.80, 2.00],
+    [-0.70, 0.30, 0.50, 0.50],
+  ])
+  wall "back_wall" (size=[2.4, 2.30, 0.12], pos=[0, 1.30, 1.2])
+  wall "left_wall" (size=[2.4, 2.30, 0.12], pos=[-1.2, 1.30, 0], rot=[0, 90, 0])
+  wall "right_wall" (size=[2.4, 2.30, 0.12], pos=[1.2, 1.30, 0], rot=[0, 90, 0])
+  slab "floor" (size=[2.4, 0.10, 2.4], mat="concrete", pos=[0, 0.20, 0])
+  prism "roof" (size=[2.6, 0.60, 2.6], pos=[0, 2.65, 0], mat="roof_tile")
+  // Door
+  group "door_group" (pos=[0.30, 1.10, -1.2]) {
+    chamfered_box "frame" (size=[0.90, 2.10, 0.04], radius=0.01, mat="trim_white")
+    chamfered_box "panel" (size=[0.78, 1.95, 0.04], radius=0.01, mat="door_wood", pos=[0, 0, -0.05])
+    sphere "knob" (radius=0.03, mat="brass", pos=[0.25, -0.10, -0.08])
+  }
+  // Window
+  group "window_group" (pos=[-0.70, 1.60, -1.2]) {
+    box "frame" (size=[0.55, 0.55, 0.04], mat="trim_white")
+    box "glass" (size=[0.45, 0.45, 0.02], mat="window_glass", pos=[0, 0, -0.03])
+  }
+}

@@ -1,0 +1,75 @@
+// diner.mog — Classic American diner
+meta (name="diner", description="Classic American diner with stainless steel look", tags=["building","diner","commercial","tier1"], mogen_version="0.1.12")
+material "wall_steel" (color=[0.75,0.75,0.78], roughness=0.30, metallic=0.6)
+material "trim_red" (color=[0.55,0.20,0.15], roughness=0.50)
+material "roof_flat" (color=[0.25,0.22,0.20], roughness=0.90)
+material "window_glass" (color=[0.40,0.55,0.65], transmission=0.50, roughness=0.04)
+material "door_glass" (color=[0.35,0.50,0.60], transmission=0.50, roughness=0.05)
+material "neon_red" (color=[0.65,0.15,0.10], roughness=0.20, emissive=[0.8,0.2,0.1], emissive_strength=1.0)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.18,0.18,0.20], roughness=0.95)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+
+module "diner_window" () {
+  box "frame" (size=[1.50, 1.20, 0.04], mat="trim_red")
+  box "glass" (size=[1.35, 1.05, 0.02], mat="window_glass", pos=[0,0,-0.03])
+}
+
+module "diner_door" () {
+  box "frame" (size=[1.00, 2.10, 0.04], mat="trim_red")
+  box "glass" (size=[0.85, 1.95, 0.02], mat="door_glass", pos=[0,0,-0.05])
+  box "handle" (size=[0.04, 0.15, 0.03], mat="brass", pos=[0.30, 0, 0.07], tags="floating")
+}
+
+scene {
+  slab "ground" (size=[16.0, 0.04, 12.0], mat="asphalt")
+  slab "foundation" (size=[8.4, 0.20, 6.4], mat="concrete", pos=[0, 0.02, 0])
+
+  // Front wall — big windows + door (classic diner storefront)
+  wall "front_wall" (size=[8.0, 2.80, 0.20], pos=[0, 1.55, -3.0], holes=[
+    [-2.50, -0.05, 1.00, 2.10],  // Door
+    [ 0.00, 0.30, 1.50, 1.20],   // Big window center
+    [ 2.50, 0.30, 1.50, 1.20],   // Big window right
+    [-2.50, 0.30, 1.50, 1.20],   // Wait that's same as door position...
+  ])
+  // Fix: remove the duplicate — front has door + 2 big windows
+  wall "front_wall" (size=[8.0, 2.80, 0.20], pos=[0, 1.55, -3.0], holes=[
+    [-2.50, -0.05, 1.00, 2.10],
+    [ 0.00, 0.30, 1.50, 1.20],
+    [ 2.50, 0.30, 1.50, 1.20],
+  ])
+
+  wall "back_wall" (size=[8.0, 2.80, 0.20], pos=[0, 1.55, 3.0], holes=[
+    [-2.50, 0.30, 1.50, 1.20],
+    [ 0.00, 0.30, 1.50, 1.20],
+    [ 2.50, 0.30, 1.50, 1.20],
+  ])
+  wall "left_wall" (size=[6.0, 2.80, 0.20], pos=[-4.0, 1.55, 0], rot=[0, 90, 0], holes=[
+    [0.0, 0.30, 1.50, 1.20],
+  ])
+  wall "right_wall" (size=[6.0, 2.80, 0.20], pos=[4.0, 1.55, 0], rot=[0, 90, 0], holes=[
+    [0.0, 0.30, 1.50, 1.20],
+  ])
+
+  slab "floor" (size=[8.0, 0.10, 6.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "ceiling" (size=[8.0, 0.10, 6.0], mat="wall_steel", pos=[0, 2.90, 0])
+  slab "roof" (size=[8.4, 0.10, 6.4], mat="roof_flat", pos=[0, 3.00, 0])
+
+  // Door + windows
+  group "door" (pos=[-2.50, 1.05, -3.0]) { use "diner_door" () }
+  group "wf_c" (pos=[ 0.00, 1.05, -3.0]) { use "diner_window" () }
+  group "wf_r" (pos=[ 2.50, 1.05, -3.0]) { use "diner_window" () }
+  group "wb_l" (pos=[-2.50, 1.05, 3.0]) { use "diner_window" () }
+  group "wb_c" (pos=[ 0.00, 1.05, 3.0]) { use "diner_window" () }
+  group "wb_r" (pos=[ 2.50, 1.05, 3.0]) { use "diner_window" () }
+  group "wl" (pos=[-4.0, 1.05, 0], rot=[0,90,0]) { use "diner_window" () }
+  group "wr" (pos=[ 4.0, 1.05, 0], rot=[0,90,0]) { use "diner_window" () }
+
+  // Neon sign strip across the top of front wall
+  box "neon_strip" (size=[8.0, 0.15, 0.05], mat="neon_red", pos=[0, 2.75, -3.02], tags="floating")
+  // Red trim band along the bottom
+  box "trim_band" (size=[8.0, 0.20, 0.04], mat="trim_red", pos=[0, 0.15, -3.02], tags="floating")
+
+  // Steps
+  slab "steps" (size=[1.50, 0.06, 0.30], mat="concrete", pos=[-2.50, 0.03, -3.20], tags="floating")
+}

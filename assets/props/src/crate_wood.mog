@@ -1,0 +1,20 @@
+// crate_wood.mog
+meta (name="crate_wood", description="Wooden storage crate, lootable", tags=["prop","furniture","crate","loot","dynamic","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.45,0.28,0.15], roughness=0.80, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30,0.18,0.10], roughness=0.85)
+material "metal_band" (color=[0.40,0.40,0.42], metallic=0.7, roughness=0.40)
+scene {
+  // Crate body (open-top box: 4 walls + bottom)
+  solid "body" (mat="wood_oak", cleanup="coplanar") {
+    box "wall_front" (size=[0.48, 0.48, 0.03], pos=[0, 0.24, 0.235])
+    box "wall_back" (size=[0.48, 0.48, 0.03], pos=[0, 0.24, -0.235])
+    box "wall_left" (size=[0.03, 0.48, 0.50], pos=[-0.235, 0.24, 0])
+    box "wall_right" (size=[0.03, 0.48, 0.50], pos=[ 0.235, 0.24, 0])
+    box "bottom" (size=[0.48, 0.03, 0.48], pos=[0, 0.015, 0])
+  }
+  // Metal corner bands (2 horizontal bands around the crate)
+  box "band_bot" (size=[0.50, 0.03, 0.02], mat="metal_band", pos=[0, 0.08, 0.245], tags="floating")
+  box "band_top" (size=[0.50, 0.03, 0.02], mat="metal_band", pos=[0, 0.40, 0.245], tags="floating")
+  box "band_bot_b" (size=[0.50, 0.03, 0.02], mat="metal_band", pos=[0, 0.08, -0.245], tags="floating")
+  box "band_top_b" (size=[0.50, 0.03, 0.02], mat="metal_band", pos=[0, 0.40, -0.245], tags="floating")
+}

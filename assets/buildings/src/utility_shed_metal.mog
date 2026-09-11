@@ -1,0 +1,29 @@
+// utility_shed_metal.mog — Small metal utility shed
+meta (name="utility_shed_metal", description="Small metal utility shed for tools/equipment", tags=["building","shed","metal","utility","suburban","tier1"], mogen_version="0.1.12")
+material "wall_metal" (color=[0.45,0.50,0.45], roughness=0.60, metallic=0.5, uv_mode="tile", uv_scale=2.0)
+material "roof_metal" (color=[0.35,0.38,0.35], roughness=0.60, metallic=0.6)
+material "trim_dark" (color=[0.15,0.15,0.18], roughness=0.50, metallic=0.7)
+material "door_metal" (color=[0.40,0.42,0.40], roughness=0.50, metallic=0.6)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "grass" (color=[0.25,0.45,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+scene {
+  slab "ground" (size=[6.0, 0.04, 5.0], mat="grass")
+  slab "foundation" (size=[2.4, 0.20, 2.0], mat="concrete", pos=[0, 0.02, 0])
+  // Walls — simple, 1 door on front
+  wall "front_wall" (size=[2.0, 2.20, 0.10], pos=[0, 1.25, -1.0], holes=[[0.0, -0.10, 0.80, 1.90]])
+  wall "back_wall" (size=[2.0, 2.20, 0.10], pos=[0, 1.25, 1.0])
+  wall "left_wall" (size=[2.0, 2.20, 0.10], pos=[-1.0, 1.25, 0], rot=[0, 90, 0])
+  wall "right_wall" (size=[2.0, 2.20, 0.10], pos=[1.0, 1.25, 0], rot=[0, 90, 0])
+  // Floor + roof
+  slab "floor" (size=[2.0, 0.10, 2.0], mat="concrete", pos=[0, 0.20, 0])
+  prism "roof" (size=[2.2, 0.50, 2.2], pos=[0, 2.50, 0], mat="roof_metal")
+  // Door
+  group "door_group" (pos=[0, 1.15, -1.0]) {
+    box "frame" (size=[0.90, 2.00, 0.04], mat="trim_dark")
+    box "panel" (size=[0.78, 1.88, 0.04], mat="door_metal", pos=[0, 0, -0.05])
+    sphere "knob" (radius=0.03, mat="brass", pos=[0.25, -0.10, -0.08])
+  }
+  // Vent (small box on side wall)
+  box "vent" (size=[0.20, 0.20, 0.02], mat="trim_dark", pos=[1.0, 1.50, 0], rot=[0, 90, 0], tags="floating")
+}

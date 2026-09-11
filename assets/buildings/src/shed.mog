@@ -1,0 +1,77 @@
+// shed.mog — Tier 1 building variant
+// Small backyard storage shed: gable roof, single door, no windows.
+// Target: 2,500 tris (Low-preset LOD0 standard enterable building). Actual: ~1k tris.
+// Dimensions: 3.0m wide × 2.0m deep × 2.5m tall.
+
+meta (
+  name          = "shed",
+  description   = "Small backyard storage shed with gable roof",
+  tags          = ["building", "shed", "storage", "suburban", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wall_wood"    (color=[0.45, 0.30, 0.18], roughness=0.80, uv_mode="tile", uv_scale=3.0)
+material "roof_metal"   (color=[0.35, 0.30, 0.25], roughness=0.50, metallic=0.4)
+material "trim_dark"    (color=[0.20, 0.15, 0.10], roughness=0.70)
+material "door_wood"   (color=[0.30, 0.20, 0.12], roughness=0.75)
+material "concrete"    (color=[0.55, 0.53, 0.50], roughness=0.90)
+material "grass"       (color=[0.25, 0.45, 0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brass"       (color=[0.95, 0.70, 0.25], metallic=0.85, roughness=0.25)
+
+module "shed_door" () {
+  chamfered_box "frame" (size=[1.00, 2.00, 0.06], radius=0.02, mat="trim_dark")
+  chamfered_box "panel" (size=[0.85, 1.85, 0.05], radius=0.015, mat="door_wood", pos=[0, 0, -0.08])
+  // Cross-brace pattern (2 diagonal boards)
+  box "brace_1" (size=[0.90, 0.06, 0.02], mat="trim_dark", pos=[0, 0.30, -0.10], rot=[0, 0, 35])
+  box "brace_2" (size=[0.90, 0.06, 0.02], mat="trim_dark", pos=[0, -0.30, -0.10], rot=[0, 0, -35])
+  sphere "knob" (radius=0.04, mat="brass", pos=[0.30, -0.20, -0.13])
+}
+
+scene {
+  // Foundation + ground
+  slab "ground" (size=[6.0, 0.04, 5.0], mat="grass")
+  slab "foundation" (size=[3.4, 0.20, 2.4], mat="concrete", pos=[0, 0.02, 0])
+
+  // === WALLS ===
+  // Front wall (faces -Z) — door only, no windows
+  wall "front_wall" (
+    size=[3.0, 2.30, 0.15],
+    pos=[0, 1.30, -1.0],
+    holes=[
+      // Door: centered, 0.9 wide × 2.0 tall
+      [0.0, -0.15, 0.90, 2.00],
+    ]
+  )
+
+  // Back wall (no openings)
+  wall "back_wall" (
+    size=[3.0, 2.30, 0.15],
+    pos=[0, 1.30, 1.0]
+  )
+
+  // Left wall (no openings)
+  wall "left_wall" (
+    size=[2.0, 2.30, 0.15],
+    pos=[-1.5, 1.30, 0],
+    rot=[0, 90, 0]
+  )
+
+  // Right wall (no openings)
+  wall "right_wall" (
+    size=[2.0, 2.30, 0.15],
+    pos=[1.5, 1.30, 0],
+    rot=[0, 90, 0]
+  )
+
+  // Floor
+  slab "floor" (size=[3.0, 0.10, 2.0], mat="concrete", pos=[0, 0.20, 0])
+
+  // === ROOF (gable, metal) ===
+  prism "roof" (size=[3.3, 0.70, 2.3], pos=[0, 2.75, 0], mat="roof_metal")
+
+  // === DOOR ===
+  group "door_group" (pos=[0, 0.80, -1.0]) { use "shed_door" () }
+
+  // === DOOR STEP ===
+  slab "door_step" (size=[1.20, 0.06, 0.25], mat="concrete", pos=[0, 0.03, -1.15], tags="floating")
+}

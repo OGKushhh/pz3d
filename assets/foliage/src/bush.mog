@@ -1,0 +1,29 @@
+// bush.mog — Tier 1 Style Anchor #5
+// Stylized bush: 3 overlapping spheres of leaves on a small base.
+// Target: 400 tris (per locked poly budget — standard bush).
+// Dimensions: ~1.0m tall, ~1.0m wide.
+
+meta (
+  name          = "bush",
+  description   = "Stylized low-poly bush with 3 leaf clusters",
+  tags          = ["foliage", "bush", "shrub", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "leaves_bush" (color=[0.22, 0.40, 0.16], roughness=0.85, uv_mode="tile", uv_scale=1.0)
+material "leaves_dark" (color=[0.13, 0.28, 0.10], roughness=0.85, uv_mode="tile", uv_scale=1.0)
+material "twig"         (color=[0.30, 0.20, 0.12], roughness=0.90)
+
+scene {
+  // Main leaf cluster
+  icosphere "cluster_main"  (radius=0.40, subdivisions=1, mat="leaves_bush", pos=[0,    0.50, 0])
+  // Side clusters
+  icosphere "cluster_left" (radius=0.30, subdivisions=1, mat="leaves_dark", pos=[-0.28, 0.42, 0.10])
+  icosphere "cluster_right" (radius=0.32, subdivisions=1, mat="leaves_dark", pos=[ 0.30, 0.45, -0.08])
+  // Top cluster
+  icosphere "cluster_top"  (radius=0.22, subdivisions=1, mat="leaves_bush", pos=[0.05, 0.72, 0])
+
+  // A few twigs poking out
+  cylinder "twig_1" (radius=0.012, height=0.30, segments=5, mat="twig", pos=[0.25, 0.40, 0.15], rot=[20, 0, 30])
+  cylinder "twig_2" (radius=0.012, height=0.25, segments=5, mat="twig", pos=[-0.22, 0.38, -0.10], rot=[-25, 0, -20])
+}

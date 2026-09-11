@@ -1,0 +1,29 @@
+// fireplace.mog
+meta (name="fireplace", description="Stone fireplace with mantel", tags=["prop","furniture","fireplace","static","tier1"], mogen_version="0.1.12")
+material "stone_grey" (color=[0.50,0.47,0.42], roughness=0.90, uv_mode="tile", uv_scale=3.0)
+material "mantel_wood" (color=[0.40,0.25,0.12], roughness=0.70)
+material "firebrick" (color=[0.35,0.20,0.15], roughness=0.90)
+material "soot_black" (color=[0.08,0.08,0.10], roughness=0.95)
+material "ember_orange" (color=[0.65,0.25,0.05], roughness=0.60, emissive=[0.8,0.3,0.05], emissive_strength=1.5)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+scene {
+  // Main body (stone surround)
+  solid "body" (mat="stone_grey", cleanup="coplanar") {
+    box "base" (size=[1.40, 0.50, 0.50], pos=[0, 0.25, 0])
+    box "left" (size=[0.30, 1.50, 0.50], pos=[-0.55, 1.00, 0])
+    box "right" (size=[0.30, 1.50, 0.50], pos=[ 0.55, 1.00, 0])
+    box "top" (size=[1.40, 0.30, 0.50], pos=[0, 1.65, 0])
+  }
+  // Firebox (recessed opening — dark interior)
+  box "firebox" (size=[0.80, 0.80, 0.45], mat="soot_black", pos=[0, 0.65, 0.03], tags="floating")
+  // Firebrick lining (visible inside firebox)
+  box "firebrick_back" (size=[0.75, 0.75, 0.02], mat="firebrick", pos=[0, 0.65, -0.18], tags="floating")
+  // Embers (small glowing dots at bottom of firebox)
+  sphere "ember_1" (radius=0.03, mat="ember_orange", pos=[-0.15, 0.30, 0.05], tags="floating")
+  sphere "ember_2" (radius=0.025, mat="ember_orange", pos=[0.05, 0.30, 0.08], tags="floating")
+  sphere "ember_3" (radius=0.02, mat="ember_orange", pos=[0.20, 0.30, 0.03], tags="floating")
+  // Mantel (wooden shelf on top)
+  box "mantel" (size=[1.60, 0.10, 0.55], mat="mantel_wood", pos=[0, 1.80, 0])
+  // Hearth (stone slab in front, on floor)
+  slab "hearth" (size=[1.60, 0.05, 0.40], mat="stone_grey", pos=[0, 0.025, 0.45])
+}

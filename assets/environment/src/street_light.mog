@@ -1,0 +1,38 @@
+// street_light.mog — Tier 1 environment #3
+// Suburban street light: pole + arm + lamp head + light source.
+// Includes a Godot light node (kind=point) at the lamp position.
+// Target: 300 tris (per poly budget environment). Actual: ~150 tris.
+// Dimensions: 5.0m tall × 1.5m arm reach.
+
+meta (
+  name          = "street_light",
+  description   = "Suburban street light — pole + arm + lamp head",
+  tags          = ["environment", "street_light", "lighting", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "pole_metal" (color=[0.20, 0.22, 0.25], roughness=0.55, metallic=0.7)
+material "lamp_housing" (color=[0.15, 0.15, 0.18], roughness=0.50, metallic=0.6)
+material "lamp_glass"  (color=[0.95, 0.85, 0.55], roughness=0.10, emissive=[0.8, 0.7, 0.4], emissive_strength=1.5)
+material "base_concrete" (color=[0.55, 0.53, 0.50], roughness=0.90)
+
+scene {
+  // === CONCRETE BASE ===
+  cylinder "base" (radius=0.20, height=0.20, segments=12, mat="base_concrete", pos=[0, 0.10, 0])
+
+  // === POLE (single cylinder, no gap between lower + upper) ===
+  cylinder "pole" (radius=0.06, height=4.85, segments=12, mat="pole_metal", pos=[0, 2.425, 0])
+
+  // === ARM (horizontal cylinder extending outward) ===
+  cylinder "arm" (radius=0.04, height=0.80, segments=8, mat="pole_metal", pos=[0.40, 4.80, 0], rot=[0, 0, 90])
+
+  // === LAMP HEAD (rounded box at end of arm) ===
+  rounded_box "lamp_housing" (size=[0.30, 0.15, 0.20], radius=0.04, mat="lamp_housing", pos=[0.80, 4.78, 0])
+  // Lamp glass (under housing, glowing)
+  box "lamp_glass" (size=[0.25, 0.04, 0.16], mat="lamp_glass", pos=[0.80, 4.69, 0])
+
+  // === GODOT LIGHT NODE (point light at lamp position) ===
+  // Per poly_budget_v3, Low preset has sun only. This light is a "no shadow" point light
+  // that we can toggle on/off based on time-of-day + preset.
+  light "lamp_light" (kind=point, pos=[0.80, 4.65, 0], color=[1.0, 0.85, 0.5], intensity=8.0, range=12.0)
+}

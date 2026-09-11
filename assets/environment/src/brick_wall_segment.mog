@@ -1,0 +1,38 @@
+// brick_wall_segment.mog — Tier 1 environment prop
+// Suburban brick wall segment: 2 posts + 4 horizontal brick courses between them.
+// Used as property boundary. Different from picket_fence (white wood).
+// Target: 300 tris (Low-preset LOD0). Actual: ~150 tris.
+// Dimensions: 2.0m long × 1.2m tall × 0.15m thick.
+
+meta (
+  name          = "brick_wall_segment",
+  description   = "Suburban brick wall segment with 2 posts + 4 courses",
+  tags          = ["environment", "wall", "brick", "suburban", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "brick_red" (color=[0.50, 0.22, 0.15], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "mortar_grey" (color=[0.60, 0.58, 0.55], roughness=0.90)
+material "cap_stone" (color=[0.65, 0.63, 0.60], roughness=0.85)
+
+scene {
+  // === 2 END POSTS (slightly wider + taller than wall) ===
+  box "post_l" (size=[0.20, 1.30, 0.20], mat="brick_red", pos=[-1.00, 0.65, 0])
+  box "post_r" (size=[0.20, 1.30, 0.20], mat="brick_red", pos=[ 1.00, 0.65, 0])
+  // Post caps (flat stone caps)
+  box "cap_l" (size=[0.22, 0.04, 0.22], mat="cap_stone", pos=[-1.00, 1.32, 0])
+  box "cap_r" (size=[0.22, 0.04, 0.22], mat="cap_stone", pos=[ 1.00, 1.32, 0])
+
+  // === WALL BODY (between posts) ===
+  // Main brick body
+  box "wall_body" (size=[1.80, 1.10, 0.15], mat="brick_red", pos=[0, 0.60, 0])
+
+  // === WALL CAP (stone cap on top of wall) ===
+  box "wall_cap" (size=[1.85, 0.05, 0.18], mat="cap_stone", pos=[0, 1.175, 0])
+
+  // === MORTAR LINES (decorative horizontal lines suggesting brick courses) ===
+  box "mortar_1" (size=[1.80, 0.01, 0.155], mat="mortar_grey", pos=[0, 0.25, 0], tags="floating")
+  box "mortar_2" (size=[1.80, 0.01, 0.155], mat="mortar_grey", pos=[0, 0.50, 0], tags="floating")
+  box "mortar_3" (size=[1.80, 0.01, 0.155], mat="mortar_grey", pos=[0, 0.75, 0], tags="floating")
+  box "mortar_4" (size=[1.80, 0.01, 0.155], mat="mortar_grey", pos=[0, 1.00, 0], tags="floating")
+}

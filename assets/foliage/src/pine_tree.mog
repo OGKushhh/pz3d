@@ -1,0 +1,36 @@
+// pine_tree.mog — Tier 1 foliage variant
+// Stylized conifer pine tree: tall tapered trunk + 3 stacked cone foliage layers.
+// Different silhouette from oak_tree (which is broadleaf/spherical).
+// Target: 2,500 tris (High-preset hero tree). Actual: ~1.5k tris.
+// Dimensions: ~5.0m tall, ~1.8m wide at base of foliage.
+
+meta (
+  name          = "pine_tree",
+  description   = "Stylized conifer pine tree with 3 cone foliage layers",
+  tags          = ["foliage", "tree", "pine", "conifer", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "bark"     (color=[0.30, 0.20, 0.12], roughness=0.90, uv_mode="tile", uv_scale=2.0)
+material "pine_dark" (color=[0.12, 0.28, 0.14], roughness=0.85, uv_mode="tile", uv_scale=1.5)
+material "pine_light" (color=[0.20, 0.38, 0.18], roughness=0.85, uv_mode="tile", uv_scale=1.5)
+
+scene {
+  // === TRUNK (single cylinder, no internal sub-segments) ===
+  cylinder "trunk" (radius=0.12, height=2.50, segments=8, mat="bark", pos=[0, 1.25, 0])
+
+  // Root flare at base
+  cylinder "root_flare" (radius=0.18, height=0.15, segments=8, mat="bark", pos=[0, 0.075, 0])
+
+  // === 3 CONE FOLIAGE LAYERS (stacked, decreasing radius upward) ===
+  // Bottom cone (widest): radius 1.0, height 1.5, positioned at y=2.0 (overlapping trunk top)
+  cone "foliage_bottom" (radius=1.00, height=1.50, sides=8, mat="pine_dark", pos=[0, 2.50, 0])
+  // Middle cone: radius 0.75, height 1.2, overlapping bottom cone
+  cone "foliage_middle" (radius=0.75, height=1.20, sides=8, mat="pine_light", pos=[0, 3.20, 0])
+  // Top cone (narrowest): radius 0.45, height 0.9
+  cone "foliage_top" (radius=0.45, height=0.90, sides=8, mat="pine_dark", pos=[0, 3.95, 0])
+
+  // === 2 SMALL BRANCH STUBS (visible at gaps between cones) ===
+  cylinder "stub_1" (radius=0.04, height=0.30, segments=6, mat="bark", pos=[0.30, 2.30, 0.20], rot=[40, 0, 25])
+  cylinder "stub_2" (radius=0.04, height=0.25, segments=6, mat="bark", pos=[-0.25, 3.00, -0.15], rot=[-35, 0, -20])
+}

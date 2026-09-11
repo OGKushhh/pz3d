@@ -1,0 +1,19 @@
+// armchair.mog
+meta (name="armchair", description="Single-seat armchair with cushions", tags=["prop","furniture","armchair","dynamic","tier1"], mogen_version="0.1.12")
+material "fabric_grey" (color=[0.40,0.42,0.45], roughness=0.85)
+material "fabric_dark" (color=[0.25,0.27,0.30], roughness=0.85)
+material "wood_leg" (color=[0.30,0.18,0.10], roughness=0.75)
+scene {
+  solid "base" (mat="fabric_dark", cleanup="coplanar") {
+    box "base_block" (size=[0.80, 0.20, 0.80], pos=[0, 0.30, 0])
+    box "leg_fl" (size=[0.06, 0.20, 0.06], pos=[-0.32, 0.10, 0.32])
+    box "leg_fr" (size=[0.06, 0.20, 0.06], pos=[ 0.32, 0.10, 0.32])
+    box "leg_bl" (size=[0.06, 0.20, 0.06], pos=[-0.32, 0.10, -0.32])
+    box "leg_br" (size=[0.06, 0.20, 0.06], pos=[ 0.32, 0.10, -0.32])
+  }
+  rounded_box "backrest" (size=[0.80, 0.50, 0.15], radius=0.05, mat="fabric_grey", pos=[0, 0.65, -0.32])
+  rounded_box "arm_l" (size=[0.15, 0.35, 0.80], radius=0.05, mat="fabric_grey", pos=[-0.37, 0.55, 0])
+  rounded_box "arm_r" (size=[0.15, 0.35, 0.80], radius=0.05, mat="fabric_grey", pos=[ 0.37, 0.55, 0])
+  rounded_box "seat_cushion" (size=[0.70, 0.12, 0.70], radius=0.04, mat="fabric_grey", pos=[0, 0.46, 0.02])
+  rounded_box "back_cushion" (size=[0.70, 0.40, 0.12], radius=0.05, mat="fabric_grey", pos=[0, 0.65, -0.22])
+}

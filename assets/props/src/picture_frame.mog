@@ -1,0 +1,18 @@
+// picture_frame.mog
+meta (name="picture_frame", description="Wall-mounted picture frame", tags=["prop","furniture","picture_frame","dynamic","tier1"], mogen_version="0.1.12")
+material "frame_wood" (color=[0.40,0.25,0.12], roughness=0.70, uv_mode="tile", uv_scale=1.0)
+material "picture_bg" (color=[0.90,0.88,0.82], roughness=0.85)
+material "glass" (color=[0.85,0.85,0.88], roughness=0.05, transmission=0.80)
+scene {
+  // Frame (4 pieces overlapping to merge)
+  solid "frame" (mat="frame_wood", cleanup="coplanar") {
+    box "top" (size=[0.50, 0.04, 0.03], pos=[0, 0.35, 0])
+    box "bot" (size=[0.50, 0.04, 0.03], pos=[0, -0.35, 0])
+    box "left" (size=[0.04, 0.70, 0.03], pos=[-0.23, 0, 0])
+    box "right" (size=[0.04, 0.70, 0.03], pos=[ 0.23, 0, 0])
+  }
+  // Picture (white background — would have actual art via texture)
+  box "picture" (size=[0.42, 0.62, 0.01], mat="picture_bg", pos=[0, 0, -0.01], tags="floating")
+  // Glass (slightly in front of picture)
+  box "glass" (size=[0.42, 0.62, 0.005], mat="glass", pos=[0, 0, 0.005], tags="floating")
+}

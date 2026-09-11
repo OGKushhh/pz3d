@@ -1,0 +1,43 @@
+// door_interior.mog — Tier 1 prop (static interior door)
+// Standard interior door: door slab + frame + hinges + knob.
+// Per furniture_merging_decision.md: structural (part of room shell).
+// Modeled as a closed door (player can open it via interaction in Godot).
+// Target: 250 tris (Low-preset LOD0). Actual: ~80 tris.
+// Dimensions: 0.90m wide × 2.10m tall × 0.05m thick.
+
+meta (
+  name          = "door_interior",
+  description   = "Standard interior door slab + frame (closed state)",
+  tags          = ["prop", "door", "interior", "static", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "door_wood" (color=[0.55, 0.40, 0.25], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "frame_wood" (color=[0.45, 0.30, 0.18], roughness=0.75)
+material "handle_metal" (color=[0.45, 0.45, 0.48], metallic=0.7, roughness=0.30)
+material "hinge_metal" (color=[0.40, 0.40, 0.42], metallic=0.7, roughness=0.30)
+
+scene {
+  // === FRAME (3 pieces: top + 2 sides, all overlap to merge) ===
+  solid "frame" (mat="frame_wood", cleanup="coplanar") {
+    box "frame_top" (size=[1.00, 0.06, 0.08], pos=[0, 2.10, 0])
+    box "frame_left" (size=[0.06, 2.13, 0.08], pos=[-0.47, 1.065, 0])
+    box "frame_right" (size=[0.06, 2.13, 0.08], pos=[ 0.47, 1.065, 0])
+  }
+
+  // === DOOR SLAB (top OVERLAPS with frame top — no gap visible) ===
+  // Frame_top spans y=2.07 to 2.13. Door top at y=2.10 (overlaps frame top by 0.03m).
+  // Door: 0.86 wide × 2.10 tall, centered at y=1.05 (spans y=0 to 2.10)
+  chamfered_box "door_slab" (size=[0.86, 2.10, 0.08], radius=0.01, mat="door_wood", pos=[0, 1.05, 0.01], tags="floating")
+
+  // === DOOR PANEL DETAIL (2 recessed panels on the door face) ===
+  box "panel_top" (size=[0.55, 0.65, 0.01], mat="frame_wood", pos=[0, 1.35, 0.01], tags="floating")
+  box "panel_bot" (size=[0.55, 0.65, 0.01], mat="frame_wood", pos=[0, 0.55, 0.01], tags="floating")
+
+  // === DOOR KNOB (round, on right side at handle height) ===
+  sphere "knob" (radius=0.035, mat="handle_metal", pos=[0.30, 1.00, 0.04], tags="floating")
+
+  // === HINGES (2 small rectangles on left side) ===
+  box "hinge_top" (size=[0.06, 0.04, 0.03], mat="hinge_metal", pos=[-0.42, 1.60, 0.02], tags="floating")
+  box "hinge_bot" (size=[0.06, 0.04, 0.03], mat="hinge_metal", pos=[-0.42, 0.40, 0.02], tags="floating")
+}

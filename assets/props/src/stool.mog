@@ -1,0 +1,15 @@
+// stool.mog
+meta (name="stool", description="Simple bar stool with round seat and 4 legs", tags=["prop","furniture","stool","dynamic","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.45,0.28,0.15], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "wood_dark" (color=[0.30,0.18,0.10], roughness=0.75)
+scene {
+  // Round seat
+  cylinder "seat" (radius=0.18, height=0.04, segments=16, mat="wood_oak", pos=[0, 0.73, 0])
+  // 4 legs (angled outward)
+  cylinder "leg_fl" (radius=0.02, height=0.75, segments=8, mat="wood_dark", pos=[-0.12, 0.375, 0.12], rot=[8, 0, 0])
+  cylinder "leg_fr" (radius=0.02, height=0.75, segments=8, mat="wood_dark", pos=[ 0.12, 0.375, 0.12], rot=[-8, 0, 0])
+  cylinder "leg_bl" (radius=0.02, height=0.75, segments=8, mat="wood_dark", pos=[-0.12, 0.375, -0.12], rot=[8, 0, 0])
+  cylinder "leg_br" (radius=0.02, height=0.75, segments=8, mat="wood_dark", pos=[ 0.12, 0.375, -0.12], rot=[-8, 0, 0])
+  // Foot rest ring
+  cylinder "foot_ring" (radius=0.15, height=0.02, segments=16, mat="wood_dark", pos=[0, 0.25, 0], tags="floating")
+}

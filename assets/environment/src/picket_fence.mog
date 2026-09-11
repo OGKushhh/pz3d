@@ -1,0 +1,59 @@
+// picket_fence.mog — Tier 1 environment #2
+// Suburban white picket fence segment: 2 posts + 2 horizontal rails + 6 pickets.
+// Different from upstream fence.mog — that one is a more utilitarian wire/post fence.
+// Target: 300 tris (per poly budget environment). Actual: ~120 tris.
+// Dimensions: 2.0m long × 1.0m tall × 0.05m thick.
+
+meta (
+  name          = "picket_fence",
+  description   = "Suburban white picket fence segment — 2 posts + 2 rails + 6 pickets",
+  tags          = ["environment", "fence", "picket", "suburban", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "fence_white" (color=[0.92, 0.91, 0.86], roughness=0.60, uv_mode="tile", uv_scale=2.0)
+
+scene {
+  // === 2 END POSTS (square) ===
+  // Posts at x=-1.0 and x=1.0, 1.0m tall, 0.06m square
+  box "post_l" (size=[0.06, 1.00, 0.06], mat="fence_white", pos=[-1.00, 0.50, 0])
+  box "post_r" (size=[0.06, 1.00, 0.06], mat="fence_white", pos=[ 1.00, 0.50, 0])
+  // Post caps (pyramids on top — decorative)
+  pyramid "cap_l" (radius=0.05, height=0.05, sides=4, mat="fence_white", pos=[-1.00, 1.025, 0])
+  pyramid "cap_r" (radius=0.05, height=0.05, sides=4, mat="fence_white", pos=[ 1.00, 1.025, 0])
+
+  // === 2 HORIZONTAL RAILS (top + bottom, between posts) ===
+  // Top rail at y=0.75, bottom rail at y=0.25
+  box "rail_top" (size=[1.94, 0.04, 0.03], mat="fence_white", pos=[0, 0.75, 0])
+  box "rail_bot" (size=[1.94, 0.04, 0.03], mat="fence_white", pos=[0, 0.25, 0])
+
+  // === 6 PICKETS (vertical boards between posts, pointed tops) ===
+  // Pickets at x=-0.80, -0.48, -0.16, 0.16, 0.48, 0.80
+  // Each picket is 0.08 wide × 0.85 tall × 0.02 thick, with pointed (pyramid) top
+  // Use a group per picket so we can place the picket + cap together
+
+  group "picket_1" (pos=[-0.80, 0, 0]) {
+    box "board" (size=[0.08, 0.80, 0.02], mat="fence_white", pos=[0, 0.45, 0])
+    pyramid "point" (radius=0.05, height=0.05, sides=4, mat="fence_white", pos=[0, 0.875, 0], rot=[0, 45, 0])
+  }
+  group "picket_2" (pos=[-0.48, 0, 0]) {
+    box "board" (size=[0.08, 0.80, 0.02], mat="fence_white", pos=[0, 0.45, 0])
+    pyramid "point" (radius=0.05, height=0.05, sides=4, mat="fence_white", pos=[0, 0.875, 0], rot=[0, 45, 0])
+  }
+  group "picket_3" (pos=[-0.16, 0, 0]) {
+    box "board" (size=[0.08, 0.80, 0.02], mat="fence_white", pos=[0, 0.45, 0])
+    pyramid "point" (radius=0.05, height=0.05, sides=4, mat="fence_white", pos=[0, 0.875, 0], rot=[0, 45, 0])
+  }
+  group "picket_4" (pos=[0.16, 0, 0]) {
+    box "board" (size=[0.08, 0.80, 0.02], mat="fence_white", pos=[0, 0.45, 0])
+    pyramid "point" (radius=0.05, height=0.05, sides=4, mat="fence_white", pos=[0, 0.875, 0], rot=[0, 45, 0])
+  }
+  group "picket_5" (pos=[0.48, 0, 0]) {
+    box "board" (size=[0.08, 0.80, 0.02], mat="fence_white", pos=[0, 0.45, 0])
+    pyramid "point" (radius=0.05, height=0.05, sides=4, mat="fence_white", pos=[0, 0.875, 0], rot=[0, 45, 0])
+  }
+  group "picket_6" (pos=[0.80, 0, 0]) {
+    box "board" (size=[0.08, 0.80, 0.02], mat="fence_white", pos=[0, 0.45, 0])
+    pyramid "point" (radius=0.05, height=0.05, sides=4, mat="fence_white", pos=[0, 0.875, 0], rot=[0, 45, 0])
+  }
+}

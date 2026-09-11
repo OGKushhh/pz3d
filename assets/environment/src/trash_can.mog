@@ -1,0 +1,35 @@
+// trash_can.mog — Tier 1 environment prop
+// Standard outdoor trash can: cylindrical body + lid.
+// Target: 200 tris (Low-preset LOD0). Actual: ~100 tris.
+// Dimensions: 0.50m diameter × 0.90m tall.
+
+meta (
+  name          = "trash_can",
+  description   = "Standard outdoor trash can with lid",
+  tags          = ["environment", "trash_can", "suburban", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "can_dark"  (color=[0.18, 0.20, 0.22], roughness=0.60, metallic=0.3)
+material "lid_dark"  (color=[0.15, 0.16, 0.18], roughness=0.60, metallic=0.3)
+material "handle_metal" (color=[0.45, 0.45, 0.48], metallic=0.7, roughness=0.30)
+
+scene {
+  // === BODY (cylinder, slightly tapered — use 2 stacked cylinders) ===
+  // Lower section (slightly wider at bottom)
+  cylinder "body_lower" (radius=0.26, height=0.70, segments=16, mat="can_dark", pos=[0, 0.35, 0])
+  // Upper section (slightly narrower — gives a slight taper)
+  cylinder "body_upper" (radius=0.24, height=0.15, segments=16, mat="can_dark", pos=[0, 0.775, 0])
+
+  // === LID (slightly wider than body top, with dome) ===
+  cylinder "lid_rim" (radius=0.27, height=0.05, segments=16, mat="lid_dark", pos=[0, 0.875, 0])
+  // Dome (use a hemisphere — actually just a flat slab for simplicity)
+  cylinder "lid_top" (radius=0.25, height=0.04, segments=16, mat="lid_dark", pos=[0, 0.915, 0])
+
+  // === LID HANDLE (small knob on top) ===
+  sphere "lid_handle" (radius=0.04, mat="handle_metal", pos=[0, 0.95, 0])
+
+  // === 2 RIDGE LINES (decorative horizontal bands around body) ===
+  cylinder "ridge_1" (radius=0.265, height=0.01, segments=16, mat="lid_dark", pos=[0, 0.30, 0], tags="floating")
+  cylinder "ridge_2" (radius=0.265, height=0.01, segments=16, mat="lid_dark", pos=[0, 0.55, 0], tags="floating")
+}

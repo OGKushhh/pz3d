@@ -1,0 +1,48 @@
+// dead_tree.mog — Tier 1 foliage variant — v4 using `branch` primitive
+// A normal tree WITHOUT leaves — using MoGen's `branch` primitive for natural
+// tapering + branch structure. The branch primitive generates proper organic
+// branching with decreasing radius (taper) and natural split angles.
+// For a leafless tree, ALL generated branches are visible (no canopy to hide them).
+// Target: 1,200 tris (Low-preset LOD0). Actual: TBD.
+// Dimensions: ~5.0m tall, ~2.5m branch spread.
+
+meta (
+  name          = "dead_tree",
+  description   = "Normal dormant tree without leaves — natural branch structure via branch primitive",
+  tags          = ["foliage", "tree", "bare", "dormant", "winter", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "bark_brown" (color=[0.35, 0.25, 0.18], roughness=0.90, uv_mode="tile", uv_scale=2.0)
+
+scene {
+  // === PROCEDURAL BRANCH TREE (no leaves) ===
+  // form="decurrent" = broadleaf habit (oak/maple-like silhouette)
+  // depth=4 = 4 levels of branching (trunk → main branches → sub-branches → twigs)
+  // splits=2 = 2 children per branch at each split
+  // leaves=0 = no leaf clusters (bare winter tree)
+  // tropism=0.3 = slight upward growth bias
+  // bend=15 = random bend per segment for organic feel
+  // jitter=0.3 = random variation in lengths/angles
+  branch "trunk" (
+    form="decurrent",
+    length=3.5,
+    radius=0.20,
+    depth=5,
+    splits=2,
+    length_falloff=0.65,
+    radius_falloff=0.60,
+    branch_angle=35,
+    bend=15,
+    tropism=0.3,
+    segments=4,
+    seed=15,
+    jitter=0.3,
+    leader_bias=0.3,
+    leaves=0,
+    mat="bark_brown"
+  )
+
+  // Root flare at base (separate cylinder for stability)
+  cylinder "root_flare" (radius=0.20, height=0.12, segments=10, mat="bark_brown", pos=[0, 0.06, 0])
+}

@@ -1,0 +1,28 @@
+// dirt_road_segment.mog — Tier 1 environment prop
+// 10-meter dirt road segment: simple dirt path with raised edges.
+// Used in Farmland, Forest, Parks — anywhere without asphalt.
+// Target: 80 tris (Low-preset LOD0). Actual: ~40 tris.
+// Dimensions: 10m long × 4m wide × 0.05m thick.
+
+meta (
+  name          = "dirt_road_segment",
+  description   = "10m dirt road segment with raised edges",
+  tags          = ["environment", "road", "dirt", "rural", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "dirt_brown" (color=[0.40, 0.28, 0.18], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "grass_edge" (color=[0.25, 0.45, 0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+
+scene {
+  // === MAIN DIRT SURFACE (4m wide, 10m long) ===
+  slab "dirt" (size=[10.0, 0.05, 4.0], mat="dirt_brown", pos=[0, 0.025, 0])
+
+  // === GRASS EDGES (2 thin strips on left + right, slightly raised) ===
+  slab "grass_l" (size=[10.0, 0.07, 0.40], mat="grass_edge", pos=[0, 0.035,  2.20])
+  slab "grass_r" (size=[10.0, 0.07, 0.40], mat="grass_edge", pos=[0, 0.035, -2.20])
+
+  // === CENTER TIRE TRACKS (2 darker lines suggesting wear — decorative) ===
+  slab "track_l" (size=[10.0, 0.055, 0.30], mat="dirt_brown", pos=[0, 0.030, -0.60], tags="floating")
+  slab "track_r" (size=[10.0, 0.055, 0.30], mat="dirt_brown", pos=[0, 0.030,  0.60], tags="floating")
+}

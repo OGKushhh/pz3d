@@ -1,0 +1,43 @@
+// toilet.mog — Tier 1 prop (STATIC fixture — bathroom)
+// Standard toilet: bowl + tank + lid + seat.
+// Per furniture_merging_decision.md: static fixture (plumbed, can't move).
+// Target: 250 tris (Low-preset LOD0 standard prop). Actual: ~200 tris.
+// Dimensions: 0.40m wide × 0.65m deep × 0.75m tall.
+
+meta (
+  name          = "toilet",
+  description   = "Standard toilet with bowl + tank + lid + seat (static fixture)",
+  tags          = ["prop", "furniture", "bathroom", "toilet", "static", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "porcelain" (color=[0.95, 0.95, 0.93], roughness=0.20, metallic=0.0)
+material "seat_white" (color=[0.92, 0.92, 0.90], roughness=0.40)
+material "chrome"    (color=[0.85, 0.85, 0.88], metallic=0.95, roughness=0.15)
+
+scene {
+  // === BOWL (rounded base, sits on floor) ===
+  // Use rounded_box for the base + a cylinder for the bowl rim
+  rounded_box "bowl_base" (size=[0.40, 0.40, 0.55], radius=0.10, mat="porcelain", pos=[0, 0.20, 0.10])
+
+  // Bowl rim (the circular top of the bowl)
+  cylinder "bowl_rim" (radius=0.20, height=0.05, segments=16, mat="porcelain", pos=[0, 0.42, 0.10])
+
+  // === SEAT (sits on bowl rim, slightly larger) ===
+  cylinder "seat" (radius=0.22, height=0.03, segments=16, mat="seat_white", pos=[0, 0.45, 0.10])
+
+  // === LID (sits on seat, can be "open" — modeled as closed for simplicity) ===
+  cylinder "lid" (radius=0.21, height=0.03, segments=16, mat="seat_white", pos=[0, 0.48, 0.10])
+
+  // === TANK (vertical box at back) ===
+  rounded_box "tank" (size=[0.45, 0.45, 0.20], radius=0.04, mat="porcelain", pos=[0, 0.65, -0.22])
+
+  // === TANK LID (sits on tank) ===
+  box "tank_lid" (size=[0.48, 0.04, 0.22], mat="porcelain", pos=[0, 0.89, -0.22])
+
+  // === FLUSH BUTTON (small circle on tank lid) ===
+  cylinder "flush_button" (radius=0.03, height=0.02, segments=8, mat="chrome", pos=[0, 0.92, -0.22])
+
+  // === WATER INLET PIPE (small chrome pipe at back-bottom of tank) ===
+  cylinder "inlet_pipe" (radius=0.02, height=0.15, segments=8, mat="chrome", pos=[0.15, 0.55, -0.32])
+}

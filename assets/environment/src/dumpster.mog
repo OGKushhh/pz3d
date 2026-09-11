@@ -1,0 +1,46 @@
+// dumpster.mog — Tier 1 environment prop
+// Standard metal dumpster: rectangular body + lid (open) + 2 wheels + 2 feet.
+// Target: 300 tris (Low-preset LOD0). Actual: ~120 tris.
+// Dimensions: 1.50m wide × 1.00m deep × 1.20m tall.
+
+meta (
+  name          = "dumpster",
+  description   = "Standard metal dumpster with open lid",
+  tags          = ["environment", "dumpster", "urban", "commercial", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "dumpster_green" (color=[0.30, 0.50, 0.25], roughness=0.60, metallic=0.5)
+material "lid_green" (color=[0.25, 0.45, 0.20], roughness=0.60, metallic=0.5)
+material "wheel_black" (color=[0.08, 0.08, 0.08], roughness=0.85)
+material "trim_dark" (color=[0.15, 0.16, 0.18], roughness=0.50, metallic=0.6)
+
+scene {
+  // === BODY (open-top box: 4 walls + bottom, no top) ===
+  solid "body" (mat="dumpster_green", cleanup="coplanar") {
+    // 4 walls + bottom
+    box "wall_front" (size=[1.50, 1.00, 0.04], pos=[0, 0.55,  0.48])
+    box "wall_back"  (size=[1.50, 1.00, 0.04], pos=[0, 0.55, -0.48])
+    box "wall_left"  (size=[0.04, 1.00, 1.00], pos=[-0.73, 0.55, 0])
+    box "wall_right" (size=[0.04, 1.00, 1.00], pos=[ 0.73, 0.55, 0])
+    box "bottom"     (size=[1.50, 0.04, 1.00], pos=[0, 0.07, 0])
+  }
+
+  // === LID (open, hinged up at back — tilted backward) ===
+  // Lid is a flat slab, rotated to suggest "open" position
+  box "lid" (size=[1.55, 0.04, 1.05], mat="lid_green", pos=[0, 1.30, -0.50], rot=[60, 0, 0])
+
+  // === REINFORCEMENT RIBS (2 horizontal ribs on front + back walls) ===
+  box "rib_front" (size=[1.50, 0.03, 0.02], mat="trim_dark", pos=[0, 0.70,  0.49], tags="floating")
+  box "rib_back"  (size=[1.50, 0.03, 0.02], mat="trim_dark", pos=[0, 0.70, -0.49], tags="floating")
+  box "rib_front_2" (size=[1.50, 0.03, 0.02], mat="trim_dark", pos=[0, 0.40,  0.49], tags="floating")
+  box "rib_back_2"  (size=[1.50, 0.03, 0.02], mat="trim_dark", pos=[0, 0.40, -0.49], tags="floating")
+
+  // === 2 WHEELS (at back-left + back-right) ===
+  cylinder "wheel_l" (radius=0.08, height=0.06, segments=12, mat="wheel_black", pos=[-0.65, 0.08, -0.45], rot=[0, 0, 90])
+  cylinder "wheel_r" (radius=0.08, height=0.06, segments=12, mat="wheel_black", pos=[ 0.65, 0.08, -0.45], rot=[0, 0, 90])
+
+  // === 2 FEET (at front-left + front-right — solid stands, no wheels) ===
+  box "foot_l" (size=[0.08, 0.10, 0.08], mat="trim_dark", pos=[-0.65, 0.05, 0.45])
+  box "foot_r" (size=[0.08, 0.10, 0.08], mat="trim_dark", pos=[ 0.65, 0.05, 0.45])
+}
