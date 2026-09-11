@@ -1,4 +1,6 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://tools/chunk_streamer.gd" id="1_streamer"]
 
 [sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
 sky_top_color = Color(0.15, 0.35, 0.70, 1)
@@ -22,9 +24,44 @@ fog_light_color = Color(0.50, 0.55, 0.60, 1)
 fog_density = 0.005
 tonemap_mode = 2
 
+[sub_resource type="BoxShape3D" id="ground_col"]
+size = Vector3(4000, 1, 3000)
+
+[sub_resource type="BoxMesh" id="ground_mesh"]
+size = Vector3(4000, 1, 3000)
+
+[sub_resource type="StandardMaterial3D" id="grass_mat"]
+albedo_color = Color(0.22, 0.40, 0.16, 1)
+roughness = 0.90
+
 [sub_resource type="CapsuleShape3D" id="player_col"]
 radius = 0.4
 height = 1.8
+
+[sub_resource type="GDScript" id="player_code"]
+script/source = "extends CharacterBody3D
+const WALK = 5.0
+const SPRINT = 8.0
+const SENS = 0.002
+var spd = WALK
+func _ready():
+    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+func _input(e):
+    if e is InputEventMouseMotion:
+        rotate_y(-e.relative.x * SENS)
+        $Cam.rotate_x(-e.relative.y * SENS)
+        $Cam.rotation.x = clamp($Cam.rotation.x, -1.5, 1.5)
+    if e.is_action_pressed(\"ui_cancel\"):
+        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+func _physics_process(d):
+    if not is_on_floor(): velocity.y -= 9.8 * d
+    if Input.is_action_just_pressed(\"jump\") and is_on_floor(): velocity.y = 4.5
+    spd = SPRINT if Input.is_action_pressed(\"sprint\") else WALK
+    var i = Input.get_vector(\"move_left\", \"move_right\", \"move_forward\", \"move_back\")
+    var dir = (transform.basis * Vector3(i.x, 0, i.y)).normalized()
+    if dir: velocity.x = dir.x * spd; velocity.z = dir.z * spd
+    else: velocity.x = move_toward(velocity.x, 0, spd*d*10); velocity.z = move_toward(velocity.z, 0, spd*d*10)
+    move_and_slide()"
 
 [node name="Main" type="Node3D"]
 
@@ -32,20 +69,36 @@ height = 1.8
 environment = SubResource("env")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.7, -0.5, 0.5, 0, 0.7, 0.7, -0.7, -0.5, 0.5, -50, 80, -50)
+transform = Transform3D(0.7, -0.5, 0.5, 0, 0.7, 0.7, -0.7, -0.5, 0.5, -100, 120, -100)
 light_color = Color(1, 0.95, 0.82, 1)
 light_energy = 2.0
 shadow_enabled = true
-directional_shadow_max_distance = 80.0
+directional_shadow_max_distance = 200.0
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, -0.5, 1500)
+
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("ground_mesh")
+material_override = SubResource("grass_mat")
+
+[node name="GroundCollider" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("ground_col")
 
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 250)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 1.65, 1500)
+script = SubResource("player_code")
 
 [node name="Cam" type="Camera3D" parent="Player"]
 fov = 75.0
 near = 0.05
-far = 200.0
+far = 300.0
 
 [node name="Col" type="CollisionShape3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("player_col")
+
+
+[node name="ChunkStreamer" type="Node3D" parent="."]
+script = ExtResource("1_streamer")
+

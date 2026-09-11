@@ -29,10 +29,13 @@ func build_all() -> Dictionary:
     var t0 := Time.get_ticks_msec()
 
     if skip_if_valid:
-        var existing: Variant = CityMeta.load_existing()
-        if existing and existing.is_valid_for(manifest):
+        var existing: CityMeta = CityMeta.load_existing()
+        if existing != null and existing.is_valid_for(manifest):
             print("[CityBuilder] Chunks valid, skipping rebuild (seed %d)" % existing.map_seed)
             return {"skipped": true, "seed": existing.map_seed}
+        elif existing != null:
+            for reason in existing.invalid_reasons(manifest):
+                print("[CityBuilder] stale: %s" % reason)
 
     spatial = SpatialIndex.new(CityConfig.SPATIAL_CELL_M)
 
@@ -41,7 +44,7 @@ func build_all() -> Dictionary:
     var map_rng := RandomNumberGenerator.new()
     map_rng.seed = map_seed
     roads.generate(map_rng)
-    _mark_roads_in_spatial()
+    roads.mark_roads_in_index(spatial, CityConfig.SPATIAL_CELL_M)
 
     # 2. Chunks
     _ensure_output_dir()
@@ -65,7 +68,7 @@ func build_chunk_range(cx0: int, cy0: int, cx1: int, cy1: int) -> void:
     var map_rng := RandomNumberGenerator.new()
     map_rng.seed = map_seed
     roads.generate(map_rng)
-    _mark_roads_in_spatial()
+    roads.mark_roads_in_index(spatial, CityConfig.SPATIAL_CELL_M)
     var stats: Dictionary = {"chunks": 0, "biomes": {}}
     for cy in range(cy0, cy1 + 1):
         for cx in range(cx0, cx1 + 1):
@@ -118,17 +121,6 @@ func _build_one_chunk(cx: int, cy: int, stats: Dictionary) -> bool:
     var bname: String = String(CityConfig.biomes()[biome]["name"])
     stats["biomes"][bname] = stats["biomes"].get(bname, 0) + 1
     return true
-
-func _mark_roads_in_spatial() -> void:
-    var half_w := CityConfig.ROAD_WIDTH * 0.5 + CityConfig.PROP_ROAD_CLEARANCE
-    for s in roads.segments:
-        var a: Vector3 = s["start"]
-        var b: Vector3 = s["end"]
-        var dist := a.distance_to(b)
-        var steps := int(ceil(dist / CityConfig.SPATIAL_CELL_M))
-        for i in range(steps + 1):
-            var t := float(i) / float(max(steps, 1))
-            spatial.mark_road(a.lerp(b, t), half_w)
 
 func _set_owner_recursive(node: Node, owner: Node) -> void:
     for child in node.get_children():
