@@ -21,7 +21,7 @@ ambient_light_color = Color(0.55, 0.60, 0.65, 1)
 ambient_light_energy = 0.6
 fog_enabled = true
 fog_light_color = Color(0.50, 0.55, 0.60, 1)
-fog_density = 0.005
+fog_density = 0.003
 tonemap_mode = 2
 
 [sub_resource type="BoxShape3D" id="ground_col"]
@@ -73,10 +73,10 @@ transform = Transform3D(0.7, -0.5, 0.5, 0, 0.7, 0.7, -0.7, -0.5, 0.5, -100, 120,
 light_color = Color(1, 0.95, 0.82, 1)
 light_energy = 2.0
 shadow_enabled = true
-directional_shadow_max_distance = 200.0
+directional_shadow_max_distance = 300.0
 
 [node name="Ground" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, -0.5, 1500)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0, 1500)
 
 [node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
 mesh = SubResource("ground_mesh")
@@ -86,19 +86,17 @@ material_override = SubResource("grass_mat")
 shape = SubResource("ground_col")
 
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 1.65, 1500)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 2, 1500)
 script = SubResource("player_code")
 
 [node name="Cam" type="Camera3D" parent="Player"]
 fov = 75.0
 near = 0.05
-far = 300.0
+far = 500.0
 
 [node name="Col" type="CollisionShape3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("player_col")
 
-
 [node name="ChunkStreamer" type="Node3D" parent="."]
 script = ExtResource("1_streamer")
-
