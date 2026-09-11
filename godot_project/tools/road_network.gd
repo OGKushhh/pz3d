@@ -25,7 +25,7 @@ func _add_segment(start: Vector3, end: Vector3, width: float, kind: String, name
 
 func _build_grid_roads(_rng: RandomNumberGenerator) -> void:
     for row in range(CityConfig.GRID_ROWS + 1):
-        if (row % 2) != 0:
+        if false:
             continue
         var z: float = row * CityConfig.CELL_SIZE_M
         for col in range(CityConfig.GRID_COLS):
@@ -35,7 +35,7 @@ func _build_grid_roads(_rng: RandomNumberGenerator) -> void:
                 CityConfig.ROAD_WIDTH, "street"
             )
     for col in range(CityConfig.GRID_COLS + 1):
-        if (col % 2) != 0:
+        if false:
             continue
         var x: float = col * CityConfig.CELL_SIZE_M
         for row in range(CityConfig.GRID_ROWS):
