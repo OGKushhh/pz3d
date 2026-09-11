@@ -44,15 +44,15 @@ const CHUNK_OUTPUT_DIR   := "res://chunks/"
 # ── BIOME PROFILES ────────────────────────────────────────
 static func biomes() -> Dictionary:
     return {
-        Biome.SUBURBIA:   {"name":"Suburbia",         "fill":0.55, "buildings":["suburban_house_v2","two_story_colonial","bungalow","house_modern","house_split_level"], "props":["mailbox","trash_can","picket_fence"], "foliage":["oak_tree","bush"],       "lights":true,  "zombies":10},
-        Biome.PARKS:      {"name":"Parks & Greenways", "fill":0.20, "buildings":[], "props":[], "foliage":["oak_tree","bush"],                                          "lights":false, "zombies":5},
-        Biome.FOREST:     {"name":"Forest",            "fill":0.85, "buildings":["shed"], "props":[], "foliage":["pine_tree","birch_tree","bush"],                 "lights":false, "zombies":5},
-        Biome.FARMLAND:   {"name":"Farmland",          "fill":0.35, "buildings":["shed","garage_detached"], "props":["picket_fence"], "foliage":["oak_tree","bush"],   "lights":false, "zombies":3},
-        Biome.COMMERCIAL: {"name":"Commercial Strip",  "fill":0.75, "buildings":["two_story_colonial"], "props":["trash_can","mailbox"], "foliage":["oak_tree"],           "lights":true,  "zombies":10},
+        Biome.SUBURBIA:   {"name":"Suburbia",         "fill":0.75, "buildings":["suburban_house_v2","two_story_colonial","bungalow","house_modern","house_split_level"], "props":["mailbox","trash_can","picket_fence"], "foliage":["oak_tree","bush"],       "lights":true,  "zombies":10},
+        Biome.PARKS:      {"name":"Parks & Greenways", "fill":0.05, "buildings":[], "props":[], "foliage":["oak_tree","bush"],                                          "lights":false, "zombies":5},
+        Biome.FOREST:     {"name":"Forest",            "fill":0.95, "buildings":["shed"], "props":[], "foliage":["pine_tree","birch_tree","bush"],                 "lights":false, "zombies":5},
+        Biome.FARMLAND:   {"name":"Farmland",          "fill":0.25, "buildings":["shed","garage_detached"], "props":["picket_fence"], "foliage":["oak_tree","bush"],   "lights":false, "zombies":3},
+        Biome.COMMERCIAL: {"name":"Commercial Strip",  "fill":0.90, "buildings":["two_story_colonial"], "props":["trash_can","mailbox"], "foliage":["oak_tree"],           "lights":true,  "zombies":10},
         Biome.INDUSTRIAL: {"name":"Industrial Park",   "fill":0.60, "buildings":["garage_detached"], "props":["trash_can"], "foliage":[],                             "lights":true,  "zombies":8},
         Biome.RIVER:      {"name":"River & Wetlands",  "fill":0.15, "buildings":["shed"], "props":["picket_fence"], "foliage":["bush"],                            "lights":false, "zombies":4},
         Biome.SUBWAY:     {"name":"Subway",            "fill":0.00, "buildings":[], "props":[], "foliage":[],                                                     "lights":false, "zombies":8},
-        Biome.DOWNTOWN:   {"name":"Downtown",          "fill":0.90, "buildings":["two_story_colonial"], "props":["trash_can","mailbox"], "foliage":["oak_tree"],           "lights":true,  "zombies":15},
+        Biome.DOWNTOWN:   {"name":"Downtown",          "fill":0.95, "buildings":["two_story_colonial"], "props":["trash_can","mailbox"], "foliage":["oak_tree"],           "lights":true,  "zombies":15},
         Biome.MILITARY:   {"name":"Military Zone",     "fill":0.40, "buildings":["garage_detached"], "props":["trash_can"], "foliage":[],                             "lights":false, "zombies":15},
         Biome.WATER:      {"name":"Water",             "fill":0.00, "buildings":[], "props":[], "foliage":[],                                                     "lights":false, "zombies":0},
         Biome.EMPTY:      {"name":"Empty",             "fill":0.00, "buildings":[], "props":[], "foliage":[],                                                     "lights":false, "zombies":0},

@@ -43,40 +43,43 @@ func _place_buildings(root: Node3D, profile: Dictionary, origin: Vector3) -> voi
     if buildings.is_empty():
         return
 
+    # Block-based placement — buildings line up in rows like GTA SA
+    var block_count := 4
+    var block_size: float = CityConfig.CHUNK_SIZE_M / float(block_count)
+    var inset: float = CityConfig.BUILDING_SETBACK + CityConfig.SIDEWALK_WIDTH + CityConfig.ROAD_WIDTH * 0.5
     var fill: float = profile.get("fill", 0.5)
-    var target: int = rng.randi_range(int(fill * 10), int(fill * 30))
-    var building_radius: float = 12.0
-    var placed: int = 0
 
-    for i in range(target):
+    for bx in range(block_count):
+        for bz in range(block_count):
+            if rng.randf() > fill:
+                continue  # vacant lot
+            var block_origin: Vector3 = origin + Vector3(bx * block_size, 0, bz * block_size)
+            _fill_block(root, buildings, block_origin, block_size, inset)
+
+func _fill_block(root: Node3D, buildings: Array, block_origin: Vector3, block_size: float, inset: float) -> void:
+    var count: int = rng.randi_range(2, 4)
+    for i in range(count):
         var bname: String = buildings[rng.randi() % buildings.size()]
         var scene: PackedScene = _get_asset(bname)
         if scene == null:
             continue
-
-        var inset: float = CityConfig.BUILDING_SETBACK + CityConfig.SIDEWALK_WIDTH + CityConfig.ROAD_WIDTH * 0.5
-        var pos: Vector3 = origin + Vector3(
-            rng.randf_range(inset, CityConfig.CHUNK_SIZE_M - inset),
+        var pos: Vector3 = block_origin + Vector3(
+            rng.randf_range(inset, block_size - inset),
             0,
-            rng.randf_range(inset, CityConfig.CHUNK_SIZE_M - inset)
+            rng.randf_range(inset, block_size - inset)
         )
-
-        if not spatial.is_free(pos, building_radius):
+        if not spatial.is_free(pos, 12.0) or not spatial.is_road_clear(pos):
             continue
-        if not spatial.is_road_clear(pos):
-            continue
-
         var rot_y: float = _face_nearest_road(pos)
         _spawn(scene, root, pos, bname, rot_y)
-        spatial.insert(pos, building_radius)
-        placed += 1
+        spatial.insert(pos, 12.0)
 
 func _place_props(root: Node3D, profile: Dictionary, origin: Vector3) -> void:
     var props: Array = profile.get("props", [])
     if props.is_empty():
         return
 
-    var count: int = rng.randi_range(10, 30)
+    var count: int = rng.randi_range(6, 16)
     for i in range(count):
         var pname: String = props[rng.randi() % props.size()]
         var scene: PackedScene = _get_asset(pname)
