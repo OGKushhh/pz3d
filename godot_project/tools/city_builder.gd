@@ -95,13 +95,20 @@ func _build_one_chunk(cx: int, cy: int, stats: Dictionary) -> bool:
         return false
     var origin := Vector3(cx * CityConfig.CHUNK_SIZE_M, 0, cy * CityConfig.CHUNK_SIZE_M)
     var chunk_seed := hash(Vector2i(cx, cy)) ^ map_seed
-    var builder: ChunkBuilder = ChunkBuilder.new(spatial, roads, manifest, asset_cache, chunk_seed)
+    var builder: ChunkBuilder = ChunkBuilder.new(spatial, roads, manifest, asset_cache, chunk_seed, Vector2i(cx, cy))
     var chunk_root := builder.build(biome, origin)
 
+    # Add to scene tree so owner can be set on children
+    add_child(chunk_root)
+    # Set owner on all children recursively
+    _set_owner_recursive(chunk_root, chunk_root)
+    # Pack
     var packed := PackedScene.new()
     packed.pack(chunk_root)
     var path := "%schunk_%d_%d.tscn" % [CityConfig.CHUNK_OUTPUT_DIR, cx, cy]
     var err := ResourceSaver.save(packed, path)
+    # Remove from tree
+    remove_child(chunk_root)
     chunk_root.free()
     if err != OK:
         push_error("[CityBuilder] Failed to save %s: %d" % [path, err])
@@ -122,3 +129,8 @@ func _mark_roads_in_spatial() -> void:
         for i in range(steps + 1):
             var t := float(i) / float(max(steps, 1))
             spatial.mark_road(a.lerp(b, t), half_w)
+
+func _set_owner_recursive(node: Node, owner: Node) -> void:
+    for child in node.get_children():
+        child.owner = owner
+        _set_owner_recursive(child, owner)
