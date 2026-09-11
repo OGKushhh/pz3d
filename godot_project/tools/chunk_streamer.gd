@@ -49,8 +49,8 @@ func _ready() -> void:
     rng.seed = 1337
     roads.generate(rng)
     roads.mark_roads_in_index(spatial, CityConfig.SPATIAL_CELL_M)
-	plan_grid = PlanGrid.new()
-	plan_grid.build(roads, 1337)
+    plan_grid = PlanGrid.new()
+    plan_grid.build(roads, 1337)
 
 func _process(_delta: float) -> void:
     if player == null or manifest.is_empty():
