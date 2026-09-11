@@ -1,18 +1,12 @@
-[gd_scene load_steps=8 format=3]
-
-[ext_resource type="PackedScene" path="res://scenes/suburbia_city.tscn" id="1_city"]
-
-[sub_resource type="CapsuleShape3D" id="player_col"]
-radius = 0.4
-height = 1.8
+[gd_scene load_steps=5 format=3]
 
 [sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
-sky_top_color = Color(0.25, 0.45, 0.75, 1)
-sky_horizon_color = Color(0.7, 0.78, 0.88, 1)
-ground_bottom_color = Color(0.3, 0.3, 0.3, 1)
-ground_horizon_color = Color(0.55, 0.55, 0.55, 1)
-sun_angle_max = 35.0
-sun_curve = 0.15
+sky_top_color = Color(0.15, 0.35, 0.70, 1)
+sky_horizon_color = Color(0.70, 0.78, 0.88, 1)
+ground_bottom_color = Color(0.25, 0.22, 0.18, 1)
+ground_horizon_color = Color(0.50, 0.48, 0.42, 1)
+sun_angle_max = 30.0
+sun_curve = 0.12
 
 [sub_resource type="Sky" id="sky"]
 sky_material = SubResource("sky_mat")
@@ -21,41 +15,18 @@ sky_material = SubResource("sky_mat")
 background_mode = 2
 sky = SubResource("sky")
 ambient_light_source = 2
-ambient_light_color = Color(0.5, 0.55, 0.6, 1)
-ambient_light_energy = 0.7
+ambient_light_color = Color(0.55, 0.60, 0.65, 1)
+ambient_light_energy = 0.6
 fog_enabled = true
-fog_light_color = Color(0.35, 0.4, 0.45, 1)
-fog_density = 0.003
+fog_light_color = Color(0.50, 0.55, 0.60, 1)
+fog_density = 0.005
 tonemap_mode = 2
 
-[sub_resource type="GDScript" id="player_code"]
-script/source = "extends CharacterBody3D
-const WALK = 5.0
-const SPRINT = 8.0
-const SENS = 0.002
-var spd = WALK
-func _ready():
-    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-func _input(e):
-    if e is InputEventMouseMotion:
-        rotate_y(-e.relative.x * SENS)
-        $Cam.rotate_x(-e.relative.y * SENS)
-        $Cam.rotation.x = clamp($Cam.rotation.x, -1.5, 1.5)
-    if e.is_action_pressed(\"ui_cancel\"):
-        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-func _physics_process(d):
-    if not is_on_floor(): velocity.y -= 9.8 * d
-    if Input.is_action_just_pressed(\"jump\") and is_on_floor(): velocity.y = 4.5
-    spd = SPRINT if Input.is_action_pressed(\"sprint\") else WALK
-    var i = Input.get_vector(\"move_left\", \"move_right\", \"move_forward\", \"move_back\")
-    var dir = (transform.basis * Vector3(i.x, 0, i.y)).normalized()
-    if dir: velocity.x = dir.x * spd; velocity.z = dir.z * spd
-    else: velocity.x = move_toward(velocity.x, 0, spd*d*10); velocity.z = move_toward(velocity.z, 0, spd*d*10)
-    move_and_slide()"
+[sub_resource type="CapsuleShape3D" id="player_col"]
+radius = 0.4
+height = 1.8
 
 [node name="Main" type="Node3D"]
-
-[node name="CityScene" parent="." instance=ExtResource("1_city")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("env")
@@ -63,18 +34,17 @@ environment = SubResource("env")
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.7, -0.5, 0.5, 0, 0.7, 0.7, -0.7, -0.5, 0.5, -50, 80, -50)
 light_color = Color(1, 0.95, 0.82, 1)
-light_energy = 2.5
+light_energy = 2.0
 shadow_enabled = true
 directional_shadow_max_distance = 80.0
 
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 25)
-script = SubResource("player_code")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 250)
 
 [node name="Cam" type="Camera3D" parent="Player"]
 fov = 75.0
 near = 0.05
-far = 150.0
+far = 200.0
 
 [node name="Col" type="CollisionShape3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
