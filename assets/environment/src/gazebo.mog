@@ -1,0 +1,16 @@
+meta (name="gazebo", description="Park gazebo with octagonal roof", tags=["environment","gazebo","park","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.50, 0.32, 0.18], roughness=0.75, uv_mode="tile", uv_scale=2.0)
+material "roof_tile" (color=[0.35, 0.20, 0.15], roughness=0.80, uv_mode="tile", uv_scale=3.0)
+material "concrete" (color=[0.55, 0.53, 0.50], roughness=0.90)
+scene {
+  slab "base" (size=[4.0, 0.10, 4.0], mat="concrete", pos=[0, 0.05, 0])
+  cylinder "post_1" (radius=0.08, height=2.50, segments=8, mat="wood_oak", pos=[1.50, 1.25, 1.50])
+  cylinder "post_2" (radius=0.08, height=2.50, segments=8, mat="wood_oak", pos=[-1.50, 1.25, 1.50])
+  cylinder "post_3" (radius=0.08, height=2.50, segments=8, mat="wood_oak", pos=[1.50, 1.25, -1.50])
+  cylinder "post_4" (radius=0.08, height=2.50, segments=8, mat="wood_oak", pos=[-1.50, 1.25, -1.50])
+  pyramid "roof" (radius=2.50, height=1.00, sides=8, mat="roof_tile", pos=[0, 3.00, 0])
+  box "rail_1" (size=[3.00, 0.04, 0.04], mat="wood_oak", pos=[0, 1.00, 1.50], tags="floating")
+  box "rail_2" (size=[3.00, 0.04, 0.04], mat="wood_oak", pos=[0, 1.00, -1.50], tags="floating")
+  box "rail_3" (size=[0.04, 0.04, 3.00], mat="wood_oak", pos=[1.50, 1.00, 0], tags="floating")
+  box "rail_4" (size=[0.04, 0.04, 3.00], mat="wood_oak", pos=[-1.50, 1.00, 0], tags="floating")
+}

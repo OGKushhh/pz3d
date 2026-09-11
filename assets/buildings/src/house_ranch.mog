@@ -1,0 +1,33 @@
+meta (name="house_ranch", description="Single-story ranch house", tags=["building","house","ranch","tier1"], mogen_version="0.1.12")
+material "wall_brick" (color=[0.55, 0.35, 0.25], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_flat" (color=[0.25, 0.22, 0.20], roughness=0.90)
+material "trim_white" (color=[0.92, 0.91, 0.86], roughness=0.60)
+material "window_glass" (color=[0.45, 0.65, 0.80], transmission=0.50, roughness=0.04)
+material "door_wood" (color=[0.30, 0.20, 0.12], roughness=0.65)
+material "concrete" (color=[0.55, 0.53, 0.50], roughness=0.90)
+material "grass" (color=[0.25, 0.45, 0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brass" (color=[0.95, 0.70, 0.25], metallic=0.85, roughness=0.25)
+module "win" () { chamfered_box "frame" (size=[1.20, 0.90, 0.06], radius=0.015, mat="trim_white") box "glass" (size=[1.05, 0.75, 0.02], mat="window_glass", pos=[0,0,-0.03]) }
+module "dr" () { chamfered_box "frame" (size=[1.05, 2.10, 0.06], radius=0.02, mat="trim_white") chamfered_box "panel" (size=[0.90, 1.95, 0.05], radius=0.015, mat="door_wood", pos=[0,0,-0.08]) sphere "knob" (radius=0.04, mat="brass", pos=[0.30,-0.10,-0.13]) }
+scene {
+  slab "lawn" (size=[16.0, 0.04, 10.0], mat="grass")
+  slab "foundation" (size=[10.4, 0.20, 7.4], mat="concrete", pos=[0, 0.02, 0])
+  wall "front_wall" (size=[10.0, 2.55, 0.20], pos=[0, 1.475, -3.5], holes=[[-3.50, -0.225, 1.00, 2.10], [-1.00, 0.20, 1.20, 0.90], [1.50, 0.20, 1.20, 0.90], [3.50, 0.20, 1.20, 0.90]])
+  wall "back_wall" (size=[10.0, 2.55, 0.20], pos=[0, 1.475, 3.5], holes=[[-3.00, 0.20, 1.20, 0.90], [0.0, 0.20, 1.20, 0.90], [3.00, 0.20, 1.20, 0.90]])
+  wall "left_wall" (size=[7.0, 2.55, 0.20], pos=[-5.0, 1.475, 0], rot=[0, 90, 0], holes=[[-1.50, 0.20, 1.20, 0.90], [1.50, 0.20, 1.20, 0.90]])
+  wall "right_wall" (size=[7.0, 2.55, 0.20], pos=[5.0, 1.475, 0], rot=[0, 90, 0], holes=[[-1.50, 0.20, 1.20, 0.90], [1.50, 0.20, 1.20, 0.90]])
+  slab "floor" (size=[10.0, 0.10, 7.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "ceiling" (size=[10.0, 0.10, 7.0], mat="wall_brick", pos=[0, 2.70, 0])
+  slab "roof" (size=[10.4, 0.10, 7.4], mat="roof_flat", pos=[0, 2.85, 0], tags="floating")
+  group "dr" (pos=[-3.50, 1.20, -3.5]) { use "dr" () }
+  group "wf_2" (pos=[-1.00, 1.70, -3.5]) { use "win" () }
+  group "wf_3" (pos=[1.50, 1.70, -3.5]) { use "win" () }
+  group "wf_4" (pos=[3.50, 1.70, -3.5]) { use "win" () }
+  group "wb_1" (pos=[-3.00, 1.70, 3.5]) { use "win" () }
+  group "wb_2" (pos=[0.00, 1.70, 3.5]) { use "win" () }
+  group "wb_3" (pos=[3.00, 1.70, 3.5]) { use "win" () }
+  group "wl_1" (pos=[-5.0, 1.70, -1.50], rot=[0,90,0]) { use "win" () }
+  group "wl_2" (pos=[-5.0, 1.70, 1.50], rot=[0,90,0]) { use "win" () }
+  group "wr_1" (pos=[5.0, 1.70, -1.50], rot=[0,90,0]) { use "win" () }
+  group "wr_2" (pos=[5.0, 1.70, 1.50], rot=[0,90,0]) { use "win" () }
+}

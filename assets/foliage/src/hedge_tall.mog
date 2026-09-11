@@ -1,0 +1,10 @@
+meta (name="hedge_tall", description="Tall trimmed hedge for privacy screening", tags=["foliage","hedge","tall","suburban","tier1"], mogen_version="0.1.12")
+material "leaves_dark" (color=[0.15, 0.32, 0.12], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "leaves_light" (color=[0.25, 0.42, 0.20], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+scene {
+  rounded_box "body" (size=[2.00, 1.80, 0.60], radius=0.10, mat="leaves_dark", pos=[0, 0.90, 0])
+  slab "top" (size=[2.00, 0.05, 0.60], mat="leaves_light", pos=[0, 1.82, 0], tags="floating")
+  icosphere "bump_1" (radius=0.10, subdivisions=1, mat="leaves_light", pos=[-0.50, 1.80, 0.15], tags="floating")
+  icosphere "bump_2" (radius=0.08, subdivisions=1, mat="leaves_light", pos=[0.30, 1.82, -0.10], tags="floating")
+  icosphere "bump_3" (radius=0.09, subdivisions=1, mat="leaves_light", pos=[0.70, 1.79, 0.20], tags="floating")
+}

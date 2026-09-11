@@ -1,0 +1,15 @@
+meta (name="parking_meter_row", description="Row of 3 parking meters", tags=["environment","parking_meter","commercial","tier1"], mogen_version="0.1.12")
+material "pole_metal" (color=[0.30, 0.32, 0.35], roughness=0.50, metallic=0.7)
+material "meter_grey" (color=[0.45, 0.45, 0.48], roughness=0.40, metallic=0.5)
+material "screen_dark" (color=[0.10, 0.15, 0.20], roughness=0.10, emissive=[0.2, 0.3, 0.4], emissive_strength=0.5)
+material "asphalt" (color=[0.18, 0.18, 0.20], roughness=0.95)
+scene {
+  slab "ground" (size=[6.0, 0.04, 1.0], mat="asphalt")
+  array (count=3, step=[2.0, 0, 0]) {
+    group "meter" () {
+      cylinder "pole" (radius=0.02, height=1.00, segments=8, mat="pole_metal", pos=[0, 0.50, 0])
+      box "head" (size=[0.15, 0.25, 0.10], mat="meter_grey", pos=[0, 1.15, 0], tags="floating")
+      box "screen" (size=[0.10, 0.08, 0.01], mat="screen_dark", pos=[0, 1.18, 0.05], tags="floating")
+    }
+  }
+}

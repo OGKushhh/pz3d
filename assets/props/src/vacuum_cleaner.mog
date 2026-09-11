@@ -1,0 +1,12 @@
+meta (name="vacuum_cleaner", description="Upright vacuum cleaner", tags=["prop","appliance","vacuum","dynamic","tier1"], mogen_version="0.1.12")
+material "body_grey" (color=[0.40, 0.40, 0.42], roughness=0.50, metallic=0.3)
+material "handle_dark" (color=[0.15, 0.15, 0.18], roughness=0.60, metallic=0.4)
+material "wheel_black" (color=[0.08, 0.08, 0.08], roughness=0.85)
+scene {
+  box "base" (size=[0.30, 0.15, 0.40], mat="body_grey", pos=[0, 0.20, 0])
+  cylinder "motor" (radius=0.12, height=0.25, segments=12, mat="body_grey", pos=[0, 0.40, 0])
+  cylinder "handle" (radius=0.02, height=0.80, segments=8, mat="handle_dark", pos=[0, 0.80, 0.10])
+  box "grip" (size=[0.05, 0.04, 0.15], mat="handle_dark", pos=[0, 1.20, 0.10])
+  cylinder "wheel_l" (radius=0.05, height=0.03, segments=8, mat="wheel_black", pos=[-0.13, 0.05, 0.15], rot=[0, 0, 90], tags="floating")
+  cylinder "wheel_r" (radius=0.05, height=0.03, segments=8, mat="wheel_black", pos=[0.13, 0.05, 0.15], rot=[0, 0, 90], tags="floating")
+}

@@ -1,0 +1,8 @@
+meta (name="road_straight", description="10m straight road segment with lane markings", tags=["environment","road","infrastructure","tier1"], mogen_version="0.1.12")
+material "asphalt" (color=[0.14, 0.14, 0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "lane_white" (color=[0.90, 0.88, 0.82], roughness=0.50, emissive=[0.3, 0.3, 0.25], emissive_strength=0.2)
+scene {
+  slab "asphalt" (size=[10.0, 0.05, 8.0], mat="asphalt")
+  slab "lane_l" (size=[10.0, 0.055, 0.10], mat="lane_white", pos=[0, 0.005, -1.5])
+  slab "lane_r" (size=[10.0, 0.055, 0.10], mat="lane_white", pos=[0, 0.005, 1.5])
+}

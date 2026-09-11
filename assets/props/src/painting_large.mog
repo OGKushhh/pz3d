@@ -1,0 +1,14 @@
+meta (name="painting_large", description="Large wall-mounted painting", tags=["prop","art","painting","wall","dynamic","tier1"], mogen_version="0.1.12")
+material "frame_gold" (color=[0.75, 0.60, 0.20], metallic=0.85, roughness=0.25)
+material "canvas" (color=[0.85, 0.82, 0.75], roughness=0.85)
+material "glass_clear" (color=[0.85, 0.85, 0.88], roughness=0.05, transmission=0.80)
+scene {
+  solid "frame" (mat="frame_gold", cleanup="coplanar") {
+    box "top" (size=[1.20, 0.06, 0.03], pos=[0, 0.60, 0])
+    box "bot" (size=[1.20, 0.06, 0.03], pos=[0, -0.60, 0])
+    box "left" (size=[0.06, 1.20, 0.03], pos=[-0.57, 0, 0])
+    box "right" (size=[0.06, 1.20, 0.03], pos=[0.57, 0, 0])
+  }
+  box "canvas" (size=[1.05, 1.05, 0.01], mat="canvas", pos=[0, 0, -0.01], tags="floating")
+  box "glass" (size=[1.10, 1.10, 0.005], mat="glass_clear", pos=[0, 0, 0.01], tags="floating")
+}

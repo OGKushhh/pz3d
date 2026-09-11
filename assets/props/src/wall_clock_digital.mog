@@ -1,0 +1,9 @@
+meta (name="wall_clock_digital", description="Digital wall clock", tags=["prop","clock","digital","wall","tier1"], mogen_version="0.1.12")
+material "case_white" (color=[0.90, 0.90, 0.88], roughness=0.40, metallic=0.2)
+material "screen_dark" (color=[0.05, 0.05, 0.08], roughness=0.10, emissive=[0.1, 0.3, 0.1], emissive_strength=0.8)
+material "trim_grey" (color=[0.40, 0.40, 0.42], roughness=0.50, metallic=0.5)
+scene {
+  box "case" (size=[0.35, 0.15, 0.04], mat="case_white", pos=[0, 0, 0])
+  box "screen" (size=[0.25, 0.08, 0.01], mat="screen_dark", pos=[0, 0, 0.025], tags="floating")
+  box "trim" (size=[0.37, 0.17, 0.02], mat="trim_grey", pos=[0, 0, -0.025], tags="floating")
+}

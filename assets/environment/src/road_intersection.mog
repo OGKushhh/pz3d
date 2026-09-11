@@ -1,0 +1,11 @@
+meta (name="road_intersection", description="4-way road intersection", tags=["environment","road","intersection","tier1"], mogen_version="0.1.12")
+material "asphalt" (color=[0.14, 0.14, 0.16], roughness=0.95)
+material "lane_white" (color=[0.90, 0.88, 0.82], roughness=0.50)
+material "stop_line" (color=[0.92, 0.92, 0.88], roughness=0.50)
+scene {
+  slab "asphalt" (size=[8.0, 0.05, 8.0], mat="asphalt")
+  slab "stop_n" (size=[0.15, 0.055, 3.5], mat="stop_line", pos=[0, 0.005, -3.5])
+  slab "stop_s" (size=[0.15, 0.055, 3.5], mat="stop_line", pos=[0, 0.005, 3.5])
+  slab "stop_e" (size=[3.5, 0.055, 0.15], mat="stop_line", pos=[3.5, 0.005, 0])
+  slab "stop_w" (size=[3.5, 0.055, 0.15], mat="stop_line", pos=[-3.5, 0.005, 0])
+}

@@ -1,0 +1,15 @@
+meta (name="storage_tank", description="Industrial cylindrical storage tank", tags=["environment","tank","industrial","tier1"], mogen_version="0.1.12")
+material "tank_white" (color=[0.85, 0.83, 0.78], roughness=0.50, metallic=0.3)
+material "trim_grey" (color=[0.40, 0.40, 0.42], roughness=0.50, metallic=0.6)
+material "concrete" (color=[0.55, 0.53, 0.50], roughness=0.90)
+material "asphalt" (color=[0.18, 0.18, 0.20], roughness=0.95)
+scene {
+  slab "ground" (size=[6.0, 0.04, 6.0], mat="asphalt", tags="floating")
+  slab "base" (size=[4.0, 0.20, 4.0], mat="concrete", pos=[0, 0.10, 0])
+  cylinder "tank" (radius=1.50, height=4.00, segments=20, mat="tank_white", pos=[0, 2.20, 0])
+  cylinder "cap_top" (radius=1.55, height=0.10, segments=20, mat="trim_grey", pos=[0, 4.25, 0])
+  cylinder "band_1" (radius=1.52, height=0.05, segments=20, mat="trim_grey", pos=[0, 1.00, 0], tags="floating")
+  cylinder "band_2" (radius=1.52, height=0.05, segments=20, mat="trim_grey", pos=[0, 2.50, 0], tags="floating")
+  cylinder "band_3" (radius=1.52, height=0.05, segments=20, mat="trim_grey", pos=[0, 3.50, 0], tags="floating")
+  cylinder "pipe" (radius=0.10, height=3.00, segments=8, mat="trim_grey", pos=[1.60, 1.50, 0], rot=[0, 0, 90])
+}

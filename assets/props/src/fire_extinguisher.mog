@@ -1,0 +1,12 @@
+meta (name="fire_extinguisher", description="Wall-mounted fire extinguisher", tags=["prop","safety","fire_extinguisher","static","tier1"], mogen_version="0.1.12")
+material "body_red" (color=[0.65, 0.15, 0.10], roughness=0.50, metallic=0.3)
+material "top_black" (color=[0.12, 0.12, 0.14], roughness=0.60, metallic=0.4)
+material "handle_metal" (color=[0.50, 0.50, 0.52], roughness=0.40, metallic=0.7)
+material "label_white" (color=[0.92, 0.92, 0.88], roughness=0.60)
+scene {
+  cylinder "body" (radius=0.08, height=0.45, segments=12, mat="body_red", pos=[0, 0.30, 0])
+  cylinder "top" (radius=0.06, height=0.05, segments=12, mat="top_black", pos=[0, 0.55, 0])
+  box "handle" (size=[0.15, 0.04, 0.03], mat="handle_metal", pos=[0, 0.60, 0], tags="floating")
+  cylinder "nozzle" (radius=0.01, height=0.15, segments=8, mat="handle_metal", pos=[0.10, 0.45, 0], rot=[0, 0, 90])
+  box "label" (size=[0.10, 0.20, 0.01], mat="label_white", pos=[0, 0.30, 0.08], tags="floating")
+}

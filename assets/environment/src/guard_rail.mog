@@ -1,0 +1,12 @@
+meta (name="guard_rail", description="Road guard rail segment", tags=["environment","guard_rail","road","tier1"], mogen_version="0.1.12")
+material "rail_metal" (color=[0.80, 0.78, 0.75], roughness=0.40, metallic=0.7)
+material "post_metal" (color=[0.50, 0.48, 0.45], roughness=0.50, metallic=0.6)
+material "asphalt" (color=[0.18, 0.18, 0.20], roughness=0.95)
+scene {
+  slab "ground" (size=[4.0, 0.04, 0.5], mat="asphalt")
+  box "rail_top" (size=[4.0, 0.10, 0.10], mat="rail_metal", pos=[0, 0.70, 0])
+  box "rail_mid" (size=[4.0, 0.06, 0.08], mat="rail_metal", pos=[0, 0.40, 0])
+  box "post_1" (size=[0.06, 0.80, 0.10], mat="post_metal", pos=[-1.50, 0.40, 0])
+  box "post_2" (size=[0.06, 0.80, 0.10], mat="post_metal", pos=[0, 0.40, 0])
+  box "post_3" (size=[0.06, 0.80, 0.10], mat="post_metal", pos=[1.50, 0.40, 0])
+}

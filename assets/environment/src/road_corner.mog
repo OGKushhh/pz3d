@@ -1,0 +1,8 @@
+meta (name="road_corner", description="90-degree road corner piece", tags=["environment","road","corner","tier1"], mogen_version="0.1.12")
+material "asphalt" (color=[0.14, 0.14, 0.16], roughness=0.95)
+material "curb_grey" (color=[0.65, 0.63, 0.60], roughness=0.85)
+scene {
+  slab "asphalt" (size=[4.0, 0.05, 4.0], mat="asphalt")
+  box "curb_outer" (size=[4.0, 0.15, 0.20], mat="curb_grey", pos=[0, 0.075, -2.0])
+  box "curb_inner" (size=[0.20, 0.15, 4.0], mat="curb_grey", pos=[-2.0, 0.075, 0])
+}

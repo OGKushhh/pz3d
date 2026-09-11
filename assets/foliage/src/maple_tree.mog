@@ -1,0 +1,14 @@
+meta (name="maple_tree", description="Maple tree with orange autumn canopy", tags=["foliage","tree","maple","autumn","tier1"], mogen_version="0.1.12")
+material "bark_grey" (color=[0.40, 0.35, 0.28], roughness=0.90, uv_mode="tile", uv_scale=2.0)
+material "leaves_orange" (color=[0.75, 0.40, 0.15], roughness=0.85, uv_mode="tile", uv_scale=1.5)
+material "leaves_red" (color=[0.65, 0.25, 0.10], roughness=0.85, uv_mode="tile", uv_scale=1.5)
+scene {
+  cylinder "trunk" (radius=0.14, height=3.00, segments=8, mat="bark_grey", pos=[0, 1.50, 0])
+  cylinder "root_flare" (radius=0.18, height=0.12, segments=8, mat="bark_grey", pos=[0, 0.06, 0])
+  icosphere "canopy_main" (radius=1.40, subdivisions=2, mat="leaves_orange", pos=[0.10, 3.60, 0.05], noise=0.10, seed=7)
+  icosphere "canopy_top" (radius=0.90, subdivisions=2, mat="leaves_red", pos=[-0.20, 4.30, -0.10], noise=0.12, seed=13)
+  icosphere "canopy_l" (radius=0.65, subdivisions=2, mat="leaves_orange", pos=[-0.80, 3.30, 0.25], noise=0.08, seed=19)
+  icosphere "canopy_r" (radius=0.65, subdivisions=2, mat="leaves_red", pos=[0.75, 3.25, -0.30], noise=0.10, seed=23)
+  cylinder "branch_1" (radius=0.05, height=1.20, segments=6, mat="bark_grey", pos=[0.35, 2.80, 0.25], rot=[35, 0, 25])
+  cylinder "branch_2" (radius=0.05, height=1.00, segments=6, mat="bark_grey", pos=[-0.30, 2.90, -0.20], rot=[-30, 0, -20])
+}

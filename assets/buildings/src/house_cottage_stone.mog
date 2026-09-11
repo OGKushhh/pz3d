@@ -1,0 +1,29 @@
+meta (name="house_cottage_stone", description="Stone cottage with steep gable roof", tags=["building","house","cottage","stone","rural","tier1"], mogen_version="0.1.12")
+material "wall_stone" (color=[0.50, 0.45, 0.38], roughness=0.92, uv_mode="tile", uv_scale=3.0)
+material "roof_steep" (color=[0.30, 0.18, 0.12], roughness=0.82, uv_mode="tile", uv_scale=4.0)
+material "trim_wood" (color=[0.35, 0.22, 0.12], roughness=0.75)
+material "window_glass" (color=[0.40, 0.55, 0.65], transmission=0.40, roughness=0.10)
+material "door_wood" (color=[0.28, 0.18, 0.10], roughness=0.70)
+material "concrete" (color=[0.55, 0.53, 0.50], roughness=0.90)
+material "grass" (color=[0.25, 0.45, 0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brass" (color=[0.95, 0.70, 0.25], metallic=0.85, roughness=0.25)
+module "win" () { chamfered_box "frame" (size=[0.80, 0.90, 0.06], radius=0.015, mat="trim_wood") box "glass" (size=[0.65, 0.75, 0.02], mat="window_glass", pos=[0,0,-0.03]) box "sill" (size=[0.90, 0.04, 0.10], mat="trim_wood", pos=[0,-0.47,0.04]) }
+module "dr" () { chamfered_box "frame" (size=[0.95, 1.90, 0.06], radius=0.02, mat="trim_wood") chamfered_box "panel" (size=[0.80, 1.75, 0.05], radius=0.015, mat="door_wood", pos=[0,0,-0.08]) sphere "knob" (radius=0.035, mat="brass", pos=[0.28,-0.10,-0.13]) }
+scene {
+  slab "ground" (size=[10.0, 0.04, 8.0], mat="grass")
+  slab "foundation" (size=[5.4, 0.20, 4.4], mat="concrete", pos=[0, 0.02, 0])
+  wall "front_wall" (size=[5.0, 2.30, 0.20], pos=[0, 1.30, -2.0], holes=[[0.0, -0.20, 0.90, 1.90], [-1.50, 0.20, 0.80, 0.90], [1.50, 0.20, 0.80, 0.90]])
+  wall "back_wall" (size=[5.0, 2.30, 0.20], pos=[0, 1.30, 2.0], holes=[[-1.50, 0.20, 0.80, 0.90], [1.50, 0.20, 0.80, 0.90]])
+  wall "left_wall" (size=[4.0, 2.30, 0.20], pos=[-2.5, 1.30, 0], rot=[0, 90, 0], holes=[[0.0, 0.20, 0.80, 0.90]])
+  wall "right_wall" (size=[4.0, 2.30, 0.20], pos=[2.5, 1.30, 0], rot=[0, 90, 0], holes=[[0.0, 0.20, 0.80, 0.90]])
+  slab "floor" (size=[5.0, 0.10, 4.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "ceiling" (size=[5.0, 0.10, 4.0], mat="wall_stone", pos=[0, 2.45, 0])
+  prism "roof" (size=[5.5, 1.80, 4.5], pos=[0, 3.40, 0], mat="roof_steep")
+  group "dr" (pos=[0, 1.00, -2.0]) { use "dr" () }
+  group "wf_l" (pos=[-1.50, 1.55, -2.0]) { use "win" () }
+  group "wf_r" (pos=[1.50, 1.55, -2.0]) { use "win" () }
+  group "wb_l" (pos=[-1.50, 1.55, 2.0]) { use "win" () }
+  group "wb_r" (pos=[1.50, 1.55, 2.0]) { use "win" () }
+  group "wl" (pos=[-2.5, 1.55, 0], rot=[0,90,0]) { use "win" () }
+  group "wr" (pos=[2.5, 1.55, 0], rot=[0,90,0]) { use "win" () }
+}

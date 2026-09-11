@@ -582,3 +582,49 @@ All pieces share the same 1.0m width (except wall cabinet at 0.8m) so they align
 1. User reviews batch 006 contact sheet → approves all 28.
 2. Continue producing more assets OR start Tier 2 variant packs OR answer v9 open questions.
 
+
+---
+
+## 2026-09-11 — Session 12: Batch 010 — 42 new assets + plan_grid + city builder improvements
+
+### Batch 010: 42 new assets built (142 total)
+
+**Road infrastructure (5):**
+road_straight, road_intersection, road_corner, sidewalk_straight, sidewalk_corner
+
+**Building variants (10):**
+house_victorian, house_ranch, house_cape_cod, house_tudor, house_cottage_stone,
+store_pharmacy, store_gun, store_supermarket, motel, factory_small, warehouse_large
+
+**Props (10):**
+vacuum_cleaner, broom, ladder, fire_extinguisher, painting_large, first_aid_kit,
+tool_chest, garden_hose_reel, wall_clock_digital, welcome_mat, wine_rack
+
+**Foliage (5):**
+willow_tree, maple_tree, hedge_tall, ivy_wall, tall_grass
+
+**Environment props (10):**
+gazebo, water_fountain, park_sign, loading_dock, shipping_container,
+parking_meter_row, shopping_cart, storage_tank, construction_barrier, guard_rail
+
+### City builder improvements applied:
+- DeepSeek's 17 improvements (city_meta, road_network, interior_builder, etc.)
+- Plan grid (step 1 of macro→meso→micro pipeline) — 20m resolution density field
+- Block-based placement (4x4 grid per chunk)
+- Roads every cell (removed %2 skip)
+- 3x more buildings per chunk (fill*30 to fill*60)
+- Tighter building radius (8m, was 12m)
+- 4x more props (25-50, was 6-16)
+- Ground at Y=0, player at Y=2
+- ChunkStreamer v4: direct placement at runtime (no .tscn files)
+
+### Tests:
+- spatial_index: PASS
+- road_network: PASS
+
+### Total assets: 142 GLB files
+- Buildings: 30
+- Props: 48
+- Foliage: 19
+- Environment: 45
+

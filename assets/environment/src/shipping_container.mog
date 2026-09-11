@@ -1,0 +1,14 @@
+meta (name="shipping_container", description="Shipping container (stackable)", tags=["environment","container","industrial","tier1"], mogen_version="0.1.12")
+material "container_red" (color=[0.55, 0.20, 0.15], roughness=0.65, metallic=0.3)
+material "trim_dark" (color=[0.15, 0.15, 0.18], roughness=0.50, metallic=0.7)
+material "asphalt" (color=[0.18, 0.18, 0.20], roughness=0.95)
+scene {
+  slab "ground" (size=[8.0, 0.04, 3.0], mat="asphalt")
+  box "body" (size=[6.10, 2.60, 2.50], mat="container_red", pos=[0, 1.30, 0])
+  box "door_frame" (size=[0.05, 2.50, 2.40], mat="trim_dark", pos=[-3.05, 1.30, 0])
+  box "ridge_1" (size=[6.10, 0.02, 0.02], mat="trim_dark", pos=[0, 0.50, 1.26], tags="floating")
+  box "ridge_2" (size=[6.10, 0.02, 0.02], mat="trim_dark", pos=[0, 1.30, 1.26], tags="floating")
+  box "ridge_3" (size=[6.10, 0.02, 0.02], mat="trim_dark", pos=[0, 2.10, 1.26], tags="floating")
+  box "handle_l" (size=[0.04, 0.30, 0.04], mat="trim_dark", pos=[-3.00, 1.30, 1.25], tags="floating")
+  box "handle_r" (size=[0.04, 0.30, 0.04], mat="trim_dark", pos=[-3.00, 1.30, -1.25], tags="floating")
+}

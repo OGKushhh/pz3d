@@ -1,0 +1,10 @@
+meta (name="broom", description="Push broom with wooden handle", tags=["prop","tool","broom","dynamic","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.45, 0.28, 0.15], roughness=0.75, uv_mode="tile", uv_scale=2.0)
+material "bristle_yellow" (color=[0.75, 0.60, 0.25], roughness=0.85)
+material "metal_grey" (color=[0.50, 0.50, 0.52], roughness=0.50, metallic=0.6)
+scene {
+  cylinder "handle" (radius=0.015, height=1.40, segments=8, mat="wood_oak", pos=[0, 0.80, 0])
+  box "ferrule" (size=[0.06, 0.04, 0.06], mat="metal_grey", pos=[0, 0.12, 0])
+  box "head" (size=[0.35, 0.05, 0.06], mat="wood_oak", pos=[0, 0.08, 0])
+  box "bristles" (size=[0.32, 0.12, 0.04], mat="bristle_yellow", pos=[0, 0.02, 0])
+}

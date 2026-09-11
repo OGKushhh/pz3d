@@ -1,0 +1,10 @@
+meta (name="first_aid_kit", description="Wall-mounted first aid kit", tags=["prop","medical","first_aid","static","tier1"], mogen_version="0.1.12")
+material "box_white" (color=[0.92, 0.92, 0.90], roughness=0.40, metallic=0.2)
+material "cross_red" (color=[0.75, 0.15, 0.10], roughness=0.50, emissive=[0.3, 0.05, 0.0], emissive_strength=0.3)
+material "handle_metal" (color=[0.50, 0.50, 0.52], roughness=0.40, metallic=0.7)
+scene {
+  box "body" (size=[0.30, 0.25, 0.12], mat="box_white", pos=[0, 0, 0])
+  box "cross_v" (size=[0.04, 0.12, 0.01], mat="cross_red", pos=[0, 0, 0.065], tags="floating")
+  box "cross_h" (size=[0.12, 0.04, 0.01], mat="cross_red", pos=[0, 0, 0.065], tags="floating")
+  box "handle" (size=[0.15, 0.02, 0.03], mat="handle_metal", pos=[0, 0.14, 0], tags="floating")
+}

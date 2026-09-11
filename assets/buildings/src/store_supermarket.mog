@@ -1,0 +1,26 @@
+meta (name="store_supermarket", description="Supermarket", tags=["building","store","supermarket","commercial","tier1"], mogen_version="0.1.12")
+material "wall_white" (color=[0.85, 0.85, 0.82], roughness=0.80, uv_mode="tile", uv_scale=3.0)
+material "roof_flat" (color=[0.25, 0.22, 0.20], roughness=0.90)
+material "trim_blue" (color=[0.15, 0.30, 0.55], roughness=0.50)
+material "storefront_glass" (color=[0.30, 0.45, 0.55], transmission=0.60, roughness=0.05)
+material "door_glass" (color=[0.30, 0.45, 0.55], transmission=0.50, roughness=0.05)
+material "concrete" (color=[0.55, 0.53, 0.50], roughness=0.90)
+material "asphalt" (color=[0.18, 0.18, 0.20], roughness=0.95)
+module "win" () { box "frame" (size=[3.00, 1.80, 0.04], mat="trim_blue") box "glass" (size=[2.85, 1.65, 0.02], mat="storefront_glass", pos=[0,0,-0.03]) }
+module "dr" () { box "frame" (size=[1.50, 2.10, 0.04], mat="trim_blue") box "glass" (size=[1.35, 1.95, 0.02], mat="door_glass", pos=[0,0,-0.05]) }
+scene {
+  slab "ground" (size=[20.0, 0.04, 14.0], mat="asphalt")
+  slab "foundation" (size=[12.4, 0.20, 8.4], mat="concrete", pos=[0, 0.02, 0])
+  wall "front_wall" (size=[12.0, 3.50, 0.20], pos=[0, 1.95, -4.0], holes=[[-3.50, -0.20, 1.50, 2.10], [-0.50, 0.50, 3.00, 1.80], [3.50, 0.50, 3.00, 1.80]])
+  wall "back_wall" (size=[12.0, 3.50, 0.20], pos=[0, 1.95, 4.0], holes=[[-3.00, 0.50, 3.00, 1.80], [3.00, 0.50, 3.00, 1.80]])
+  wall "left_wall" (size=[8.0, 3.50, 0.20], pos=[-6.0, 1.95, 0], rot=[0, 90, 0])
+  wall "right_wall" (size=[8.0, 3.50, 0.20], pos=[6.0, 1.95, 0], rot=[0, 90, 0])
+  slab "floor" (size=[12.0, 0.10, 8.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "ceiling" (size=[12.0, 0.10, 8.0], mat="wall_white", pos=[0, 3.75, 0], tags="floating")
+  slab "roof" (size=[12.4, 0.10, 8.4], mat="roof_flat", pos=[0, 3.90, 0], tags="floating")
+  group "dr" (pos=[-3.50, 1.15, -4.0]) { use "dr" () }
+  group "wf_l" (pos=[-0.50, 2.20, -4.0]) { use "win" () }
+  group "wf_r" (pos=[3.50, 2.20, -4.0]) { use "win" () }
+  group "wb_l" (pos=[-3.00, 2.20, 4.0]) { use "win" () }
+  group "wb_r" (pos=[3.00, 2.20, 4.0]) { use "win" () }
+}

@@ -1,0 +1,11 @@
+meta (name="water_fountain", description="Park water fountain", tags=["environment","fountain","water","park","tier1"], mogen_version="0.1.12")
+material "stone_grey" (color=[0.55, 0.53, 0.50], roughness=0.90, uv_mode="tile", uv_scale=2.0)
+material "water_blue" (color=[0.20, 0.40, 0.55], roughness=0.10, transmission=0.60, metallic=0.0)
+material "concrete" (color=[0.55, 0.53, 0.50], roughness=0.90)
+scene {
+  slab "base" (size=[3.0, 0.10, 3.0], mat="concrete", pos=[0, 0.05, 0])
+  cylinder "basin_outer" (radius=1.00, height=0.40, segments=16, mat="stone_grey", pos=[0, 0.25, 0])
+  cylinder "basin_inner" (radius=0.85, height=0.35, segments=16, mat="water_blue", pos=[0, 0.28, 0])
+  cylinder "pillar" (radius=0.15, height=0.80, segments=8, mat="stone_grey", pos=[0, 0.70, 0])
+  cylinder "top_basin" (radius=0.35, height=0.10, segments=12, mat="stone_grey", pos=[0, 1.15, 0])
+}

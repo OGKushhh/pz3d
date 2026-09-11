@@ -1,0 +1,18 @@
+meta (name="shopping_cart", description="Abandoned shopping cart", tags=["environment","cart","commercial","tier1"], mogen_version="0.1.12")
+material "metal_chrome" (color=[0.75, 0.75, 0.78], roughness=0.30, metallic=0.8)
+material "plastic_red" (color=[0.65, 0.15, 0.10], roughness=0.60)
+material "rubber_black" (color=[0.08, 0.08, 0.08], roughness=0.85)
+scene {
+  box "basket_bottom" (size=[0.50, 0.03, 0.35], mat="metal_chrome", pos=[0, 0.30, 0])
+  box "basket_front" (size=[0.50, 0.30, 0.03], mat="metal_chrome", pos=[0, 0.45, 0.17])
+  box "basket_back" (size=[0.50, 0.30, 0.03], mat="metal_chrome", pos=[0, 0.45, -0.17])
+  box "basket_left" (size=[0.03, 0.30, 0.35], mat="metal_chrome", pos=[-0.25, 0.45, 0])
+  box "basket_right" (size=[0.03, 0.30, 0.35], mat="metal_chrome", pos=[0.25, 0.45, 0])
+  box "handle" (size=[0.50, 0.03, 0.03], mat="metal_chrome", pos=[0, 0.80, -0.20], rot=[15, 0, 0])
+  box "handle_post_l" (size=[0.03, 0.50, 0.03], mat="metal_chrome", pos=[-0.20, 0.55, -0.15], rot=[15, 0, 0])
+  box "handle_post_r" (size=[0.03, 0.50, 0.03], mat="metal_chrome", pos=[0.20, 0.55, -0.15], rot=[15, 0, 0])
+  cylinder "wheel_fl" (radius=0.06, height=0.03, segments=8, mat="rubber_black", pos=[-0.22, 0.06, 0.15], rot=[0, 0, 90], tags="floating")
+  cylinder "wheel_fr" (radius=0.06, height=0.03, segments=8, mat="rubber_black", pos=[0.22, 0.06, 0.15], rot=[0, 0, 90], tags="floating")
+  cylinder "wheel_bl" (radius=0.06, height=0.03, segments=8, mat="rubber_black", pos=[-0.22, 0.06, -0.15], rot=[0, 0, 90], tags="floating")
+  cylinder "wheel_br" (radius=0.06, height=0.03, segments=8, mat="rubber_black", pos=[0.22, 0.06, -0.15], rot=[0, 0, 90], tags="floating")
+}

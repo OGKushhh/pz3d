@@ -1,0 +1,13 @@
+meta (name="wine_rack", description="Wall-mounted wine rack with bottles", tags=["prop","wine","rack","kitchen","tier1"], mogen_version="0.1.12")
+material "wood_dark" (color=[0.30, 0.18, 0.10], roughness=0.75)
+material "bottle_green" (color=[0.15, 0.30, 0.18], roughness=0.20, metallic=0.3)
+material "bottle_red" (color=[0.40, 0.10, 0.08], roughness=0.20, metallic=0.3)
+scene {
+  box "frame" (size=[0.40, 0.50, 0.08], mat="wood_dark", pos=[0, 0, 0])
+  array (count=3, step=[0, -0.15, 0]) {
+    group "row" () {
+      cylinder "bottle_l" (radius=0.035, height=0.25, segments=8, mat="bottle_green", pos=[-0.10, 0.15, 0.05], rot=[90, 0, 0])
+      cylinder "bottle_r" (radius=0.035, height=0.25, segments=8, mat="bottle_red", pos=[0.10, 0.15, 0.05], rot=[90, 0, 0])
+    }
+  }
+}

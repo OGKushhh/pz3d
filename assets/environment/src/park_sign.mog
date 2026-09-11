@@ -1,0 +1,12 @@
+meta (name="park_sign", description="Park entrance sign with wooden posts", tags=["environment","sign","park","tier1"], mogen_version="0.1.12")
+material "wood_oak" (color=[0.45, 0.28, 0.15], roughness=0.75, uv_mode="tile", uv_scale=2.0)
+material "sign_wood" (color=[0.55, 0.38, 0.20], roughness=0.70, uv_mode="tile", uv_scale=1.5)
+material "concrete" (color=[0.55, 0.53, 0.50], roughness=0.90)
+scene {
+  slab "base" (size=[3.0, 0.10, 0.5], mat="concrete", pos=[0, 0.05, 0])
+  box "post_l" (size=[0.10, 2.00, 0.10], mat="wood_oak", pos=[-1.20, 1.00, 0])
+  box "post_r" (size=[0.10, 2.00, 0.10], mat="wood_oak", pos=[1.20, 1.00, 0])
+  box "sign_panel" (size=[2.40, 0.60, 0.06], mat="sign_wood", pos=[0, 1.50, 0])
+  pyramid "cap_l" (radius=0.08, height=0.05, sides=4, mat="wood_oak", pos=[-1.20, 2.05, 0], rot=[0, 45, 0], tags="floating")
+  pyramid "cap_r" (radius=0.08, height=0.05, sides=4, mat="wood_oak", pos=[1.20, 2.05, 0], rot=[0, 45, 0], tags="floating")
+}

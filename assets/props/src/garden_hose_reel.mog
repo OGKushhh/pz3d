@@ -1,0 +1,11 @@
+meta (name="garden_hose_reel", description="Garden hose on a reel", tags=["prop","garden","hose","outdoor","tier1"], mogen_version="0.1.12")
+material "plastic_green" (color=[0.20, 0.40, 0.18], roughness=0.60)
+material "hose_blue" (color=[0.15, 0.25, 0.40], roughness=0.70)
+material "metal_grey" (color=[0.50, 0.50, 0.52], roughness=0.50, metallic=0.6)
+scene {
+  box "base" (size=[0.25, 0.05, 0.30], mat="plastic_green", pos=[0, 0.025, 0])
+  cylinder "post" (radius=0.03, height=0.30, segments=8, mat="plastic_green", pos=[0, 0.20, 0])
+  cylinder "reel_outer" (radius=0.20, height=0.15, segments=16, mat="hose_blue", pos=[0, 0.35, 0], rot=[0, 0, 90])
+  cylinder "reel_inner" (radius=0.12, height=0.17, segments=12, mat="plastic_green", pos=[0, 0.35, 0], rot=[0, 0, 90])
+  cylinder "handle" (radius=0.01, height=0.25, segments=6, mat="metal_grey", pos=[0, 0.55, 0])
+}

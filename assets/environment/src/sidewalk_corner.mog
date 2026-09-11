@@ -1,0 +1,8 @@
+meta (name="sidewalk_corner", description="Sidewalk corner piece with curb", tags=["environment","sidewalk","corner","tier1"], mogen_version="0.1.12")
+material "concrete" (color=[0.70, 0.68, 0.64], roughness=0.85)
+material "curb_grey" (color=[0.65, 0.63, 0.60], roughness=0.85)
+scene {
+  slab "sidewalk" (size=[2.0, 0.10, 2.0], mat="concrete")
+  box "curb_s" (size=[2.0, 0.15, 0.20], mat="curb_grey", pos=[0, 0.075, -1.0])
+  box "curb_e" (size=[0.20, 0.15, 2.0], mat="curb_grey", pos=[1.0, 0.075, 0])
+}

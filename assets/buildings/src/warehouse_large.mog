@@ -1,0 +1,23 @@
+meta (name="warehouse_large", description="Large warehouse with loading docks and roll-up doors", tags=["building","warehouse","industrial","tier1"], mogen_version="0.1.12")
+material "wall_metal" (color=[0.50, 0.48, 0.45], roughness=0.60, metallic=0.5, uv_mode="tile", uv_scale=3.0)
+material "roof_metal" (color=[0.30, 0.28, 0.25], roughness=0.60, metallic=0.6)
+material "trim_dark" (color=[0.15, 0.15, 0.18], roughness=0.50, metallic=0.7)
+material "door_metal" (color=[0.45, 0.45, 0.48], roughness=0.50, metallic=0.6)
+material "concrete" (color=[0.55, 0.53, 0.50], roughness=0.90)
+material "asphalt" (color=[0.18, 0.18, 0.20], roughness=0.95)
+module "bay_door" () { inset_box "panel" (size=[3.50, 3.50, 0.08], face="front", amount=0.08, depth=0.04, mat="door_metal") box "line_1" (size=[3.40, 0.02, 0.02], mat="trim_dark", pos=[0, 1.00, -0.10], tags="floating") box "line_2" (size=[3.40, 0.02, 0.02], mat="trim_dark", pos=[0, 0.00, -0.10], tags="floating") box "line_3" (size=[3.40, 0.02, 0.02], mat="trim_dark", pos=[0, -1.00, -0.10], tags="floating") }
+scene {
+  slab "ground" (size=[30.0, 0.04, 20.0], mat="asphalt")
+  slab "foundation" (size=[16.4, 0.20, 10.4], mat="concrete", pos=[0, 0.02, 0])
+  wall "front_wall" (size=[16.0, 5.00, 0.20], pos=[0, 2.75, -5.0], holes=[[-5.00, -0.75, 3.50, 3.50], [0.0, -0.75, 3.50, 3.50], [5.00, -0.75, 3.50, 3.50]])
+  wall "back_wall" (size=[16.0, 5.00, 0.20], pos=[0, 2.75, 5.0])
+  wall "left_wall" (size=[10.0, 5.00, 0.20], pos=[-8.0, 2.75, 0], rot=[0, 90, 0])
+  wall "right_wall" (size=[10.0, 5.00, 0.20], pos=[8.0, 2.75, 0], rot=[0, 90, 0])
+  slab "floor" (size=[16.0, 0.10, 10.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "ceiling" (size=[16.0, 0.10, 10.0], mat="wall_metal", pos=[0, 5.10, 0])
+  slab "roof" (size=[16.4, 0.10, 10.4], mat="roof_metal", pos=[0, 5.25, 0], tags="floating")
+  group "bay_1" (pos=[-5.00, 1.75, -5.0]) { use "bay_door" () }
+  group "bay_2" (pos=[0.00, 1.75, -5.0]) { use "bay_door" () }
+  group "bay_3" (pos=[5.00, 1.75, -5.0]) { use "bay_door" () }
+  box "gutter" (size=[16.4, 0.08, 0.10], mat="trim_dark", pos=[0, 5.15, -5.45], tags="floating")
+}
