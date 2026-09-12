@@ -21,14 +21,14 @@ func _initialize() -> void:
     _check(net1.segments.size() > 0, "no segments generated")
 
     # Verify segment data matches
-    var match := true
+    var is_match := true
     for i in range(net1.segments.size()):
         var a: Vector3 = net1.segments[i]["start"]
         var b: Vector3 = net2.segments[i]["start"]
         if a != b:
-            match = false
+            is_match = false
             break
-    _check(match, "determinism: segment positions differ")
+    _check(is_match, "determinism: segment positions differ")
 
     # Bridge count
     var bridge_count := 0

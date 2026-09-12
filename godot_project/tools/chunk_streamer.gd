@@ -91,12 +91,21 @@ func _get_terrain_y(x: float, z: float) -> float:
         # Fallback to terrain_height.gd (used during initial bake or if Terrain3D fails)
         return terrain.height_at(x, z)
 
+var _build_queue: Array = []  # Pending chunk builds (frame budget: 1 per frame)
+var _builds_this_frame: int = 0
+
 func _process(_delta: float) -> void:
         if player == null or manifest.is_empty():
                 return
         var cx: int = int(floor(player.global_position.x / CityConfig.CHUNK_SIZE_M))
         var cy: int = int(floor(player.global_position.z / CityConfig.CHUNK_SIZE_M))
+        _builds_this_frame = 0
         _refresh(cx, cy)
+        # Frame budget: build at most 1 chunk per frame to prevent hitching
+        if not _build_queue.is_empty() and _builds_this_frame == 0:
+                var next_key: Vector2i = _build_queue.pop_front()
+                _build_chunk(next_key)
+                _builds_this_frame += 1
 
 func _refresh(cx: int, cy: int) -> void:
         var unload_r: int = stream_radius + CityConfig.STREAM_UNLOAD_BUFFER
@@ -106,8 +115,8 @@ func _refresh(cx: int, cy: int) -> void:
                 for dx in range(-stream_radius, stream_radius + 1):
                         var key := Vector2i(cx + dx, cy + dy)
                         wanted[key] = true
-                        if not _loaded.has(key):
-                                _build_chunk(key)
+                        if not _loaded.has(key) and not _build_queue.has(key):
+                                _build_queue.append(key)
 
         var to_remove: Array = []
         for key in _loaded:
