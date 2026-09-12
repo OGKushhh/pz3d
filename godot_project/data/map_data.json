@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "map_size": [4000, 3000],
+  "cell_size": 500,
+  "chunk_size": 250,
+
+  "biome_grid": [
+    [0, 0, 3, 3, 6, 9, 5, 5],
+    [0, 3, 3, 3, 6, 9, 5, 8],
+    [0, 0, 3, 1, 6, 9, 7, 8],
+    [0, 1, 4, 1, 6, 9, 7, 5],
+    [1, 1, 4, 4, 6, 9, 7, 5],
+    [1, 0, 0, 4, 6, 9, 5, 5]
+  ],
+
+  "biome_names": {
+    "0": "SUBURBIA",
+    "1": "PARKS",
+    "2": "FOREST",
+    "3": "FARMLAND",
+    "4": "COMMERCIAL",
+    "5": "INDUSTRIAL",
+    "6": "RIVER",
+    "7": "DOWNTOWN",
+    "8": "MILITARY",
+    "9": "COASTAL_BEACH",
+    "10": "WATER",
+    "11": "EMPTY"
+  },
+
+  "roads": [
+    {"start": [0, 0, 0], "end": [4000, 0, 0], "width": 8, "kind": "street"},
+    {"start": [0, 0, 500], "end": [4000, 0, 500], "width": 8, "kind": "street"},
+    {"start": [0, 0, 1000], "end": [4000, 0, 1000], "width": 8, "kind": "street"},
+    {"start": [0, 0, 1500], "end": [4000, 0, 1500], "width": 12, "kind": "highway"},
+    {"start": [0, 0, 2000], "end": [4000, 0, 2000], "width": 8, "kind": "street"},
+    {"start": [0, 0, 2500], "end": [4000, 0, 2500], "width": 8, "kind": "street"},
+    {"start": [0, 0, 3000], "end": [4000, 0, 3000], "width": 8, "kind": "street"},
+
+    {"start": [0, 0, 0], "end": [0, 0, 3000], "width": 8, "kind": "street"},
+    {"start": [500, 0, 0], "end": [500, 0, 3000], "width": 8, "kind": "street"},
+    {"start": [1000, 0, 0], "end": [1000, 0, 3000], "width": 8, "kind": "street"},
+    {"start": [1500, 0, 0], "end": [1500, 0, 3000], "width": 12, "kind": "highway"},
+    {"start": [2000, 0, 0], "end": [2000, 0, 3000], "width": 8, "kind": "street"},
+    {"start": [2500, 0, 0], "end": [2500, 0, 3000], "width": 8, "kind": "street"},
+    {"start": [3000, 0, 0], "end": [3000, 0, 3000], "width": 8, "kind": "street"},
+    {"start": [3500, 0, 0], "end": [3500, 0, 3000], "width": 8, "kind": "street"},
+    {"start": [4000, 0, 0], "end": [4000, 0, 3000], "width": 8, "kind": "street"},
+
+    {"start": [1500, 0, 1750], "end": [2500, 0, 1750], "width": 12, "kind": "bridge", "name": "Sarran Bridge"},
+    {"start": [1500, 0, 2250], "end": [2500, 0, 2250], "width": 12, "kind": "bridge", "name": "Old Town Bridge"}
+  ],
+
+  "river": {
+    "center_x": 2250,
+    "half_width": 30,
+    "depth": 4.0,
+    "water_level": 0.0
+  },
+
+  "bridges": [
+    {"row": 3, "from_col": 3, "to_col": 5, "name": "Sarran Bridge"},
+    {"row": 4, "from_col": 3, "to_col": 5, "name": "Old Town Bridge"}
+  ],
+
+  "pois": [
+    {"id": "fort_sarran", "type": "fort_sarran", "pos": [3500, 0, 2500], "radius": 80, "biome": "MILITARY"},
+    {"id": "government_palace", "type": "government_palace", "pos": [3000, 0, 1500], "radius": 50, "biome": "DOWNTOWN"},
+    {"id": "stadium", "type": "stadium", "pos": [3000, 0, 500], "radius": 60, "biome": "DOWNTOWN"},
+    {"id": "old_royal_palace", "type": "old_royal_palace", "pos": [2500, 0, 2500], "radius": 50, "biome": "DOWNTOWN"},
+    {"id": "lighthouse", "type": "lighthouse", "pos": [2400, 0, 250], "radius": 30, "biome": "COASTAL_BEACH"},
+    {"id": "grain_silo", "type": "grain_silo", "pos": [1300, 0, 1100], "radius": 40, "biome": "FARMLAND"},
+    {"id": "windmill", "type": "windmill", "pos": [1500, 0, 1300], "radius": 25, "biome": "FARMLAND"}
+  ],
+
+  "services": {
+    "SUBURBIA": {"hospital": 0, "police": [0, 1], "gas_station": [0, 1], "fire_station": [0, 1]},
+    "COMMERCIAL": {"hospital": 0, "police": [1, 2], "gas_station": [1, 3], "fire_station": [0, 1]},
+    "DOWNTOWN": {"hospital": [1, 1], "police": [1, 2], "gas_station": [0, 0], "fire_station": [1, 1]},
+    "INDUSTRIAL": {"hospital": 0, "police": [0, 1], "gas_station": [1, 2], "fire_station": [1, 1]},
+    "FARMLAND": {"hospital": 0, "police": [0, 0], "gas_station": [0, 1], "fire_station": [0, 0]},
+    "MILITARY": {"hospital": [1, 1], "police": [0, 0], "gas_station": [0, 0], "fire_station": [0, 0]}
+  },
+
+  "elevation": {
+    "SUBURBIA": {"base": 0.5, "amp": 1.0, "freq": 0.008},
+    "PARKS": {"base": 1.0, "amp": 2.0, "freq": 0.012},
+    "FOREST": {"base": 2.0, "amp": 5.0, "freq": 0.018},
+    "FARMLAND": {"base": 0.2, "amp": 0.3, "freq": 0.005},
+    "COMMERCIAL": {"base": 0.5, "amp": 0.5, "freq": 0.005},
+    "INDUSTRIAL": {"base": 0.5, "amp": 0.5, "freq": 0.005},
+    "RIVER": {"base": -4.0, "amp": 0.0, "freq": 0.0},
+    "DOWNTOWN": {"base": 0.5, "amp": 0.5, "freq": 0.005},
+    "MILITARY": {"base": 3.0, "amp": 0.0, "freq": 0.0},
+    "COASTAL_BEACH": {"base": -1.0, "amp": 8.0, "freq": 0.020},
+    "WATER": {"base": -2.0, "amp": 0.0, "freq": 0.0},
+    "EMPTY": {"base": 0.0, "amp": 0.0, "freq": 0.0}
+  }
+}
