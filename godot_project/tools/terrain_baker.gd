@@ -55,16 +55,19 @@ func _build_terrain() -> void:
         terrain.assets.set_texture(3, rock_ta)
 
         # Generate heightmap Image from terrain_height.gd
-        # Map covers MAP_SIZE_M (4000×3000). Terrain at world (0,0) to (4000, 3000).
-        var map_w: float = CFG.MAP_SIZE_M.x  # 4000
-        var map_d: float = CFG.MAP_SIZE_M.y  # 3000
+        # CRITICAL: heightmap must cover the SAME area as the Terrain3D region.
+        # region_size=2048 means terrain covers 0..2048m in X and Z.
+        # If we sample 0..4000m and stuff it into a 2048m region, the terrain
+        # gets horizontally compressed 2x and heights won't match world positions.
+        # Fix: sample only within the region area (0..region_size).
+        var region_m: float = float(2048)  # must match terrain.region_size below
         var origin := Vector3(0.0, 0, 0.0)  # terrain starts at world origin
 
         var img := Image.create_empty(heightmap_resolution, heightmap_resolution, false, Image.FORMAT_RF)
         for x in range(heightmap_resolution):
                 for y in range(heightmap_resolution):
-                        var world_x: float = origin.x + (float(x) / float(heightmap_resolution)) * map_w
-                        var world_z: float = origin.z + (float(y) / float(heightmap_resolution)) * map_d
+                        var world_x: float = origin.x + (float(x) / float(heightmap_resolution)) * region_m
+                        var world_z: float = origin.z + (float(y) / float(heightmap_resolution)) * region_m
                         var h: float = _height_fn.height_at(world_x, world_z)
                         # Normalize to 0-1 range for storage
                         var normalized := (h - height_scale_min) / (height_scale_max - height_scale_min)
