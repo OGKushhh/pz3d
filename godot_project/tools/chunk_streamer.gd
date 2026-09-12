@@ -1,18 +1,20 @@
 extends Node3D
 
-# ChunkStreamer v4 — direct placement, denser, roads every cell
-# Fixes:
-#   - Roads every grid cell (was every 2nd) — denser street grid
-#   - 3x more buildings per chunk (fill*30 to fill*60, was 10-30)
-#   - Tighter building radius (8m, was 12m) — closer buildings
-#   - 4x more props (25-50, was 6-16)
-#   - Ground at Y=0 (top at Y=0.5), player at Y=2
-#   - Logging per-chunk stats
+# ChunkStreamer v5 — terrain-aware placement (Phase B)
+# Changes from v4:
+#   - Buildings/props/foliage sample TerrainHeight.height_at() for Y
+#   - River biome gets buildings placed at riverbed level (fishing huts, etc.)
+#   - TerrainHeight + RiverNetwork instantiated in _ready()
+#   - Player Y auto-follows terrain on spawn
+# Fixes retained from v4:
+#   - Roads every grid cell, 3x buildings, 4x props, ground at Y=0
 
 const CityConfig = preload("res://tools/city_config.gd")
 const SpatialIndex = preload("res://tools/spatial_index.gd")
 const RoadNetwork = preload("res://tools/road_network.gd")
 const PlanGrid = preload("res://tools/plan_grid.gd")
+const TerrainHeight = preload("res://tools/terrain_height.gd")
+const RiverNetwork = preload("res://tools/river_network.gd")
 
 var player: Node3D
 var stream_radius: int = 2
@@ -22,35 +24,49 @@ var manifest: Dictionary = {}
 var asset_cache: Dictionary = {}
 var rng: RandomNumberGenerator
 var plan_grid: PlanGrid
+var terrain: TerrainHeight
+var river: RiverNetwork
 var _loaded: Dictionary = {}
 var _stats: Dictionary = {}
 
 func _ready() -> void:
-    await get_tree().process_frame
-    var root := get_tree().current_scene
-    player = root.get_node_or_null("Player")
-    if player == null:
-        for child in root.get_children():
-            if child is CharacterBody3D:
-                player = child
-                break
-    if player == null:
-        push_error("[ChunkStreamer] No player found!")
-        return
+        await get_tree().process_frame
+        var root := get_tree().current_scene
+        player = root.get_node_or_null("Player")
+        if player == null:
+                for child in root.get_children():
+                        if child is CharacterBody3D:
+                                player = child
+                                break
+        if player == null:
+                push_error("[ChunkStreamer] No player found!")
+                return
 
-    var f := FileAccess.open("res://data/city_manifest.json", FileAccess.READ)
-    if f:
-        manifest = JSON.parse_string(f.get_as_text())
-    print("[ChunkStreamer] manifest: %d assets, player at %s" % [manifest.size(), player.global_position])
+        var f := FileAccess.open("res://data/city_manifest.json", FileAccess.READ)
+        if f:
+                manifest = JSON.parse_string(f.get_as_text())
+        print("[ChunkStreamer] manifest: %d assets, player at %s" % [manifest.size(), player.global_position])
 
-    spatial = SpatialIndex.new(CityConfig.SPATIAL_CELL_M)
-    roads = RoadNetwork.new()
-    rng = RandomNumberGenerator.new()
-    rng.seed = 1337
-    roads.generate(rng)
-    roads.mark_roads_in_index(spatial, CityConfig.SPATIAL_CELL_M)
-    plan_grid = PlanGrid.new()
-    plan_grid.build(roads, 1337)
+        spatial = SpatialIndex.new(CityConfig.SPATIAL_CELL_M)
+        roads = RoadNetwork.new()
+        rng = RandomNumberGenerator.new()
+        rng.seed = 1337
+        roads.generate(rng)
+        roads.mark_roads_in_index(spatial, CityConfig.SPATIAL_CELL_M)
+        plan_grid = PlanGrid.new()
+        plan_grid.build(roads, 1337)
+
+        # Phase B: terrain + river
+        river = RiverNetwork.new()
+        terrain = TerrainHeight.new(1337, river)
+        print("[ChunkStreamer] terrain v%d, river center X=%d" % [TerrainHeight.TERRAIN_HEIGHT_VERSION, river.get_center_x()])
+
+        # Auto-set player Y from terrain (spawn at terrain + 2m)
+        var px: float = player.global_position.x
+        var pz: float = player.global_position.z
+        var py: float = terrain.height_at(px, pz) + 2.0
+        player.global_position = Vector3(px, py, pz)
+        print("[ChunkStreamer] player Y set to %.2f (terrain=%.2f)" % [py, py - 2.0])
 
 func _process(_delta: float) -> void:
     if player == null or manifest.is_empty():
@@ -130,6 +146,8 @@ func _build_chunk(key: Vector2i) -> void:
                     )
                     if not spatial.is_free(pos, building_radius) or spatial.is_on_road(pos):
                         continue
+                    # Phase B: sample terrain Y for building placement
+                    pos.y = terrain.height_at(pos.x, pos.z)
                     var inst: Node3D = scene.instantiate()
                     inst.position = pos
                     inst.rotation.y = _face_nearest_road(pos, crng)
@@ -154,6 +172,8 @@ func _build_chunk(key: Vector2i) -> void:
             )
             if not spatial.is_free(pos, 1.5) or spatial.is_on_road(pos):
                 continue
+            # Phase B: sample terrain Y for prop placement
+            pos.y = terrain.height_at(pos.x, pos.z)
             var inst: Node3D = scene.instantiate()
             inst.position = pos
             inst.rotation.y = crng.randf_range(0, TAU)
@@ -179,6 +199,8 @@ func _build_chunk(key: Vector2i) -> void:
             var radius: float = 3.0 if "tree" in fname else 1.0
             if not spatial.is_free(pos, radius) or spatial.is_on_road(pos):
                 continue
+            # Phase B: sample terrain Y for foliage placement
+            pos.y = terrain.height_at(pos.x, pos.z)
             var inst: Node3D = scene.instantiate()
             inst.position = pos
             inst.rotation.y = crng.randf_range(0, TAU)
