@@ -443,3 +443,137 @@ This matches real colonial house architecture and gives the house proper room co
 - 🔒 = decided / fixed (don't touch unless requirements change)
 - 🧪 = under testing / under design / open (work needed)
 - 📋 = backlog (deferred until after alpha vertical slice)
+
+---
+
+## §12 — Terrain Architecture 🧪
+
+> **Status: design locked, implementation in phases A–G (see §11.16–11.22 below).**
+> Captured 2026-09-12 after DeepSeek review of original terrain plan.
+
+### Core principle: Terrain3D owns terrain, ChunkStreamer owns everything else
+
+Two layers, cleanly separated:
+
+| Layer | Owner | What it does |
+|---|---|---|
+| **Terrain mesh + collision** | `Terrain3D` plugin | Renders the visible terrain with LOD. Handles heightmap collision via `HeightMapShape3D`. Texture splatting for grass/dirt/rock per biome. We do NOT write custom LOD — Terrain3D gives us 300m+ view distance without 3.75M tris. |
+| **Deterministic height function** | `tools/terrain_height.gd` (custom) | Pure function `height_at(x, z) → float`. Used by gameplay code (building placement, AI path queries, POI placement, bridge pier depth). No dependency on Terrain3D at runtime — only the build step writes to Terrain3D's heightmap. |
+| **Build step** | `tools/terrain_baker.gd` (one-shot) | Reads `terrain_height.gd`, writes to Terrain3D's heightmap asset. Run once at design time, re-run when height function changes (bump `TERRAIN_HEIGHT_VERSION`). |
+| **Everything else** | `ChunkStreamer` + `chunk_builder.gd` | Buildings, props, foliage, streetlights, roads, water surface (separate from terrain), POIs. All sample `terrain_height.height_at()` for their Y position. |
+
+### TERRAIN_HEIGHT_VERSION constant
+
+```gdscript
+# tools/terrain_height.gd
+const TERRAIN_HEIGHT_VERSION := 1   # BUMP THIS when height function changes
+```
+
+When `TERRAIN_HEIGHT_VERSION` is bumped:
+1. `tools/terrain_baker.gd` re-runs (writes new heightmap to Terrain3D asset)
+2. `CityMeta` includes the version in its hash → `skip_if_valid` correctly invalidates cached chunks
+3. All `.tscn` chunk files regenerate on next `city_builder.gd` run
+4. Player spawn Y auto-recalculates from `terrain_height.height_at(spawn_x, spawn_z) + 2.0`
+
+**Current version: 1** (initial — function not yet written, but the version tracking is in place)
+
+### Subway-as-layer, not biome
+
+**Decision (2026-09-12):** `Biome.SUBWAY` removed from the enum. Subway is a parallel underground layer, not a surface biome.
+
+Rationale:
+- A subway tunnel can run under any surface biome (Downtown station under Downtown, Industrial depot under Industrial, etc.). Treating subway as a surface biome forced every subway cell to also be surface-only.
+- Surface cells where station entrances sit keep their surface biome (Downtown, Industrial, etc.). The entrance is a POI on the surface.
+- Tunnels are a `SubwayNetwork` class (like `RoadNetwork` but for tunnels at Y ≈ -8m). Stations are nodes in this network; tunnels connect them.
+- Player descends via station stairs → loads subway tunnel chunk. Same lazy-interior pattern as buildings — only loads when player enters.
+
+Implementation status: `Biome.SUBWAY` value removed from `city_config.gd` enum. `tools/subway_network.gd` is a stub. Subway assets (subway_platform, subway_tunnel, subway_train_car, ticket_booth, turnstile, maintenance_tunnel_junction, emergency_exit_stairs, subway_pipe_cluster) are still in the manifest but won't be placed by surface chunk_builder — they'll be placed by `subway_builder.gd` when the player enters a station.
+
+### Per-biome elevation signatures
+
+| Biome | Base Y | Amplitude | Frequency | Result |
+|---|---:|---:|---:|---|
+| SUBURBIA | +0.5 | 1.0m | 0.008 | gentle rolling — suburban feel |
+| PARKS | +1.0 | 2.0m | 0.012 | parkland hills |
+| FOREST | +2.0 | 5.0m | 0.018 | rolling hills — fog collects in valleys |
+| FARMLAND | +0.2 | 0.3m | 0.005 | flat — tractors need level ground |
+| COMMERCIAL | +0.5 | 0.5m | 0.005 | nearly flat — urban grid |
+| INDUSTRIAL | +0.5 | 0.5m | 0.005 | flat |
+| RIVER | -4.0 | 0.0 | — | carved valley — water at Y=0, riverbed at -4m |
+| DOWNTOWN | +0.5 | 0.5m | 0.005 | flat (urban) but raised above river for visibility |
+| MILITARY | +3.0 | 0.0 | — | plateau — fort sits on a bluff |
+| COASTAL_BEACH | -1.0 | 8.0m | 0.020 | rolling cliff coastline — lighthouse territory |
+| WATER | -2.0 | 0.0 | — | ocean/lake (sea level) |
+
+---
+
+## §11.16–11.22 — Terrain phases (new) 🧪
+
+Appended to §11 TODO list. Each phase has validation step (FPS must not drop >20% from baseline).
+
+### Phase A — Prep (4–5h)
+| # | Task | Status |
+|---|---|---|
+| A.1 | Refactor `chunk_streamer.gd` to thin loader (drop inline placement, use `ResourceLoader.load_threaded_request` on prebuilt `.tscn` chunks). Move all placement logic into `chunk_builder.gd` as single source of truth. | 📋 **deferred to Phase B** — see note below |
+| A.2 | River=25% redesign: reduce RI from 2 columns to 1 column (6 cells = 12.5%). Add `COASTAL_BEACH` biome enum value for the freed column. | 🔒 done (2026-09-12) |
+| A.3 | Remove `Biome.SUBWAY` from enum. Create `tools/subway_network.gd` stub. Move subway_* assets to a `subway/` subfolder in manifest. | 🔒 done (2026-09-12) — manifest subfolder move deferred (assets stay in current location, just not placed by surface builder) |
+| A.4 | Re-run `city_builder.gd` to regenerate `.tscn` chunks with new biome layout. | 📋 **deferred to Phase B** — see note below |
+| A.5 | Validation: re-run baseline capture. FPS must be ≥ 116 headless (80% of 145). If <116, stop and diagnose. | 🔒 done (2026-09-12) — **145 FPS, 0% drop, PASS** |
+
+**Why A.1 + A.4 are deferred to Phase B:**
+The current `chunk_streamer.gd` (v4) has dense inline placement logic (target=fill×30 to fill×60, props 25-50, foliage 15-50). The older `chunk_builder.gd` (used by `city_builder.gd` for prebuilt .tscn chunks) has simpler placement that would produce a sparser world. Porting v4 logic into `chunk_builder.gd` is 2-4h of work.
+
+Phase B (terrain core) will require ALL placement code to sample `terrain_height.height_at(x, z)` for Y position. Doing the refactor twice (once now for A.1, again in B.1 for terrain) is wasteful. Better to do both in one pass during Phase B: refactor `chunk_streamer.gd` to thin loader + port v4 logic to `chunk_builder.gd` + add terrain_height sampling, all together.
+
+Phase A validation passed: FPS unchanged at 145 (0% drop), no errors, Coastal Beach biome spawning correctly, River reduced from 15 chunks to 10 in spawn area.
+
+### Phase B — Terrain core (4–5h)
+| # | Task | Status |
+|---|---|---|
+| B.1 | `tools/terrain_height.gd` — `class_name TerrainHeight`. Pure function `height_at(x, z) → float`. Uses Godot's `FastNoiseLite` seeded by `map_seed`. Composes biome elevation + river carve + bridge flatten. Includes `TERRAIN_HEIGHT_VERSION = 1` constant. | 🧪 pending |
+| B.2 | Debug visualization — heightmap-colored plane (`MeshInstance3D` with vertex-colored quad grid) so we can SEE the height function before Terrain3D lands. 30min. | 🧪 pending |
+| B.3 | `tools/river_network.gd` — generates river centerline (spline through bridge endpoints from `city_config.gd::bridges()`). Exposes `nearest_point(x, z) → {distance, depth, on_line}` and `water_depth_at(x, z) → float`. | 🧪 pending |
+| B.4 | Road flattening — `terrain_height.flatten_road_corridor(x, z) → y` so roads don't clip through hills or float over valleys. Cut-and-fill like real cities. | 🧪 pending |
+| B.5 | Bridge ramp logic — bridge deck at surrounding terrain Y, piers extend down to riverbed Y, road ramps 30m on either end to bridge deck height. | 🧪 pending |
+| B.6 | Validation: re-run baseline. FPS ≥ 116 headless. Buildings should sit at varied Y (no longer all at Y=0). | 🧪 pending |
+
+### Phase C — Terrain mesh (4–6h)
+| # | Task | Status |
+|---|---|---|
+| C.1 | Install Terrain3D plugin (https://github.com/outobugi/Terrain3D). Add to `project.godot` plugins list. | 🧪 pending |
+| C.2 | `tools/terrain_baker.gd` — one-shot script that samples `terrain_height.height_at()` on a 4m grid and writes to Terrain3D's heightmap asset. | 🧪 pending |
+| C.3 | Splatmap per biome — paint grass/dirt/rock/sand textures based on biome + slope. | 🧪 pending |
+| C.4 | Delete flat `Ground` node from `main.tscn`. Replace with Terrain3D node. | 🧪 pending |
+| C.5 | Player spawn Y auto-calc: `player.y = terrain_height.height_at(player.x, player.z) + 2.0`. | 🧪 pending |
+| C.6 | Validation: re-run baseline. FPS ≥ 116 headless. Player should walk up/down hills. | 🧪 pending |
+
+### Phase D — Water + bridge (2–3h)
+| # | Task | Status |
+|---|---|---|
+| D.1 | Water surface — translucent plane at Y=0 over carved areas. Animated normal map. | 🧪 pending |
+| D.2 | `water_depth_at(x, z) → float` query — returns 0 on land, >0 over river/ocean. Used for swim state, fish loot, boat traversal (deferred). | 🧪 pending |
+| D.3 | Bridge POI placement — `bridge_section.glb` placed at bridge endpoints in `pois.json`. Pier depth from `terrain_height.height_at()` at pier base. | 🧪 pending |
+| D.4 | Validation: re-run baseline. FPS ≥ 116 headless. Bridges should go over real water. | 🧪 pending |
+
+### Phase E — NavMesh (2–4h)
+| # | Task | Status |
+|---|---|---|
+| E.1 | Add `NavigationRegion3D` per chunk in `chunk_builder.gd`. Bake trivial navmesh against terrain + buildings. | 🧪 pending |
+| E.2 | `NavigationServer3D` query for zombie AI. | 🧪 pending |
+| E.3 | Validation: re-run baseline. FPS ≥ 116 headless. Zombies can path up hills, around valleys, across bridges. | 🧪 pending |
+
+### Phase F — POI system (4–6h)
+| # | Task | Status |
+|---|---|---|
+| F.1 | `res://data/pois.json` — hand-placed POIs (hospital, fort_sarran, government_palace, lighthouse, water_tower, stadium, old_royal_palace, bridges, gas_stations, schools, churches, water_towers, etc.). 60–80 POIs total. | 🧪 pending |
+| F.2 | `chunk_builder.gd` queries POIs in chunk bounds. Places 1 per POI exactly. Suppresses procedural placement in POI radius. | 🧪 pending |
+| F.3 | Landmark visibility check — raycast from 1km away, verify not occluded by terrain. Adjust POI Y if needed. | 🧪 pending |
+| F.4 | Validation: re-run baseline. FPS ≥ 116 headless. Landmarks visible from 500m+. | 🧪 pending |
+
+### Phase G — Independent perf (4–5h, parallel-safe)
+| # | Task | Status |
+|---|---|---|
+| G.1 | `RoadNetwork` spatial grid — `Vector2i → Array[segment]`. `nearest_road_to(pos, radius)` becomes O(1). Removes 14.6M ops from `_face_nearest_road`. | 🧪 pending |
+| G.2 | MultiMesh batching per chunk — group `MeshInstance3D` by mesh, replace with `MultiMeshInstance3D`. 80–90% draw call reduction for foliage. | 🧪 pending |
+| G.3 | `SpatialIndex.insert_box(center, size, rot_y)` — AABB instead of circle. Buildings stop clipping into each other. | 🧪 pending |
+| G.4 | Validation: re-run baseline. FPS ≥ 116 headless. Draw calls should drop 50%+ from G.2. | 🧪 pending |

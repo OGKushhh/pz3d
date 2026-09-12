@@ -1,0 +1,31 @@
+Phase A Baseline — captured 2026-09-12T01:25:56Z
+Commit: 57fc78992df667bce9e84d2e9ff592b5c92a7902
+Godot: 4.7.2 stable, headless mode, --quit-after 1500 frames
+
+=== Headless FPS (baseline) ===
+Stable: 145 FPS (after warmup, frames 60-600)
+Warmup: 70 FPS (first ~120 frames while chunks build)
+Draw calls / prims / texmem: 0 (headless = no rendering — visible only in editor)
+
+=== Chunk streamer stats (baseline) ===
+Chunks built at startup: 25 (stream_radius=2 → 5×5 grid)
+Total buildings placed: 100
+Total props placed: 60
+Total foliage placed: 190
+Total street lights: 0
+Total scene children (all nodes): 350
+
+=== Per-biome breakdown ===
+  Commercial Strip         : 2c, 40b, 16p, 0f
+  Parks & Greenways        : 8c, 0b, 44p, 86f
+  River & Wetlands         : 15c, 60b, 0p, 104f
+
+=== Comparison rule ===
+If post-Phase-A FPS drops below 80% of baseline (i.e. <116 headless), STOP and diagnose.
+If chunk count changes (e.g. stream_radius=1 instead of 2), note it but doesn't count as FPS drop.
+If building/prop/foliage counts change due to biome redesign (River=25% → Coastal split), note as expected.
+
+=== Re-run command (after each phase) ===
+cd /home/z/my-project/godot_project
+GODOT=/tmp/my-project/godot_engine/Godot_v4.7.2-stable_linux.x86_64
+timeout 18 "$GODOT" --headless --path . res://scenes/main.tscn --quit-after 1500 2>&1 | grep -E "\[HUD\]|chunk.*biome"

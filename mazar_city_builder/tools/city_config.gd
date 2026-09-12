@@ -6,8 +6,13 @@ extends RefCounted
 
 enum Biome {
     SUBURBIA, PARKS, FOREST, FARMLAND, COMMERCIAL,
-    INDUSTRIAL, RIVER, SUBWAY, DOWNTOWN, MILITARY, WATER, EMPTY
+    INDUSTRIAL, RIVER, DOWNTOWN, MILITARY, COASTAL_BEACH, WATER, EMPTY
 }
+# NOTE: Biome.SUBWAY removed 2026-09-12 (Phase A.3).
+# Subway is now a parallel underground layer, not a surface biome.
+# See GDD §12 "Subway-as-layer, not biome" for rationale.
+# Subway assets (subway_platform, subway_tunnel, subway_train_car, etc.)
+# are placed by tools/subway_network.gd when player enters a station.
 
 # ── MAP DIMENSIONS ────────────────────────────────────────
 # 12 km² alpha  →  Vector2(4000, 3000), GRID 8×6
@@ -172,19 +177,20 @@ static func biomes() -> Dictionary:
             "lights": false,
             "zombies": 4
         },
-        Biome.SUBWAY: {
-            "name": "Subway",
-            "fill": 0.00,
+        Biome.COASTAL_BEACH: {
+            "name": "Coastal Beach",
+            "fill": 0.20,
             "buildings": [
-                "subway_platform", "subway_tunnel", "subway_train_car",
-                "ticket_booth", "turnstile", "maintenance_tunnel_junction",
-                "emergency_exit_stairs", "subway_pipe_cluster"
+                "fishing_hut", "pier_dock", "houseboat", "marsh_pier",
+                "lighthouse"
             ],
-            "landmarks": [],
-            "props": [],
-            "foliage": [],
+            "landmarks": ["lighthouse"],
+            "props": ["boardwalk_section"],
+            "foliage": [
+                "palm_tree", "marsh_grass", "cattail", "tall_grass"
+            ],
             "lights": false,
-            "zombies": 8
+            "zombies": 4
         },
         Biome.DOWNTOWN: {
             "name": "Downtown",
@@ -244,6 +250,10 @@ static func biomes() -> Dictionary:
     }
 
 # ── GRID LAYOUT (8×6 for 12 km²) ──────────────────────────
+# Phase A.2 (2026-09-12): River reduced from 2 columns to 1 (12.5% of map, was 25%).
+# Freed column (col 5) is now COASTAL_BEACH.
+# CB = Coastal Beach (rolling cliffs, fishing huts, lighthouse, boardwalks).
+# Player walks along coast instead of through endless water.
 static func grid_layout() -> Array:
     var F  := Biome.FOREST
     var FA := Biome.FARMLAND
@@ -254,19 +264,23 @@ static func grid_layout() -> Array:
     var PA := Biome.PARKS
     var CO := Biome.COMMERCIAL
     var DT := Biome.DOWNTOWN
+    var CB := Biome.COASTAL_BEACH
     return [
-        [F,  F,  FA, FA, RI, RI, IN, IN],
-        [F,  FA, FA, FA, RI, RI, IN, MI],
-        [SU, SU, FA, PA, RI, RI, DT, MI],
-        [SU, SU, CO, PA, RI, RI, DT, IN],
-        [SU, PA, CO, CO, RI, RI, DT, IN],
-        [PA, SU, SU, CO, RI, RI, IN, IN],
+        [F,  F,  FA, FA, RI, CB, IN, IN],
+        [F,  FA, FA, FA, RI, CB, IN, MI],
+        [SU, SU, FA, PA, RI, CB, DT, MI],
+        [SU, SU, CO, PA, RI, CB, DT, IN],
+        [SU, PA, CO, CO, RI, CB, DT, IN],
+        [PA, SU, SU, CO, RI, CB, IN, IN],
     ]
 
 static func bridges() -> Array:
+    # Bridges now span the 1-column river (col 4) + 1 bank on each side.
+    # was: from_col=4, to_col=7 (spanned 4 cols, 2 of which were river)
+    # now: from_col=3, to_col=5 (spans 3 cols, 1 of which is river)
     return [
-        {"row":4, "from_col":4, "to_col":7, "name":"Sarran Bridge"},
-        {"row":5, "from_col":4, "to_col":7, "name":"Old Town Bridge"},  # was row=6 (off-by-one, GRID_ROWS=6 means rows 0..5)
+        {"row":4, "from_col":3, "to_col":5, "name":"Sarran Bridge"},
+        {"row":5, "from_col":3, "to_col":5, "name":"Old Town Bridge"},
     ]
 
 static func sky_colors() -> Dictionary:

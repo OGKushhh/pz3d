@@ -91,7 +91,7 @@ func _biome_at_chunk(cx: int, cy: int) -> int:
 
 func _build_one_chunk(cx: int, cy: int, stats: Dictionary) -> bool:
     var biome := _biome_at_chunk(cx, cy)
-    if biome == CFG.Biome.RIVER or biome == CFG.Biome.SUBWAY or biome == CFG.Biome.WATER:
+    if biome == CFG.Biome.RIVER or biome == CFG.Biome.WATER:
         return false
     var origin := Vector3(cx * CFG.CHUNK_SIZE_M, 0, cy * CFG.CHUNK_SIZE_M)
     var chunk_seed := hash(Vector2i(cx, cy)) ^ map_seed
