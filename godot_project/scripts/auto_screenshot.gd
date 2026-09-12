@@ -1,13 +1,9 @@
 extends Node
 
-func _ready():
-	await get_tree().create_timer(3.0).timeout
-	var vp := get_viewport()
-	var tex := vp.get_texture()
-	if tex:
-		var img := tex.get_image()
-		if img:
-			var path := "res://screenshot.png"
-			var err := img.save_png(path)
-			print("Screenshot: ", path, " err=", err)
-	get_tree().quit()
+# DISABLED — this script used to take a screenshot and quit after 3s.
+# It's now commented out in project.godot autoload.
+# To re-enable for CI: uncomment the autoload line in project.godot
+# and restore the _ready() function below.
+
+func _ready() -> void:
+	pass  # Does nothing. No screenshot, no quit.
