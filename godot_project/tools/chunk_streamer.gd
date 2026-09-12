@@ -384,7 +384,13 @@ func _build_chunk(key: Vector2i) -> void:
         # Phase G.2: MultiMesh batching for foliage.
         # Group all MeshInstance3D children by mesh, replace with MultiMeshInstance3D.
         # 80-90% draw call reduction for foliage (200 trees → 1 draw call per species).
-        _batch_meshes(chunk_root)
+        # Phase G.2: MultiMesh batching DISABLED — transforms were wrong.
+        # The batched instances ended up at wrong positions (stacked at origin
+        # or floating in sky) because Godot 4 doesn't compute global_transform
+        # until the scene tree processes the node.
+        # TODO: re-enable after switching to prebuilt .tscn chunks where
+        # transforms are already saved correctly.
+        # _batch_meshes(chunk_root)
 
         # Phase E: Add NavigationRegion3D per chunk for zombie pathfinding.
         # Bake is deferred — NavigationServer3D builds navmesh from source geometry.
