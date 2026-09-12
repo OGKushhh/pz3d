@@ -1,3 +1,41 @@
+# ============================================================
+# PLACEMENT RULES — extracted from retired city_builder.gd v3
+# See docs/retired_city_builder_v3_extraction.md §3 for provenance.
+#
+# 1. STREET LIGHTS: place on grass strip center, NOT on road edge.
+#    Offset = ROAD_WIDTH/2 + SIDEWALK_WIDTH + GRASS_STRIP_WIDTH/2.
+#    Alternate sides every 25m. Was 20m in v2 — 25m is less cluttered.
+#
+# 2. UTILITY POLES: place FAR BEHIND buildings, not clipping into houses.
+#    Offset = building_offset + LOT_DEPTH + UTILITY_POLE_OFFSET.
+#
+# 3. FIRE HYDRANTS: place at intersection corners with extra clearance.
+#    corner_off = ROAD_WIDTH/2 + SIDEWALK_WIDTH + 1.0.
+#
+# 4. BUILDINGS: use LOT_WIDTH=20m × LOT_DEPTH=16m lots.
+#    Collider size = LOT_WIDTH * 0.75 × LOT_DEPTH * 0.75.
+#    Orientation: South=0°, North=180°, East=-90°, West=90°.
+#
+# 5. TREES: place in grass strip CENTER (not on building side, not on road).
+#    tree_offset = ROAD_WIDTH/2 + SIDEWALK_WIDTH + GRASS_STRIP_WIDTH/2.
+#    Add jitter: px ± 1.5m, pz ± 0.3m.
+#
+# 6. FLOATING OBJECTS: ground all Y positions explicitly.
+#    Y=0.00 ground, Y=0.02 road, Y=0.03 grass strip, Y=0.05 sidewalk.
+#
+# 7. SPACING: minimum 2m clearance between ALL objects.
+#
+# 8. FENCES ONLY ALONG FRONT PROPERTY LINE — don't run through lots.
+#
+# 9. HEDGES along front property lines (between grass strip and building).
+#
+# Y-offset layer cake:
+#   Y = 0.00  — ground plane / buildings / props / foliage
+#   Y = 0.02  — road surface (2cm above ground)
+#   Y = 0.03  — grass strip (3cm above ground)
+#   Y = 0.05  — sidewalk (5cm above ground)
+# ============================================================
+
 class_name ChunkBuilder
 extends RefCounted
 

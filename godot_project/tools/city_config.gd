@@ -26,13 +26,73 @@ const CHUNK_SIZE_M := 250.0
 const CHUNKS_COLS  := int(MAP_SIZE_M.x / CHUNK_SIZE_M)
 const CHUNKS_ROWS  := int(MAP_SIZE_M.y / CHUNK_SIZE_M)
 
-# ── PLACEMENT RULES ───────────────────────────────────────
+# ── PLACEMENT RULES (v3 extraction 2026-09-12) ───────────
+# Tuned from retired city_builder.gd v3 prototype (user-screenshot iterations).
+# See docs/retired_city_builder_v3_extraction.md §1 for provenance.
 const ROAD_WIDTH          := 8.0
-const SIDEWALK_WIDTH      := 2.0
-const BUILDING_SETBACK    := 4.0
-const STREETLIGHT_SPACING := 25.0
+const SIDEWALK_WIDTH      := 1.5     # v3: was 2.0; narrower sidewalk + wider grass strip
+const GRASS_STRIP_WIDTH   := 2.5     # v3 NEW: prevents tree/building clipping
+const BUILDING_SETBACK     := 1.5     # v3: was 4.0; with wider lots, setback can be smaller
+const LOT_WIDTH            := 20.0   # v3 NEW: wider lots = no collision between houses
+const LOT_DEPTH            := 16.0   # v3 NEW: deeper lots = front/back spacing
+const ROAD_LENGTH          := 160.0  # v3 NEW: length of generated road segments
+const ROAD_SPACING         := 60.0   # v3 NEW: distance between parallel road centerlines
+const STREETLIGHT_SPACING := 25.0    # v3: was 20m; 25m is less cluttered
 const PROP_ROAD_CLEARANCE := 2.0
 const SPATIAL_CELL_M      := 8.0
+
+# Computed: building_offset = ROAD_WIDTH/2 + SIDEWALK_WIDTH + GRASS_STRIP_WIDTH + BUILDING_SETBACK
+#          = 4.0 + 1.5 + 2.5 + 1.5 = 9.5m from road centerline to building face
+
+# ── STREET FURNITURE SPACING (v3 extraction) ──────────────
+const MAILBOX_SPACING       := 36.0
+const TRASHCAN_SPACING      := 42.0
+const UTILITY_POLE_SPACING  := 35.0
+const UTILITY_POLE_OFFSET   := 2.0    # behind building (building_offset + LOT_DEPTH + 2.0)
+const TREE_SPACING          := 12.0   # along grass strip
+const HEDGE_SPACING         := 10.0   # along front property line
+const FLOWER_PATCH_SPACING  := 25.0
+
+# ── COLORS (v3 extraction — primitive mesh roads/sidewalks/grass) ──
+const COLOR_ROAD           := Color(0.12, 0.12, 0.14, 1)
+const COLOR_SIDEWALK       := Color(0.70, 0.68, 0.64, 1)
+const COLOR_GRASS_STRIP    := Color(0.30, 0.50, 0.22, 1)
+const COLOR_GROUND         := Color(0.22, 0.40, 0.16, 1)
+
+# ── LIGHTING + FOG (v3 extraction — tuned for Low preset) ──
+const SKY_TOP_COLOR        := Color(0.15, 0.35, 0.70, 1)
+const SKY_HORIZON_COLOR    := Color(0.70, 0.78, 0.88, 1)
+const GROUND_BOTTOM_COLOR  := Color(0.25, 0.22, 0.18, 1)
+const GROUND_HORIZON_COLOR := Color(0.50, 0.48, 0.42, 1)
+const SUN_COLOR            := Color(1.0,  0.95, 0.80, 1)
+const SUN_ENERGY           := 2.0
+const SUN_SHADOW_MAX_DIST  := 80.0     # v3: was 300 in main.tscn; 80 for Low preset perf
+const SUN_SHADOW_SIZE      := 2048
+const AMBIENT_LIGHT_COLOR  := Color(0.55, 0.60, 0.65, 1)
+const AMBIENT_LIGHT_ENERGY := 0.6
+const FOG_COLOR            := Color(0.50, 0.55, 0.60, 1)
+const FOG_DENSITY          := 0.005    # v3: was 0.002 in main.tscn; thicker fog
+const FOG_AERIAL_PERSPECTIVE := 0.4
+const TONEMAP_WHITE        := 1.0
+const SSAO_RADIUS          := 1.0
+const SSAO_INTENSITY       := 1.2
+const SUN_ANGLE_MAX        := 30.0     # ProceduralSkyMaterial
+const SUN_CURVE             := 0.12    # ProceduralSkyMaterial
+
+# ── PLAYER (v3 extraction) ───────────────────────────────
+const PLAYER_EYE_HEIGHT      := 1.65
+const PLAYER_RADIUS          := 0.4
+const PLAYER_HEIGHT          := 1.8
+const PLAYER_FOV             := 75.0
+const PLAYER_CAM_NEAR        := 0.05
+const PLAYER_CAM_FAR         := 200.0   # v3: was 500; 200 for fog to mask pop-in
+
+# ── MOVEMENT (v3 extraction) ──────────────────────────────
+const WALK_SPEED             := 5.0
+const SPRINT_SPEED           := 8.0
+const MOUSE_SENSITIVITY      := 0.002
+const GRAVITY                := 9.8
+const JUMP_VELOCITY           := 4.5
 
 # ── STREAMING ─────────────────────────────────────────────
 const STREAM_RADIUS      := 1
