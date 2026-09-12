@@ -53,8 +53,8 @@ func _build_terrain() -> void:
 
         # Generate heightmap Image from terrain_height.gd
         # CRITICAL: heightmap must cover the SAME area as the Terrain3D region.
-        # region_size=2048 means terrain covers 0..2048m in X and Z.
-        var region_m: float = float(2048)  # must match terrain.region_size below
+        # Use region_size=4096 to cover the full map (4000×3000m) in one region.
+        var region_m: float = float(2048)  # Terrain3D max region_size
         var origin := Vector3(0.0, 0, 0.0)  # terrain starts at world origin
 
         # Store RAW height values (not normalized).
@@ -86,12 +86,69 @@ func _build_terrain() -> void:
         print("[TerrainBaker] Terrain3D ready (region_size=%d, origin=%s)" % [
                 terrain.region_size, origin])
 
+        # B.5: Place bridges at bridge locations
+        _place_bridges()
+
+        # Phase D: Water surface over river area
+        _place_water()
+
 func _create_solid_texture(name: String, color: Color) -> Terrain3DTextureAsset:
         var ta := Terrain3DTextureAsset.new()
         ta.resource_name = name
-        # Create a simple 64×64 albedo texture
         var albedo_img := Image.create_empty(64, 64, false, Image.FORMAT_RGBA8)
         albedo_img.fill(color)
         var albedo_tex := ImageTexture.create_from_image(albedo_img)
         ta.albedo_texture = albedo_tex
         return ta
+
+# B.5: Place bridges at locations defined in city_config.gd::bridges()
+func _place_bridges() -> void:
+        var manifest_path := "res://data/city_manifest.json"
+        var f := FileAccess.open(manifest_path, FileAccess.READ)
+        if f == null:
+                return
+        var manifest: Dictionary = JSON.parse_string(f.get_as_text())
+        if not manifest.has("bridge_section"):
+                return
+        var bridge_scene: PackedScene = load(manifest["bridge_section"]["path"]) as PackedScene
+        if bridge_scene == null:
+                return
+
+        var placed := 0
+        for b in CFG.bridges():
+                var z: float = float(b["row"]) * 500.0 + 250.0
+                var x_center: float = (float(b["from_col"]) + float(b["to_col"])) * 500.0 / 2.0 + 250.0
+                # Bridge deck Y = terrain height at the bridge approach (land, not river)
+                var deck_y: float = _height_fn.height_at(x_center - 200.0, z)
+                var inst: Node3D = bridge_scene.instantiate()
+                inst.position = Vector3(x_center, deck_y, z)
+                inst.name = "Bridge_%s" % b.get("name", "unnamed")
+                add_child(inst)
+                placed += 1
+        print("[TerrainBaker] Bridges placed: %d" % placed)
+
+# Phase D: Water surface at Y=0 over river + coastal areas
+func _place_water() -> void:
+        # River runs vertically at X=2250, RIVER_HALF_WIDTH=30m
+        # Create a long thin plane covering the river within the terrain region
+        var river_x: float = 2250.0
+        var water_w: float = 70.0  # slightly wider than RIVER_HALF_WIDTH*2 for visual
+        var water_l: float = 4096.0  # cover full terrain length
+
+        var water_mesh := PlaneMesh.new()
+        water_mesh.size = Vector2(water_w, water_l)
+
+        var water_mat := StandardMaterial3D.new()
+        water_mat.albedo_color = Color(0.15, 0.30, 0.45, 0.7)
+        water_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+        water_mat.roughness = 0.05
+        water_mat.metallic = 0.3
+        water_mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+
+        var water_mi := MeshInstance3D.new()
+        water_mi.name = "WaterSurface"
+        water_mi.mesh = water_mesh
+        water_mi.material_override = water_mat
+        water_mi.position = Vector3(river_x, 0.0, 2048.0)  # Y=0 = water level, Z center of terrain
+        add_child(water_mi)
+        print("[TerrainBaker] Water surface placed at X=%.0f, Y=0.0, size=%.0f×%.0f" % [river_x, water_w, water_l])

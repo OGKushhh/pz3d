@@ -11,31 +11,32 @@
 class_name TerrainHeight
 extends RefCounted
 
-const TERRAIN_HEIGHT_VERSION := 1
+const TERRAIN_HEIGHT_VERSION := 2  # Bumped: added road flattening (B.4)
 
 # Per-biome elevation signatures (GDD §12.4)
-# base:    baseline Y offset
-# amp:     noise amplitude (height variation)
-# freq:    noise frequency (lower = wider hills)
 const ELEVATIONS := {
 	0: {"base": 0.5, "amp": 1.0, "freq": 0.008},    # SUBURBIA
 	1: {"base": 1.0, "amp": 2.0, "freq": 0.012},    # PARKS
 	2: {"base": 2.0, "amp": 5.0, "freq": 0.018},    # FOREST
-	3: {"base": 0.2, "amp": 0.3, "freq": 0.005},   # FARMLAND
-	4: {"base": 0.5, "amp": 0.5, "freq": 0.005},   # COMMERCIAL
-	5: {"base": 0.5, "amp": 0.5, "freq": 0.005},   # INDUSTRIAL
-	6: {"base": -4.0, "amp": 0.0, "freq": 0.0},    # RIVER (carved valley)
-	7: {"base": 0.5, "amp": 0.5, "freq": 0.005},   # DOWNTOWN
-	8: {"base": 3.0, "amp": 0.0, "freq": 0.0},     # MILITARY (plateau)
-	9: {"base": -1.0, "amp": 8.0, "freq": 0.020},  # COASTAL_BEACH
-	10: {"base": -2.0, "amp": 0.0, "freq": 0.0},   # WATER (sea level)
-	11: {"base": 0.0, "amp": 0.0, "freq": 0.0},    # EMPTY
+	3: {"base": 0.2, "amp": 0.3, "freq": 0.005},    # FARMLAND
+	4: {"base": 0.5, "amp": 0.5, "freq": 0.005},    # COMMERCIAL
+	5: {"base": 0.5, "amp": 0.5, "freq": 0.005},    # INDUSTRIAL
+	6: {"base": -4.0, "amp": 0.0, "freq": 0.0},     # RIVER (carved valley)
+	7: {"base": 0.5, "amp": 0.5, "freq": 0.005},    # DOWNTOWN
+	8: {"base": 3.0, "amp": 0.0, "freq": 0.0},      # MILITARY (plateau)
+	9: {"base": -1.0, "amp": 8.0, "freq": 0.020},   # COASTAL_BEACH
+	10: {"base": -2.0, "amp": 0.0, "freq": 0.0},    # WATER (sea level)
+	11: {"base": 0.0, "amp": 0.0, "freq": 0.0},     # EMPTY
 }
 
 # River carve parameters
 const RIVER_HALF_WIDTH := 30.0    # m — river valley is 60m wide
 const RIVER_DEPTH := 4.0          # m — riverbed at base-4, water surface at Y=0
 const WATER_LEVEL := 0.0          # Y — water surface
+
+# Road flattening parameters (B.4)
+const ROAD_FLATTEN_RADIUS := 15.0  # m — terrain flattens within this distance of road centerline
+const ROAD_GRID_SIZE := 500.0      # m — roads on CELL_SIZE_M grid
 
 var _noise: FastNoiseLite
 var _river: Variant  # RiverNetwork instance (or null if not set)
@@ -66,15 +67,28 @@ func height_at(x: float, z: float) -> float:
 		var river_dist: float = _river.distance_to(x, z)
 		if river_dist < RIVER_HALF_WIDTH:
 			var t: float = river_dist / RIVER_HALF_WIDTH
-			# Quadratic falloff: full depth at center, 0 at edge
 			var carve: float = -RIVER_DEPTH * (1.0 - t * t)
 			y += carve
 
-	# Clamp to reasonable range
+	# Road flattening (B.4) — blend terrain toward 0.0 near road grid lines
+	var road_dist := _nearest_road_dist(x, z)
+	if road_dist < ROAD_FLATTEN_RADIUS:
+		var rt: float = road_dist / ROAD_FLATTEN_RADIUS
+		# Smooth blend: full flatten at road center, no effect at edge
+		var blend: float = 1.0 - rt * rt  # quadratic falloff
+		y = lerp(y, 0.0, blend * 0.8)  # 80% flatten at center (keeps some natural variation)
+
 	return y
 
+# O(1) distance to nearest road grid line.
+# Roads run at multiples of ROAD_GRID_SIZE (500m) in both X and Z.
+# Returns the minimum distance to any road centerline.
+func _nearest_road_dist(x: float, z: float) -> float:
+	var dx: float = x - ROAD_GRID_SIZE * round(x / ROAD_GRID_SIZE)
+	var dz: float = z - ROAD_GRID_SIZE * round(z / ROAD_GRID_SIZE)
+	return min(abs(dx), abs(dz))
+
 # Returns water depth at (x, z). 0 on land, >0 over water.
-# Water surface is at Y=WATER_LEVEL (0.0). Depth = WATER_LEVEL - terrain_y.
 func water_depth_at(x: float, z: float) -> float:
 	var terrain_y: float = height_at(x, z)
 	if terrain_y >= WATER_LEVEL:
@@ -86,13 +100,7 @@ func is_underwater(x: float, z: float) -> bool:
 	return height_at(x, z) < WATER_LEVEL
 
 # Returns the biome enum value at world (x, z).
-# Uses CityConfig.grid_layout() — same logic as CityBuilder._biome_at_chunk.
 func _biome_at(x: float, z: float) -> int:
-	var col: int = clamp(int(x / 500.0), 0, 7)  # CELL_SIZE_M = 500
-	var row: int = clamp(int(z / 500.0), 0, 5)  # GRID_ROWS = 6
+	var col: int = clamp(int(x / 500.0), 0, 7)
+	var row: int = clamp(int(z / 500.0), 0, 5)
 	return CityConfig.grid_layout()[row][col]
-
-# Road flattening — returns a flattened Y for positions near roads.
-# TODO B.4: implement. Currently returns height_at() unchanged.
-func height_at_flat_for_road(x: float, z: float, road_half_width: float) -> float:
-	return height_at(x, z)
