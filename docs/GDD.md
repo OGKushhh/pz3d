@@ -1,7 +1,8 @@
 # MAZAR — UNIFIED GAME DESIGN DOCUMENT
 
-> **Version:** 1.8 (merged — supersedes GDD v8, lore_mazar_v1.2, poly_budget_v3_path_b, furniture_merging_decision)
+> **Version:** 1.8 (merged — supersedes GDD v8, lore, poly_budget v3, furniture_decision)
 > **Status:** Pre-production → vertical slice. Lore semi-locked. Path B locked. Tier 1 production: 28 approved + 5 retired.
+> **Repo location:** `/home/z/my-project/docs/GDD.md` (canonical — see `STATUS.md` for what's current vs archived)
 > **Working title:** *Mazar*
 > **Engine:** Godot 4.7.2 (glTF 2.0 native, Compatibility renderer default for Low preset)
 > **Asset toolchain:** MoGen v0.1.12 (`.mog` DSL → `.glb` → Godot)
@@ -725,40 +726,63 @@ This is the right tradeoff. PZ itself does roughly this — tile-based static fi
 
 ## 8.1 Directory Structure 🔒
 
+> **See `STATUS.md` at repo root for the canonical current-vs-archived inventory.**
+> Tree below shows the active working layout.
+
 ```
 /home/z/my-project/
+├── README.md                     # minimal entry point
+├── STATUS.md                     # what's current vs archived
+├── worklog.md                    # main worklog (append-only)
+│
+├── docs/                         # canonical documentation (no version suffixes)
+│   ├── GDD.md                    # THIS document
+│   ├── lore.md                   # lore (v1.2, semi-locked)
+│   ├── poly_budget.md            # poly budget (v3 Path B, locked)
+│   ├── furniture_decision.md     # furniture merging decision (locked)
+│   ├── asset_count.md            # asset count tracking
+│   ├── asset_review_strategy.md  # review strategy
+│   └── retired_city_builder_v3_extraction.md  # Phase B reference
+│
 ├── assets/                       # the curated asset library
 │   ├── buildings/                # houses, shops, warehouses, etc.
 │   │   ├── src/                  # *.mog source (editable, version-controlled)
 │   │   ├── out/                  # *.glb compiled (Godot imports these)
 │   │   ├── renders/              # PNG previews
 │   │   ├── textures/             # PNG PBR maps per material
-│   │   ├── refs/                # reference images, dimensions, photos
+│   │   ├── refs/                 # reference images, dimensions, photos
 │   │   └── retired/              # retired assets (preserved for history)
 │   ├── props/                    # furniture, loot, decorations
 │   ├── foliage/                  # trees, bushes, grass, crops
 │   ├── characters/               # NPC + player rigs
 │   ├── environment/              # terrain patches, roads, fences, lights
 │   ├── vehicles/                 # retired (external assets)
-│   └── decals/                   # retired (external assets)
+│   └── decals/                   # blood, grime, damage
 │
-├── asset-pipeline/
-│   ├── README.md
-│   └── worklog/worklog.md        # append-only worklog
-│
+├── godot_project/                # runtime Godot project (the game)
+├── asset-pipeline/               # pipeline docs + worklog
 ├── scripts/                      # generation + render scripts
-│   ├── render_with_chrome.js     # the PBR renderer (three.js + Chrome)
+│   ├── render_with_chrome.js     # PBR renderer (three.js + Chrome)
 │   ├── render_glb.html           # the page that loads + renders a GLB
-│   ├── render_tier1_batch*.js    # batch renderers
+│   ├── render_tier1_batch*.js   # batch renderers
 │   ├── build_tier1_contact_sheet*.py  # contact sheet builders
-│   └── ...
+│   └── batch_011/, batch_012/   # recent batch scripts
 │
-├── mogen-examples/               # the upstream example .mog files
+├── mogen-examples/               # upstream example .mog files
 ├── mogen-docs/compiled.md        # compiled MoGen DSL reference
-└── download/                     # user-facing deliverables
-    ├── GDD_v1.8_unified.md       # THIS document
-    ├── asset-batches/            # contact sheets for review
-    └── mogen-lookbook/           # initial 11 PNG renders
+├── download/                     # user-facing deliverables
+│   └── asset-batches/            # contact sheets for review (recent 2 only)
+│
+├── screenshots/                  # recent in-game screenshots (3 kept)
+└── archive/                      # historical (do not edit)
+    ├── gdd_history/              # GDD v0 through v8 (17 versions)
+    ├── poly_budgets/             # v1, v2 (v3 is canonical)
+    ├── reference_architecture/   # frozen .gd reference copies
+    ├── lookbook/                 # early-batch lookbook
+    ├── contact_sheets/           # old batch contact sheets
+    ├── screenshots/              # old screenshots
+    ├── mazar_city_builder.py      # original Python generator
+    └── city_lore_options.md      # old lore options
 ```
 
 ## 8.2 Tiered Review Strategy 🔒
@@ -1120,12 +1144,21 @@ timeout 18 "$GODOT" --headless --path . res://scenes/main.tscn --quit-after 1500
 
 # APPENDIX B: FILE MAP
 
+> **See `STATUS.md` at repo root for the full canonical-vs-archived inventory.**
+> This appendix captures only paths referenced within this GDD.
+
 | Path | Purpose |
 |---|---|
-| `/home/z/my-project/download/GDD_v1.8_unified.md` | **this document** |
-| `/home/z/my-project/download/asset-batches/2026-09-11_tier1_anchors_batch-006_28_assets_contact_sheet.png` | **latest contact sheet (28 assets)** |
-| `/home/z/my-project/download/mazar_alpha_backup_2026-09-11.zip` | **alpha backup (2.2MB)** |
-| `/home/z/my-project/download/mazar_design_backup_2026-09-11.zip` | **design backup (4.4MB)** |
-| `/home/z/my-project/asset-pipeline/worklog/worklog.md` | append-only worklog |
+| `/home/z/my-project/docs/GDD.md` | **this document** (canonical) |
+| `/home/z/my-project/docs/lore.md` | lore (v1.2, semi-locked) |
+| `/home/z/my-project/docs/poly_budget.md` | poly budget (v3 Path B, locked) |
+| `/home/z/my-project/docs/furniture_decision.md` | furniture merging decision (locked) |
+| `/home/z/my-project/docs/asset_count.md` | asset count tracking |
+| `/home/z/my-project/docs/asset_review_strategy.md` | review strategy |
+| `/home/z/my-project/worklog.md` | main worklog (append-only) |
+| `/home/z/my-project/asset-pipeline/worklog/worklog.md` | asset pipeline worklog |
 | `/home/z/my-project/mogen-docs/compiled.md` | **compiled MoGen DSL reference** |
-| `/home/z/my-project/upload/large-detailed-map-of-gta-san-andreas.jpg` | GTA SA map reference |
+| `/home/z/my-project/godot_project/` | runtime Godot project |
+| `/home/z/my-project/assets/` | source asset library (.mog + .glb + renders, by category) |
+| `/home/z/my-project/scripts/` | build/render scripts |
+| `/home/z/my-project/archive/` | historical (GDD v0-v8, old poly budgets, retired code, etc.) — do not edit |
