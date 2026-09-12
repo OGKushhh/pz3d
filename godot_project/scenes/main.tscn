@@ -82,8 +82,12 @@ material_override = SubResource("flat_ground_mat")
 [node name="FlatGroundCollider" type="CollisionShape3D" parent="FlatGround"]
 shape = SubResource("flat_ground_col")
 
+; Phase A.4 river test: Player spawns at (2250, 5, 1500) — directly over
+; the river centerline at z=1500 (a control point in the polyline). Y=5 puts
+; them 5m above the water surface, they fall in. To revert to the original
+; suburbia spawn at (1250, 2, 2250), swap the transform below.
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1250, 2, 2250)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2250, 5, 1500)
 script = ExtResource("3_player")
 
 [node name="Cam" type="Camera3D" parent="Player"]
