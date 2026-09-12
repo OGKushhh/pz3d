@@ -114,11 +114,9 @@ const SPECIAL_ANTICLUSTER := [
 const NON_LOT_ROAD_KINDS := ["highway", "bridge"]
 
 # v8.1: Y-offset layer cake (see chunk_builder.gd placement-rules header).
-# _create_plane_mesh uses pos.y for the Y position, but _build_visible_roads
-# was previously passing Y values inside the size Vector3 — which PlaneMesh.size
-# ignores (PlaneMesh.size is Vector2, X+Z only). So roads/sidewalks/grass all
-# sat at Y=0 and z-fought with each other + the ground plane.
-# Fix: pass Y via pos.y, not size.y.
+# Phase A.6: _create_plane_mesh_rotated takes Y via pos.y (PlaneMesh.size
+# is Vector2 so Y must be in position, not size). Layer cake prevents
+# z-fighting between road/lane/grass/sidewalk surfaces.
 const Y_GROUND := 0.00
 const Y_ROAD := 0.02
 const Y_LANE := 0.025    # lane line sits 5mm above road surface
@@ -527,52 +525,84 @@ func _build_visible_roads(chunk_root: Node3D, origin: Vector3, chunk_size: float
                 var mid: Vector3 = (a + b) * 0.5
                 var dir: Vector3 = (b - a).normalized()
 
-                var is_horizontal: bool = abs(dir.z) > abs(dir.x)
+                # Phase A.6: unified road rendering — works for axis-aligned AND
+                # diagonal roads. The old code used is_horizontal = abs(dir.z) >
+                # abs(dir.x) to swap X/Z dimensions, which only handled the two
+                # axis-aligned cases. Diagonal avenues (Sarran Avenue, Bayview
+                # Avenue) need actual yaw rotation.
+                #
+                # Math: PlaneMesh.size = Vector2(X_dim, Z_dim) in local space.
+                # Default forward (local +Z) = (0, 0, 1) world. After yaw rotation
+                # around Y by angle θ, local +Z becomes (sin θ, 0, cos θ).
+                # To align local +Z with road dir = (dir.x, 0, dir.z):
+                #   sin θ = dir.x, cos θ = dir.z  →  θ = atan2(dir.x, dir.z)
+                #
+                # We always pass size = Vector2(perp_width, dir_length) where
+                # perp_width is the road's physical width and dir_length is its
+                # physical length. The yaw handles all orientation.
+                var yaw: float = atan2(dir.x, dir.z)
                 var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
 
-                # v8.1: Y values live in pos.y, not size.y (PlaneMesh.size is Vector2).
-                # Layer cake: road=0.02, lane=0.025, grass=0.03, sidewalk=0.05.
+                # Road surface — width along local X (perp), length along local Z (dir)
+                _create_plane_mesh_rotated(chunk_root, "Road",
+                        Vector3(mid.x, Y_ROAD, mid.z),
+                        Vector2(width, length), C_ROAD, yaw)
 
-                # Road surface
-                var road_size: Vector3 = Vector3(length, 0, width) if is_horizontal else Vector3(width, 0, length)
-                _create_plane_mesh(chunk_root, "Road", Vector3(mid.x, Y_ROAD, mid.z), road_size, C_ROAD)
+                # Center lane line (thin strip down the middle)
+                _create_plane_mesh_rotated(chunk_root, "Lane",
+                        Vector3(mid.x, Y_LANE, mid.z),
+                        Vector2(0.15, length), C_LANE, yaw)
 
-                # Center lane line (dashed — just a thin strip for now)
-                var lane_size: Vector3 = Vector3(length, 0, 0.15) if is_horizontal else Vector3(0.15, 0, length)
-                _create_plane_mesh(chunk_root, "Lane", Vector3(mid.x, Y_LANE, mid.z), lane_size, C_LANE)
-
-                # Sidewalks (both sides)
+                # Sidewalks (both sides — offset perpendicular to road direction)
                 var sw_off: float = width * 0.5 + CityConfig.SIDEWALK_WIDTH * 0.5
-                var sw_size: Vector3 = Vector3(length, 0, CityConfig.SIDEWALK_WIDTH) if is_horizontal else Vector3(CityConfig.SIDEWALK_WIDTH, 0, length)
                 var sw1: Vector3 = mid + perp * sw_off
                 var sw2: Vector3 = mid - perp * sw_off
-                _create_plane_mesh(chunk_root, "SW1", Vector3(sw1.x, Y_SIDEWALK, sw1.z), sw_size, C_SIDEWALK)
-                _create_plane_mesh(chunk_root, "SW2", Vector3(sw2.x, Y_SIDEWALK, sw2.z), sw_size, C_SIDEWALK)
+                _create_plane_mesh_rotated(chunk_root, "SW1",
+                        Vector3(sw1.x, Y_SIDEWALK, sw1.z),
+                        Vector2(CityConfig.SIDEWALK_WIDTH, length), C_SIDEWALK, yaw)
+                _create_plane_mesh_rotated(chunk_root, "SW2",
+                        Vector3(sw2.x, Y_SIDEWALK, sw2.z),
+                        Vector2(CityConfig.SIDEWALK_WIDTH, length), C_SIDEWALK, yaw)
 
-                # Grass strips
+                # Grass strips (outside sidewalks)
                 var gs_off: float = width * 0.5 + CityConfig.SIDEWALK_WIDTH + CityConfig.GRASS_STRIP_WIDTH * 0.5
-                var gs_size: Vector3 = Vector3(length, 0, CityConfig.GRASS_STRIP_WIDTH) if is_horizontal else Vector3(CityConfig.GRASS_STRIP_WIDTH, 0, length)
                 var gs1: Vector3 = mid + perp * gs_off
                 var gs2: Vector3 = mid - perp * gs_off
-                _create_plane_mesh(chunk_root, "GS1", Vector3(gs1.x, Y_GRASS, gs1.z), gs_size, C_GRASS)
-                _create_plane_mesh(chunk_root, "GS2", Vector3(gs2.x, Y_GRASS, gs2.z), gs_size, C_GRASS)
+                _create_plane_mesh_rotated(chunk_root, "GS1",
+                        Vector3(gs1.x, Y_GRASS, gs1.z),
+                        Vector2(CityConfig.GRASS_STRIP_WIDTH, length), C_GRASS, yaw)
+                _create_plane_mesh_rotated(chunk_root, "GS2",
+                        Vector3(gs2.x, Y_GRASS, gs2.z),
+                        Vector2(CityConfig.GRASS_STRIP_WIDTH, length), C_GRASS, yaw)
 
-func _create_plane_mesh(parent: Node3D, name: String, pos: Vector3, size: Vector3, color: Color) -> void:
+# Phase A.6: Plane mesh helper that supports yaw rotation around Y.
+# Used for ALL road rendering (axis-aligned AND diagonal). Size is Vector2
+# (X_dim, Z_dim) in the plane's LOCAL space — after yaw rotation:
+#   local X = perp axis (sideways from road direction)
+#   local Z = forward axis (along road direction)
+# Y is set via pos.y (PlaneMesh.size is Vector2 so Y must be in position, not size).
+# Layer cake per chunk_builder.gd placement rules: road=0.02, lane=0.025,
+# grass=0.03, sidewalk=0.05, park=0.04.
+func _create_plane_mesh_rotated(parent: Node3D, name: String, pos: Vector3, size: Vector2, color: Color, yaw: float) -> void:
         var mi := MeshInstance3D.new()
         mi.name = name + "_" + str(randi() % 10000)
         var p := PlaneMesh.new()
-        p.size = Vector2(size.x, size.z)
+        p.size = size
         mi.mesh = p
         var mat := StandardMaterial3D.new()
         mat.albedo_color = color
         mat.roughness = 0.85
         mi.material_override = mat
         mi.position = Vector3(pos.x, pos.y, pos.z)
+        mi.rotation.y = yaw
         parent.add_child(mi)
 
 func _place_park(chunk_root: Node3D, center: Vector3, crng: RandomNumberGenerator) -> void:
-        # Park ground (darker green) — v8.1: Y via pos.y, not size.y
-        _create_plane_mesh(chunk_root, "ParkGround", Vector3(center.x, Y_PARK, center.z), Vector3(60, 0, 60), C_PARK)
+        # Park ground (darker green) — Phase A.6: uses _create_plane_mesh_rotated
+        # with yaw=0 (axis-aligned). Square plane 60×60m.
+        _create_plane_mesh_rotated(chunk_root, "ParkGround",
+                Vector3(center.x, Y_PARK, center.z),
+                Vector2(60, 60), C_PARK, 0.0)
 
         # Park furniture
         var park_assets := ["bench_park", "picnic_table", "playground_slide", "swing_set", "water_fountain", "garden_gnome", "planter_box"]
@@ -645,13 +675,62 @@ func _get_roads_in_chunk(origin: Vector3, chunk_size: float) -> Array:
         for seg in roads.segments:
                 var a: Vector3 = seg["start"]
                 var b: Vector3 = seg["end"]
-                # Check if segment passes through chunk bounds
-                if max(a.x, b.x) < min_x or min(a.x, b.x) > max_x:
-                        continue
-                if max(a.z, b.z) < min_z or min(a.z, b.z) > max_z:
+                # Phase A.6: use proper segment-AABB intersection (Liang-Barsky)
+                # instead of just AABB-AABB overlap. The old AABB-only check
+                # treated every chunk as containing the diagonal avenues (since
+                # the diagonal's bounding box spans the whole map), which caused
+                # every chunk to render the diagonal + place street lights along
+                # it. Liang-Barsky correctly tests if the segment line actually
+                # passes through the chunk's rectangle.
+                if not _segment_intersects_chunk(a, b, min_x, max_x, min_z, max_z):
                         continue
                 result.append(seg)
         return result
+
+# Phase A.6: Liang-Barsky line clipping test — does segment [a, b] pass
+# through the rectangle [min_x, max_x] × [min_z, max_z]?
+# Returns true if the segment intersects the rectangle (including just touching
+# an edge). Works for any orientation — axis-aligned, diagonal, anything.
+# Algorithm: parametrize the segment as P(t) = a + t·(b-a) for t ∈ [0,1],
+# then find the t-range where the segment is inside the rectangle. If the
+# t-range is non-empty, the segment intersects.
+static func _segment_intersects_chunk(
+        a: Vector3, b: Vector3,
+        min_x: float, max_x: float,
+        min_z: float, max_z: float
+) -> bool:
+        var dx: float = b.x - a.x
+        var dz: float = b.z - a.z
+        var t_min: float = 0.0
+        var t_max: float = 1.0
+        # X slab
+        if abs(dx) < 0.0001:
+                # Segment parallel to X-axis (perpendicular to X slab) — check if inside
+                if a.x < min_x or a.x > max_x:
+                        return false
+        else:
+                var t1: float = (min_x - a.x) / dx
+                var t2: float = (max_x - a.x) / dx
+                if t1 > t2:
+                        var tmp: float = t1; t1 = t2; t2 = tmp
+                t_min = max(t_min, t1)
+                t_max = min(t_max, t2)
+                if t_min > t_max:
+                        return false
+        # Z slab
+        if abs(dz) < 0.0001:
+                if a.z < min_z or a.z > max_z:
+                        return false
+        else:
+                var t1: float = (min_z - a.z) / dz
+                var t2: float = (max_z - a.z) / dz
+                if t1 > t2:
+                        var tmp: float = t1; t1 = t2; t2 = tmp
+                t_min = max(t_min, t1)
+                t_max = min(t_max, t2)
+                if t_min > t_max:
+                        return false
+        return true
 
 func _is_near_intersection(pos: Vector3, threshold: float) -> bool:
         for seg in roads.segments:
