@@ -13,8 +13,6 @@ const TerrainHeight := preload("res://tools/terrain_height.gd")
 const RiverNetwork := preload("res://tools/river_network.gd")
 
 @export var heightmap_resolution := 2048  # pixels per side
-@export var height_scale_min := -10.0     # min height in meters
-@export var height_scale_max := 15.0      # max height in meters
 
 var terrain: Terrain3D
 var _height_fn: TerrainHeight
@@ -24,8 +22,7 @@ func _ready() -> void:
         _build_terrain()
 
 func _build_terrain() -> void:
-        print("[TerrainBaker] Building terrain (resolution=%d, scale=%.0f..%.0f)" % [
-                heightmap_resolution, height_scale_min, height_scale_max])
+        print("[TerrainBaker] Building terrain (resolution=%d, raw height mode)" % heightmap_resolution)
 
         # Create Terrain3D node
         terrain = Terrain3D.new()
@@ -57,32 +54,31 @@ func _build_terrain() -> void:
         # Generate heightmap Image from terrain_height.gd
         # CRITICAL: heightmap must cover the SAME area as the Terrain3D region.
         # region_size=2048 means terrain covers 0..2048m in X and Z.
-        # If we sample 0..4000m and stuff it into a 2048m region, the terrain
-        # gets horizontally compressed 2x and heights won't match world positions.
-        # Fix: sample only within the region area (0..region_size).
         var region_m: float = float(2048)  # must match terrain.region_size below
         var origin := Vector3(0.0, 0, 0.0)  # terrain starts at world origin
 
+        # Store RAW height values (not normalized).
+        # import_images uses formula: height = offset + pixel_value * scale
+        # With offset=0, scale=1, the pixel value IS the height in meters.
+        # This ensures Terrain3D's get_height() returns exactly what
+        # terrain_height.gd returns, so buildings/trees/player all align.
         var img := Image.create_empty(heightmap_resolution, heightmap_resolution, false, Image.FORMAT_RF)
         for x in range(heightmap_resolution):
                 for y in range(heightmap_resolution):
                         var world_x: float = origin.x + (float(x) / float(heightmap_resolution)) * region_m
                         var world_z: float = origin.z + (float(y) / float(heightmap_resolution)) * region_m
                         var h: float = _height_fn.height_at(world_x, world_z)
-                        # Normalize to 0-1 range for storage
-                        var normalized := (h - height_scale_min) / (height_scale_max - height_scale_min)
-                        normalized = clamp(normalized, 0.0, 1.0)
-                        img.set_pixel(x, y, Color(normalized, 0.0, 0.0, 1.0))
+                        img.set_pixel(x, y, Color(h, 0.0, 0.0, 1.0))
 
         print("[TerrainBaker] Heightmap generated (%d×%d)" % [heightmap_resolution, heightmap_resolution])
 
-        # Import heightmap into Terrain3D
-        # Terrain3D requires region_size to be power-of-2 (64, 128, 256, 512, 1024, 2048).
-        # Our map is 4000×3000m. Use region_size=2048, which covers most of the map.
-        # Player spawn at (1750, 1500) is within this region.
-        # TODO: add second region for the remaining ~2000m of map width.
+        # Import heightmap into Terrain3D.
+        # import_images(images, global_position, offset, scale)
+        # height = offset + pixel_value * scale = 0 + h * 1 = h
+        # This makes Terrain3D's get_height() return EXACTLY the same value
+        # as terrain_height.gd's height_at(), so everything aligns.
         terrain.region_size = 2048
-        terrain.data.import_images([img, null, null], origin, height_scale_min, height_scale_max)
+        terrain.data.import_images([img, null, null], origin, 0.0, 1.0)
 
         # Enable collision (so player walks on terrain)
         terrain.collision.mode = Terrain3DCollision.DYNAMIC_EDITOR
