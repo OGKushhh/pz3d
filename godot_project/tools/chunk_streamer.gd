@@ -505,9 +505,15 @@ func _build_chunk(key: Vector2i) -> void:
         _loaded[key] = chunk_root
 
         var bname: String = profile.get("name", "Unknown")
-        print("chunk %d_%d: biome=%s buildings=%d props=%d foliage=%d lights=%d landmarks=%d zombies=%d children=%d" % [
-                key.x, key.y, bname, b_count, p_count, f_count, s_count, l_count, z_count, chunk_root.get_child_count()
+        # v8.2 Phase A.5: include district placeholder name in the chunk log
+        # so we can see "Sarran Marshes" / "Junta Quarter" / etc. while walking
+        # around. Names are placeholders — see city_config.gd district_names().
+        var dname: String = CityConfig.district_name_for(biome)
+        print("chunk %d_%d: biome=%s district=%s buildings=%d props=%d foliage=%d lights=%d landmarks=%d zombies=%d children=%d" % [
+                key.x, key.y, bname, dname, b_count, p_count, f_count, s_count, l_count, z_count, chunk_root.get_child_count()
         ])
+        # Tag the chunk_root with the district name for debug HUD / future GPS.
+        chunk_root.set_meta("district_name", dname)
 
 func _build_visible_roads(chunk_root: Node3D, origin: Vector3, chunk_size: float) -> void:
         var chunk_roads: Array = _get_roads_in_chunk(origin, chunk_size)

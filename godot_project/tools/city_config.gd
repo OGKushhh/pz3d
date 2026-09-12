@@ -337,10 +337,16 @@ static func biomes() -> Dictionary:
 #   row 2 (transition):        col 4 = FARMLAND
 #   row 3 (commercial edge):   col 4 = COMMERCIAL
 #   row 4 (commercial south):  col 4 = COMMERCIAL
-#   row 5 (suburbia south):    col 4 = SUBURBIA
+#   row 5 (river mouth):       cols 3-4 = WETLANDS (Sarran Marshes)
 # This matches GDD §2.12 lore: "Sarran River flows from the northern forest
 # through the farmland and into Sarran Bay." The bay is at column 5
-# (COASTAL_BEACH) — the river exits the south edge of the map into the bay.
+# (COASTAL_BEACH) — the river exits the south edge of the map into the bay,
+# and the marshlands form at the river's mouth (cols 3-4, row 5).
+#
+# Phase A.5 (2026-09-13): WETLANDS placed at the river mouth (row 5, cols 3-4).
+# This is the "emergent" placement for v1 — actual elevation-driven placement
+# (WETLANDS = where terrain_height < 0.5m AND near river) is a future phase.
+# For now, the river mouth is hand-placed as wetlands to match lore.
 static func grid_layout() -> Array:
     var F  := Biome.FOREST
     var FA := Biome.FARMLAND
@@ -351,13 +357,14 @@ static func grid_layout() -> Array:
     var CO := Biome.COMMERCIAL
     var DT := Biome.DOWNTOWN
     var CB := Biome.COASTAL_BEACH
+    var WE := Biome.WETLANDS
     return [
         [F,  F,  FA, FA, F,  CB, IN, IN],
         [F,  FA, FA, FA, FA, CB, IN, MI],
         [SU, SU, FA, PA, FA, CB, DT, MI],
         [SU, SU, CO, PA, CO, CB, DT, IN],
         [SU, PA, CO, CO, CO, CB, DT, IN],
-        [PA, SU, SU, CO, SU, CB, IN, IN],
+        [PA, SU, SU, WE, WE, CB, IN, IN],
     ]
 
 static func bridges() -> Array:
@@ -380,3 +387,46 @@ static func sky_colors() -> Dictionary:
         "fog":     Color(0.72, 0.72, 0.75),
         "sun_rot": Vector3(-45, 30, 0),
     }
+
+# ── DISTRICT NAMES (Phase A.5, 2026-09-13) ───────────────
+# Placeholder names per biome, drawn from GDD lore (§2.2 Long Peace,
+# §2.3 Quiet Coup, §2.12 geography, §2.14 civic landmarks).
+#
+# ALL NAMES ARE PLACEHOLDERS — the user is still deciding on lore expansion
+# and missions/content. These give us strings to print on district signs
+# and a `district_name` field per chunk for the debug HUD + future GPS.
+# Expect renames once the lore is locked.
+#
+# Sources:
+#   Long Peace Heights ← §2.2 The Long Peace (300 years of monarchy)
+#   Founders' Gardens  ← §2.2 civic landmarks, no religious
+#   Sarran Headwaters  ← §2.12 river flows from northern forest
+#   Mazar Breadbasket  ← §2.13 row #4 "Mazar's food basket"
+#   Old Bazaar         ← §2.14 "The Grand Bazaar / Souq"
+#   Railside Quarter   ← §2.13 row #6 "Manufacturing and rail"
+#   Sarran Marshes     ← §2.12 river mouth geography
+#   Bay Shore          ← §2.12 "Sarran Bay"
+#   Junta Quarter      ← §2.3 The Quiet Coup — junta HQ is Government Palace
+#   Fort Sarran Approach ← §2.14 Fort Sarran is eastern edge
+#   The Sarran         ← §2.12 Sarran River (overlay, not a cell biome)
+#   Sarran Bay         ← §2.12 (overlay, not a cell biome)
+static func district_names() -> Dictionary:
+    return {
+        Biome.SUBURBIA: "Long Peace Heights",
+        Biome.PARKS: "Founders' Gardens",
+        Biome.FOREST: "Sarran Headwaters",
+        Biome.FARMLAND: "Mazar Breadbasket",
+        Biome.COMMERCIAL: "Old Bazaar",
+        Biome.INDUSTRIAL: "Railside Quarter",
+        Biome.WETLANDS: "Sarran Marshes",
+        Biome.DOWNTOWN: "Junta Quarter",
+        Biome.MILITARY: "Fort Sarran Approach",
+        Biome.COASTAL_BEACH: "Bay Shore",
+        Biome.WATER: "Open Water",
+        Biome.EMPTY: "Out of Bounds",
+    }
+
+# Returns the placeholder district name for a given biome int.
+# Falls back to "Unknown District" if biome isn't in the map (defensive).
+static func district_name_for(biome: int) -> String:
+    return district_names().get(biome, "Unknown District")

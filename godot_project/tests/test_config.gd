@@ -40,9 +40,20 @@ func _init():
         _check(ri_count == 0, "no RIVER cells in grid (RIVER removed Phase A.4), got %d" % ri_count)
 
         # Test 4b: Column 4 (was RIVER) is now redistributed to row-dominant biomes
-        # row 0 col 4 = FOREST (2), row 5 col 4 = SUBURBIA (0)
+        # row 0 col 4 = FOREST (2), row 4 col 4 = COMMERCIAL (4)
+        # Phase A.5: row 5 cols 3-4 = WETLANDS (12) — river mouth placement
         _check(grid[0][4] == CityConfig.Biome.FOREST, "grid[0][4] == FOREST (got %d)" % grid[0][4])
-        _check(grid[5][4] == CityConfig.Biome.SUBURBIA, "grid[5][4] == SUBURBIA (got %d)" % grid[5][4])
+        _check(grid[4][4] == CityConfig.Biome.COMMERCIAL, "grid[4][4] == COMMERCIAL (got %d)" % grid[4][4])
+        _check(grid[5][3] == CityConfig.Biome.WETLANDS, "grid[5][3] == WETLANDS (river mouth, got %d)" % grid[5][3])
+        _check(grid[5][4] == CityConfig.Biome.WETLANDS, "grid[5][4] == WETLANDS (river mouth, got %d)" % grid[5][4])
+
+        # Test 4c (Phase A.5): WETLANDS appears exactly 2 times (river mouth only)
+        var we_count := 0
+        for row in grid:
+                for cell in row:
+                        if cell == CityConfig.Biome.WETLANDS:
+                                we_count += 1
+        _check(we_count == 2, "WETLANDS = 2 cells (river mouth only), got %d" % we_count)
 
         # Test 5: Coastal Beach exists in grid (column 5, all 6 rows)
         var cb_count := 0
@@ -113,6 +124,20 @@ func _init():
                 _check(not river.has("center_x"), "river does NOT have center_x (removed Phase A.4)")
                 var cps: Array = river.get("control_points", [])
                 _check(cps.size() >= 2, "control_points has ≥2 entries (got %d)" % cps.size())
+
+        # Test 11 (Phase A.5): district_names() returns placeholder names per biome
+        var dnames: Dictionary = CityConfig.district_names()
+        _check(dnames.has(CityConfig.Biome.SUBURBIA), "district_names has SUBURBIA entry")
+        _check(dnames.has(CityConfig.Biome.WETLANDS), "district_names has WETLANDS entry")
+        _check(dnames.has(CityConfig.Biome.DOWNTOWN), "district_names has DOWNTOWN entry")
+        # Spot-check a few specific placeholder names (per docs/shells_needed-style lore sourcing)
+        _check(dnames[CityConfig.Biome.SUBURBIA] == "Long Peace Heights", "SUBURBIA district = 'Long Peace Heights' (got '%s')" % dnames.get(CityConfig.Biome.SUBURBIA))
+        _check(dnames[CityConfig.Biome.WETLANDS] == "Sarran Marshes", "WETLANDS district = 'Sarran Marshes' (got '%s')" % dnames.get(CityConfig.Biome.WETLANDS))
+        _check(dnames[CityConfig.Biome.DOWNTOWN] == "Junta Quarter", "DOWNTOWN district = 'Junta Quarter' (got '%s')" % dnames.get(CityConfig.Biome.DOWNTOWN))
+
+        # Test 12 (Phase A.5): district_name_for(biome) returns same as direct lookup
+        _check(CityConfig.district_name_for(CityConfig.Biome.WETLANDS) == "Sarran Marshes", "district_name_for(WETLANDS) = 'Sarran Marshes'")
+        _check(CityConfig.district_name_for(999) == "Unknown District", "district_name_for(999) returns 'Unknown District' (defensive fallback)")
 
         _print_result()
 
