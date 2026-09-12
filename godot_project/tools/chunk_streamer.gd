@@ -289,6 +289,11 @@ func _build_chunk(key: Vector2i) -> void:
         add_child(chunk_root)
         _loaded[key] = chunk_root
 
+        # Phase G.2: MultiMesh batching for foliage.
+        # Group all MeshInstance3D children by mesh, replace with MultiMeshInstance3D.
+        # 80-90% draw call reduction for foliage (200 trees → 1 draw call per species).
+        _batch_meshes(chunk_root)
+
         # Phase E: Add NavigationRegion3D per chunk for zombie pathfinding.
         # Bake is deferred — NavigationServer3D builds navmesh from source geometry.
         # Source geometry = Terrain3D collision (if available) + building static bodies.
@@ -312,23 +317,75 @@ func _build_chunk(key: Vector2i) -> void:
         _stats[bname]["lights"] += s_count
         _stats[bname]["chunks"] += 1
 
+# Phase G.2: Batch identical meshes into MultiMeshInstance3D
+func _batch_meshes(chunk_root: Node3D) -> void:
+        var by_mesh: Dictionary = {}  # resource_path → Array[MeshInstance3D]
+        var to_remove: Array = []
+
+        for child in chunk_root.get_children():
+                if not (child is MeshInstance3D):
+                        continue
+                var mi: MeshInstance3D = child
+                if mi.mesh == null:
+                        continue
+                var key: String = mi.mesh.resource_path
+                if key.is_empty():
+                        continue
+                if not by_mesh.has(key):
+                        by_mesh[key] = []
+                by_mesh[key].append(mi)
+
+        for mesh_path in by_mesh:
+                var list: Array = by_mesh[mesh_path]
+                if list.size() < 3:
+                        continue  # Only batch if 3+ instances (overhead not worth it for 1-2)
+
+                var mm := MultiMesh.new()
+                mm.transform_format = MultiMesh.TRANSFORM_3D
+                mm.mesh = list[0].mesh
+                mm.instance_count = list.size()
+
+                for i in range(list.size()):
+                        var inst: MeshInstance3D = list[i]
+                        var xform: Transform3D = inst.global_transform
+                        mm.set_instance_transform(i, xform)
+                        to_remove.append(inst)
+
+                var mmi := MultiMeshInstance3D.new()
+                mmi.multimesh = mm
+                mmi.name = "MultiMesh_%d" % list.size()
+                chunk_root.add_child(mmi)
+
+        for inst in to_remove:
+                inst.queue_free()
+
 func _unload_chunk(key: Vector2i) -> void:
         var inst: Node3D = _loaded[key]
         inst.queue_free()
         _loaded.erase(key)
 
-func _face_nearest_road(pos: Vector3, crng: RandomNumberGenerator) -> float:
-        var best_dist: float = INF
-        var best_dir: Vector3 = Vector3.FORWARD
-        for seg in roads.segments:
-                var a: Vector3 = seg["start"]
-                var b: Vector3 = seg["end"]
-                var dist: float = _point_segment_distance(pos, a, b)
-                if dist < best_dist:
-                        best_dist = dist
-                        var nearest: Vector3 = _nearest_point_on_segment(pos, a, b)
-                        best_dir = (nearest - pos).normalized()
-        return atan2(best_dir.x, best_dir.z)
+func _face_nearest_road(pos: Vector3, _crng: RandomNumberGenerator) -> float:
+        # Phase G.1: O(1) road-facing using grid structure.
+        # Roads are on 500m grid (CELL_SIZE_M). Nearest road is the closest
+        # grid line in X or Z. No need to iterate all segments.
+        var grid: float = CityConfig.CELL_SIZE_M  # 500m
+        # Distance to nearest horizontal road (Z = k*500)
+        var dz: float = pos.z - grid * round(pos.z / grid)
+        # Distance to nearest vertical road (X = k*500)
+        var dx: float = pos.x - grid * round(pos.x / grid)
+
+        if abs(dz) < abs(dx):
+                # Nearest is a horizontal road — face toward it in Z
+                if dz > 0:
+                        return PI  # face -Z (toward road at lower Z)
+                else:
+                        return 0.0  # face +Z (toward road at higher Z)
+        else:
+                # Nearest is a vertical road — face toward it in X
+                if dx > 0:
+                        return -PI * 0.5  # face -X
+                else:
+                        return PI * 0.5  # face +X
 
 static func _point_segment_distance(p: Vector3, a: Vector3, b: Vector3) -> float:
         var ab: Vector3 = b - a
