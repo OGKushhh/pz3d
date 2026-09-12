@@ -431,9 +431,19 @@ func _batch_meshes(chunk_root: Node3D) -> void:
 
                 for i in range(list.size()):
                         var inst: MeshInstance3D = list[i]
-                        # Use global transform so instances keep their world position
-                        var xform: Transform3D = inst.global_transform
-                        mm.set_instance_transform(i, xform)
+                        # Force global transform update before reading it
+                        inst.force_update_transform()
+                        # Calculate world transform manually: parent chain transform * local
+                        # We can't rely on global_transform because the node was just added
+                        # and the scene tree hasn't processed it yet.
+                        var world_xform: Transform3D = inst.transform
+                        var parent: Node = inst.get_parent()
+                        while parent != null and parent != chunk_root:
+                                if parent is Node3D:
+                                        world_xform = (parent as Node3D).transform * world_xform
+                                parent = parent.get_parent()
+                        # chunk_root has no transform, so world = local of chunk_root * accumulated
+                        mm.set_instance_transform(i, world_xform)
                         inst.queue_free()  # Remove the original MeshInstance3D
 
                 var mmi := MultiMeshInstance3D.new()
