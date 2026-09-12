@@ -144,6 +144,19 @@ const UTILITY_POLE_SPACING_M := CityConfig.UTILITY_POLE_SPACING
 #   ROAD_WIDTH/2 + SIDEWALK_WIDTH + 1.0 = 4 + 1.5 + 1 = 6.5m
 const FIRE_HYDRANT_OFFSET_M := CityConfig.ROAD_WIDTH * 0.5 + CityConfig.SIDEWALK_WIDTH + 1.0
 
+# v8.2: DISTRICT NOISE (gap #1) — Valheim-style biome blending.
+# Chunks sample a low-frequency value noise at their position. If the noise
+# value exceeds this threshold (0..1), the chunk borrows a neighbor cell's
+# biome. Higher threshold = less borrowing = sharper grid edges. Lower
+# threshold = more borrowing = more chaotic. 0.62 means roughly 38% of
+# chunks (in non-excluded biomes) will borrow — visible noise but not chaos.
+const DISTRICT_NOISE_THRESHOLD := 0.62
+
+# Frequency of the value noise. Lower = slower variation (borrowing happens
+# in clusters rather than randomly scattered). 0.5 = 1 sample per 2 chunks,
+# so borrowing tends to happen in 2-chunk-wide patches along grid borders.
+const DISTRICT_NOISE_FREQ := 0.5
+
 func _ready() -> void:
         await get_tree().process_frame
         var root := get_tree().current_scene
@@ -240,7 +253,28 @@ func _build_chunk(key: Vector2i) -> void:
                 return
         var col: int = clamp(int(key.x * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_COLS - 1)
         var row: int = clamp(int(key.y * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_ROWS - 1)
-        var biome: int = CityConfig.grid_layout()[row][col]
+        var base_biome: int = CityConfig.grid_layout()[row][col]
+        # v8.2: DISTRICT NOISE (gap #1) — Valheim-style soft biome edges.
+        # Sample a low-frequency value noise at the chunk's normalized position;
+        # if noise exceeds a threshold, "borrow" a neighboring cell's biome.
+        # This breaks the hard 8×6 grid edges so transitions between biomes
+        # look organic instead of checker-boarded.
+        #
+        # Excluded from borrowing:
+        #   - RIVER, WATER, EMPTY (water bodies need stable banks/geometry)
+        #   - COASTAL_BEACH (it's a thin 1-column strip; borrowing would erase it)
+        #
+        # The borrow direction is chosen from the actual 4 grid neighbors
+        # (N/S/E/W), so borrowed chunks always sit adjacent to their parent
+        # biome cell — no orphans.
+        var biome: int = base_biome
+        if base_biome != CityConfig.Biome.RIVER and base_biome != CityConfig.Biome.WATER \
+                and base_biome != CityConfig.Biome.EMPTY and base_biome != CityConfig.Biome.COASTAL_BEACH:
+                var nval: float = _biome_noise(key)
+                if nval > DISTRICT_NOISE_THRESHOLD:
+                        var borrowed := _borrow_neighbor_biome(row, col, key)
+                        if borrowed >= 0:
+                                biome = borrowed
         var profile: Dictionary = CityConfig.biomes().get(biome, {})
         if profile.is_empty() or profile.get("fill", 0.0) <= 0.0:
                 return
@@ -444,12 +478,21 @@ func _build_chunk(key: Vector2i) -> void:
         if profile.get("lights", false):
                 _place_street_lights(chunk_root, chunk_roads, crng)
 
+        # === v8.2: ZOMBIES (gap #10) ===
+        # Biomes declare `zombies: N` (count per chunk). Spawn N zombies at
+        # random non-overlapping positions inside the chunk, avoiding roads,
+        # POI exclusions, and existing object placements (spatial index).
+        # Mix: 70% walker (alternating male/female), 30% crawler. Crawlers
+        # are slower but harder to spot — gives biomes like MILITARY (15
+        # zombies) a more menacing feel.
+        var z_count := _place_zombies(chunk_root, profile, origin, crng, poi_exclusions)
+
         add_child(chunk_root)
         _loaded[key] = chunk_root
 
         var bname: String = profile.get("name", "Unknown")
-        print("chunk %d_%d: biome=%s buildings=%d props=%d foliage=%d lights=%d landmarks=%d children=%d" % [
-                key.x, key.y, bname, b_count, p_count, f_count, s_count, l_count, chunk_root.get_child_count()
+        print("chunk %d_%d: biome=%s buildings=%d props=%d foliage=%d lights=%d landmarks=%d zombies=%d children=%d" % [
+                key.x, key.y, bname, b_count, p_count, f_count, s_count, l_count, z_count, chunk_root.get_child_count()
         ])
 
 func _build_visible_roads(chunk_root: Node3D, origin: Vector3, chunk_size: float) -> void:
@@ -682,6 +725,18 @@ func _spawn_building_with_components(
         inst.set_meta("has_shell", shell_scene != null)
         chunk_root.add_child(inst)
 
+        # v8.2: BUILDING COLLISION (gap #4) — GLB import has no collision by
+        # default, so without this the player walks through walls. We walk
+        # every MeshInstance3D descendant of the building and call
+        # create_trimesh_collision() on it, which generates a sibling
+        # StaticBody3D + ConcavePolygonShape3D following the actual mesh
+        # triangles. Trimesh (not box) is essential for shell buildings,
+        # whose walls have REAL holes for doorways/windows — a box collider
+        # would cover those holes and block the player even when the door
+        # is open. Trimesh follows the wall geometry so doorway holes stay
+        # passable.
+        _attach_building_collision(inst)
+
         # If we used the shell variant AND a component manifest exists,
         # spawn each component as a child of this building instance.
         if shell_scene != null:
@@ -690,6 +745,27 @@ func _spawn_building_with_components(
                         _attach_components(inst, manifest_data, crng)
 
         return inst
+
+# v8.2: Walk all MeshInstance3D descendants of `building_inst` and call
+# create_trimesh_collision() on each. This generates a sibling StaticBody3D
+# with a ConcavePolygonShape3D matching the mesh's triangles. Cheap to call
+# (Godot handles the convex hull / triangulation internally) and gives
+# per-mesh colliders that follow wall holes, doorway recesses, and window
+# openings — critical for shell buildings so the player can walk through
+# doorways when the door is open.
+#
+# The created StaticBody3D children are added to the mesh's parent, so they
+# inherit the building's transform (position/rotation/scale) automatically.
+# No manual bookkeeping needed.
+func _attach_building_collision(building_inst: Node3D) -> void:
+        var mesh_count := 0
+        for child in building_inst.find_children("*", "MeshInstance3D", true, false):
+                var mi: MeshInstance3D = child
+                mi.create_trimesh_collision()
+                mesh_count += 1
+        if mesh_count > 0:
+                building_inst.set_meta("has_collision", true)
+                building_inst.set_meta("collision_mesh_count", mesh_count)
 
 # Look up the shell GLB for a building. Returns null if no shell exists.
 # Cached so we only do the ResourceLoader.exists() check once per asset.
@@ -728,6 +804,25 @@ func _get_component_manifest(bname: String) -> Dictionary:
 # Components carry metadata flags so the player controller can identify them
 # by raycast and apply the right interaction (open/close, break, climb).
 #
+# v8.2: DOORS WITH hinge_side now get wrapped in a pivot Node3D placed at the
+# hinge edge of the door (rather than at the door's center). The pivot rotates
+# instead of the door, so the door swings naturally around its hinge instead
+# of spinning around its center like a revolving door.
+#
+# Math: the manifest's `pos` is the door's CENTER in building-local space.
+# The hinge edge sits at door_local_x * (±half_width) where half_width is
+# half the collider's X extent (0.55m for door_front, 1.20m for door_garage).
+# We compute the hinge position in building-local space, place the pivot there
+# (with the door's rot_y), then offset the door by ±half_width along the
+# pivot's local +X axis. The door ends up at the same world position as before.
+#
+# Non-door components (windows) and doors without `hinge_side` keep the old
+# behavior: comp_inst is parented directly to the building and rotated in place.
+#
+# Interaction metadata is set on the PIVOT (not the door) for hinged doors —
+# the player's raycast hits the door's collider, walks up the parent chain,
+# and finds the pivot's meta. Toggling pivot.rotation.y swings the door.
+#
 # Also attaches a StaticBody3D + BoxShape3D collider matching the component's
 # bounding box — Godot's GLB importer does NOT generate collision by default,
 # so without this the player's interaction raycast would pass straight through
@@ -748,24 +843,70 @@ func _attach_components(building_inst: Node3D, manifest_data: Dictionary, crng: 
                 var comp_inst: Node3D = comp_scene.instantiate()
                 # Position is relative to the building origin
                 var pos_arr: Array = comp.get("pos", [0, 0, 0])
-                comp_inst.position = Vector3(float(pos_arr[0]), float(pos_arr[1]), float(pos_arr[2]))
-                comp_inst.rotation.y = float(comp.get("rot_y", 0.0))
+                var comp_pos := Vector3(float(pos_arr[0]), float(pos_arr[1]), float(pos_arr[2]))
+                var comp_rot_y: float = float(comp.get("rot_y", 0.0))
                 comp_inst.name = "comp_%s_%s" % [comp.get("id", comp_type), crng.randi() % 10000]
-                # Tag with interaction metadata — player controller reads these via get_meta()
-                comp_inst.set_meta("component_type", comp_type)
-                comp_inst.set_meta("interactive", bool(comp.get("interactive", true)))
-                comp_inst.set_meta("can_open", bool(comp.get("can_open", false)))
-                comp_inst.set_meta("can_lock", bool(comp.get("can_lock", false)))
-                comp_inst.set_meta("can_break", bool(comp.get("can_break", false)))
-                comp_inst.set_meta("can_climb", bool(comp.get("can_climb", false)))
+
+                # v8.2: if this is a hinged door (can_open + hinge_side), wrap it
+                # in a pivot Node3D placed at the hinge edge.
+                var use_pivot: bool = bool(comp.get("can_open", false)) and comp.has("hinge_side")
+                var pivot_inst: Node3D = null
+                if use_pivot:
+                        var hinge_side: String = String(comp.get("hinge_side", "left"))
+                        # Hinge offset in door-local X axis: ±half the collider's X extent.
+                        var collider_size: Vector3 = COMPONENT_COLLIDER_SIZES.get(comp_type, Vector3(1.0, 1.0, 0.1))
+                        var half_w: float = collider_size.x * 0.5
+                        # door_local_X (in building space, after yaw) = (cos θ, 0, sin θ)
+                        # Godot's right-hand rule: positive Y rotation moves +X toward +Z.
+                        var cos_y: float = cos(deg_to_rad(comp_rot_y))
+                        var sin_y: float = sin(deg_to_rad(comp_rot_y))
+                        # Hinge edge in building-local space:
+                        #   left hinge  → -half_w in door-local X → (-half_w·cos, 0, -half_w·sin)
+                        #   right hinge → +half_w in door-local X → (+half_w·cos, 0, +half_w·sin)
+                        # See derivation in the doc comment above.
+                        var sign: float = -1.0 if hinge_side == "left" else 1.0
+                        var hinge_offset := Vector3(sign * half_w * cos_y, 0.0, sign * half_w * sin_y)
+                        var pivot_pos := comp_pos + hinge_offset
+
+                        pivot_inst = Node3D.new()
+                        pivot_inst.name = "pivot_%s" % comp_inst.name
+                        pivot_inst.position = pivot_pos
+                        pivot_inst.rotation.y = deg_to_rad(comp_rot_y)
+                        building_inst.add_child(pivot_inst)
+
+                        # Door is child of pivot, offset by -hinge_offset along pivot's local +X
+                        # (which is the door's local +X since they share rotation).
+                        comp_inst.position = Vector3(-sign * half_w, 0.0, 0.0)
+                        comp_inst.rotation.y = 0.0  # pivot handles yaw
+                        pivot_inst.add_child(comp_inst)
+                else:
+                        # No pivot — attach directly to building (windows, hingeless doors)
+                        comp_inst.position = comp_pos
+                        comp_inst.rotation.y = comp_rot_y
+                        building_inst.add_child(comp_inst)
+
+                # Tag with interaction metadata — player controller reads these via get_meta().
+                # For pivoted doors, meta goes on the PIVOT (so toggling pivot.rotation.y swings door).
+                # For non-pivoted components, meta goes on comp_inst directly.
+                var meta_target: Node3D = pivot_inst if pivot_inst != null else comp_inst
+                meta_target.set_meta("component_type", comp_type)
+                meta_target.set_meta("interactive", bool(comp.get("interactive", true)))
+                meta_target.set_meta("can_open", bool(comp.get("can_open", false)))
+                meta_target.set_meta("can_lock", bool(comp.get("can_lock", false)))
+                meta_target.set_meta("can_break", bool(comp.get("can_break", false)))
+                meta_target.set_meta("can_climb", bool(comp.get("can_climb", false)))
                 if comp.has("hinge_side"):
-                        comp_inst.set_meta("hinge_side", comp["hinge_side"])
+                        meta_target.set_meta("hinge_side", comp["hinge_side"])
                 if comp.has("open_type"):
-                        comp_inst.set_meta("open_type", comp["open_type"])
+                        meta_target.set_meta("open_type", comp["open_type"])
                 # Initial state
-                comp_inst.set_meta("is_open", false)
-                comp_inst.set_meta("is_locked", bool(comp.get("can_lock", false)))
-                building_inst.add_child(comp_inst)
+                meta_target.set_meta("is_open", false)
+                meta_target.set_meta("is_locked", bool(comp.get("can_lock", false)))
+                # For pivoted doors, also remember the pivot's closed rotation so
+                # we can restore it on close (matches the existing convention in
+                # player_main.gd which saves/restores closed_rotation_y on the
+                # interactive node — that node is now the pivot, not the door).
+                meta_target.set_meta("closed_rotation_y", meta_target.rotation.y)
 
                 # Attach a collision body so the player's interaction raycast
                 # can actually hit this component (GLB import has no collision).
@@ -907,6 +1048,10 @@ func _place_landmark(
                 inst.set_meta("is_landmark", true)
                 inst.set_meta("building_name", lm_name)
                 chunk_root.add_child(inst)
+                # v8.2: landmarks are also GLB imports without collision —
+                # attach trimesh colliders so the player can't walk through
+                # the stadium / palace / fort walls.
+                _attach_building_collision(inst)
                 spatial.insert(chosen_pos, landmark_radius)
                 # v8.1: also register as a POI exclusion so the gap filler,
                 # foliage, and utility pole loops all steer clear of the
@@ -1039,3 +1184,200 @@ func _place_fire_hydrants(chunk_root: Node3D, chunk_roads: Array, crng: RandomNu
                                 break  # one hydrant per intersection corner is enough
                         d += LOT_W
         return count
+
+# ============================================================
+# v8.2: ZOMBIE PLACEMENT (gap #10)
+# ============================================================
+# Biome profiles declare `zombies: N` (integer count per chunk). This walks
+# N candidates and tries to place each at a random non-overlapping position
+# inside the chunk. Skips:
+#   - chunks with 0 zombies (River, Water, Empty)
+#   - positions on roads (spatial.is_on_road)
+#   - positions inside POI exclusions (landmarks, services)
+#   - positions where spatial.is_free(1m) fails (something already there)
+#
+# Mix: 70% walker (alternating male/female), 30% crawler. Crawlers are
+# harder to see (low silhouette) — makes high-density biomes scarier.
+#
+# Zombies are tagged with meta "is_zombie"=true + "zombie_kind"="walker"/"crawler"
+# so a future AI controller can find them via find_children() and drive
+# pathfinding / attack behavior. For now they're static poses — they spawn
+# standing/crawling and don't move. That's enough for visual density.
+#
+# Returns the count of zombies actually placed (added to z_count by caller).
+const ZOMBIE_RADIUS := 1.0  # 1m clearance so zombies don't overlap each other
+func _place_zombies(
+        chunk_root: Node3D, profile: Dictionary, origin: Vector3,
+        crng: RandomNumberGenerator, poi_exclusions: Array
+) -> int:
+        var target: int = int(profile.get("zombies", 0))
+        if target <= 0:
+                return 0
+        # Verify zombie assets are in the manifest before attempting spawns.
+        # All three types should already be registered (manifest has 92+ assets).
+        var walker_male: PackedScene = _get_asset("walker_zombie_male")
+        var walker_female: PackedScene = _get_asset("walker_zombie_female")
+        var crawler: PackedScene = _get_asset("crawler_zombie")
+        if walker_male == null and walker_female == null and crawler == null:
+                push_warning("[ChunkStreamer] no zombie assets in manifest — skipping zombie spawn")
+                return 0
+        var count := 0
+        var walker_toggle := 0  # alternates male/female
+        # Cap attempts at 3x target so we don't spin forever in dense chunks.
+        var max_attempts := target * 3
+        var attempts := 0
+        while count < target and attempts < max_attempts:
+                attempts += 1
+                var pos := Vector3(
+                        origin.x + crng.randf_range(5.0, CityConfig.CHUNK_SIZE_M - 5.0),
+                        0.0,
+                        origin.z + crng.randf_range(5.0, CityConfig.CHUNK_SIZE_M - 5.0)
+                )
+                if spatial.is_on_road(pos):
+                        continue
+                if not spatial.is_free(pos, ZOMBIE_RADIUS):
+                        continue
+                if _is_in_poi_exclusion(pos, poi_exclusions):
+                        continue
+                # Pick zombie kind: 70% walker, 30% crawler.
+                var scene: PackedScene = null
+                var kind: String = ""
+                if crng.randf() < 0.7:
+                        kind = "walker"
+                        if walker_male == null:
+                                scene = walker_female
+                        elif walker_female == null:
+                                scene = walker_male
+                        else:
+                                scene = walker_male if (walker_toggle % 2) == 0 else walker_female
+                                walker_toggle += 1
+                else:
+                        kind = "crawler"
+                        scene = crawler
+                if scene == null:
+                        # Fallback: if crawler missing, use walker; if walker missing, use crawler.
+                        kind = "walker" if kind == "crawler" else "crawler"
+                        scene = walker_male if walker_male != null else walker_female
+                        if scene == null:
+                                scene = crawler
+                if scene == null:
+                        continue
+                var inst: Node3D = scene.instantiate()
+                inst.position = pos
+                inst.rotation.y = crng.randf_range(0, TAU)
+                # Slight scale variation so the herd doesn't look cloned.
+                var scale_var: float = crng.randf_range(0.95, 1.05)
+                inst.scale = Vector3(scale_var, scale_var, scale_var)
+                inst.name = "zombie_%s_%d" % [kind, crng.randi() % 100000]
+                inst.set_meta("is_zombie", true)
+                inst.set_meta("zombie_kind", kind)
+                chunk_root.add_child(inst)
+                spatial.insert(pos, ZOMBIE_RADIUS)
+                count += 1
+        return count
+
+# ============================================================
+# v8.2: DISTRICT NOISE — value noise + neighbor-biome borrowing
+# ============================================================
+# Implements Valheim-style soft biome edges: chunks near biome cell borders
+# occasionally borrow a neighboring cell's biome, breaking up the hard 8×6
+# grid into organic-looking patches.
+#
+# The noise is a 2D bilinear-interpolated value noise (no Perlin gradients —
+# simpler and good enough for our purposes). The frequency controls how
+# quickly the noise varies across chunks. The threshold controls how often
+# borrowing fires.
+#
+# Borrowing rules:
+#   - Only the BASE biome of the chunk's grid cell can be borrowed-from
+#     (we don't recursively borrow from borrowed chunks).
+#   - RIVER, WATER, EMPTY, COASTAL_BEACH are never borrowed-into (their
+#     water/beach geometry must stay stable).
+#   - The borrowed biome comes from one of the 4 grid-neighbor cells (N/S/E/W)
+#     so borrowed chunks always sit adjacent to their parent biome.
+#
+# Returns the borrowed biome int, or -1 if no valid neighbor to borrow from.
+func _biome_noise(key: Vector2i) -> float:
+        # Sample the value noise at the chunk's position scaled by frequency.
+        # Use a deterministic seed derived from the chunk key so the noise
+        # pattern is stable across play sessions (no need for a global RNG).
+        var sx: float = float(key.x) * DISTRICT_NOISE_FREQ
+        var sy: float = float(key.y) * DISTRICT_NOISE_FREQ
+        return _value_noise_2d(sx, sy, 0x4D415A41)  # "MAZAR" salt
+
+# 2D value noise with bilinear interpolation + smoothstep falloff.
+# Returns a value in [0, 1].
+static func _value_noise_2d(x: float, y: float, seed: int) -> float:
+        var ix: int = int(floor(x))
+        var iy: int = int(floor(y))
+        var fx: float = x - float(ix)
+        var fy: float = y - float(iy)
+        var v00: float = _hash01(ix,     iy,     seed)
+        var v10: float = _hash01(ix + 1, iy,     seed)
+        var v01: float = _hash01(ix,     iy + 1, seed)
+        var v11: float = _hash01(ix + 1, iy + 1, seed)
+        var sx: float = fx * fx * (3.0 - 2.0 * fx)  # smoothstep
+        var sy: float = fy * fy * (3.0 - 2.0 * fy)
+        var top: float = lerp(v00, v10, sx)
+        var bot: float = lerp(v01, v11, sx)
+        return lerp(top, bot, sy)
+
+# Hash (x, y, seed) → float in [0, 1]. Uses a 32-bit mixing function
+# (murmur-style finalizer) for good distribution. Returns the high 16 bits
+# of the mixed hash normalized to [0, 1].
+static func _hash01(x: int, y: int, seed: int) -> float:
+        var h: int = (x * 73856093) ^ (y * 19349663) ^ (seed * 83492791)
+        h = (h ^ (h >> 13)) * 1274126177
+        h = h ^ (h >> 16)
+        # In GDScript, ints are 64-bit so masking to 0xFFFF keeps us in
+        # a stable range regardless of sign.
+        var v: int = h & 0xFFFF
+        return float(v) / 65535.0
+
+# Pick a neighbor cell (N/S/E/W of (row, col)) whose biome is borrowable
+# (i.e., not RIVER/WATER/EMPTY/COASTAL_BEACH) and return its biome int.
+# Returns -1 if no neighbor has a borrowable biome.
+# Uses `key` to deterministically pick which neighbor when multiple qualify.
+func _borrow_neighbor_biome(row: int, col: int, key: Vector2i) -> int:
+        var grid: Array = CityConfig.grid_layout()
+        var candidates: Array = []
+        # North neighbor
+        if row > 0:
+                var n: int = grid[row - 1][col]
+                if _is_borrowable(n):
+                        candidates.append(n)
+        # South
+        if row < CityConfig.GRID_ROWS - 1:
+                var n: int = grid[row + 1][col]
+                if _is_borrowable(n):
+                        candidates.append(n)
+        # West
+        if col > 0:
+                var n: int = grid[row][col - 1]
+                if _is_borrowable(n):
+                        candidates.append(n)
+        # East
+        if col < CityConfig.GRID_COLS - 1:
+                var n: int = grid[row][col + 1]
+                if _is_borrowable(n):
+                        candidates.append(n)
+        if candidates.is_empty():
+                return -1
+        # Deterministic pick: hash(key) ensures the same chunk always picks
+        # the same neighbor (no flickering between sessions).
+        var pick: int = hash(key) % candidates.size()
+        return int(candidates[pick])
+
+# Returns true if `biome` is borrowable (i.e., can be borrowed INTO another
+# chunk). Water bodies and the thin coastal strip are excluded so their
+# geometry stays stable.
+static func _is_borrowable(biome: int) -> bool:
+        if biome == CityConfig.Biome.RIVER:
+                return false
+        if biome == CityConfig.Biome.WATER:
+                return false
+        if biome == CityConfig.Biome.EMPTY:
+                return false
+        if biome == CityConfig.Biome.COASTAL_BEACH:
+                return false
+        return true
