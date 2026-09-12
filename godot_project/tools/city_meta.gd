@@ -11,12 +11,17 @@ const WATCHED_SCRIPTS := [
     "res://tools/city_builder.gd",
     "res://tools/spatial_index.gd",
     "res://tools/plan_grid.gd",
+    # Phase B: terrain scripts added to hash — if these change, chunks are stale
+    "res://tools/terrain_height.gd",
+    "res://tools/river_network.gd",
+    "res://tools/terrain_baker.gd",
 ]
 
 var map_seed: int
 var manifest_hash: String
 var builders_hash: String
 var layout_version: int
+var terrain_version: int  # Phase B: tracks TERRAIN_HEIGHT_VERSION
 var built_at: String
 
 static func generate(p_map_seed: int, manifest: Dictionary) -> CityMeta:
@@ -25,8 +30,36 @@ static func generate(p_map_seed: int, manifest: Dictionary) -> CityMeta:
     m.manifest_hash = _hash_manifest(manifest)
     m.builders_hash = _hash_builders()
     m.layout_version = LAYOUT_VERSION
+    # Read TERRAIN_HEIGHT_VERSION from the constant in terrain_height.gd
+    m.terrain_version = _read_terrain_version()
     m.built_at = Time.get_datetime_string_from_system()
     return m
+
+static func _read_terrain_version() -> int:
+    # Parse the TERRAIN_HEIGHT_VERSION constant from terrain_height.gd source
+    var path := "res://tools/terrain_height.gd"
+    if not FileAccess.file_exists(path):
+        return 0
+    var source := FileAccess.get_file_as_string(path)
+    var idx := source.find("TERRAIN_HEIGHT_VERSION")
+    if idx == -1:
+        return 0
+    # Extract the number after ":="
+    var after := source.substr(idx)
+    var colon := after.find(":=")
+    if colon == -1:
+        return 0
+    var rest := after.substr(colon + 2).strip_edges()
+    # Parse leading integer
+    var num_str := ""
+    for ch in rest:
+        if ch.is_valid_int() or ch == "-":
+            num_str += ch
+        else:
+            break
+    if num_str.is_valid_int():
+        return int(num_str)
+    return 0
 
 static func _hash_manifest(manifest: Dictionary) -> String:
     var keys: Array = manifest.keys()
@@ -56,6 +89,7 @@ func save() -> void:
         "manifest_hash": manifest_hash,
         "builders_hash": builders_hash,
         "layout_version": layout_version,
+        "terrain_version": terrain_version,
         "built_at": built_at,
     }, "  "))
 
@@ -71,6 +105,7 @@ static func load_existing() -> CityMeta:
     m.manifest_hash = String(data.get("manifest_hash", ""))
     m.builders_hash = String(data.get("builders_hash", ""))
     m.layout_version = int(data.get("layout_version", 0))
+    m.terrain_version = int(data.get("terrain_version", 0))
     m.built_at = String(data.get("built_at", ""))
     return m
 
@@ -85,4 +120,8 @@ func invalid_reasons(manifest: Dictionary) -> Array[String]:
         reasons.append("manifest_hash changed")
     if builders_hash != _hash_builders():
         reasons.append("builders_hash changed")
+    # Phase B: terrain version check
+    var current_tv := _read_terrain_version()
+    if terrain_version != current_tv:
+        reasons.append("terrain_version %d != %d" % [terrain_version, current_tv])
     return reasons

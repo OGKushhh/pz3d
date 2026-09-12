@@ -140,6 +140,30 @@ func _build_chunk(key: Vector2i) -> void:
         var p_count := 0
         var f_count := 0
         var s_count := 0
+        var l_count := 0
+
+        # === PHASE F: POI / Landmark placement ===
+        # Check if any POI from pois.json falls within this chunk.
+        # If yes: place the landmark at the POI's exact position (with terrain Y),
+        # and suppress procedural placement within the POI's radius.
+        var poi_exclusions: Array = []  # Array of {center: Vector3, radius: float}
+        var pois := _get_pois_for_chunk(origin, CityConfig.CHUNK_SIZE_M)
+        for poi in pois:
+                var poi_asset: String = poi.get("type", "")
+                var poi_scene: PackedScene = _get_asset(poi_asset)
+                if poi_scene == null:
+                        push_warning("[ChunkStreamer] POI asset not found in manifest: " + poi_asset)
+                        continue
+                var poi_pos := Vector3(poi.pos[0], 0, poi.pos[2])
+                poi_pos.y = _get_terrain_y(poi_pos.x, poi_pos.z)
+                var poi_inst: Node3D = poi_scene.instantiate()
+                poi_inst.position = poi_pos
+                poi_inst.name = "POI_%s" % poi.get("id", poi_asset)
+                chunk_root.add_child(poi_inst)
+                spatial.insert(poi_pos, float(poi.get("radius", 30)))
+                poi_exclusions.append({"center": poi_pos, "radius": float(poi.get("radius", 30))})
+                l_count += 1
+                print("[ChunkStreamer] POI placed: %s at %s" % [poi.get("id", poi_asset), poi_pos])
 
         # === BUILDINGS (block-based, denser) ===
         var buildings: Array = profile.get("buildings", [])
@@ -168,6 +192,9 @@ func _build_chunk(key: Vector2i) -> void:
                                                 crng.randf_range(inset, block_size - inset)
                                         )
                                         if not spatial.is_free(pos, building_radius) or spatial.is_on_road(pos):
+                                                continue
+                                        # Phase F: skip if within POI exclusion radius
+                                        if _is_in_poi_exclusion(pos, poi_exclusions):
                                                 continue
                                         # Phase C: unified Y from Terrain3D (matches player collision)
                                         pos.y = _get_terrain_y(pos.x, pos.z)
@@ -262,9 +289,18 @@ func _build_chunk(key: Vector2i) -> void:
         add_child(chunk_root)
         _loaded[key] = chunk_root
 
+        # Phase E: Add NavigationRegion3D per chunk for zombie pathfinding.
+        # Bake is deferred — NavigationServer3D builds navmesh from source geometry.
+        # Source geometry = Terrain3D collision (if available) + building static bodies.
+        # For now, just add the region node so the hooks exist. Zombies can use
+        # NavigationServer3D.map_get_closest_point() once bake completes.
+        var nav_region := NavigationRegion3D.new()
+        nav_region.name = "NavRegion_%d_%d" % [key.x, key.y]
+        chunk_root.add_child(nav_region)
+
         var bname: String = profile.get("name", "Unknown")
-        print("chunk %d_%d: biome=%s buildings=%d props=%d foliage=%d lights=%d children=%d" % [
-                key.x, key.y, bname, b_count, p_count, f_count, s_count, chunk_root.get_child_count()
+        print("chunk %d_%d: biome=%s buildings=%d props=%d foliage=%d lights=%d landmarks=%d children=%d" % [
+                key.x, key.y, bname, b_count, p_count, f_count, s_count, l_count, chunk_root.get_child_count()
         ])
 
         # Track stats
@@ -316,3 +352,37 @@ func _get_asset(p_name: String) -> PackedScene:
         var s: PackedScene = load(manifest[p_name]["path"]) as PackedScene
         asset_cache[p_name] = s
         return s
+
+# === Phase F: POI helpers ===
+var _pois_cache: Array = []
+
+func _load_pois() -> void:
+        if not _pois_cache.is_empty():
+                return
+        var f := FileAccess.open("res://data/pois.json", FileAccess.READ)
+        if f == null:
+                return
+        var data: Dictionary = JSON.parse_string(f.get_as_text())
+        _pois_cache = data.get("pois", [])
+
+func _get_pois_for_chunk(origin: Vector3, chunk_size: float) -> Array:
+        _load_pois()
+        var result: Array = []
+        var cx_min: float = origin.x
+        var cx_max: float = origin.x + chunk_size
+        var cz_min: float = origin.z
+        var cz_max: float = origin.z + chunk_size
+        for poi in _pois_cache:
+                var px: float = float(poi.pos[0])
+                var pz: float = float(poi.pos[2])
+                if px >= cx_min and px < cx_max and pz >= cz_min and pz < cz_max:
+                        result.append(poi)
+        return result
+
+static func _is_in_poi_exclusion(pos: Vector3, exclusions: Array) -> bool:
+        for exc in exclusions:
+                var center: Vector3 = exc["center"]
+                var radius: float = exc["radius"]
+                if pos.distance_to(center) < radius:
+                        return true
+        return false
