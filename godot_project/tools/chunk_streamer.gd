@@ -113,6 +113,37 @@ const SPECIAL_ANTICLUSTER := [
 # rendered as road surfaces but skipped during lot assignment.
 const NON_LOT_ROAD_KINDS := ["highway", "bridge"]
 
+# v8.1: Y-offset layer cake (see chunk_builder.gd placement-rules header).
+# _create_plane_mesh uses pos.y for the Y position, but _build_visible_roads
+# was previously passing Y values inside the size Vector3 — which PlaneMesh.size
+# ignores (PlaneMesh.size is Vector2, X+Z only). So roads/sidewalks/grass all
+# sat at Y=0 and z-fought with each other + the ground plane.
+# Fix: pass Y via pos.y, not size.y.
+const Y_GROUND := 0.00
+const Y_ROAD := 0.02
+const Y_LANE := 0.025    # lane line sits 5mm above road surface
+const Y_GRASS := 0.03
+const Y_SIDEWALK := 0.05
+const Y_PARK := 0.04
+
+# v8.1: Spacing rule #7 — minimum 2m clearance between ALL objects.
+# Was inconsistent: street lights used 0.5m (below minimum). Now everything
+# uses at least MIN_CLEARANCE_M.
+const MIN_CLEARANCE_M := 2.0
+
+# v8.1: Utility pole placement (rule #2).
+# Poles go FAR BEHIND buildings — offset from road centerline is:
+#   BUILDING_OFFSET + LOT_DEPTH + UTILITY_POLE_OFFSET
+#   = 9.5 + 16 + 2 = 27.5m
+# Spacing along the road: 35m.
+const UTILITY_POLE_OFFSET_M := BUILDING_OFFSET + LOT_D + CityConfig.UTILITY_POLE_OFFSET
+const UTILITY_POLE_SPACING_M := CityConfig.UTILITY_POLE_SPACING
+
+# v8.1: Fire hydrant placement (rule #3).
+# At intersection corners — offset from road centerline is:
+#   ROAD_WIDTH/2 + SIDEWALK_WIDTH + 1.0 = 4 + 1.5 + 1 = 6.5m
+const FIRE_HYDRANT_OFFSET_M := CityConfig.ROAD_WIDTH * 0.5 + CityConfig.SIDEWALK_WIDTH + 1.0
+
 func _ready() -> void:
         await get_tree().process_frame
         var root := get_tree().current_scene
@@ -246,6 +277,14 @@ func _build_chunk(key: Vector2i) -> void:
                 poi_exclusions.append({"center": poi_pos, "radius": float(poi.get("radius", 30))})
                 l_count += 1
 
+        # === v8.1: LANDMARK PLACEMENT (BEFORE buildings) ===
+        # Landmarks must go first so they register exclusions (via spatial.insert
+        # AND poi_exclusions) that block procedural buildings from spawning on
+        # top of them. If landmarks go last, they either overlap existing
+        # buildings or fail the is_free() check and silently get skipped.
+        var lm_count := _place_landmark(chunk_root, profile, origin, key, crng, poi_exclusions)
+        l_count += lm_count
+
         # === BUILDINGS ALONG ROAD SEGMENTS ===
         var buildings: Array = profile.get("buildings", [])
         var commercial_buildings: Array = profile.get("commercial_buildings", ["corner_store", "diner", "gas_station", "corner_store"])
@@ -321,12 +360,16 @@ func _build_chunk(key: Vector2i) -> void:
 
                         d += LOT_W
 
-        # === v8: LANDMARK PLACEMENT ===
-        # One hero asset per biome chunk, spaced apart across chunks.
-        # Picks from profile.landmarks (e.g. stadium in downtown, fort_sarran
-        # in military, lighthouse in coastal, grain_silo in farmland).
-        var lm_count := _place_landmark(chunk_root, profile, origin, key, crng, poi_exclusions)
-        l_count += lm_count
+        # === v8.1: UTILITY POLES (rule #2 — behind buildings) ===
+        # Poles run along the back of lots (27.5m from road centerline),
+        # spaced 35m apart. Alternates sides per pole so both sides of the
+        # street get service. Skips if utility_pole not in manifest.
+        s_count += _place_utility_poles(chunk_root, chunk_roads, crng)
+
+        # === v8.1: FIRE HYDRANTS (rule #3 — at intersection corners) ===
+        # Hydrants sit at the corner of every road intersection, 6.5m from
+        # the nearest road centerline. Skips if fire_hydrant not in manifest.
+        s_count += _place_fire_hydrants(chunk_root, chunk_roads, crng)
 
         # === GAP FILLER — fill empty spaces with small props ===
         var props: Array = profile.get("props", [])
@@ -421,27 +464,35 @@ func _build_visible_roads(chunk_root: Node3D, origin: Vector3, chunk_size: float
                 var mid: Vector3 = (a + b) * 0.5
                 var dir: Vector3 = (b - a).normalized()
 
-                # Road surface
                 var is_horizontal: bool = abs(dir.z) > abs(dir.x)
-                var road_size: Vector3 = Vector3(length, 0.02, width) if is_horizontal else Vector3(width, 0.02, length)
-                _create_plane_mesh(chunk_root, "Road", mid, road_size, C_ROAD)
+                var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
+
+                # v8.1: Y values live in pos.y, not size.y (PlaneMesh.size is Vector2).
+                # Layer cake: road=0.02, lane=0.025, grass=0.03, sidewalk=0.05.
+
+                # Road surface
+                var road_size: Vector3 = Vector3(length, 0, width) if is_horizontal else Vector3(width, 0, length)
+                _create_plane_mesh(chunk_root, "Road", Vector3(mid.x, Y_ROAD, mid.z), road_size, C_ROAD)
 
                 # Center lane line (dashed — just a thin strip for now)
-                var lane_size: Vector3 = Vector3(length, 0.03, 0.15) if is_horizontal else Vector3(0.15, 0.03, length)
-                _create_plane_mesh(chunk_root, "Lane", mid, lane_size, C_LANE)
+                var lane_size: Vector3 = Vector3(length, 0, 0.15) if is_horizontal else Vector3(0.15, 0, length)
+                _create_plane_mesh(chunk_root, "Lane", Vector3(mid.x, Y_LANE, mid.z), lane_size, C_LANE)
 
                 # Sidewalks (both sides)
                 var sw_off: float = width * 0.5 + CityConfig.SIDEWALK_WIDTH * 0.5
-                var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
-                var sw_size: Vector3 = Vector3(length, 0.05, CityConfig.SIDEWALK_WIDTH) if is_horizontal else Vector3(CityConfig.SIDEWALK_WIDTH, 0.05, length)
-                _create_plane_mesh(chunk_root, "SW1", mid + perp * sw_off, sw_size, C_SIDEWALK)
-                _create_plane_mesh(chunk_root, "SW2", mid - perp * sw_off, sw_size, C_SIDEWALK)
+                var sw_size: Vector3 = Vector3(length, 0, CityConfig.SIDEWALK_WIDTH) if is_horizontal else Vector3(CityConfig.SIDEWALK_WIDTH, 0, length)
+                var sw1: Vector3 = mid + perp * sw_off
+                var sw2: Vector3 = mid - perp * sw_off
+                _create_plane_mesh(chunk_root, "SW1", Vector3(sw1.x, Y_SIDEWALK, sw1.z), sw_size, C_SIDEWALK)
+                _create_plane_mesh(chunk_root, "SW2", Vector3(sw2.x, Y_SIDEWALK, sw2.z), sw_size, C_SIDEWALK)
 
                 # Grass strips
                 var gs_off: float = width * 0.5 + CityConfig.SIDEWALK_WIDTH + CityConfig.GRASS_STRIP_WIDTH * 0.5
-                var gs_size: Vector3 = Vector3(length, 0.03, CityConfig.GRASS_STRIP_WIDTH) if is_horizontal else Vector3(CityConfig.GRASS_STRIP_WIDTH, 0.03, length)
-                _create_plane_mesh(chunk_root, "GS1", mid + perp * gs_off, gs_size, C_GRASS)
-                _create_plane_mesh(chunk_root, "GS2", mid - perp * gs_off, gs_size, C_GRASS)
+                var gs_size: Vector3 = Vector3(length, 0, CityConfig.GRASS_STRIP_WIDTH) if is_horizontal else Vector3(CityConfig.GRASS_STRIP_WIDTH, 0, length)
+                var gs1: Vector3 = mid + perp * gs_off
+                var gs2: Vector3 = mid - perp * gs_off
+                _create_plane_mesh(chunk_root, "GS1", Vector3(gs1.x, Y_GRASS, gs1.z), gs_size, C_GRASS)
+                _create_plane_mesh(chunk_root, "GS2", Vector3(gs2.x, Y_GRASS, gs2.z), gs_size, C_GRASS)
 
 func _create_plane_mesh(parent: Node3D, name: String, pos: Vector3, size: Vector3, color: Color) -> void:
         var mi := MeshInstance3D.new()
@@ -457,8 +508,8 @@ func _create_plane_mesh(parent: Node3D, name: String, pos: Vector3, size: Vector
         parent.add_child(mi)
 
 func _place_park(chunk_root: Node3D, center: Vector3, crng: RandomNumberGenerator) -> void:
-        # Park ground (darker green)
-        _create_plane_mesh(chunk_root, "ParkGround", center, Vector3(60, 0.04, 60), C_PARK)
+        # Park ground (darker green) — v8.1: Y via pos.y, not size.y
+        _create_plane_mesh(chunk_root, "ParkGround", Vector3(center.x, Y_PARK, center.z), Vector3(60, 0, 60), C_PARK)
 
         # Park furniture
         var park_assets := ["bench_park", "picnic_table", "playground_slide", "swing_set", "water_fountain", "garden_gnome", "planter_box"]
@@ -496,6 +547,9 @@ func _place_street_lights(chunk_root: Node3D, chunk_roads: Array, crng: RandomNu
         if scene == null:
                 return
         var edge_offset: float = CityConfig.ROAD_WIDTH * 0.5 + CityConfig.SIDEWALK_WIDTH + CityConfig.GRASS_STRIP_WIDTH * 0.5
+        # v8.1: spacing radius bumped from 0.5m to MIN_CLEARANCE_M (2.0m)
+        # per rule #7 (2m minimum between ALL objects).
+        var light_radius: float = MIN_CLEARANCE_M
         for seg in chunk_roads:
                 var a: Vector3 = seg["start"]
                 var b: Vector3 = seg["end"]
@@ -510,13 +564,13 @@ func _place_street_lights(chunk_root: Node3D, chunk_roads: Array, crng: RandomNu
                         var base: Vector3 = a.lerp(b, t)
                         for side in [-1, 1]:
                                 var pos: Vector3 = base + perp * edge_offset * float(side)
-                                if spatial.is_free(pos, 0.5) and not spatial.is_on_road(pos):
+                                if spatial.is_free(pos, light_radius) and not spatial.is_on_road(pos):
                                         var inst: Node3D = scene.instantiate()
                                         inst.position = pos
                                         inst.rotation.y = 0.0 if side < 0 else PI
                                         inst.name = "street_light_%d" % crng.randi()
                                         chunk_root.add_child(inst)
-                                        spatial.insert(pos, 0.5)
+                                        spatial.insert(pos, light_radius)
                         d += 25.0
 
 func _get_roads_in_chunk(origin: Vector3, chunk_size: float) -> Array:
@@ -854,6 +908,10 @@ func _place_landmark(
                 inst.set_meta("building_name", lm_name)
                 chunk_root.add_child(inst)
                 spatial.insert(chosen_pos, landmark_radius)
+                # v8.1: also register as a POI exclusion so the gap filler,
+                # foliage, and utility pole loops all steer clear of the
+                # landmark's footprint (not just the buildings loop).
+                poi_exclusions.append({"center": chosen_pos, "radius": landmark_radius})
                 _register_asset_position(lm_name, chosen_pos)
                 # If this landmark has a shell variant (e.g. broadcast_tower_shell),
                 # also attach its interactive components (door, windows).
@@ -866,3 +924,118 @@ func _place_landmark(
                 ])
                 return 1
         return 0
+
+# ============================================================
+# v8.1: UTILITY POLE PLACEMENT (rule #2 — behind buildings)
+# ============================================================
+# Walks each road segment at UTILITY_POLE_SPACING_M (35m) intervals and
+# places a utility pole at the BACK of the lot (27.5m from road centerline),
+# alternating sides per pole so both sides of the street get service.
+#
+# Poles only spawn on "street" kind segments (no highways/bridges) and only
+# if utility_pole is registered in the manifest.
+#
+# Returns the count of poles placed (added to s_count by caller).
+func _place_utility_poles(chunk_root: Node3D, chunk_roads: Array, crng: RandomNumberGenerator) -> int:
+        if not manifest.has("utility_pole"):
+                return 0
+        var scene: PackedScene = _get_asset("utility_pole")
+        if scene == null:
+                return 0
+        var count := 0
+        var pole_radius: float = MIN_CLEARANCE_M  # 2m clearance per rule #7
+        var pole_index := 0  # alternates sides per pole
+        for seg in chunk_roads:
+                if NON_LOT_ROAD_KINDS.has(seg.get("kind", "street")):
+                        continue
+                var a: Vector3 = seg["start"]
+                var b: Vector3 = seg["end"]
+                var length: float = a.distance_to(b)
+                if length < UTILITY_POLE_SPACING_M:
+                        continue
+                var dir: Vector3 = (b - a).normalized()
+                var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
+                var d: float = UTILITY_POLE_SPACING_M * 0.5
+                while d < length:
+                        var t: float = d / length
+                        var base: Vector3 = a.lerp(b, t)
+                        # Alternate sides: even index → +perp, odd index → -perp
+                        var side: int = 1 if (pole_index % 2) == 0 else -1
+                        var pole_pos: Vector3 = base + perp * float(side) * UTILITY_POLE_OFFSET_M
+                        if spatial.is_free(pole_pos, pole_radius) and not spatial.is_on_road(pole_pos):
+                                var inst: Node3D = scene.instantiate()
+                                inst.position = pole_pos
+                                # Pole faces along the road (crossbar perpendicular to road)
+                                inst.rotation.y = atan2(dir.x, dir.z) + crng.randf_range(-0.05, 0.05)
+                                inst.name = "utility_pole_%d" % crng.randi()
+                                chunk_root.add_child(inst)
+                                spatial.insert(pole_pos, pole_radius)
+                                count += 1
+                        pole_index += 1
+                        d += UTILITY_POLE_SPACING_M
+        return count
+
+# ============================================================
+# v8.1: FIRE HYDRANT PLACEMENT (rule #3 — at intersection corners)
+# ============================================================
+# Walks each road segment at LOT_W intervals. At each position where
+# _is_near_intersection() returns true, places a fire hydrant at the corner
+# offset (6.5m from road centerline, just past the sidewalk).
+#
+# Uses spatial.insert(2m) for dedup so we don't stack multiple hydrants at
+# the same intersection when two road segments cross there.
+#
+# Only spawns on "street" kind segments. Skips if fire_hydrant not in manifest.
+#
+# Returns the count of hydrants placed (added to s_count by caller).
+func _place_fire_hydrants(chunk_root: Node3D, chunk_roads: Array, crng: RandomNumberGenerator) -> int:
+        if not manifest.has("fire_hydrant"):
+                return 0
+        var scene: PackedScene = _get_asset("fire_hydrant")
+        if scene == null:
+                return 0
+        var count := 0
+        var hydrant_radius: float = MIN_CLEARANCE_M  # 2m clearance per rule #7
+        for seg in chunk_roads:
+                if NON_LOT_ROAD_KINDS.has(seg.get("kind", "street")):
+                        continue
+                var a: Vector3 = seg["start"]
+                var b: Vector3 = seg["end"]
+                var length: float = a.distance_to(b)
+                if length < LOT_W:
+                        continue
+                var dir: Vector3 = (b - a).normalized()
+                var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
+                # Walk the segment looking for intersection zones.
+                # _is_near_intersection checks both roads at each candidate
+                # point, so we sample every LOT_W (20m) to catch all crossings.
+                var d: float = LOT_W * 0.5
+                while d < length:
+                        var t: float = d / length
+                        var base: Vector3 = a.lerp(b, t)
+                        if not _is_near_intersection(base, 10.0):
+                                d += LOT_W
+                                continue
+                        # We're near a crossing — place a hydrant on the +perp side
+                        # (the corner of the lot facing the intersection).
+                        # Try both sides; the spatial dedupe will skip the second
+                        # if the corner is already taken.
+                        for side in [-1, 1]:
+                                var hydrant_pos: Vector3 = base + perp * float(side) * FIRE_HYDRANT_OFFSET_M
+                                # Nudge along the road a bit so the hydrant sits
+                                # at the corner of the intersection, not the middle.
+                                hydrant_pos += dir * float(side) * 2.0
+                                if not spatial.is_free(hydrant_pos, hydrant_radius):
+                                        continue
+                                if spatial.is_on_road(hydrant_pos):
+                                        continue
+                                var inst: Node3D = scene.instantiate()
+                                inst.position = hydrant_pos
+                                inst.rotation.y = crng.randf_range(0, TAU)
+                                inst.name = "fire_hydrant_%d" % crng.randi()
+                                chunk_root.add_child(inst)
+                                spatial.insert(hydrant_pos, hydrant_radius)
+                                count += 1
+                                break  # one hydrant per intersection corner is enough
+                        d += LOT_W
+        return count

@@ -277,3 +277,58 @@ Stage Summary:
 - Honorable mention (deferred): grid_layout() is still hardcoded 8×6 — Valheim-style district noise
   would soften district edges, but that's a bigger change. Not in this pass.
 
+
+---
+Task ID: v8.1-deepseek-fixes
+Agent: main (Super Z)
+Task: Fix 4 issues flagged by DeepSeek review of v8 placement loop
+
+Work Log:
+- Issue #1 — Y-offset layer cake bug:
+  Diagnosed: _create_plane_mesh uses pos.y for Y position (correct), but
+  _build_visible_roads was passing Y values (0.02/0.03/0.05) inside the
+  size Vector3 — which PlaneMesh.size ignores (PlaneMesh.size is Vector2,
+  X+Z only). Result: roads/sidewalks/grass all sat at Y=0 and z-fought.
+  Fix: added Y_GROUND/Y_ROAD/Y_LANE/Y_GRASS/Y_SIDEWALK/Y_PARK constants.
+  Rewrote _build_visible_roads to pass Y via pos.y (e.g. Vector3(mid.x, Y_ROAD, mid.z))
+  instead of size.y. Also fixed _place_park park ground (same bug, same fix).
+- Issue #2 — landmark ordering:
+  Diagnosed: _place_landmark was called AFTER the buildings loop. If a building
+  claimed the chunk center first, the landmark's is_free(cand, 30) check would
+  fail and it'd silently skip. Fix: moved landmark placement to BEFORE buildings.
+  Also updated _place_landmark to append to poi_exclusions (not just spatial.insert)
+  so the gap filler, foliage, AND utility pole loops all steer clear.
+  New order: POIs → Landmarks → Buildings → UtilityPoles → FireHydrants → GapFiller → Foliage → Park → StreetLights.
+- Issue #3 — missing utility poles + fire hydrants:
+  Diagnosed: utility_pole.glb + fire_hydrant.glb exist on disk but were never
+  registered in city_manifest.json (89 entries → 92). And no placement code
+  existed for either. Fix: registered utility_pole + fire_hydrant + power_pole
+  in manifest. Added _place_utility_poles() — walks road segments at 35m intervals,
+  places poles at 27.5m offset (behind buildings, rule #2), alternates sides
+  per pole. Added _place_fire_hydrants() — walks segments at LOT_W intervals,
+  places hydrants at intersection corners (6.5m offset, rule #3) using
+  _is_near_intersection() to find crossings. Both use MIN_CLEARANCE_M (2m) radius.
+- Issue #4 — spacing rule #7 inconsistency:
+  Diagnosed: street lights used 0.5m spatial radius, below the 2m minimum
+  specified in chunk_builder.gd header rule #7. Fix: added MIN_CLEARANCE_M=2.0
+  constant. Street lights now use light_radius=MIN_CLEARANCE_M. Audited all
+  other spatial.insert/is_free calls: buildings=8m, props=2m, foliage=3m,
+  POIs=variable, landmarks=30m — all above minimum. New utility poles +
+  fire hydrants also use MIN_CLEARANCE_M.
+
+Stage Summary:
+- All 4 DeepSeek-flagged issues fixed in chunk_streamer.gd v8.1.
+- Y layer cake now correct: roads at 0.02m, lane lines at 0.025m, grass at 0.03m,
+  sidewalks at 0.05m, park ground at 0.04m. No more z-fighting between
+  road/sidewalk/grass/ground planes.
+- Landmarks now place FIRST, so they actually appear at chunk centers instead
+  of getting silently skipped when a procedural building beat them to the spot.
+- Utility poles + fire hydrants now spawn along streets (35m / intersection
+  corners respectively). Manifest grew from 89 → 92 entries.
+- All spatial operations now respect 2m minimum clearance.
+- File: chunk_streamer.gd grew from 838 → 1041 lines (v8 → v8.1).
+- Next: user runs Godot, walks around. Should see: roads/sidewalks no longer
+  z-fighting at distance, utility poles lining streets behind houses, red fire
+  hydrants at intersection corners, landmarks (stadium/fort_sarran/etc.)
+  actually appearing at chunk centers.
+
