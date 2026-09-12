@@ -129,6 +129,18 @@ const Y_PARK := 0.04
 # uses at least MIN_CLEARANCE_M.
 const MIN_CLEARANCE_M := 2.0
 
+# v8.2 Phase A.6: HIGHWAY CLEARANCE — limited-access roads.
+# Highways (z=1500, x=1500 per map_data.json) are limited-access: no buildings
+# spawn within HIGHWAY_CLEARANCE_M of the highway centerline. This matches
+# real-city zoning — American-style highways have a clear shoulder + sound
+# wall, not storefronts. PZ treats main roads similarly (commercial corridors
+# are along arterials, not highways).
+#
+# Value 15m is conservative — wider than the building offset (9.5m) so even
+# corner lots adjacent to a highway get skipped. Adjust to 8m if you want
+# buildings right up to the highway shoulder.
+const HIGHWAY_CLEARANCE_M := 15.0
+
 # v8.1: Utility pole placement (rule #2).
 # Poles go FAR BEHIND buildings — offset from road centerline is:
 #   BUILDING_OFFSET + LOT_DEPTH + UTILITY_POLE_OFFSET
@@ -375,6 +387,11 @@ func _build_chunk(key: Vector2i) -> void:
                                 if not spatial.is_free(lot_pos, building_radius) or spatial.is_on_road(lot_pos):
                                         continue
                                 if _is_in_poi_exclusion(lot_pos, poi_exclusions):
+                                        continue
+                                # v8.2 Phase A.6: HIGHWAY CLEARANCE — skip if within
+                                # HIGHWAY_CLEARANCE_M of any highway-segment centerline.
+                                # Prevents buildings spawning on the highway shoulder.
+                                if _is_near_highway(lot_pos):
                                         continue
                                 if crng.randf() > fill:
                                         continue  # Empty lot (will be filled by gap filler)
@@ -749,6 +766,24 @@ func _is_near_intersection(pos: Vector3, threshold: float) -> bool:
                                 var d1 := _point_segment_distance(pos, a2, b2)
                                 if d1 < threshold:
                                         return true
+        return false
+
+# v8.2 Phase A.6: HIGHWAY CLEARANCE check — returns true if pos is within
+# HIGHWAY_CLEARANCE_M of any road segment with kind="highway". Used by
+# building placement to skip lots adjacent to limited-access highways.
+# This enforces the "no storefronts on the highway" zoning rule.
+#
+# Cheap O(N_highways) per call — typically 2 highway segments in the map,
+# so ~2 distance calculations per building candidate. With ~40 buildings per
+# chunk × 25 visible chunks = 1000 calls, total = 2000 distance calcs/frame
+# during chunk build. Negligible.
+func _is_near_highway(pos: Vector3) -> bool:
+        for seg in roads.segments:
+                if seg.get("kind", "street") != "highway":
+                        continue
+                var d: float = roads.distance_to_road_centerline(pos, seg)
+                if d < HIGHWAY_CLEARANCE_M:
+                        return true
         return false
 
 func _unload_chunk(key: Vector2i) -> void:

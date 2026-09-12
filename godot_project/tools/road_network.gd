@@ -152,3 +152,125 @@ static func _point_segment_distance(p: Vector3, a: Vector3, b: Vector3) -> float
         return p.distance_to(a)
     var t: float = clamp((p - a).dot(ab) / ab.length_squared(), 0.0, 1.0)
     return p.distance_to(a + ab * t)
+
+# ── ROAD GRAPH HELPERS (Phase A.6) ────────────────────────
+# The road network is a graph: nodes are implicit at every road segment
+# endpoint + every cell corner intersection. Edges are the segments
+# themselves. These helpers expose the graph relationship for queries
+# like "which roads pass through district cell X?" and "which anchors
+# does road Y connect?".
+#
+# Cell coords here use the (col, row) convention where (0,0) is NW corner
+# and (GRID_COLS-1, GRID_ROWS-1) is SE corner. Cell (col, row) spans
+# x ∈ [col*500, (col+1)*500), z ∈ [row*500, (row+1)*500).
+# Anchors (per AnchorPoints.gd) sit at cell CENTERS: (col*500+250, row*500+250).
+# Roads sit at cell BORDERS: (col*500, row*500).
+
+# Returns all road segments that pass through the given grid cell.
+# Uses Liang-Barsky segment-rectangle intersection (same algorithm as
+# chunk_streamer._get_roads_in_chunk but for grid cells not chunks).
+const ANCHOR_CFG := preload("res://tools/city_config.gd")
+func get_roads_through_cell(cell: Vector2i) -> Array:
+    var result: Array = []
+    var min_x: float = float(cell.x) * ANCHOR_CFG.CELL_SIZE_M
+    var max_x: float = min_x + ANCHOR_CFG.CELL_SIZE_M
+    var min_z: float = float(cell.y) * ANCHOR_CFG.CELL_SIZE_M
+    var max_z: float = min_z + ANCHOR_CFG.CELL_SIZE_M
+    for seg in segments:
+        var a: Vector3 = seg["start"]
+        var b: Vector3 = seg["end"]
+        if _segment_intersects_rect(a, b, min_x, max_x, min_z, max_z):
+            result.append(seg)
+    return result
+
+# Returns all grid cells that a road segment passes through. Inverse of
+# get_roads_through_cell. Walks the segment at 50m steps and records
+# each unique cell entered. Used by future systems to answer "which
+# districts does this road traverse?" (e.g., for zoning decisions).
+func get_cells_for_road(seg: Dictionary) -> Array:
+    var a: Vector3 = seg["start"]
+    var b: Vector3 = seg["end"]
+    var length: float = a.distance_to(b)
+    if length < 1.0:
+        return []
+    var dir: Vector3 = (b - a).normalized()
+    var cells: Array = []
+    var seen: Dictionary = {}
+    var step: float = 50.0
+    var d: float = 0.0
+    while d <= length:
+        var p: Vector3 = a + dir * d
+        var col: int = clamp(int(p.x / ANCHOR_CFG.CELL_SIZE_M), 0, ANCHOR_CFG.GRID_COLS - 1)
+        var row: int = clamp(int(p.z / ANCHOR_CFG.CELL_SIZE_M), 0, ANCHOR_CFG.GRID_ROWS - 1)
+        var key := Vector2i(col, row)
+        if not seen.has(key):
+            seen[key] = true
+            cells.append(key)
+        d += step
+    var col_end: int = clamp(int(b.x / ANCHOR_CFG.CELL_SIZE_M), 0, ANCHOR_CFG.GRID_COLS - 1)
+    var row_end: int = clamp(int(b.z / ANCHOR_CFG.CELL_SIZE_M), 0, ANCHOR_CFG.GRID_ROWS - 1)
+    var end_key := Vector2i(col_end, row_end)
+    if not seen.has(end_key):
+        cells.append(end_key)
+    return cells
+
+# Returns all road segments of a specific kind ("street" / "highway" /
+# "bridge" / "diagonal"). Used by highway clearance checks + future zoning.
+func get_roads_of_kind(kind: String) -> Array:
+    var result: Array = []
+    for seg in segments:
+        if seg.get("kind", "street") == kind:
+            result.append(seg)
+    return result
+
+# Returns the perpendicular distance from a world point to a road segment's
+# centerline (clamped to the segment's extent — so cross-streets near an
+# endpoint don't count). Used by highway clearance checks.
+func distance_to_road_centerline(pos: Vector3, seg: Dictionary) -> float:
+    var a: Vector3 = seg["start"]
+    var b: Vector3 = seg["end"]
+    var ab: Vector3 = b - a
+    var len_sq: float = ab.length_squared()
+    if len_sq < 0.0001:
+        return pos.distance_to(a)
+    var t: float = clamp((pos - a).dot(ab) / len_sq, 0.0, 1.0)
+    var closest: Vector3 = a + ab * t
+    return pos.distance_to(closest)
+
+# Liang-Barsky segment-rectangle intersection test.
+# Used by get_roads_through_cell. Returns true if segment [a,b] passes
+# through rectangle [min_x,max_x] × [min_z,max_z].
+static func _segment_intersects_rect(
+    a: Vector3, b: Vector3,
+    min_x: float, max_x: float,
+    min_z: float, max_z: float
+) -> bool:
+    var dx: float = b.x - a.x
+    var dz: float = b.z - a.z
+    var t_min: float = 0.0
+    var t_max: float = 1.0
+    if abs(dx) < 0.0001:
+        if a.x < min_x or a.x > max_x:
+            return false
+    else:
+        var t1: float = (min_x - a.x) / dx
+        var t2: float = (max_x - a.x) / dx
+        if t1 > t2:
+            var tmp: float = t1; t1 = t2; t2 = tmp
+        t_min = max(t_min, t1)
+        t_max = min(t_max, t2)
+        if t_min > t_max:
+            return false
+    if abs(dz) < 0.0001:
+        if a.z < min_z or a.z > max_z:
+            return false
+    else:
+        var t1: float = (min_z - a.z) / dz
+        var t2: float = (max_z - a.z) / dz
+        if t1 > t2:
+            var tmp: float = t1; t1 = t2; t2 = tmp
+        t_min = max(t_min, t1)
+        t_max = min(t_max, t2)
+        if t_min > t_max:
+            return false
+    return true
