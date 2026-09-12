@@ -1,0 +1,25 @@
+// door_garage.mog — standalone garage door component
+// This GLB is loaded as a child node of the building at runtime.
+// Can be animated (roll up/down), locked, or broken during gameplay.
+//
+// Dimensions: 2.6m wide × 2.2m tall × 0.08m deep (panel)
+// Origin: center of garage door, at floor level (Y=0 = bottom of door)
+
+meta (name="door_garage", description="Standalone garage door — roll-up, lockable, breakable", tags=["component","door","garage","interactive"], mogen_version="0.1.12")
+material "door_garage" (color=[0.78, 0.76, 0.72], roughness=0.65, uv_mode="tile", uv_scale=2.0)
+material "dark_metal" (color=[0.15, 0.16, 0.18], metallic=0.70, roughness=0.35)
+
+scene {
+  // Main panel (recessed 8cm)
+  box "panel" (size=[2.55, 2.15, 0.08], mat="door_garage", pos=[0, 1.075, -0.04])
+  // Horizontal panel lines (4 ridges across the door — visual detail for roll-up look)
+  box "ridge_1" (size=[2.50, 0.03, 0.04], mat="dark_metal", pos=[0, 1.80, 0.01])
+  box "ridge_2" (size=[2.50, 0.03, 0.04], mat="dark_metal", pos=[0, 1.35, 0.01])
+  box "ridge_3" (size=[2.50, 0.03, 0.04], mat="dark_metal", pos=[0, 0.90, 0.01])
+  box "ridge_4" (size=[2.50, 0.03, 0.04], mat="dark_metal", pos=[0, 0.45, 0.01])
+  // Handle bar (centered, horizontal)
+  chamfered_box "handle" (size=[0.40, 0.05, 0.04], radius=0.01, mat="dark_metal", pos=[0, 0.525, 0.02])
+  // Track rails (left + right vertical — visual detail for the roll-up mechanism)
+  box "track_l" (size=[0.06, 2.15, 0.04], mat="dark_metal", pos=[-1.30, 1.075, 0.02])
+  box "track_r" (size=[0.06, 2.15, 0.04], mat="dark_metal", pos=[1.30, 1.075, 0.02])
+}
