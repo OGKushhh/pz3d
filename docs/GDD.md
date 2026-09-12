@@ -1020,15 +1020,23 @@ Validation rule: after each phase, re-run baseline capture. FPS must not drop >2
 
 **Why A.1 + A.4 are deferred to Phase B:** Phase B will require ALL placement code to sample `terrain_height.height_at(x, z)` for Y position. Doing the refactor twice (once for A.1, again in B.1 for terrain) is wasteful. Do both together in Phase B: refactor streamer to thin loader + port v4 logic to chunk_builder.gd + add terrain_height sampling, all in one pass.
 
-### Phase B — Terrain core (4–5h)
+### Phase B — Terrain core — ✅ DONE 2026-09-12 (B.1-B.3, B.6)
 | # | Task | Status |
 |---|---|---|
-| B.1 | `tools/terrain_height.gd` — `class_name TerrainHeight`. Pure function `height_at(x, z) → float`. Uses Godot's `FastNoiseLite` seeded by `map_seed`. Composes biome elevation + river carve + bridge flatten. Includes `TERRAIN_HEIGHT_VERSION = 1` constant. Also includes A.1 (chunk_streamer → thin loader) + A.4 (regenerate .tscn chunks) in same pass. | 🧪 pending |
-| B.2 | Debug visualization — heightmap-colored plane (`MeshInstance3D` with vertex-colored quad grid) so we can SEE the height function before Terrain3D lands. 30min. | 🧪 pending |
-| B.3 | `tools/river_network.gd` — generates river centerline (spline through bridge endpoints from `city_config.gd::bridges()`). Exposes `nearest_point(x, z) → {distance, depth, on_line}` and `water_depth_at(x, z) → float`. | 🧪 pending |
-| B.4 | Road flattening — `terrain_height.flatten_road_corridor(x, z) → y` so roads don't clip through hills or float over valleys. Cut-and-fill like real cities. | 🧪 pending |
-| B.5 | Bridge ramp logic — bridge deck at surrounding terrain Y, piers extend down to riverbed Y, road ramps 30m on either end to bridge deck height. | 🧪 pending |
-| B.6 | Validation: re-run baseline. FPS ≥ 116 headless. Buildings should sit at varied Y (no longer all at Y=0). | 🧪 pending |
+| B.1 | `tools/terrain_height.gd` — `class_name TerrainHeight`. Pure function `height_at(x, z) → float`. Composes biome elevation (base + FastNoiseLite noise) + river carve (quadratic falloff). TERRAIN_HEIGHT_VERSION = 1. | 🔒 done |
+| B.2 | Debug viz — `tools/terrain_debug_viz.gd` autoload. Heightmap-colored MeshInstance3D (41×31 grid, 2420 tris). Toggle with F3. | 🔒 done |
+| B.3 | `tools/river_network.gd` — river centerline at X=2250 (col 4). `distance_to()`, `water_depth_at()`, `bridge_at()` queries. | 🔒 done |
+| B.4 | Road flattening — `flatten_road_corridor()`. | 📋 deferred to Phase C (needs Terrain3D mesh — can't flatten flat ground) |
+| B.5 | Bridge ramp logic — bridge deck at terrain Y, piers to riverbed, road ramps. | 📋 deferred to Phase C (needs Terrain3D mesh) |
+| B.6 | Validation: re-run baseline. FPS ≥ 116 headless. | 🔒 done — **145 FPS, 0% drop, PASS** |
+
+**Phase B results:**
+- terrain_height.gd: 11 biome elevation profiles, FastNoiseLite seeded at 1337, river carve over 30m half-width to -4m
+- river_network.gd: centerline at X=2250, water_depth_at() returns 0 on land / 4m at river center
+- chunk_streamer.gd v5: all buildings/props/foliage now sample terrain Y for placement
+- Player spawn auto-adjusts Y from terrain (was Y=2 fixed, now Y=terrain+2)
+- Debug viz: F3 toggles heightmap-colored plane (blue=water, green=low, yellow=mid, red=high)
+- Player spawn moved from (2000,2,1500) → (1750,2,1500) — was spawning in river (underwater), now on Parks biome land at Y=3.88
 
 ### Phase C — Terrain mesh (4–6h)
 | # | Task | Status |
