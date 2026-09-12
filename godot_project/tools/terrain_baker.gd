@@ -134,7 +134,7 @@ func _place_bridges() -> void:
                 var z: float = float(b["row"]) * 500.0 + 250.0
                 var x_center: float = (float(b["from_col"]) + float(b["to_col"])) * 500.0 / 2.0 + 250.0
                 # Bridge deck Y = terrain height at the bridge approach (land, not river)
-                var deck_y: float = _height_fn.height_at(x_center - 200.0, z)
+                var deck_y: float = 0.0  # Flat ground
                 var inst: Node3D = bridge_scene.instantiate()
                 inst.position = Vector3(x_center, deck_y, z)
                 inst.name = "Bridge_%s" % b.get("name", "unnamed")
@@ -162,6 +162,6 @@ func _place_water() -> void:
         water_mi.name = "WaterSurface"
         water_mi.mesh = water_mesh
         water_mi.material_override = water_mat
-        water_mi.position = Vector3(river_x, 0.0, 1500.0)  # centered on map depth
+        water_mi.position = Vector3(river_x, -1.0, 1500.0)  # Below flat ground  # centered on map depth
         add_child(water_mi)
-        print("[TerrainBaker] Water surface at X=%.0f, Y=0.0, %.0f×%.0fm" % [river_x, water_w, water_l])
+        print("[TerrainBaker] Water surface at X=%.0f, Y=-1.0, %.0f×%.0fm" % [river_x, water_w, water_l])
