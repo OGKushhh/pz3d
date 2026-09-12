@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://tools/chunk_streamer.gd" id="1_streamer"]
 [ext_resource type="Script" path="res://tools/terrain_baker.gd" id="2_terrain"]
@@ -70,6 +70,16 @@ func _physics_process(d):
     else: velocity.x = move_toward(velocity.x, 0, spd*d*10); velocity.z = move_toward(velocity.z, 0, spd*d*10)
     move_and_slide()"
 
+[sub_resource type="BoxShape3D" id="flat_ground_col"]
+size = Vector3(4000, 1, 3000)
+
+[sub_resource type="PlaneMesh" id="flat_ground_mesh"]
+size = Vector2(4000, 3000)
+
+[sub_resource type="StandardMaterial3D" id="flat_ground_mat"]
+albedo_color = Color(0.22, 0.40, 0.16, 1)
+roughness = 0.90
+
 [node name="Main" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -85,6 +95,16 @@ directional_shadow_size = 2048
 
 [node name="TerrainBaker" type="Node3D" parent="."]
 script = ExtResource("2_terrain")
+
+[node name="FlatGround" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0, 1500)
+
+[node name="FlatGroundMesh" type="MeshInstance3D" parent="FlatGround"]
+mesh = SubResource("flat_ground_mesh")
+material_override = SubResource("flat_ground_mat")
+
+[node name="FlatGroundCollider" type="CollisionShape3D" parent="FlatGround"]
+shape = SubResource("flat_ground_col")
 
 [node name="Player" type="CharacterBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1750, 2, 1500)

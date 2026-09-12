@@ -74,12 +74,12 @@ func _ready() -> void:
         else:
                 print("[ChunkStreamer] Terrain3D found, using get_height() for unified Y")
 
-        # Auto-set player Y from Terrain3D (or fallback to terrain_height.gd)
-        var px: float = player.global_position.x
-        var pz: float = player.global_position.z
-        var py: float = _get_terrain_y(px, pz) + 2.0
-        player.global_position = Vector3(px, py, pz)
-        print("[ChunkStreamer] player Y set to %.2f (terrain=%.2f)" % [py, py - 2.0])
+        # Player Y: keep the scene's Y=2 (flat ground collision at Y=0 catches them).
+        # Don't override with terrain Y — if Terrain3D collision isn't working,
+        # overriding Y would place the player above empty space (fall through).
+        # The flat ground in main.tscn always provides collision at Y=0.
+        # Terrain3D collision (if working) sits on top of the flat ground.
+        print("[ChunkStreamer] player Y = %.2f (from scene, not terrain override)" % player.global_position.y)
 
 # Unified terrain Y query. Uses Terrain3D's get_height() if available
 # (matches collision), falls back to terrain_height.gd otherwise.
@@ -164,7 +164,7 @@ func _build_chunk(key: Vector2i) -> void:
                         push_warning("[ChunkStreamer] POI asset not found in manifest: " + poi_asset)
                         continue
                 var poi_pos := Vector3(poi.pos[0], 0, poi.pos[2])
-                poi_pos.y = _get_terrain_y(poi_pos.x, poi_pos.z)
+                poi_pos.y = 0.0  # Flat ground
                 var poi_inst: Node3D = poi_scene.instantiate()
                 poi_inst.position = poi_pos
                 poi_inst.name = "POI_%s" % poi.get("id", poi_asset)
@@ -246,7 +246,7 @@ func _build_chunk(key: Vector2i) -> void:
                                         var scene: PackedScene = _get_asset(bname)
                                         if scene == null:
                                                 continue
-                                        pos.y = _get_terrain_y(pos.x, pos.z)
+                                        pos.y = 0.0  # Flat ground (Terrain3D not working in Compat mode)
                                         var inst: Node3D = scene.instantiate()
                                         inst.position = pos
                                         # Face the road: south side faces -Z, north side faces +Z
@@ -287,7 +287,7 @@ func _build_chunk(key: Vector2i) -> void:
                                         var scene: PackedScene = _get_asset(bname)
                                         if scene == null:
                                                 continue
-                                        pos.y = _get_terrain_y(pos.x, pos.z)
+                                        pos.y = 0.0  # Flat ground (Terrain3D not working in Compat mode)
                                         var inst: Node3D = scene.instantiate()
                                         inst.position = pos
                                         # Face the road: west side faces +X, east side faces -X
@@ -315,7 +315,7 @@ func _build_chunk(key: Vector2i) -> void:
                         if not spatial.is_free(pos, 1.5) or spatial.is_on_road(pos):
                                 continue
                         # Phase C: unified Y from Terrain3D
-                        pos.y = _get_terrain_y(pos.x, pos.z)
+                        pos.y = 0.0  # Flat ground (Terrain3D not working in Compat mode)
                         var inst: Node3D = scene.instantiate()
                         inst.position = pos
                         inst.rotation.y = crng.randf_range(0, TAU)
@@ -342,7 +342,7 @@ func _build_chunk(key: Vector2i) -> void:
                         if not spatial.is_free(pos, radius) or spatial.is_on_road(pos):
                                 continue
                         # Phase C: unified Y from Terrain3D
-                        pos.y = _get_terrain_y(pos.x, pos.z)
+                        pos.y = 0.0  # Flat ground (Terrain3D not working in Compat mode)
                         var inst: Node3D = scene.instantiate()
                         inst.position = pos
                         inst.rotation.y = crng.randf_range(0, TAU)
@@ -369,7 +369,7 @@ func _build_chunk(key: Vector2i) -> void:
                                         var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
                                         var pos: Vector3 = base + perp * edge_offset
                                         if not spatial.is_on_road(pos) and spatial.is_free(pos, 0.5):
-                                                pos.y = _get_terrain_y(pos.x, pos.z)
+                                                pos.y = 0.0  # Flat ground (Terrain3D not working in Compat mode)
                                                 var inst: Node3D = scene.instantiate()
                                                 inst.position = pos
                                                 inst.name = "street_light_%d" % crng.randi()
