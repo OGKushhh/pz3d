@@ -24,8 +24,8 @@ func _initialize() -> void:
 
     # Road marking.
     idx.mark_road(Vector3(200, 0, 200), 5.0)
-    _check(not idx.is_road_clear(Vector3(200, 0, 200)), "road not marked")
-    _check(idx.is_road_clear(Vector3(500, 0, 500)),     "false road positive")
+    _check(idx.is_on_road(Vector3(200, 0, 200)), "road not marked")
+    _check(not idx.is_on_road(Vector3(500, 0, 500)),     "false road positive")
 
     if failures > 0:
         print("spatial_index symmetry: FAIL (%d)" % failures)

@@ -68,7 +68,7 @@ func _fill_block(root: Node3D, buildings: Array, block_origin: Vector3, block_si
             0,
             rng.randf_range(inset, block_size - inset)
         )
-        if not spatial.is_free(pos, 12.0) or not spatial.is_road_clear(pos):
+        if not spatial.is_free(pos, 12.0) or spatial.is_on_road(pos):
             continue
         var rot_y: float = _face_nearest_road(pos)
         _spawn(scene, root, pos, bname, rot_y)
@@ -94,7 +94,7 @@ func _place_props(root: Node3D, profile: Dictionary, origin: Vector3) -> void:
 
         if not spatial.is_free(pos, 1.5):
             continue
-        if not spatial.is_road_clear(pos):
+        if spatial.is_on_road(pos):
             continue
 
         _spawn(scene, root, pos, pname, rng.randf_range(0, TAU))
@@ -121,7 +121,7 @@ func _place_foliage(root: Node3D, profile: Dictionary, origin: Vector3) -> void:
         var radius: float = 3.0 if "tree" in fname else 1.0
         if not spatial.is_free(pos, radius):
             continue
-        if not spatial.is_road_clear(pos):
+        if spatial.is_on_road(pos):
             continue
 
         _spawn(scene, root, pos, fname, rng.randf_range(0, TAU))
@@ -147,7 +147,7 @@ func _place_streetlights(root: Node3D, origin: Vector3) -> void:
             var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
             var pos: Vector3 = base + perp * edge_offset
 
-            if spatial.is_road_clear(pos) and spatial.is_free(pos, 0.5):
+            if not spatial.is_on_road(pos) and spatial.is_free(pos, 0.5):
                 _spawn(scene, root, pos, "street_light", 0.0)
                 spatial.insert(pos, 0.5)
 

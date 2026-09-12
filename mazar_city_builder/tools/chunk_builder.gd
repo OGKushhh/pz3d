@@ -76,7 +76,7 @@ func _place_buildings(root: Node3D, profile: Dictionary, origin: Vector3) -> voi
         0,
         rng.randf_range(inset, CFG.CHUNK_SIZE_M - inset)
     )
-    if not spatial.is_free(pos, 30.0) or not spatial.is_road_clear(pos):
+    if not spatial.is_free(pos, 30.0) or spatial.is_on_road(pos):
         return
     _spawn(scene, root, pos, bname, false)
     spatial.insert(pos, 30.0)
@@ -97,7 +97,7 @@ func _place_props(root: Node3D, profile: Dictionary, origin: Vector3) -> void:
             0,
             rng.randf_range(CFG.PROP_ROAD_CLEARANCE, CFG.CHUNK_SIZE_M - CFG.PROP_ROAD_CLEARANCE)
         )
-        if not spatial.is_free(pos, 1.5) or not spatial.is_road_clear(pos):
+        if not spatial.is_free(pos, 1.5) or spatial.is_on_road(pos):
             continue
         _spawn(scene, root, pos, pname, true)
         spatial.insert(pos, 1.5)
@@ -119,7 +119,7 @@ func _place_foliage(root: Node3D, profile: Dictionary, origin: Vector3) -> void:
             0,
             rng.randf_range(0, CFG.CHUNK_SIZE_M)
         )
-        if not spatial.is_free(pos, 2.0) or not spatial.is_road_clear(pos):
+        if not spatial.is_free(pos, 2.0) or spatial.is_on_road(pos):
             continue
         _spawn(scene, root, pos, fname, true)
         spatial.insert(pos, 2.0)
@@ -142,7 +142,7 @@ func _place_streetlights(root: Node3D, origin: Vector3) -> void:
             # Offset perpendicular to segment on the south/west side
             var perp := Vector3(0, 0, 1) if a.z == b.z else Vector3(1, 0, 0)
             var pos := base + perp * edge_offset
-            if spatial.is_road_clear(pos) and spatial.is_free(pos, 0.5):
+            if not spatial.is_on_road(pos) and spatial.is_free(pos, 0.5):
                 var inst := _spawn(scene, root, pos, "street_light", false)
                 inst.rotation.y = 0.0 if a.z == b.z else PI * 0.5
                 spatial.insert(pos, 0.5)

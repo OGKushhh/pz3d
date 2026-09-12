@@ -128,7 +128,7 @@ func _build_chunk(key: Vector2i) -> void:
                         0,
                         crng.randf_range(inset, block_size - inset)
                     )
-                    if not spatial.is_free(pos, building_radius) or not spatial.is_road_clear(pos):
+                    if not spatial.is_free(pos, building_radius) or spatial.is_on_road(pos):
                         continue
                     var inst: Node3D = scene.instantiate()
                     inst.position = pos
@@ -152,7 +152,7 @@ func _build_chunk(key: Vector2i) -> void:
                 0,
                 crng.randf_range(2.0, CityConfig.CHUNK_SIZE_M - 2.0)
             )
-            if not spatial.is_free(pos, 1.5) or not spatial.is_road_clear(pos):
+            if not spatial.is_free(pos, 1.5) or spatial.is_on_road(pos):
                 continue
             var inst: Node3D = scene.instantiate()
             inst.position = pos
@@ -177,7 +177,7 @@ func _build_chunk(key: Vector2i) -> void:
                 crng.randf_range(1.0, CityConfig.CHUNK_SIZE_M - 1.0)
             )
             var radius: float = 3.0 if "tree" in fname else 1.0
-            if not spatial.is_free(pos, radius) or not spatial.is_road_clear(pos):
+            if not spatial.is_free(pos, radius) or spatial.is_on_road(pos):
                 continue
             var inst: Node3D = scene.instantiate()
             inst.position = pos
@@ -204,7 +204,7 @@ func _build_chunk(key: Vector2i) -> void:
                     var dir: Vector3 = (b - a).normalized() if length > 0.001 else Vector3.FORWARD
                     var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
                     var pos: Vector3 = base + perp * edge_offset
-                    if spatial.is_road_clear(pos) and spatial.is_free(pos, 0.5):
+                    if not spatial.is_on_road(pos) and spatial.is_free(pos, 0.5):
                         var inst: Node3D = scene.instantiate()
                         inst.position = pos
                         inst.name = "street_light_%d" % crng.randi()

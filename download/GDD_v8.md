@@ -24,7 +24,7 @@ No place is safe.
 
 ## 2. Pillars
 
-1. **Hand-authored world.** Every building has a reason. Procedural interiors provide replayability; the exterior shell is fixed.
+1. **Authored skeleton, procedural flesh.** Landmarks, roads, and POIs are hand-placed. Buildings and props fill the authored skeleton procedurally. Procedural interiors provide replayability; the exterior shell is fixed. 🧪 *(under testing — see §6.6)*
 2. **Sound is gameplay.** Zombies hear you. Gunshots draw them. Stealth matters.
 3. **Roguelite progression.** Permadeath in sandbox; meta-upgrades persist.
 4. **Biome identity.** Each of the 10 biomes has loot focus, difficulty, vibe, weather.
@@ -110,15 +110,37 @@ Suburbia → Parks → Farmland → Forest → Commercial → Industrial → Riv
 - **Persistent:** map layout, story keys, lore fragments, base upgrades, meta-progression resources.
 - **Per-run reset:** loot containers, zombie spawns, barricades, locked doors, NPC positions, radio rumor.
 
-### 6.6 Procedural interiors 🔒
+### 6.6 Procedural interiors 🧪
 
-- **Fixed:** building exterior shell, room layout, doors, windows, static furniture (kitchen counters, sinks, built-ins).
+> **Status: under testing.** The hybrid split below is the design intent. Current code (`chunk_builder.gd` + `chunk_streamer.gd`) places buildings PROCEDURALLY per-chunk at runtime — exterior shells are NOT yet hand-authored. POI/landmark system is not yet implemented. Interior lazy-spawn (`interior_builder.gd`) is stubbed but not gameplay-tested.
+
+- **Fixed (when fully implemented):** building exterior shell, room layout, doors, windows, static furniture (kitchen counters, sinks, built-ins).
 - **Procedural:** dynamic furniture placement, loot containers, prop scatter, zombie patrol routes.
 - **Modular kitchen:** kitchen is assembled from 4 modular pieces (sink_unit, stove_unit, empty_counter, wall_cabinet) placed side-by-side. Layout is procedural — different kitchens have different arrangements.
+- **Current implementation gap:** exterior shell placement is procedural, not hand-authored. This is acceptable for alpha (chunks look varied enough) but breaks Pillar 1's intent. Fix requires implementing POI/landmark overlay system (§6.8 below).
 
 ### 6.7 Civic landmarks 🔒
 
 12 civic landmarks (no religious): Lighthouse, Water Tower, Grain Silo, Hospital, Police HQ, Government Palace, Stadium, Old Royal Palace, Naval Fort, Broadcast Tower, Railway Station, Grand Bazaar.
+
+**Models built:** all 12 exist as MoGen assets. **Placement:** NOT yet wired — `city_config.gd` has a `landmarks` field per biome, but `chunk_streamer.gd` does not yet read it. Landmarks will not spawn in-game until streamer is patched (see §11 TODO list).
+
+### 6.8 POI / landmark overlay system 🧪
+
+> **Status: under design.** Recommended by architectural review (DeepSeek, 2026-09-12). Not yet implemented.
+
+**Goal:** every biome has 1+ landmark visible from 500–800m (GTA SA memorability). POIs are hand-placed in a JSON file (`res://data/pois.json`),” and `chunk_builder` checks: "is there a POI in my bounds?" If yes, place it exactly and suppress procedural placement in its radius.
+
+```json
+// res://data/pois.json (example)
+[
+  {"id":"hospital_main", "type":"hospital", "pos":[1200,0,800], "radius":40, "biome":9},
+  {"id":"fort_sarran",   "type":"fort_sarran", "pos":[3500,0,2500], "radius":60, "biome":10},
+  {"id":"gov_palace",   "type":"government_palace", "pos":[3000,0,1500], "radius":50, "biome":9}
+]
+```
+
+**Implementation status:** assets exist, JSON format proposed, builder integration NOT done. Tracked in §11 TODO list.
 
 ---
 
@@ -380,4 +402,44 @@ This matches real colonial house architecture and gives the house proper room co
 | `/home/z/my-project/download/mazar_alpha_backup_2026-09-11.zip` | **alpha backup (1.5MB)** |
 | `/home/z/my-project/download/mazar_design_backup_2026-09-11.zip` | **design backup (3.6MB)** |
 | `/home/z/my-project/asset-pipeline/worklog/worklog.md` | append-only worklog |
-| `/home/z/my-project/mogen-docs/compiled.md` | **compiled MoGen DSL reference** |
+
+---
+
+## §11 — Architecture TODO list 🧪
+
+> Tracked issues from architectural review (DeepSeek, 2026-09-12). Each item has severity, status, and proposed fix. Work these in priority order before scaling content.
+
+### 🔴 Critical (gameplay-affecting)
+
+| # | Issue | Status | Fix | Est |
+|---|---|---|---|---|
+| 11.1 | **River = 25% of map** (12/48 grid cells). Player walks 3km² of water. Should be 5–10% + Coastal Beach biome. | 🧪 open | Reduce RI to 1 column (6 cells = 12.5%) + add COASTAL_BEACH biome enum value for the freed column. | 1h |
+| 11.2 | **`chunk_streamer.gd` duplicates `chunk_builder.gd` placement logic.** Streamer rebuilds chunks at runtime instead of loading prebuilt `.tscn` files. ~730 stale `.tscn` chunks unused. | 🧪 open | Refactor streamer to be a thin loader (see DeepSeek's snippet). Move all placement into `chunk_builder.gd` as the single source of truth. Run `city_builder.gd` once to regenerate `.tscn` files. | 2–4h |
+| 11.3 | **First-frame hitch.** `stream_radius=2` → 25 chunks generated synchronously on first frame. Multi-second stall. | 🧪 open | Add frame budget: max 1 chunk build per frame, queue the rest. Or pre-build on background thread. | 1–2h |
+| 11.4 | **River guard missing in streamer.** If `Biome.RIVER` profile has any `fill > 0` or non-empty buildings list, it will spawn buildings in water. | 🔒 fixed | Verified `city_config.gd` River has `fill=0.15` and 4 water-appropriate buildings (fishing_hut, pier_dock, houseboat, marsh_pier). NOT a bug given current profile. Re-check after any River profile edit. | — |
+
+### 🟠 Performance (blocks scaling)
+
+| # | Issue | Status | Fix | Est |
+|---|---|---|---|---|
+| 11.5 | **`_face_nearest_road` is O(n²).** 200 segments × 100 buildings × 730 chunks = 14.6M ops per build. | 🧪 open | Add spatial grid to `RoadNetwork`: `Vector2i → Array[segment]`. `nearest_road_to(pos, radius)` becomes O(1). | 1h |
+| 11.6 | **MultiMesh batching not implemented.** Each tree = 1 draw call. 200 trees × 49 loaded chunks = 9,800 draw calls for foliage alone. | 🧪 open | Group `MeshInstance3D` by mesh, replace with `MultiMeshInstance3D` per asset per chunk. 80–90% draw call reduction. (Snippet in DeepSeek review.) | 2h |
+| 11.7 | **Navigation baking missing.** Zombies need NavMesh. Retrofit after 30km² is miserable. | 🧪 open | Add `NavigationRegion3D` per chunk in `chunk_builder.gd`. Bake trivial navmesh now; refine later. | 2–4h |
+| 11.8 | **`SpatialIndex` uses circles not AABB.** Buildings are 8×12m rectangles but stored as center+radius. Causes overlap or wasted space. | 🧪 open | Add `insert_box(center, size, rot_y)` that converts oriented box to world AABB. | 1–2h |
+| 11.9 | **`CityMeta._hash_builders()` re-reads files every build.** Minor — only matters if rebuilding in a loop. | 🧪 backlog | Cache hash in `user://city_meta_cache.json`, recompute only if `mtime` changed. | 30m |
+
+### 🟡 Architectural (philosophical / design)
+
+| # | Issue | Status | Fix | Est |
+|---|---|---|---|---|
+| 11.10 | **Pillar 1 contradiction.** GDD says "hand-authored world" but code is fully procedural. | 🧪 design | Pillar 1 wording updated (see §2). Real fix: implement §6.8 POI overlay system. | — |
+| 11.11 | **POI / landmark system not implemented.** `city_config.gd` has `landmarks` field per biome but streamer doesn't read it. 8 hero landmarks (fort_sarran, government_palace, etc.) won't spawn. | 🧪 open | Add `pois.json`. Patch `chunk_builder.gd` to query POIs in chunk bounds, place 1 per POI exactly, suppress procedural in POI radius. | 4–6h |
+| 11.12 | **Zone palette per biome missing.** No biome-specific ground/fog/sun tinting. All biomes look the same atmospherically. | 🧪 backlog | Add `palette` field per biome in `city_config.gd`. Apply in `environment_setup.gd`. | 2h |
+| 11.13 | **Duplicate `city_builder.gd` removed.** Old 579-line v3 prototype was sitting in `godot_project/scripts/` alongside the proper `tools/city_builder.gd`. | 🔒 fixed | Deleted in this commit. | — |
+| 11.14 | **`is_road_clear()` inverted naming.** Every caller wrote `not spatial.is_road_clear(pos)`. Confusing. | 🔒 fixed | Renamed to `is_on_road()`. All callers updated. Old name kept as deprecated alias. | — |
+| 11.15 | **`bridges()` off-by-one.** `row=6` doesn't exist (`GRID_ROWS=6` means rows 0..5). Silent failure. | 🔒 fixed | Changed to `row=5`. | — |
+
+### Status legend
+- 🔒 = decided / fixed (don't touch unless requirements change)
+- 🧪 = under testing / under design / open (work needed)
+- 📋 = backlog (deferred until after alpha vertical slice)

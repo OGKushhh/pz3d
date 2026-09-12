@@ -1,7 +1,14 @@
+class_name SpatialIndex
 # O(1) spatial occupancy grid. Replaces linear arrays that break past 5k placements.
 # Correctness: insert marks every cell the disc overlaps; query scans the matching
 # window. Verified by res://tests/spatial_index_test.gd.
-class_name SpatialIndex
+#
+# ⚠️ LIMITATION (DeepSeek flagged, 2026-09-12): `insert()` stores a CIRCLE
+# (center + radius), not an AABB. Buildings are rectangular (e.g. 8×12m).
+# This causes overlap when the radius is set to the larger dimension (buildings
+# clip into each other) or wasted space when set to the smaller (gaps between
+# buildings). TODO: add `insert_box(center, size, rot_y)` that converts the
+# oriented box to a world AABB and stores that for overlap tests.
 extends RefCounted
 
 var _occupied: Dictionary = {}
@@ -44,7 +51,15 @@ func mark_road(pos: Vector3, half_width: float) -> void:
         for dz in range(-r, r + 1):
             _road[c + Vector2i(dx, dz)] = true
 
+# Returns true if `pos` is ON a road cell (i.e. placement would obstruct traffic).
+# Renamed from `is_road_clear` (which returned the inverse and forced every
+# caller to write `not spatial.is_road_clear(pos)` — confusing).
+# Backward-compat alias kept for any callers we missed.
+func is_on_road(pos: Vector3) -> bool:
+    return _road.has(_key(pos))
+
 func is_road_clear(pos: Vector3) -> bool:
+    push_warning("SpatialIndex.is_road_clear() is deprecated — use is_on_road() instead. Inverted semantics.")
     return not _road.has(_key(pos))
 
 func clear() -> void:

@@ -266,7 +266,7 @@ static func grid_layout() -> Array:
 static func bridges() -> Array:
     return [
         {"row":4, "from_col":4, "to_col":7, "name":"Sarran Bridge"},
-        {"row":6, "from_col":4, "to_col":7, "name":"Old Town Bridge"},
+        {"row":5, "from_col":4, "to_col":7, "name":"Old Town Bridge"},  # was row=6 (off-by-one, GRID_ROWS=6 means rows 0..5)
     ]
 
 static func sky_colors() -> Dictionary:
