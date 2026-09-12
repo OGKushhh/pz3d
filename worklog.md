@@ -217,3 +217,63 @@ Stage Summary:
 - Each component has: can_open, can_lock, can_break, can_climb flags
 - Doors can rotate on hinge (open/close), garage rolls up, windows break/climb
 - Next: write runtime loader in chunk_streamer to place components as child nodes
+
+---
+Task ID: v8-tower-door-and-map-gen
+Agent: main (Super Z)
+Task: Fix tower door access + 3 map gen issues (landmarks, road kind filter, anti-clustering)
+
+Work Log:
+- Created broadcast_tower_shell.mog — same as broadcast_tower.mog but with shed_door panel removed.
+  Verified via `mogen inspect`: shell has node "shed_roof" but no "shed_door" (door is now a runtime child GLB).
+- Created broadcast_tower_components.json — manifest listing 1 interactive door_front at pos=[3.0, 1.25, -1.05]
+  (the shed opening, hinged on the left, can_open=true, can_lock=true).
+- Compiled broadcast_tower_shell.glb (5.0k tris, 158 nodes, 133KB) via mogen, copied to godot_project/assets/buildings/.
+- Copied manifest to godot_project/data/building_components/broadcast_tower_components.json.
+- Updated chunk_streamer.gd (v7 → v8) with 4 changes:
+  1. ROAD KIND FILTER: in the building placement loop, skip segments where kind="highway" or kind="bridge".
+     Roads are still rendered as visible surfaces, just no buildings spawn on them. Fixes "buildings on bridges".
+  2. ANTI-CLUSTERING: added _anti_cluster_ok() check before placing each building.
+     - Landmark assets (in any biome's landmarks array): min 800m apart
+     - Special civic/commercial (gas_station, hospital, stadium, etc. — see SPECIAL_ANTICLUSTER const): min 500m apart
+     - Common buildings: no constraint (existing spatial.is_free overlap check is enough)
+     Per-asset positions tracked in _asset_positions dict (Vector3 arrays).
+  3. LANDMARK PLACEMENT: added _place_landmark() — picks ONE asset from profile.landmarks,
+     places it at chunk center (or jittered position if blocked), with cross-chunk dedup via
+     the anti-cluster tracker. So e.g. only one stadium appears per downtown district.
+     Landmarks with a shell variant (broadcast_tower) also get their interactive components attached.
+  4. SHELL + COMPONENT LOADING: added _spawn_building_with_components() — when placing any building,
+     checks for <name>_shell.glb (preferred if exists) + <name>_components.json. If both exist,
+     spawns the shell GLB and attaches each listed component (door_front, window_unit, door_garage)
+     as a child node at the manifest position. Each child carries meta tags: component_type,
+     interactive, can_open, can_lock, can_break, can_climb, hinge_side, is_open, is_locked.
+     Also attaches a StaticBody3D + BoxShape3D collider to each component (sized per type via
+     COMPONENT_COLLIDER_SIZES) so the player's interaction raycast can hit it (GLB import has no
+     collision by default). Unlocks the existing 6 shell GLBs (bungalow, cottage, etc.) too.
+- Extracted inline player_code from main.tscn to external player_main.gd, added door interaction:
+  - Each physics frame, raycasts 3m forward from camera
+  - If hit node (or ancestor) has meta interactive=true, marks as look_target
+  - On "interact" action (E key, already mapped in project.godot), toggles open/close
+  - Open = rotate door 90° around Y (saves closed_rotation_y for restore); Close = restore saved rotation
+  - Prints "[Interact] looking at <name>" and "[Interact] Opened/Closed <name>" to console
+  - Note: door swings around its center (not hinge edge) — proper hinge pivot is a future TODO
+- Park placement now skips if a landmark was placed at the chunk center this pass (avoids park overwriting landmark).
+
+Stage Summary:
+- Tower door: broadcast_tower (when placed as downtown landmark) now spawns with broadcast_tower_shell.glb
+  + an interactive door_front child at the shed opening. Player can walk up, look at the door,
+  press E to swing it open (90° around Y), and walk through into the shed.
+- Map gen v8 fixes all 3 user-flagged issues:
+  1. Landmarks: stadium/gov_palace/fort_sarran/lighthouse/grain_silo/etc. now spawn once per district
+  2. Road kind: highways & bridges no longer get buildings on them
+  3. Anti-clustering: no two gas stations / hospitals / stadiums / etc. within 500m
+- Also unlocks the existing 6 shell GLBs (bungalow, cottage, suburban_house_v2, etc.) — they'll now
+  spawn with interactive doors/windows attached.
+- Player interaction is wired via raycast meta lookup, so future interactive props (containers, levers,
+  switches) just need to set_meta("interactive", true) + their specific can_* flags.
+- Next: user runs Godot, walks to a downtown chunk, finds the broadcast_tower landmark, looks at the
+  shed door, presses E. Console should print "[Interact] Opened comp_shed_door_XXXX". Door visually
+  swings 90°. Player walks through into the shed base of the lattice tower.
+- Honorable mention (deferred): grid_layout() is still hardcoded 8×6 — Valheim-style district noise
+  would soften district edges, but that's a bigger change. Not in this pass.
+
