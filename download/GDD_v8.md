@@ -1,3 +1,10 @@
+# ⚠️ DEPRECATED — DO NOT EDIT
+
+> **This file is deprecated as of 2026-09-12.** All GDD updates must go to **`/home/z/my-project/GDD_v1.8_unified.md`** (the canonical GDD, 56KB, supersedes this file).
+> This v8 archive was edited by mistake during Phase A; the changes have been migrated to v1.8_unified §12 (Terrain Architecture) and §1.2 (Pillar 1 reworded). Do not trust this file for current state. Kept only for git history.
+
+---
+
 # Game Design Document — Mazar Alpha
 
 > **Format:** Markdown. First-person (the designer = me, speaking to the team).
