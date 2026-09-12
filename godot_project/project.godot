@@ -15,7 +15,8 @@ config/features=PackedStringArray("4.7", "GL Compatibility")
 # To re-enable for CI: uncomment the line below.
 # AutoScreenshot="*res://scripts/auto_screenshot.gd"
 DebugHUD="*res://tools/debug_hud.gd"
-TerrainDebugViz="*res://tools/terrain_debug_viz.gd"
+# TerrainDebugViz DISABLED — causes z-fighting with flat ground
+# TerrainDebugViz="*res://tools/terrain_debug_viz.gd"
 
 [display]
 
@@ -26,8 +27,8 @@ window/stretch/aspect="expand"
 
 [rendering]
 
-renderer/rendering_method="forward_plus"
-renderer/rendering_method.mobile="forward_plus"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
 anti_aliasing/quality/msaa_2d=0
 anti_aliasing/quality/msaa_3d=0
 anti_aliasing/quality/screen_space_aa=1
