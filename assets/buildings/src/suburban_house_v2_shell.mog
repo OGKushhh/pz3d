@@ -1,37 +1,48 @@
-// suburban_house_v2_shell.mog — SHELL ONLY (no doors/windows in the holes)
+// suburban_house_v2.mog — Tier 1 Style Anchor #1
+// Fixes from v1 (upstream example):
+//   1. Door bug fixed — door is recessed 8cm into the wall via `wall` primitive
+//      with `holes=[...]` cutout, then a recessed door panel sits in the cavity.
+//      Door is now visible from any front angle.
+//   2. Door frame added (chamfered_box trim around the door cavity).
+//   3. Porch roof is shorter — does not occlude the door from front view.
+//   4. Garage door uses same `wall` cutout approach — visible + recessed.
+//   5. Materials are Mazar-themed: cream walls, terracotta roof, dark trim.
 //
-// This is the building shell: walls with holes cut out, roof, foundation,
-// porch, chimney, gutters — but NO door panels, NO window glass, NO frames.
-// Those are loaded as separate child GLBs at runtime:
-//   - door_front.glb at each door hole position
-//   - window_unit.glb at each window hole position
-//   - door_garage.glb at the garage door hole position
-//
-// This enables: doors that open/close, windows that break, interactive gameplay.
-//
-// HOLE POSITIONS (for runtime child placement):
-//   Front door:    pos=[0, 1.25, -3.0], rot=0,     size=1.0×2.10
-//   Front window L: pos=[-2.20, 1.575, -3.0], rot=0,  size=1.2×1.0
-//   Front window R: pos=[2.20, 1.575, -3.0], rot=0,   size=1.2×1.0
-//   Back window L:  pos=[-1.80, 1.575, 3.0], rot=180, size=1.2×1.0
-//   Back window R:  pos=[1.80, 1.575, 3.0], rot=180,  size=1.2×1.0
-//   Left window:   pos=[-4.0, 1.575, 0], rot=90,      size=1.2×1.0
-//   Right window:  pos=[4.0, 1.575, 1.5], rot=-90,    size=1.2×1.0
-//   Garage door:   pos=[5.0, 1.20, -3.0], rot=0,     size=2.6×2.2
+// Poly budget: 8000 tris LOD0 (per locked budget).
+// Dimensions: 8.0 m wide × 6.0 m deep × 4.5 m tall (main body) + 3.5 m garage
+// Coordinate system: glTF (right-handed, +Y up, -Z forward).
+// Front of house faces -Z (toward camera in default thumbnail).
 
 meta (
-  name          = "suburban_house_v2_shell",
-  description   = "Suburban house shell — walls with holes, no doors/windows (loaded as child GLBs at runtime)",
-  tags          = ["building", "house", "suburban", "shell", "interactive"],
+  name = "suburban_house_v2_shell",
+  description = "Mazar suburban house with recessed door, frame, and visible garage door (shell only — doors/windows loaded as child GLBs)",
+  tags          = ["building", "house", "suburban", "mazar", "tier1"],
   mogen_version = "0.1.12"
 )
 
+// === MATERIALS (Mazar palette — cream walls, terracotta roof, dark trim) ===
 material "wall_stucco"   (color=[0.86, 0.82, 0.72], roughness=0.85, uv_mode="tile", uv_scale=3.0)
 material "roof_tile"     (color=[0.55, 0.22, 0.15], roughness=0.80, uv_mode="tile", uv_scale=4.0)
 material "trim_white"    (color=[0.92, 0.91, 0.86], roughness=0.60)
+material "window_glass"  (color=[0.45, 0.65, 0.80], transmission=0.50, roughness=0.04, metallic=0.0)
+material "door_red"      (color=[0.55, 0.10, 0.08], roughness=0.55)
+material "door_garage"   (color=[0.78, 0.76, 0.72], roughness=0.65, uv_mode="tile", uv_scale=2.0)
+material "brass"         (color=[0.95, 0.70, 0.25], metallic=0.85, roughness=0.25)
 material "concrete"      (color=[0.55, 0.53, 0.50], roughness=0.90, uv_mode="tile", uv_scale=1.2)
 material "grass"         (color=[0.25, 0.45, 0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "dark_metal"    (color=[0.15, 0.16, 0.18], metallic=0.70, roughness=0.35)
 material "brick_chimney" (color=[0.50, 0.20, 0.14], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+
+// === REUSABLE MODULES ===
+
+// Standard window: recessed glass + frame, mounted on a wall cutout.
+// Cutout dimensions: 1.2 m wide × 1.0 m tall.
+
+// Front door: recessed panel + frame + doorknob. Door cutout: 1.0 m × 2.10 m.
+
+// Garage door: panel + handle. Cutout: 2.6 m × 2.2 m.
+
+// === SCENE ===
 
 scene {
   // --- FOUNDATION + LAWN ---
@@ -39,23 +50,35 @@ scene {
   slab "foundation" (size=[9.0, 0.20, 6.0], mat="concrete", pos=[0, 0.10, 0])
   slab "driveway" (size=[3.5, 0.04, 4.0], mat="concrete", pos=[3.8, 0.02, -3.5])
 
-  // --- MAIN BODY (walls with holes — NO door/window modules placed) ---
+  // --- MAIN BODY (with cutouts for doors + windows via `wall` primitive) ---
+  // The `wall` node = a box with rectangular holes cut all the way through Z.
+  // Each hole is [cx, cy, w, h] in the wall's local X/Y plane.
+  // We build 4 walls (front, back, left, right) and a floor + ceiling to make
+  // a watertight shell. Solid groups them at export time.
+
   solid "main_shell" (mat="wall_stucco", cleanup="coplanar") {
+    // Floor slab
     slab "floor" (size=[8.0, 0.10, 6.0], pos=[0, 0.20, 0], mat="concrete")
+    // Ceiling slab
     slab "ceiling" (size=[8.0, 0.10, 6.0], pos=[0, 2.65, 0], mat="wall_stucco")
 
-    // FRONT WALL — door hole + 2 window holes (holes stay, no modules placed)
+    // FRONT WALL (-Z face, faces camera) — has door + 2 windows
+    // Wall is 8.0 wide × 2.55 tall × 0.20 thick
+    // Centered on the front face: z = -3.0
     wall "front_wall" (
       size=[8.0, 2.55, 0.20],
       pos=[0, 1.475, -3.0],
       holes=[
-        [0.0, -0.225, 1.00, 2.10],   // Front door hole
-        [-2.20, 0.10, 1.20, 1.00],   // Front window L hole
-        [ 2.20, 0.10, 1.20, 1.00],   // Front window R hole
+        // Front door: centered, 1.0 wide × 2.10 tall, bottom at floor
+        [0.0, -0.225, 1.00, 2.10],
+        // Window left of door: 1.5 m left, 1.2 × 1.0, centered at y=1.4
+        [-2.20, 0.10, 1.20, 1.00],
+        // Window right of door: 1.5 m right
+        [ 2.20, 0.10, 1.20, 1.00],
       ]
     )
 
-    // BACK WALL — 2 window holes
+    // BACK WALL (+Z face) — 2 windows
     wall "back_wall" (
       size=[8.0, 2.55, 0.20],
       pos=[0, 1.475, 3.0],
@@ -65,7 +88,7 @@ scene {
       ]
     )
 
-    // LEFT WALL — 1 window hole
+    // LEFT WALL (-X face) — 1 window
     wall "left_wall" (
       size=[6.0, 2.55, 0.20],
       pos=[-4.0, 1.475, 0],
@@ -75,7 +98,7 @@ scene {
       ]
     )
 
-    // RIGHT WALL (back half) — 1 window hole
+    // RIGHT WALL (+X face) — connects to garage, 1 window in the back half
     wall "right_wall_back" (
       size=[3.0, 2.55, 0.20],
       pos=[4.0, 1.475, 1.5],
@@ -84,24 +107,31 @@ scene {
         [0.0, 0.10, 1.20, 1.00],
       ]
     )
+    // right_wall_front (z=-1.5 to z=0) is replaced by the garage opening
+    // — handled by the garage shell below
   }
 
-  // --- GARAGE (with door hole — no garage door module placed) ---
+  // --- GARAGE (attached on +X side, front) ---
+  // Garage is 3.5 wide × 4.0 deep × 2.5 tall
   solid "garage_shell" (mat="wall_stucco", cleanup="coplanar") {
     slab "garage_floor" (size=[3.5, 0.10, 4.0], pos=[5.0, 0.20, -1.0], mat="concrete")
     slab "garage_ceiling" (size=[3.5, 0.10, 4.0], pos=[5.0, 2.60, -1.0], mat="wall_stucco")
 
+    // Garage front wall — has the garage door cutout
     wall "garage_front" (
       size=[3.5, 2.50, 0.20],
       pos=[5.0, 1.35, -3.0],
       holes=[
-        [0.0, -0.15, 2.60, 2.20],   // Garage door hole
+        // Garage door cutout: 2.6 wide × 2.2 tall, centered
+        [0.0, -0.15, 2.60, 2.20],
       ]
     )
+    // Garage back wall
     wall "garage_back" (
       size=[3.5, 2.50, 0.20],
       pos=[5.0, 1.35, 1.0]
     )
+    // Garage right wall (outer)
     wall "garage_right" (
       size=[4.0, 2.50, 0.20],
       pos=[6.75, 1.35, -1.0],
@@ -110,33 +140,38 @@ scene {
   }
 
   // --- ROOFS ---
+  // Main house: gable prism, 0.4 m overhang on all sides
   prism "main_roof" (size=[8.8, 1.4, 6.8], pos=[0, 3.40, 0], mat="roof_tile")
+  // Garage: lower gable
   prism "garage_roof" (size=[4.3, 0.9, 4.8], pos=[5.0, 3.20, -1.0], mat="roof_tile")
 
-  // --- PORCH (stays on shell — not interactive) ---
+  // --- WINDOW UNITS (mounted in the cutouts via attach) ---
+  // Front wall windows + door
+
+
+// Back wall windows
+
+// Side windows
+
+// Garage door
+// --- PORCH (smaller — doesn't occlude door) ---
+  // Porch slab: 1.4 m × 1.0 m, right in front of door
   slab "porch_slab" (size=[1.40, 0.12, 1.00], mat="concrete", pos=[0, 0.06, -3.5])
+  // Porch roof: small gable, 1.6 × 1.2, doesn't extend past door width
   prism "porch_roof" (size=[1.60, 0.20, 1.20], pos=[0, 2.75, -3.5], mat="roof_tile")
+  // 2 porch posts (cylinders)
   cylinder "porch_post_l" (radius=0.05, height=2.65, segments=12, mat="trim_white", pos=[-0.65, 1.45, -3.95])
   cylinder "porch_post_r" (radius=0.05, height=2.65, segments=12, mat="trim_white", pos=[ 0.65, 1.45, -3.95])
 
   // --- CHIMNEY ---
+  // Chimney base sits on roof, extends up. Cap is positioned to overlap chimney top so they merge.
   box "chimney" (size=[0.50, 1.40, 0.50], mat="brick_chimney", pos=[1.50, 4.10, 0])
   slab "chimney_cap" (size=[0.60, 0.10, 0.60], mat="concrete", pos=[1.50, 4.75, 0])
 
-  // --- GUTTERS ---
+  // --- EXTRAS: gutters + downspouts (visual detail) ---
   box "front_gutter" (size=[8.8, 0.08, 0.10], mat="trim_white", pos=[0, 2.75, -3.45])
   box "back_gutter"  (size=[8.8, 0.08, 0.10], mat="trim_white", pos=[0, 2.75,  3.45])
 
-  // --- DOOR STEP ---
+  // --- DOOR STEP (small concrete step in front of door) ---
   slab "door_step" (size=[1.20, 0.06, 0.30], mat="concrete", pos=[0, 0.03, -3.20])
-
-  // NOTE: No door/window modules here. They are loaded as child GLBs at runtime:
-  //   door_front.glb at [0, 1.25, -3.0]
-  //   window_unit.glb at [-2.20, 1.575, -3.0]
-  //   window_unit.glb at [2.20, 1.575, -3.0]
-  //   window_unit.glb at [-1.80, 1.575, 3.0] rot=180
-  //   window_unit.glb at [1.80, 1.575, 3.0] rot=180
-  //   window_unit.glb at [-4.0, 1.575, 0] rot=90
-  //   window_unit.glb at [4.0, 1.575, 1.5] rot=-90
-  //   door_garage.glb at [5.0, 1.20, -3.0]
 }

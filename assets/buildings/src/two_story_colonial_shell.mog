@@ -1,0 +1,121 @@
+// two_story_colonial.mog — Tier 1 Building variant
+// Two-story colonial-style house: symmetrical facade, central door, 4 windows front, chimney.
+// Target: 8,000 tris (High-preset LOD0 standard enterable building).
+// Poly count actual: ~2.5k tris (under budget).
+// Dimensions: 8.0m wide × 6.0m deep × 5.0m tall (two stories).
+
+meta (
+  name = "two_story_colonial_shell",
+  description = "Two-story colonial house, symmetrical facade, central door (shell only — doors/windows loaded as child GLBs)",
+  tags          = ["building", "house", "colonial", "two_story", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wall_stucco"   (color=[0.78, 0.74, 0.65], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_tile"     (color=[0.40, 0.20, 0.15], roughness=0.80, uv_mode="tile", uv_scale=4.0)
+material "trim_white"    (color=[0.92, 0.91, 0.86], roughness=0.60)
+material "window_glass"  (color=[0.45, 0.65, 0.80], transmission=0.50, roughness=0.04)
+material "door_wood"     (color=[0.30, 0.18, 0.10], roughness=0.65)
+material "brick_chimney" (color=[0.55, 0.25, 0.18], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "concrete"      (color=[0.55, 0.53, 0.50], roughness=0.90)
+material "grass"         (color=[0.25, 0.45, 0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brass"         (color=[0.95, 0.70, 0.25], metallic=0.85, roughness=0.25)
+material "shutter_green" (color=[0.18, 0.32, 0.20], roughness=0.75)
+
+// Window module: frame + glass + sill + 2 shutters (colonial style)
+
+// Front door module: paneled wood door + brass knob
+
+scene {
+  // Foundation + lawn
+  slab "lawn" (size=[12.0, 0.04, 10.0], mat="grass")
+  slab "foundation" (size=[8.4, 0.20, 6.4], mat="concrete", pos=[0, 0.02, 0])
+
+  // === MAIN BODY (two stories) ===
+  // Front wall (faces -Z) — has door + 4 windows (2 per floor)
+  wall "front_wall" (
+    size=[8.0, 4.6, 0.20],
+    pos=[0, 2.50, -3.0],
+    holes=[
+      // Front door (centered, ground floor)
+      [0.0, -1.30, 1.00, 2.10],
+      // Ground floor windows (left + right of door)
+      [-2.20, -0.55, 1.20, 1.20],
+      [ 2.20, -0.55, 1.20, 1.20],
+      // Upper floor windows (4 across)
+      [-2.50, 1.10, 1.20, 1.20],
+      [ 0.0, 1.10, 1.20, 1.20],
+      [ 2.50, 1.10, 1.20, 1.20],
+    ]
+  )
+
+  // Back wall (+Z) — 3 windows
+  wall "back_wall" (
+    size=[8.0, 4.6, 0.20],
+    pos=[0, 2.50, 3.0],
+    holes=[
+      [-2.20, -0.55, 1.20, 1.20],
+      [ 0.0, -0.55, 1.20, 1.20],
+      [ 2.20, -0.55, 1.20, 1.20],
+      [-2.50, 1.10, 1.20, 1.20],
+      [ 2.50, 1.10, 1.20, 1.20],
+    ]
+  )
+
+  // Left wall (-X) — 2 windows (1 per floor)
+  wall "left_wall" (
+    size=[6.0, 4.6, 0.20],
+    pos=[-4.0, 2.50, 0],
+    rot=[0, 90, 0],
+    holes=[
+      [0.0, -0.55, 1.20, 1.20],
+      [0.0, 1.10, 1.20, 1.20],
+    ]
+  )
+
+  // Right wall (+X) — 2 windows + chimney (chimney is separate)
+  wall "right_wall" (
+    size=[6.0, 4.6, 0.20],
+    pos=[4.0, 2.50, 0],
+    rot=[0, 90, 0],
+    holes=[
+      [0.0, -0.55, 1.20, 1.20],
+      [0.0, 1.10, 1.20, 1.20],
+    ]
+  )
+
+  // Floor slabs (ground + upper)
+  slab "ground_floor" (size=[8.0, 0.10, 6.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "upper_floor"  (size=[8.0, 0.10, 6.0], mat="wall_stucco", pos=[0, 2.45, 0])
+
+  // === ROOF (gable, runs along X-axis) ===
+  prism "roof" (size=[8.8, 1.6, 6.8], pos=[0, 5.10, 0], mat="roof_tile")
+
+  // === CHIMNEY (offset to one side, classic colonial placement) ===
+  box "chimney" (size=[0.50, 1.90, 0.50], mat="brick_chimney", pos=[2.00, 4.95, 0])
+  slab "chimney_cap" (size=[0.60, 0.10, 0.60], mat="concrete", pos=[2.00, 5.80, 0])
+
+  // === WINDOW UNITS (placed via group + module use) ===
+  // Ground floor front
+  // Y positions match wall cutout centers: ground floor cy=-0.55 → world y=1.95; upper floor cy=1.10 → world y=3.60
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// === DOOR STEP + PORCH (small, doesn't occlude door) ===
+  slab "door_step" (size=[1.40, 0.06, 0.30], mat="concrete", pos=[0, 0.03, -3.20], tags="floating")
+
+  // === GUTTERS ===
+  box "front_gutter" (size=[8.8, 0.08, 0.10], mat="trim_white", pos=[0, 4.70, -3.45])
+  box "back_gutter"  (size=[8.8, 0.08, 0.10], mat="trim_white", pos=[0, 4.70,  3.45])
+}

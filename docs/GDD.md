@@ -1,6 +1,6 @@
 # MAZAR — UNIFIED GAME DESIGN DOCUMENT
 
-> **Version:** 1.9
+> **Version:** 2.0
 > **Status:** Pre-production → vertical slice. Lore semi-locked. Path B locked. Tier 1 production: 216 active GLBs. Terrain system operational (Terrain3D v1.0.2). City gen pipeline fine-tuned (lot-based placement, per-biome density, POI system).
 > **Repo location:** `/home/z/my-project/docs/GDD.md` (canonical — see `STATUS.md` for what's current vs archived)
 > **Working title:** *Mazar*
@@ -13,6 +13,7 @@
 >
 > | Version | Date | Changes |
 > |---|---|---|
+> | 2.0 | 2026-09-13 | Shell split architecture: buildings separated into shell GLB (walls with holes) + interactive component GLBs (doors, windows, garage doors). 6 buildings processed. Component manifests define positions, rotations, and gameplay flags (can_open, can_lock, can_break, can_climb). mogen reinstalled (v0.1.12). Forward+ renderer. City gen v7 (data-driven map, visible roads, gap filler, interior greenery, parks). |
 > | 1.9 | 2026-09-12 | Terrain3D plugin + multi-region bake, unified Y via get_height(), road flattening (B.4), bridge placement (B.5), water surface (Phase D), NavMesh hooks (Phase E), POI system with 6 landmarks (Phase F), O(1) road-facing (G.1), MultiMesh batching stub (G.2), SpatialIndex AABB (G.3), city gen pipeline fine-tune (lot-based placement, per-biome density, v3 rules applied), §4.6 World Layering Model locked (3-layer: Baked/Per-run/Delta), CityMeta terrain hash, test suite (9 tests, all PASS), frame budget (1 chunk/frame), repo restructure (docs/archive/STATUS/README), v3 extraction applied, 216 GLBs across all biomes, River 25%→12.5% + Coastal Beach, Subway-as-layer |
 > | 1.8 | 2026-09-11 | Merged GDD v8 + lore v1.2 + poly_budget v3 + furniture_decision. 28 approved assets + 5 retired. Kitchen modular (4 pieces). Biome profiles wired. |
 > | 1.7 | 2026-09-11 | Batch 006 (10 new assets, 28 total). |

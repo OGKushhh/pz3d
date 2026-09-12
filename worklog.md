@@ -181,3 +181,39 @@ Stage Summary:
 - Stale chunks cleared — runtime streamer will rebuild live with new assets on next Godot play
 - Known gap: landmarks field exists in city_config but streamer doesn't read it yet (heroes won't spawn until streamer patch lands)
 - Next: user runs Godot, walks around, sees new biomes populated. Report back any visual issues or streamer bugs.
+---
+Task ID: shell-split-all-buildings
+Agent: main (Super Z)
+Task: Create shell versions of all buildings with doors/windows, generate component manifests.
+
+Work Log:
+- Created assets/components/ directory with 3 standalone interactive GLBs:
+  - door_front.glb (1.1k tris) — frame + panel + knob + hinges + lock plate
+  - window_unit.glb (104 tris) — frame + glass + sill + cross bars + latch
+  - door_garage.glb (128 tris) — panel + 5 ridges + handle + track rails
+- Created shell .mog files for 6 buildings that have proper wall holes + group placements:
+  - apartment_small_shell: 620 tris, 20 components
+  - bungalow_shell: 508 tris, 11 components
+  - cottage_shell: 276 tris, 7 components
+  - garage_detached_shell: 200 tris, 4 components
+  - suburban_house_v2_shell: 512 tris, 8 components (proof of concept)
+  - two_story_colonial_shell: 460 tris, 15 components
+- Created component manifest JSON for each building (positions, rotations, interactive flags)
+- Remaining 76 buildings don't use the group/use pattern for doors/windows
+  (they use inline primitives or don't have holes). Will need manual shell creation
+  if they need interactive doors/windows.
+- Copied all shell GLBs + component GLBs + manifests to godot_project/
+- File structure:
+  - assets/components/{src,out,renders}/ — standalone interactive components
+  - assets/buildings/src/*_shell.mog — shell source files
+  - assets/buildings/src/*_components.json — component manifests
+  - assets/buildings/out/*_shell.glb — compiled shell GLBs
+  - godot_project/assets/components/ — runtime component GLBs
+  - godot_project/data/building_components/ — runtime manifest JSONs
+
+Stage Summary:
+- 6 buildings have shell + component manifest ready for interactive gameplay
+- 3 standalone component GLBs (door, window, garage door) built and VLM-verified
+- Each component has: can_open, can_lock, can_break, can_climb flags
+- Doors can rotate on hinge (open/close), garage rolls up, windows break/climb
+- Next: write runtime loader in chunk_streamer to place components as child nodes

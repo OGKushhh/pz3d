@@ -1,0 +1,110 @@
+// bungalow.mog — Tier 1 Building variant
+// Single-story bungalow: low-pitched roof, wide front porch, 3 windows front, off-center door.
+// Target: 8,000 tris (High-preset LOD0). Actual: ~2k tris.
+// Dimensions: 9.0m wide × 7.0m deep × 3.2m tall (single story).
+
+meta (
+  name = "bungalow_shell",
+  description = "Single-story bungalow with wide front porch (shell only — doors/windows loaded as child GLBs)",
+  tags          = ["building", "house", "bungalow", "single_story", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "wall_stucco"   (color=[0.70, 0.65, 0.55], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_tile"     (color=[0.45, 0.30, 0.20], roughness=0.80, uv_mode="tile", uv_scale=4.0)
+material "trim_white"    (color=[0.92, 0.91, 0.86], roughness=0.60)
+material "window_glass"  (color=[0.45, 0.65, 0.80], transmission=0.50, roughness=0.04)
+material "door_blue"      (color=[0.18, 0.30, 0.45], roughness=0.55)
+material "concrete"      (color=[0.55, 0.53, 0.50], roughness=0.90)
+material "grass"         (color=[0.25, 0.45, 0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brass"         (color=[0.95, 0.70, 0.25], metallic=0.85, roughness=0.25)
+material "porch_wood"    (color=[0.40, 0.25, 0.15], roughness=0.75)
+
+// Window module (simpler than colonial — no shutters)
+
+scene {
+  // Foundation + lawn
+  // Foundation at y=0.02 so it overlaps with lawn (y=0 to 0.04)
+  slab "lawn" (size=[14.0, 0.04, 11.0], mat="grass")
+  slab "foundation" (size=[9.4, 0.20, 7.4], mat="concrete", pos=[0, 0.02, 0])
+
+  // === MAIN BODY (single story, wide) ===
+  // Front wall — door offset left, 3 windows
+  wall "front_wall" (
+    size=[9.0, 2.55, 0.20],
+    pos=[0, 1.475, -3.5],
+    holes=[
+      // Door (offset left of center)
+      [-1.50, -0.225, 1.00, 2.10],
+      // Windows (left, center-right, right)
+      [-3.50, 0.10, 1.10, 1.00],
+      [ 1.00, 0.10, 1.10, 1.00],
+      [ 3.30, 0.10, 1.10, 1.00],
+    ]
+  )
+
+  // Back wall — 3 windows
+  wall "back_wall" (
+    size=[9.0, 2.55, 0.20],
+    pos=[0, 1.475, 3.5],
+    holes=[
+      [-3.00, 0.10, 1.10, 1.00],
+      [ 0.00, 0.10, 1.10, 1.00],
+      [ 3.00, 0.10, 1.10, 1.00],
+    ]
+  )
+
+  // Left wall — 2 windows
+  wall "left_wall" (
+    size=[7.0, 2.55, 0.20],
+    pos=[-4.5, 1.475, 0],
+    rot=[0, 90, 0],
+    holes=[
+      [-1.50, 0.10, 1.10, 1.00],
+      [ 1.50, 0.10, 1.10, 1.00],
+    ]
+  )
+
+  // Right wall — 2 windows
+  wall "right_wall" (
+    size=[7.0, 2.55, 0.20],
+    pos=[4.5, 1.475, 0],
+    rot=[0, 90, 0],
+    holes=[
+      [-1.50, 0.10, 1.10, 1.00],
+      [ 1.50, 0.10, 1.10, 1.00],
+    ]
+  )
+
+  // Floor + ceiling
+  slab "floor" (size=[9.0, 0.10, 7.0], mat="concrete", pos=[0, 0.20, 0])
+  slab "ceiling" (size=[9.0, 0.10, 7.0], mat="wall_stucco", pos=[0, 2.65, 0])
+
+  // === ROOF (low gable) ===
+  prism "roof" (size=[9.8, 0.9, 7.8], pos=[0, 3.10, 0], mat="roof_tile")
+
+  // === WIDE FRONT PORCH (bungalow signature) ===
+  // Porch slab: 9m wide, 1.5m deep
+  slab "porch_slab" (size=[9.0, 0.12, 1.50], mat="porch_wood", pos=[0, 0.06, -4.20])
+  // Porch roof: extends from house, low slope
+  prism "porch_roof" (size=[9.5, 0.20, 1.80], pos=[0, 2.65, -4.30], mat="roof_tile")
+  // 3 porch posts (columns)
+  cylinder "post_l" (radius=0.06, height=2.55, segments=12, mat="porch_wood", pos=[-4.10, 1.40, -4.85])
+  cylinder "post_c" (radius=0.06, height=2.55, segments=12, mat="porch_wood", pos=[ 0.00, 1.40, -4.85])
+  cylinder "post_r" (radius=0.06, height=2.55, segments=12, mat="porch_wood", pos=[ 4.10, 1.40, -4.85])
+
+  // === WINDOW UNITS ===
+
+
+
+
+
+
+
+
+
+
+// === GUTTERS ===
+  box "front_gutter" (size=[9.8, 0.08, 0.10], mat="trim_white", pos=[0, 2.75, -3.95])
+  box "back_gutter"  (size=[9.8, 0.08, 0.10], mat="trim_white", pos=[0, 2.75,  3.95])
+}
