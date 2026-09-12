@@ -1,0 +1,49 @@
+// ranger_station.mog — Forest ranger station with flagpole
+meta (name="ranger_station", description="Small wooden ranger station with flagpole and signage", tags=["building","forest","ranger","tier1"], mogen_version="0.1.12")
+material "wall_wood" (color=[0.55,0.40,0.25], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "wall_dark" (color=[0.35,0.25,0.15], roughness=0.85)
+material "roof_green" (color=[0.20,0.35,0.18], roughness=0.80, uv_mode="tile", uv_scale=3.0)
+material "trim_cream" (color=[0.90,0.88,0.82], roughness=0.60)
+material "window_glass" (color=[0.40,0.55,0.65], transmission=0.45, roughness=0.05)
+material "door_wood" (color=[0.25,0.15,0.08], roughness=0.65)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "grass" (color=[0.22,0.38,0.16], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "flag_green" (color=[0.20,0.45,0.20], roughness=0.70)
+material "metal_dark" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.7)
+module "rs2_win" () {
+  chamfered_box "frame" (size=[1.00, 1.00, 0.06], radius=0.015, mat="trim_cream")
+  box "glass" (size=[0.85, 0.85, 0.02], mat="window_glass", pos=[0,0,-0.03])
+}
+module "rs2_door" () {
+  chamfered_box "frame" (size=[1.10, 2.10, 0.06], radius=0.02, mat="trim_cream")
+  chamfered_box "panel" (size=[0.95, 1.95, 0.05], radius=0.015, mat="door_wood", pos=[0,0,-0.08])
+}
+scene {
+  slab "ground" (size=[14.0, 0.04, 12.0], mat="grass")
+  slab "foundation" (size=[7.0, 0.30, 5.0], mat="concrete", pos=[0, 0.15, 0])
+  // Body
+  box "body" (size=[7.0, 2.50, 5.0], mat="wall_wood", pos=[0, 1.55, 0])
+  // Lower accent band
+  box "lower_band" (size=[7.05, 0.60, 5.05], mat="wall_dark", pos=[0, 0.55, 0])
+  // Roof
+  prism "roof" (size=[7.5, 1.20, 5.5], pos=[0, 2.95, 0], mat="roof_green")
+  // Flagpole
+  cylinder "pole" (radius=0.05, height=5.0, mat="metal_dark", pos=[3.5, 3.10, -2.5], tags="floating")
+  box "flag" (size=[0.8, 0.5, 0.02], mat="flag_green", pos=[3.9, 4.5, -2.5], tags="floating")
+  // Sign on front
+  box "sign" (size=[2.0, 0.6, 0.10], mat="trim_cream", pos=[0, 2.20, -2.55], tags="floating")
+  // Holes
+  wall "front_wall" (size=[7.0, 2.50, 0.20], pos=[0, 1.55, -2.5], holes=[[0.0,-0.20,1.10,2.10],[-2.20,0.30,1.00,1.00],[2.20,0.30,1.00,1.00]])
+  wall "back_wall" (size=[7.0, 2.50, 0.20], pos=[0, 1.55, 2.5], holes=[[-2.00,0.30,1.00,1.00],[0.0,0.30,1.00,1.00],[2.00,0.30,1.00,1.00]])
+  wall "left_wall" (size=[5.0, 2.50, 0.20], pos=[-3.5, 1.55, 0], rot=[0,90,0], holes=[[0.0,0.30,1.00,1.00]])
+  wall "right_wall" (size=[5.0, 2.50, 0.20], pos=[3.5, 1.55, 0], rot=[0,90,0], holes=[[0.0,0.30,1.00,1.00]])
+  // Group placements
+  group "door_g" (pos=[0, 1.05, -2.5]) { use "rs2_door" () }
+  group "wf_l" (pos=[-2.20, 1.85, -2.5]) { use "rs2_win" () }
+  group "wf_r" (pos=[2.20, 1.85, -2.5]) { use "rs2_win" () }
+  group "wb_l" (pos=[-2.0, 1.85, 2.5]) { use "rs2_win" () }
+  group "wb_c" (pos=[0, 1.85, 2.5]) { use "rs2_win" () }
+  group "wb_r" (pos=[2.0, 1.85, 2.5]) { use "rs2_win" () }
+  group "wl" (pos=[-3.5, 1.85, 0], rot=[0,90,0]) { use "rs2_win" () }
+  group "wr" (pos=[3.5, 1.85, 0], rot=[0,90,0]) { use "rs2_win" () }
+}

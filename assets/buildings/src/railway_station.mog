@@ -1,0 +1,66 @@
+// railway_station.mog — brick railway station with clock tower
+meta (name="railway_station", description="Brick railway station with clock tower and platform canopy", tags=["building","downtown","landmark","transit","tier1"], mogen_version="0.1.12")
+material "wall_brick" (color=[0.55,0.30,0.25], roughness=0.85, uv_mode="tile", uv_scale=4.0)
+material "wall_stone" (color=[0.65,0.62,0.58], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_tile" (color=[0.30,0.18,0.12], roughness=0.80, uv_mode="tile", uv_scale=4.0)
+material "canopy_red" (color=[0.45,0.20,0.18], roughness=0.70)
+material "trim_cream" (color=[0.90,0.86,0.74], roughness=0.60)
+material "clock_face" (color=[0.92,0.90,0.82], roughness=0.40, emissive=[0.40,0.38,0.30], emissive_strength=0.3)
+material "clock_hands" (color=[0.10,0.10,0.10], roughness=0.40)
+material "window_glass" (color=[0.40,0.55,0.65], transmission=0.45, roughness=0.05)
+material "door_glass" (color=[0.30,0.45,0.55], transmission=0.55, roughness=0.04)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+module "rs_win" () {
+  box "frame" (size=[1.20, 1.60, 0.06], mat="trim_cream")
+  box "glass" (size=[1.05, 1.45, 0.02], mat="window_glass", pos=[0,0,-0.04])
+}
+module "rs_door" () {
+  box "frame" (size=[1.60, 2.40, 0.06], mat="trim_cream")
+  box "glass" (size=[1.45, 2.25, 0.02], mat="door_glass", pos=[0,0,-0.04])
+  box "handle" (size=[0.04, 0.20, 0.03], mat="brass", pos=[0.60,0,0.06], tags="floating")
+}
+scene {
+  slab "plaza" (size=[24.0, 0.05, 16.0], mat="asphalt", pos=[0, 0.025, 0])
+  slab "platform" (size=[20.0, 0.30, 5.0], mat="concrete", pos=[0, 0.15, 6.0])
+  slab "foundation" (size=[16.0, 0.30, 8.0], mat="concrete", pos=[0, 0.15, 0])
+  // Main body
+  box "body" (size=[16.0, 4.0, 8.0], mat="wall_brick", pos=[0, 2.30, 0])
+  slab "roof_main" (size=[16.5, 0.20, 8.5], mat="roof_tile", pos=[0, 4.40, 0])
+  // Clock tower (front center, taller)
+  box "tower" (size=[3.5, 9.0, 3.5], mat="wall_stone", pos=[0, 4.75, -2.0])
+  prism "tower_roof" (size=[4.0, 2.0, 4.0], pos=[0, 10.25, -2.0], mat="roof_tile")
+  // Clock face on each side
+  cylinder "clock_n" (radius=0.80, height=0.10, mat="clock_face", pos=[0, 6.5, -3.80], rot=[90,0,0], tags="floating")
+  cylinder "clock_s" (radius=0.80, height=0.10, mat="clock_face", pos=[0, 6.5, -0.20], rot=[90,0,0], tags="floating")
+  cylinder "clock_e" (radius=0.80, height=0.10, mat="clock_face", pos=[1.80, 6.5, -2.0], rot=[0,90,0], tags="floating")
+  cylinder "clock_w" (radius=0.80, height=0.10, mat="clock_face", pos=[-1.80, 6.5, -2.0], rot=[0,90,0], tags="floating")
+  box "hand_h_n" (size=[0.40, 0.06, 0.04], mat="clock_hands", pos=[0.20, 6.5, -3.86], tags="floating")
+  box "hand_v_n" (size=[0.06, 0.50, 0.04], mat="clock_hands", pos=[0, 6.75, -3.86], tags="floating")
+  // Platform canopy
+  box "canopy_post_l" (size=[0.20, 4.0, 0.20], mat="trim_cream", pos=[-9.0, 2.0, 6.0], tags="floating")
+  box "canopy_post_r" (size=[0.20, 4.0, 0.20], mat="trim_cream", pos=[9.0, 2.0, 6.0], tags="floating")
+  box "canopy_post_m1" (size=[0.20, 4.0, 0.20], mat="trim_cream", pos=[-3.0, 2.0, 6.0], tags="floating")
+  box "canopy_post_m2" (size=[0.20, 4.0, 0.20], mat="trim_cream", pos=[3.0, 2.0, 6.0], tags="floating")
+  slab "canopy_roof" (size=[20.0, 0.15, 4.0], mat="canopy_red", pos=[0, 4.10, 6.0])
+  // Holes — front
+  wall "front_wall" (size=[16.0, 4.0, 0.20], pos=[0, 2.30, -4.0], holes=[[-5.0,-0.40,1.60,2.40],[-2.5,0.30,1.20,1.60],[2.5,0.30,1.20,1.60],[5.0,0.30,1.20,1.60]])
+  wall "back_wall" (size=[16.0, 4.0, 0.20], pos=[0, 2.30, 4.0], holes=[[-5.0,0.30,1.20,1.60],[-2.5,0.30,1.20,1.60],[0,0.30,1.20,1.60],[2.5,0.30,1.20,1.60],[5.0,0.30,1.20,1.60]])
+  wall "left_wall" (size=[8.0, 4.0, 0.20], pos=[-8.0, 2.30, 0], rot=[0,90,0], holes=[[-2.0,0.30,1.20,1.60],[2.0,0.30,1.20,1.60]])
+  wall "right_wall" (size=[8.0, 4.0, 0.20], pos=[8.0, 2.30, 0], rot=[0,90,0], holes=[[-2.0,0.30,1.20,1.60],[2.0,0.30,1.20,1.60]])
+  // Group placements
+  group "door_g" (pos=[-5.0, 1.10, -4.0]) { use "rs_door" () }
+  group "wf_1" (pos=[-2.5, 2.30, -4.0]) { use "rs_win" () }
+  group "wf_2" (pos=[2.5, 2.30, -4.0]) { use "rs_win" () }
+  group "wf_3" (pos=[5.0, 2.30, -4.0]) { use "rs_win" () }
+  group "wb_1" (pos=[-5.0, 2.30, 4.0]) { use "rs_win" () }
+  group "wb_2" (pos=[-2.5, 2.30, 4.0]) { use "rs_win" () }
+  group "wb_3" (pos=[0, 2.30, 4.0]) { use "rs_win" () }
+  group "wb_4" (pos=[2.5, 2.30, 4.0]) { use "rs_win" () }
+  group "wb_5" (pos=[5.0, 2.30, 4.0]) { use "rs_win" () }
+  group "wl_1" (pos=[-8.0, 2.30, -2.0], rot=[0,90,0]) { use "rs_win" () }
+  group "wl_2" (pos=[-8.0, 2.30, 2.0], rot=[0,90,0]) { use "rs_win" () }
+  group "wr_1" (pos=[8.0, 2.30, -2.0], rot=[0,90,0]) { use "rs_win" () }
+  group "wr_2" (pos=[8.0, 2.30, 2.0], rot=[0,90,0]) { use "rs_win" () }
+}

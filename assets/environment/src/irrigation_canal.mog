@@ -1,0 +1,30 @@
+// irrigation_canal.mog — 10m irrigation canal section with water
+meta (name="irrigation_canal", description="10m irrigation canal section with concrete banks and slow water flow", tags=["environment","farmland","water","canal","tier1"], mogen_version="0.1.12")
+material "concrete_bank" (color=[0.60,0.58,0.55], roughness=0.90, uv_mode="tile", uv_scale=4.0)
+material "water_canal" (color=[0.20,0.35,0.45], roughness=0.10, transmission=0.40, metallic=0.2)
+material "grass" (color=[0.25,0.45,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "soil_dark" (color=[0.30,0.22,0.14], roughness=0.95, uv_mode="tile", uv_scale=3.0)
+scene {
+  // Ground on both sides of canal
+  slab "ground_l" (size=[10.0, 0.04, 4.0], mat="grass", pos=[0, 0.02, -3.0])
+  slab "ground_r" (size=[10.0, 0.04, 4.0], mat="grass", pos=[0, 0.02, 3.0], tags="floating")
+  // Canal banks (sloped concrete, V-shape cross-section)
+  slab "bank_l" (size=[10.0, 0.20, 1.50], mat="concrete_bank", pos=[0, 0.10, -1.50], rot=[20,0,0])
+  slab "bank_r" (size=[10.0, 0.20, 1.50], mat="concrete_bank", pos=[0, 0.10, 1.50], rot=[-20,0,0], tags="floating")
+  // Water surface (flat, slightly below bank top)
+  slab "water" (size=[10.0, 0.04, 1.0], mat="water_canal", pos=[0, 0.30, 0], tags="floating")
+  // Concrete canal edge (lip at top of bank)
+  slab "edge_l" (size=[10.0, 0.10, 0.30], mat="concrete_bank", pos=[0, 0.45, -2.10])
+  slab "edge_r" (size=[10.0, 0.10, 0.30], mat="concrete_bank", pos=[0, 0.45, 2.10], tags="floating")
+  // Control gate (sluice) at one end
+  box "gate_frame_l" (size=[0.20, 1.50, 2.50], mat="concrete_bank", pos=[-4.90, 0.75, 0], tags="floating")
+  box "gate_frame_r" (size=[0.20, 1.50, 2.50], mat="concrete_bank", pos=[4.90, 0.75, 0], tags="floating")
+  // Sluice gate (vertical metal plate, half-raised)
+  box "sluice" (size=[0.10, 0.80, 1.80], mat="concrete_bank", pos=[0, 0.60, 0], tags="floating")
+  // Gate handle (above)
+  cylinder "gate_handle" (radius=0.10, height=0.40, mat="concrete_bank", pos=[0, 1.80, 0], tags="floating")
+  cylinder "gate_stem" (radius=0.04, height=1.00, mat="concrete_bank", pos=[0, 1.30, 0], tags="floating")
+  // Soil patches (where farmers plant)
+  slab "soil_l" (size=[10.0, 0.06, 2.0], mat="soil_dark", pos=[0, 0.03, -3.5], tags="floating")
+  slab "soil_r" (size=[10.0, 0.06, 2.0], mat="soil_dark", pos=[0, 0.03, 3.5], tags="floating")
+}

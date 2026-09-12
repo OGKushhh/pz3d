@@ -42,23 +42,208 @@ const CHUNK_OUTPUT_DIR   := "res://chunks/"
 #   but do not render or place lights on non-owned segments.
 
 # ── BIOME PROFILES ────────────────────────────────────────
+# Each biome lists buildings/props/foliage by asset name (must match
+# keys in city_manifest.json). Buildings in the `landmarks` array are
+# hero assets that should be placed ONE per biome — currently the
+# runtime streamer treats them like regular buildings (random pick),
+# but the field exists for future landmark-aware placement.
 static func biomes() -> Dictionary:
     return {
-        Biome.SUBURBIA:   {"name":"Suburbia",         "fill":0.75, "buildings":["suburban_house_v2","two_story_colonial","bungalow","house_modern","house_split_level"], "props":["mailbox","trash_can","picket_fence"], "foliage":["oak_tree","bush"],       "lights":true,  "zombies":10},
-        Biome.PARKS:      {"name":"Parks & Greenways", "fill":0.05, "buildings":[], "props":[], "foliage":["oak_tree","bush"],                                          "lights":false, "zombies":5},
-        Biome.FOREST:     {"name":"Forest",            "fill":0.95, "buildings":["shed"], "props":[], "foliage":["pine_tree","birch_tree","bush"],                 "lights":false, "zombies":5},
-        Biome.FARMLAND:   {"name":"Farmland",          "fill":0.25, "buildings":["shed","garage_detached"], "props":["picket_fence"], "foliage":["oak_tree","bush"],   "lights":false, "zombies":3},
-        Biome.COMMERCIAL: {"name":"Commercial Strip",  "fill":0.90, "buildings":["two_story_colonial"], "props":["trash_can","mailbox"], "foliage":["oak_tree"],           "lights":true,  "zombies":10},
-        Biome.INDUSTRIAL: {"name":"Industrial Park",   "fill":0.60, "buildings":["garage_detached"], "props":["trash_can"], "foliage":[],                             "lights":true,  "zombies":8},
-        Biome.RIVER:      {"name":"River & Wetlands",  "fill":0.15, "buildings":["shed"], "props":["picket_fence"], "foliage":["bush"],                            "lights":false, "zombies":4},
-        Biome.SUBWAY:     {"name":"Subway",            "fill":0.00, "buildings":[], "props":[], "foliage":[],                                                     "lights":false, "zombies":8},
-        Biome.DOWNTOWN:   {"name":"Downtown",          "fill":0.95, "buildings":["two_story_colonial"], "props":["trash_can","mailbox"], "foliage":["oak_tree"],           "lights":true,  "zombies":15},
-        Biome.MILITARY:   {"name":"Military Zone",     "fill":0.40, "buildings":["garage_detached"], "props":["trash_can"], "foliage":[],                             "lights":false, "zombies":15},
-        Biome.WATER:      {"name":"Water",             "fill":0.00, "buildings":[], "props":[], "foliage":[],                                                     "lights":false, "zombies":0},
-        Biome.EMPTY:      {"name":"Empty",             "fill":0.00, "buildings":[], "props":[], "foliage":[],                                                     "lights":false, "zombies":0},
+        Biome.SUBURBIA: {
+            "name": "Suburbia",
+            "fill": 0.75,
+            "buildings": [
+                "suburban_house_v2", "two_story_colonial", "bungalow",
+                "house_modern", "house_split_level", "house_victorian",
+                "house_ranch", "house_cape_cod", "house_tudor",
+                "house_cottage_stone", "treehouse"
+            ],
+            "landmarks": [],
+            "props": [
+                "mailbox", "trash_can", "picket_fence", "basketball_hoop",
+                "bird_house", "garden_pergola", "traffic_camera"
+            ],
+            "foliage": [
+                "oak_tree", "bush", "hedge", "hedge_tall",
+                "maple_tree", "willow_tree", "flower_patch",
+                "fallen_log", "ivy_wall"
+            ],
+            "lights": true,
+            "zombies": 10
+        },
+        Biome.PARKS: {
+            "name": "Parks & Greenways",
+            "fill": 0.05,
+            "buildings": ["gazebo"],
+            "landmarks": [],
+            "props": [
+                "bench_park", "picnic_table", "playground_slide",
+                "swing_set", "seesaw", "water_fountain", "park_sign"
+            ],
+            "foliage": [
+                "oak_tree", "bush", "pine_tree", "birch_tree",
+                "dead_tree", "flower_patch", "fern", "weeds",
+                "mushrooms", "rocks_small", "fallen_log"
+            ],
+            "lights": false,
+            "zombies": 5
+        },
+        Biome.FOREST: {
+            "name": "Forest",
+            "fill": 0.95,
+            "buildings": [
+                "hunting_cabin", "ranger_station", "camping_tent",
+                "deer_stand", "cave_entrance", "logging_camp_shed",
+                "ranger_lean_to"
+            ],
+            "landmarks": [],
+            "props": ["campfire_ring"],
+            "foliage": [
+                "pine_tree", "birch_tree", "oak_tree", "dead_tree",
+                "fallen_log", "rocks_small", "mushrooms", "fern",
+                "weeds", "tall_grass"
+            ],
+            "lights": false,
+            "zombies": 5
+        },
+        Biome.FARMLAND: {
+            "name": "Farmland",
+            "fill": 0.25,
+            "buildings": [
+                "farmhouse", "barn", "cottage", "shed",
+                "garage_detached", "tractor_shed", "grain_storage_shed"
+            ],
+            "landmarks": ["grain_silo", "windmill"],
+            "props": [
+                "picket_fence", "wood_fence_post", "garden_gnome",
+                "garden_hose_reel"
+            ],
+            "foliage": ["oak_tree", "bush", "weeds", "tall_grass"],
+            "lights": false,
+            "zombies": 3
+        },
+        Biome.COMMERCIAL: {
+            "name": "Commercial Strip",
+            "fill": 0.90,
+            "buildings": [
+                "corner_store", "diner", "gas_station", "store_pharmacy",
+                "store_gun", "store_supermarket", "motel", "strip_mall",
+                "auto_repair_shop", "laundromat", "barber_shop", "salon",
+                "grocery_store", "bank_branch"
+            ],
+            "landmarks": [],
+            "props": [
+                "trash_can", "mailbox", "shopping_cart", "parking_meter",
+                "traffic_light", "bollard", "planter_box"
+            ],
+            "foliage": ["hedge"],
+            "lights": true,
+            "zombies": 10
+        },
+        Biome.INDUSTRIAL: {
+            "name": "Industrial Park",
+            "fill": 0.60,
+            "buildings": [
+                "warehouse", "warehouse_large", "factory_small",
+                "utility_shed_metal", "shipping_container", "storage_tank",
+                "loading_dock"
+            ],
+            "landmarks": [],
+            "props": [
+                "dumpster", "traffic_cone", "construction_barrier",
+                "barrier_concrete", "guard_rail", "sandbag"
+            ],
+            "foliage": ["weeds", "dead_tree"],
+            "lights": true,
+            "zombies": 8
+        },
+        Biome.RIVER: {
+            "name": "River & Wetlands",
+            "fill": 0.15,
+            "buildings": [
+                "fishing_hut", "pier_dock", "houseboat", "marsh_pier"
+            ],
+            "landmarks": ["lighthouse", "bridge_section"],
+            "props": [],
+            "foliage": [
+                "cattail", "marsh_grass", "willow_tree", "palm_tree",
+                "tall_grass"
+            ],
+            "lights": false,
+            "zombies": 4
+        },
+        Biome.SUBWAY: {
+            "name": "Subway",
+            "fill": 0.00,
+            "buildings": [
+                "subway_platform", "subway_tunnel", "subway_train_car",
+                "ticket_booth", "turnstile", "maintenance_tunnel_junction",
+                "emergency_exit_stairs", "subway_pipe_cluster"
+            ],
+            "landmarks": [],
+            "props": [],
+            "foliage": [],
+            "lights": false,
+            "zombies": 8
+        },
+        Biome.DOWNTOWN: {
+            "name": "Downtown",
+            "fill": 0.95,
+            "buildings": [
+                "apartment_small", "apartment_tower_high", "highrise_office",
+                "hospital", "police_station", "parking_garage",
+                "broadcast_tower", "railway_station", "school_elementary",
+                "church_small"
+            ],
+            "landmarks": [
+                "government_palace", "stadium", "old_royal_palace"
+            ],
+            "props": [
+                "trash_can", "mailbox", "traffic_light", "parking_meter",
+                "bollard", "planter_box", "street_light"
+            ],
+            "foliage": ["oak_tree"],
+            "lights": true,
+            "zombies": 15
+        },
+        Biome.MILITARY: {
+            "name": "Military Zone",
+            "fill": 0.40,
+            "buildings": [
+                "military_checkpoint", "watchtower", "bunker_entrance",
+                "helipad", "field_hospital_tent", "helipad_control_room"
+            ],
+            "landmarks": ["fort_sarran"],
+            "props": [
+                "barbed_wire_fence", "sandbag", "traffic_cone"
+            ],
+            "foliage": ["weeds", "dead_tree"],
+            "lights": false,
+            "zombies": 15
+        },
+        Biome.WATER: {
+            "name": "Water",
+            "fill": 0.00,
+            "buildings": [],
+            "landmarks": [],
+            "props": [],
+            "foliage": [],
+            "lights": false,
+            "zombies": 0
+        },
+        Biome.EMPTY: {
+            "name": "Empty",
+            "fill": 0.00,
+            "buildings": [],
+            "landmarks": [],
+            "props": [],
+            "foliage": [],
+            "lights": false,
+            "zombies": 0
+        },
     }
 
-# ── GRID LAYOUT (12×10 for 30 km²) ────────────────────────
+# ── GRID LAYOUT (8×6 for 12 km²) ──────────────────────────
 static func grid_layout() -> Array:
     var F  := Biome.FOREST
     var FA := Biome.FARMLAND

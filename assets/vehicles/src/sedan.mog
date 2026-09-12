@@ -1,0 +1,74 @@
+// sedan.mog — Tier 1 Style Anchor #6
+// Stylized 4-door sedan: body, hood, roof, windows, 4 wheels, headlights, taillights.
+// Target: 12,000 tris (High-preset LOD0). Auto-LOD will generate LOD1-3 chains for Low preset.
+// Coordinate system: glTF (right-handed, +Y up, -Z forward). Front of car at -X.
+// Dimensions: 4.5m long × 1.8m wide × 1.4m tall.
+
+meta (
+  name          = "sedan",
+  description   = "Stylized 4-door sedan car",
+  tags          = ["vehicle", "car", "sedan", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "body_paint"   (color=[0.55, 0.18, 0.20], roughness=0.35, metallic=0.4)
+material "glass"        (color=[0.10, 0.13, 0.18], roughness=0.05, transmission=0.6, metallic=0.0)
+material "tire"         (color=[0.08, 0.08, 0.08], roughness=0.85)
+material "rim"          (color=[0.65, 0.66, 0.68], metallic=0.85, roughness=0.25)
+material "headlight"    (color=[0.95, 0.95, 0.85], roughness=0.1, emissive=[0.8, 0.8, 0.7], emissive_strength=0.6)
+material "taillight"    (color=[0.65, 0.10, 0.10], roughness=0.2, emissive=[0.5, 0.05, 0.05], emissive_strength=0.4)
+material "trim_black"   (color=[0.08, 0.08, 0.10], roughness=0.5)
+material "chrome"       (color=[0.85, 0.85, 0.88], metallic=0.95, roughness=0.15)
+
+scene {
+  // === MAIN BODY ===
+  rounded_box "body_lower" (size=[4.50, 0.50, 1.80], radius=0.10, mat="body_paint", pos=[0, 0.55, 0])
+  rounded_box "hood" (size=[1.40, 0.10, 1.70], radius=0.05, mat="body_paint", pos=[-1.40, 0.85, 0])
+  rounded_box "trunk" (size=[1.40, 0.10, 1.70], radius=0.05, mat="body_paint", pos=[1.40, 0.85, 0])
+  rounded_box "roof" (size=[1.80, 0.40, 1.65], radius=0.08, mat="body_paint", pos=[0, 1.10, 0])
+
+  // Windshields (slanted glass)
+  box "windshield_front" (size=[0.05, 0.50, 1.55], mat="glass", pos=[-0.85, 1.05, 0], rot=[35, 0, 0])
+  box "windshield_rear"  (size=[0.05, 0.50, 1.55], mat="glass", pos=[ 0.85, 1.05, 0], rot=[-35, 0, 0])
+  box "window_l" (size=[1.65, 0.30, 0.04], mat="glass", pos=[0, 1.10,  0.82])
+  box "window_r" (size=[1.65, 0.30, 0.04], mat="glass", pos=[0, 1.10, -0.82])
+
+  // === WHEELS (4) — overlap with body to merge cleanly ===
+  group "wheel_fl" (pos=[-1.55, 0.30,  0.92]) {
+    cylinder "tire_fl" (radius=0.32, height=0.20, segments=16, mat="tire", rot=[0, 0, 90])
+    cylinder "rim_fl"  (radius=0.18, height=0.22, segments=8, mat="rim", rot=[0, 0, 90])
+  }
+  group "wheel_fr" (pos=[-1.55, 0.30, -0.92]) {
+    cylinder "tire_fr" (radius=0.32, height=0.20, segments=16, mat="tire", rot=[0, 0, 90])
+    cylinder "rim_fr"  (radius=0.18, height=0.22, segments=8, mat="rim", rot=[0, 0, 90])
+  }
+  group "wheel_bl" (pos=[1.55, 0.30,  0.92]) {
+    cylinder "tire_bl" (radius=0.32, height=0.20, segments=16, mat="tire", rot=[0, 0, 90])
+    cylinder "rim_bl"  (radius=0.18, height=0.22, segments=8, mat="rim", rot=[0, 0, 90])
+  }
+  group "wheel_br" (pos=[1.55, 0.30, -0.92]) {
+    cylinder "tire_br" (radius=0.32, height=0.20, segments=16, mat="tire", rot=[0, 0, 90])
+    cylinder "rim_br"  (radius=0.18, height=0.22, segments=8, mat="rim", rot=[0, 0, 90])
+  }
+
+  // === HEADLIGHTS + TAILLIGHTS ===
+  box "headlight_l" (size=[0.05, 0.10, 0.30], mat="headlight", pos=[-2.20, 0.70,  0.55])
+  box "headlight_r" (size=[0.05, 0.10, 0.30], mat="headlight", pos=[-2.20, 0.70, -0.55])
+  box "taillight_l" (size=[0.05, 0.10, 0.30], mat="taillight", pos=[ 2.20, 0.70,  0.55])
+  box "taillight_r" (size=[0.05, 0.10, 0.30], mat="taillight", pos=[ 2.20, 0.70, -0.55])
+
+  // === BUMPERS + GRILLE ===
+  box "front_bumper" (size=[0.10, 0.15, 1.70], mat="trim_black", pos=[-2.20, 0.45, 0])
+  box "rear_bumper"  (size=[0.10, 0.15, 1.70], mat="trim_black", pos=[ 2.20, 0.45, 0])
+  box "grille" (size=[0.04, 0.10, 1.20], mat="chrome", pos=[-2.20, 0.65, 0])
+
+  // === DOOR LINES (overlap body sides to merge) ===
+  box "door_line_fl" (size=[1.20, 0.02, 0.04], mat="trim_black", pos=[-0.85, 0.85,  0.86])
+  box "door_line_bl" (size=[1.20, 0.02, 0.04], mat="trim_black", pos=[ 0.85, 0.85,  0.86])
+  box "door_line_fr" (size=[1.20, 0.02, 0.04], mat="trim_black", pos=[-0.85, 0.85, -0.86])
+  box "door_line_br" (size=[1.20, 0.02, 0.04], mat="trim_black", pos=[ 0.85, 0.85, -0.86])
+
+  // === SIDE MIRRORS (overlap with body to merge) ===
+  box "mirror_l" (size=[0.12, 0.06, 0.10], mat="body_paint", pos=[-0.55, 1.00,  0.85])
+  box "mirror_r" (size=[0.12, 0.06, 0.10], mat="body_paint", pos=[-0.55, 1.00, -0.85])
+}

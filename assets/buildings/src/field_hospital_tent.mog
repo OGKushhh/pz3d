@@ -1,0 +1,42 @@
+// field_hospital_tent.mog — White military field hospital tent
+meta (name="field_hospital_tent", description="White military field hospital tent with red cross", tags=["building","military","medical","tent","tier1"], mogen_version="0.1.12")
+material "tent_white" (color=[0.92,0.90,0.85], roughness=0.85, transmission=0.05, uv_mode="tile", uv_scale=4.0)
+material "cross_red" (color=[0.85,0.10,0.10], roughness=0.50, emissive=[0.50,0.05,0.05], emissive_strength=0.4)
+material "pole_metal" (color=[0.40,0.40,0.42], roughness=0.40, metallic=0.85)
+material "grass" (color=[0.22,0.38,0.16], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "rope_tan" (color=[0.60,0.50,0.30], roughness=0.80)
+material "ground_dark" (color=[0.30,0.25,0.20], roughness=0.85)
+scene {
+  slab "ground" (size=[12.0, 0.04, 8.0], mat="grass")
+  // Tent body — large half-cylinder lying on its side
+  cylinder "tent_body" (radius=2.0, height=6.0, mat="tent_white", pos=[0, 2.0, 0], rot=[0,90,90])
+  // End caps (slightly conical)
+  cone "end_cap_l" (radius=2.0, height=1.0, mat="tent_white", pos=[-3.5, 2.0, 0], rot=[0,90,0], tags="floating")
+  cone "end_cap_r" (radius=2.0, height=1.0, mat="tent_white", pos=[3.5, 2.0, 0], rot=[0,-90,0], tags="floating")
+  // Door flap (open, front)
+  box "door_flap_l" (size=[0.05, 1.80, 1.20], mat="tent_white", pos=[-1.00, 0.90, 2.00], rot=[0,0,-25], tags="floating")
+  box "door_flap_r" (size=[0.05, 1.80, 1.20], mat="tent_white", pos=[1.00, 0.90, 2.00], rot=[0,0,25], tags="floating")
+  // Red cross on side
+  box "cross_v" (size=[0.10, 1.50, 0.05], mat="cross_red", pos=[0, 2.50, -2.05], tags="floating")
+  box "cross_h" (size=[1.50, 0.10, 0.05], mat="cross_red", pos=[0, 2.50, -2.05], tags="floating")
+  // Cross on opposite side
+  box "cross_v_2" (size=[0.10, 1.50, 0.05], mat="cross_red", pos=[0, 2.50, 2.05], tags="floating")
+  box "cross_h_2" (size=[1.50, 0.10, 0.05], mat="cross_red", pos=[0, 2.50, 2.05], tags="floating")
+  // Tent poles (internal support visible at ends)
+  cylinder "pole_l" (radius=0.10, height=4.0, mat="pole_metal", pos=[-3.0, 2.00, 0], tags="floating")
+  cylinder "pole_r" (radius=0.10, height=4.0, mat="pole_metal", pos=[3.0, 2.00, 0], tags="floating")
+  // Guy ropes (4 corners)
+  cylinder "rope_fl" (radius=0.02, height=2.83, mat="rope_tan", pos=[-3.5, 1.40, -2.5], rot=[45,0,45], tags="floating")
+  cylinder "rope_fr" (radius=0.02, height=2.83, mat="rope_tan", pos=[3.5, 1.40, -2.5], rot=[-45,0,45], tags="floating")
+  cylinder "rope_bl" (radius=0.02, height=2.83, mat="rope_tan", pos=[-3.5, 1.40, 2.5], rot=[45,0,-45], tags="floating")
+  cylinder "rope_br" (radius=0.02, height=2.83, mat="rope_tan", pos=[3.5, 1.40, 2.5], rot=[-45,0,-45], tags="floating")
+  // Tent stakes (small at rope ends)
+  box "stake_fl" (size=[0.05, 0.30, 0.05], mat="pole_metal", pos=[-4.50, 0.15, -3.50], tags="floating")
+  box "stake_fr" (size=[0.05, 0.30, 0.05], mat="pole_metal", pos=[4.50, 0.15, -3.50], tags="floating")
+  box "stake_bl" (size=[0.05, 0.30, 0.05], mat="pole_metal", pos=[-4.50, 0.15, 3.50], tags="floating")
+  box "stake_br" (size=[0.05, 0.30, 0.05], mat="pole_metal", pos=[4.50, 0.15, 3.50], tags="floating")
+  // Small ground cloth at entrance
+  slab "ground_cloth" (size=[3.0, 0.02, 1.5], mat="ground_dark", pos=[0, 0.03, 2.5])
+  // Vent at top
+  box "vent" (size=[0.40, 0.20, 0.20], mat="pole_metal", pos=[0, 3.95, 0], tags="floating")
+}

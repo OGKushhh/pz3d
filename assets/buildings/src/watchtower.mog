@@ -1,0 +1,53 @@
+// watchtower.mog — Tall wooden military observation tower
+meta (name="watchtower", description="Tall wooden military observation tower with ladder and railing", tags=["building","military","watchtower","tier1"], mogen_version="0.1.12")
+material "wood_olive" (color=[0.40,0.42,0.28], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "wood_dark" (color=[0.25,0.20,0.12], roughness=0.85)
+material "metal_olive" (color=[0.30,0.32,0.20], roughness=0.60, metallic=0.7)
+material "grass" (color=[0.22,0.38,0.16], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "glass_dark" (color=[0.20,0.30,0.25], transmission=0.30, roughness=0.10)
+scene {
+  slab "ground" (size=[6.0, 0.04, 6.0], mat="grass", tags="floating")
+  // 4 main legs (5m tall)
+  box "leg_fl" (size=[0.20, 5.0, 0.20], mat="wood_olive", pos=[-1.2, 2.50, -1.2], tags="floating")
+  box "leg_fr" (size=[0.20, 5.0, 0.20], mat="wood_olive", pos=[1.2, 2.50, -1.2], tags="floating")
+  box "leg_bl" (size=[0.20, 5.0, 0.20], mat="wood_olive", pos=[-1.2, 2.50, 1.2], tags="floating")
+  box "leg_br" (size=[0.20, 5.0, 0.20], mat="wood_olive", pos=[1.2, 2.50, 1.2], tags="floating")
+  // Diagonal cross braces (lower section)
+  box "xb_low_1" (size=[0.10, 2.5, 0.10], mat="wood_dark", pos=[-1.2, 1.30, 0], rot=[0,0,65], tags="floating")
+  box "xb_low_2" (size=[0.10, 2.5, 0.10], mat="wood_dark", pos=[1.2, 1.30, 0], rot=[0,0,-65], tags="floating")
+  box "xb_low_3" (size=[0.10, 2.5, 0.10], mat="wood_dark", pos=[0, 1.30, -1.2], rot=[65,0,0], tags="floating")
+  box "xb_low_4" (size=[0.10, 2.5, 0.10], mat="wood_dark", pos=[0, 1.30, 1.2], rot=[-65,0,0], tags="floating")
+  // Diagonal cross braces (upper section)
+  box "xb_high_1" (size=[0.10, 2.5, 0.10], mat="wood_dark", pos=[-1.2, 3.80, 0], rot=[0,0,65], tags="floating")
+  box "xb_high_2" (size=[0.10, 2.5, 0.10], mat="wood_dark", pos=[1.2, 3.80, 0], rot=[0,0,-65], tags="floating")
+  box "xb_high_3" (size=[0.10, 2.5, 0.10], mat="wood_dark", pos=[0, 3.80, -1.2], rot=[65,0,0], tags="floating")
+  box "xb_high_4" (size=[0.10, 2.5, 0.10], mat="wood_dark", pos=[0, 3.80, 1.2], rot=[-65,0,0], tags="floating")
+  // Platform floor
+  slab "platform" (size=[3.0, 0.10, 3.0], mat="wood_olive", pos=[0, 5.05, 0])
+  // Observation cabin
+  box "cabin" (size=[2.5, 1.8, 2.5], mat="wood_olive", pos=[0, 5.95, 0])
+  // Cabin windows (4 sides)
+  box "win_n" (size=[0.80, 0.50, 0.06], mat="glass_dark", pos=[0, 6.10, -1.25], tags="floating")
+  box "win_s" (size=[0.80, 0.50, 0.06], mat="glass_dark", pos=[0, 6.10, 1.25], tags="floating")
+  box "win_e" (size=[0.06, 0.50, 0.80], mat="glass_dark", pos=[1.25, 6.10, 0], tags="floating")
+  box "win_w" (size=[0.06, 0.50, 0.80], mat="glass_dark", pos=[-1.25, 6.10, 0], tags="floating")
+  // Roof
+  prism "roof" (size=[2.8, 0.80, 2.8], pos=[0, 7.10, 0], mat="wood_dark")
+  // Railings around platform
+  box "rail_n" (size=[3.0, 0.80, 0.08], mat="wood_dark", pos=[0, 5.55, -1.50], tags="floating")
+  box "rail_s" (size=[3.0, 0.80, 0.08], mat="wood_dark", pos=[0, 5.55, 1.50], tags="floating")
+  box "rail_e" (size=[0.08, 0.80, 3.0], mat="wood_dark", pos=[1.50, 5.55, 0], tags="floating")
+  box "rail_w" (size=[0.08, 0.80, 3.0], mat="wood_dark", pos=[-1.50, 5.55, 0], tags="floating")
+  // Ladder
+  box "ladder_l" (size=[0.06, 5.0, 0.06], mat="metal_olive", pos=[-0.30, 2.50, 1.30], rot=[10,0,0], tags="floating")
+  box "ladder_r" (size=[0.06, 5.0, 0.06], mat="metal_olive", pos=[0.30, 2.50, 1.30], rot=[10,0,0], tags="floating")
+  box "rung_1" (size=[0.60, 0.04, 0.04], mat="metal_olive", pos=[0, 1.0, 1.20], tags="floating")
+  box "rung_2" (size=[0.60, 0.04, 0.04], mat="metal_olive", pos=[0, 1.6, 1.30], tags="floating")
+  box "rung_3" (size=[0.60, 0.04, 0.04], mat="metal_olive", pos=[0, 2.2, 1.40], tags="floating")
+  box "rung_4" (size=[0.60, 0.04, 0.04], mat="metal_olive", pos=[0, 2.8, 1.50], tags="floating")
+  box "rung_5" (size=[0.60, 0.04, 0.04], mat="metal_olive", pos=[0, 3.4, 1.60], tags="floating")
+  box "rung_6" (size=[0.60, 0.04, 0.04], mat="metal_olive", pos=[0, 4.0, 1.70], tags="floating")
+  box "rung_7" (size=[0.60, 0.04, 0.04], mat="metal_olive", pos=[0, 4.6, 1.80], tags="floating")
+  // Searchlight
+  box "searchlight" (size=[0.40, 0.30, 0.40], mat="metal_olive", pos=[0, 6.85, -1.30], tags="floating")
+}

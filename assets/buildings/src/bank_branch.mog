@@ -1,0 +1,78 @@
+// bank_branch.mog — small bank branch with classical columns + ATM
+meta (name="bank_branch", description="Small bank branch with classical columns, vaulted entrance, and ATM", tags=["building","commercial","bank","downtown","tier1"], mogen_version="0.1.12")
+material "wall_stone" (color=[0.70,0.65,0.55], roughness=0.85, uv_mode="tile", uv_scale=4.0)
+material "wall_marble" (color=[0.85,0.82,0.75], roughness=0.50, uv_mode="tile", uv_scale=3.0)
+material "column_marble" (color=[0.92,0.90,0.85], roughness=0.40)
+material "roof_flat" (color=[0.20,0.20,0.22], roughness=0.90)
+material "window_glass" (color=[0.30,0.40,0.50], transmission=0.45, roughness=0.05)
+material "door_glass" (color=[0.30,0.45,0.55], transmission=0.55, roughness=0.04)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+material "sign_blue" (color=[0.15,0.30,0.55], roughness=0.50, emissive=[0.05,0.10,0.20], emissive_strength=0.3)
+material "sign_white_text" (color=[0.95,0.95,0.92], roughness=0.40, emissive=[0.40,0.40,0.35], emissive_strength=0.4)
+material "atm_screen" (color=[0.15,0.30,0.50], roughness=0.20, emissive=[0.10,0.20,0.40], emissive_strength=0.6)
+material "metal_dark" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.85)
+module "bank_column" () {
+  box "base" (size=[0.80, 0.20, 0.80], mat="column_marble")
+  cylinder "shaft" (radius=0.30, height=3.80, mat="column_marble", pos=[0, 2.10, 0])
+  box "capital" (size=[0.80, 0.30, 0.80], mat="column_marble", pos=[0, 4.15, 0])
+}
+module "atm" () {
+  box "body" (size=[1.20, 2.20, 0.80], mat="metal_dark")
+  box "screen_frame" (size=[0.90, 0.70, 0.05], mat="metal_dark", pos=[0, 0.40, 0.40], tags="floating")
+  box "screen" (size=[0.80, 0.60, 0.02], mat="atm_screen", pos=[0, 0.40, 0.43], tags="floating")
+  // Card reader
+  box "card_slot" (size=[0.30, 0.05, 0.05], mat="metal_dark", pos=[0, 0.0, 0.43], tags="floating")
+  // Cash dispenser slot
+  box "cash_slot" (size=[0.40, 0.05, 0.05], mat="metal_dark", pos=[0, -0.50, 0.43], tags="floating")
+  // Key pad
+  box "keypad" (size=[0.30, 0.30, 0.05], mat="metal_dark", pos=[0, -0.20, 0.43], tags="floating")
+  // Branded top
+  box "top_sign" (size=[1.30, 0.30, 0.10], mat="sign_blue", pos=[0, 1.20, 0.45], tags="floating")
+  box "top_text" (size=[1.0, 0.05, 0.02], mat="sign_white_text", pos=[0, 1.20, 0.51], tags="floating")
+}
+scene {
+  slab "sidewalk" (size=[12.0, 0.05, 6.0], mat="asphalt", pos=[0, 0.025, 2.0], tags="floating")
+  slab "foundation" (size=[10.0, 0.40, 6.0], mat="concrete", pos=[0, 0.20, 0])
+  // Body
+  box "body" (size=[10.0, 4.50, 6.0], mat="wall_stone", pos=[0, 2.65, 0])
+  // Lower marble band
+  box "lower_marble" (size=[10.0, 1.0, 6.0], mat="wall_marble", pos=[0, 0.80, 0])
+  // Roof (with cornice)
+  slab "roof" (size=[10.4, 0.30, 6.4], mat="wall_marble", pos=[0, 5.00, 0], tags="floating")
+  slab "cornice" (size=[10.2, 0.20, 6.2], mat="wall_stone", pos=[0, 4.65, 0], tags="floating")
+  // 4 columns (front)
+  group "col_1" (pos=[-4.0, 0.40, -3.0]) { use "bank_column" () }
+  group "col_2" (pos=[-1.33, 0.40, -3.0]) { use "bank_column" () }
+  group "col_3" (pos=[1.33, 0.40, -3.0]) { use "bank_column" () }
+  group "col_4" (pos=[4.0, 0.40, -3.0]) { use "bank_column" () }
+  // Pediment (triangular gable on top)
+  prism "pediment" (size=[10.0, 1.20, 1.50], pos=[0, 4.80, -3.0], mat="wall_marble")
+  // Front wall — door + 2 windows (between columns)
+  wall "front_wall" (size=[10.0, 4.50, 0.20], pos=[0, 2.65, -3.0], holes=[[0,-0.50,2.50,3.20],[-3.0,0.5,1.50,1.50],[3.0,0.5,1.50,1.50]])
+  // Back wall (small windows)
+  wall "back_wall" (size=[10.0, 4.50, 0.20], pos=[0, 2.65, 3.0], holes=[[-3.0,0.5,1.50,1.50],[3.0,0.5,1.50,1.50]])
+  // Side walls
+  wall "left_wall" (size=[6.0, 4.50, 0.20], pos=[-5.0, 2.65, 0], rot=[0,90,0], holes=[[-2.0,0.5,1.50,1.50],[2.0,0.5,1.50,1.50]])
+  wall "right_wall" (size=[6.0, 4.50, 0.20], pos=[5.0, 2.65, 0], rot=[0,90,0], holes=[[-2.0,0.5,1.50,1.50],[2.0,0.5,1.50,1.50]])
+  // Main door (big double glass doors)
+  box "door_frame" (size=[2.60, 3.30, 0.06], mat="column_marble", pos=[0, 1.20, -3.0], tags="floating")
+  box "door_l" (size=[1.20, 3.10, 0.05], mat="door_glass", pos=[-0.65, 1.20, -3.04], tags="floating")
+  box "door_r" (size=[1.20, 3.10, 0.05], mat="door_glass", pos=[0.65, 1.20, -3.04], tags="floating")
+  box "handle_l" (size=[0.04, 0.20, 0.03], mat="brass", pos=[-0.20, 1.20, -3.06], tags="floating")
+  box "handle_r" (size=[0.04, 0.20, 0.03], mat="brass", pos=[0.20, 1.20, -3.06], tags="floating")
+  // Bank sign on pediment (blue with white text)
+  box "sign_back" (size=[4.0, 0.80, 0.10], mat="sign_blue", pos=[0, 5.30, -3.0], tags="floating")
+  box "sign_text_1" (size=[3.0, 0.15, 0.02], mat="sign_white_text", pos=[0, 5.45, -3.06], tags="floating")
+  box "sign_text_2" (size=[2.0, 0.15, 0.02], mat="sign_white_text", pos=[0, 5.20, -3.06], tags="floating")
+  // 2 ATMs (on side wall, exterior)
+  group "atm_l" (pos=[-5.20, 0.40, -1.0]) { use "atm" () }
+  group "atm_r" (pos=[5.20, 0.40, -1.0]) { use "atm" () }
+  // Steps (front)
+  slab "step_1" (size=[8.0, 0.20, 1.0], mat="wall_marble", pos=[0, 0.30, -4.0], tags="floating")
+  slab "step_2" (size=[8.0, 0.20, 1.0], mat="wall_marble", pos=[0, 0.10, -5.0], tags="floating")
+  // Bronze eagle / logo on top of pediment
+  sphere "ornament" (radius=0.30, mat="brass", pos=[0, 6.20, -3.0], tags="floating")
+  cylinder "ornament_pole" (radius=0.05, height=0.40, mat="brass", pos=[0, 5.90, -3.0], tags="floating")
+}

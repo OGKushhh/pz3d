@@ -1,0 +1,52 @@
+// police_station.mog — Downtown civic landmark police station
+meta (name="police_station", description="2-story brick police station with blue awning", tags=["building","civic","downtown","landmark","tier1"], mogen_version="0.1.12")
+material "wall_brick" (color=[0.55,0.30,0.25], roughness=0.85, uv_mode="tile", uv_scale=4.0)
+material "wall_stone" (color=[0.65,0.62,0.58], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_flat" (color=[0.25,0.25,0.28], roughness=0.90)
+material "trim_white" (color=[0.92,0.91,0.86], roughness=0.60)
+material "awning_blue" (color=[0.10,0.20,0.55], roughness=0.70, emissive=[0.05,0.10,0.30], emissive_strength=0.2)
+material "window_blue" (color=[0.40,0.60,0.75], transmission=0.45, roughness=0.05)
+material "door_glass" (color=[0.30,0.50,0.65], transmission=0.55, roughness=0.04)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "grass" (color=[0.25,0.45,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+module "ps_win" () {
+  box "frame" (size=[1.10, 1.40, 0.06], mat="trim_white")
+  box "glass" (size=[0.95, 1.25, 0.02], mat="window_blue", pos=[0,0,-0.04])
+}
+module "ps_door" () {
+  box "frame" (size=[1.50, 2.30, 0.06], mat="trim_white")
+  box "glass" (size=[1.35, 2.15, 0.02], mat="door_glass", pos=[0,0,-0.04])
+  box "handle" (size=[0.04, 0.20, 0.03], mat="brass", pos=[0.55,0,0.06], tags="floating")
+}
+scene {
+  slab "lawn" (size=[18.0, 0.04, 14.0], mat="grass")
+  slab "parking" (size=[6.0, 0.05, 5.0], mat="asphalt", pos=[5.0, 0.025, 4.0])
+  slab "foundation" (size=[14.0, 0.30, 10.0], mat="concrete", pos=[0, 0.15, 0])
+  // Stone ground floor
+  box "ground" (size=[14.0, 2.50, 10.0], mat="wall_stone", pos=[0, 1.45, 0])
+  // Brick upper floor
+  box "upper" (size=[14.0, 2.80, 10.0], mat="wall_brick", pos=[0, 4.10, 0])
+  slab "roof" (size=[14.4, 0.20, 10.4], mat="roof_flat", pos=[0, 5.60, 0])
+  // Awning over entrance
+  prism "awning" (size=[5.0, 0.40, 3.0], pos=[0, 2.70, -5.0], mat="awning_blue")
+  // Holes
+  wall "front_g" (size=[14.0, 2.50, 0.20], pos=[0, 1.45, -5.0], holes=[[-4.0,-0.10,1.50,2.30],[-1.5,0.30,1.10,1.40],[1.5,0.30,1.10,1.40],[4.0,0.30,1.10,1.40]])
+  wall "front_u" (size=[14.0, 2.80, 0.20], pos=[0, 4.10, -5.0], holes=[[-4.0,0.0,1.10,1.40],[-1.5,0.0,1.10,1.40],[1.5,0.0,1.10,1.40],[4.0,0.0,1.10,1.40]])
+  wall "back_wall" (size=[14.0, 5.30, 0.20], pos=[0, 2.95, 5.0], holes=[[-4.0,0.50,1.10,1.40],[-1.5,0.50,1.10,1.40],[1.5,0.50,1.10,1.40],[4.0,0.50,1.10,1.40],[-2.0,-1.5,1.10,1.40],[2.0,-1.5,1.10,1.40]])
+  wall "left_wall" (size=[10.0, 5.30, 0.20], pos=[-7.0, 2.95, 0], rot=[0,90,0], holes=[[-2.0,0.50,1.10,1.40],[2.0,0.50,1.10,1.40]])
+  wall "right_wall" (size=[10.0, 5.30, 0.20], pos=[7.0, 2.95, 0], rot=[0,90,0], holes=[[-2.0,0.50,1.10,1.40],[2.0,0.50,1.10,1.40]])
+  // Flagpole
+  cylinder "pole" (radius=0.05, height=4.0, mat="trim_white", pos=[3.0, 7.60, -5.0], tags="floating")
+  box "flag" (size=[0.8, 0.5, 0.02], mat="awning_blue", pos=[3.4, 9.0, -5.0], tags="floating")
+  // Group placements
+  group "door_g" (pos=[-4.0, 1.15, -5.0]) { use "ps_door" () }
+  group "wfg_1" (pos=[-1.5, 1.85, -5.0]) { use "ps_win" () }
+  group "wfg_2" (pos=[1.5, 1.85, -5.0]) { use "ps_win" () }
+  group "wfg_3" (pos=[4.0, 1.85, -5.0]) { use "ps_win" () }
+  group "wfu_1" (pos=[-4.0, 4.10, -5.0]) { use "ps_win" () }
+  group "wfu_2" (pos=[-1.5, 4.10, -5.0]) { use "ps_win" () }
+  group "wfu_3" (pos=[1.5, 4.10, -5.0]) { use "ps_win" () }
+  group "wfu_4" (pos=[4.0, 4.10, -5.0]) { use "ps_win" () }
+}

@@ -1,0 +1,21 @@
+// blood_splatter.mog — surface blood stain decal
+meta (name="blood_splatter", description="Surface blood splatter decal — irregular dark red stain", tags=["decal","blood","horror","tier1"], mogen_version="0.1.12")
+material "blood_dried" (color=[0.30,0.05,0.05], roughness=0.95, transmission=0.10)
+material "blood_fresh" (color=[0.55,0.08,0.05], roughness=0.70, transmission=0.20)
+scene {
+  // Main splatter — flat irregular blob (simulated with overlapping ellipses)
+  slab "main_blood" (size=[1.20, 0.02, 1.00], mat="blood_dried")
+  // Splash droplets around the main pool
+  sphere "drop_1" (radius=0.10, mat="blood_fresh", pos=[0.80, 0.02, 0.30], tags="floating")
+  sphere "drop_2" (radius=0.06, mat="blood_fresh", pos=[-0.60, 0.02, 0.50], tags="floating")
+  sphere "drop_3" (radius=0.08, mat="blood_fresh", pos=[0.40, 0.02, -0.60], tags="floating")
+  sphere "drop_4" (radius=0.05, mat="blood_fresh", pos=[-0.80, 0.02, -0.30], tags="floating")
+  sphere "drop_5" (radius=0.07, mat="blood_fresh", pos=[0.20, 0.02, 0.70], tags="floating")
+  // Smear trail
+  slab "smear" (size=[0.60, 0.025, 0.10], mat="blood_dried", pos=[0.50, 0.015, 0.20], rot=[0,30,0], tags="floating")
+  // Small spatter dots
+  sphere "dot_1" (radius=0.02, mat="blood_fresh", pos=[1.00, 0.015, -0.20], tags="floating")
+  sphere "dot_2" (radius=0.02, mat="blood_fresh", pos=[-0.95, 0.015, 0.10], tags="floating")
+  sphere "dot_3" (radius=0.02, mat="blood_fresh", pos=[0.10, 0.015, -0.85], tags="floating")
+  sphere "dot_4" (radius=0.02, mat="blood_fresh", pos=[-0.30, 0.015, 0.85], tags="floating")
+}

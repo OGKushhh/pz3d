@@ -1,0 +1,53 @@
+// hunting_cabin.mog — Forest log cabin with covered porch
+meta (name="hunting_cabin", description="Forest log cabin with covered porch and antler mount", tags=["building","forest","cabin","tier1"], mogen_version="0.1.12")
+material "log_dark" (color=[0.30,0.20,0.12], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "log_light" (color=[0.45,0.32,0.20], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "roof_wood" (color=[0.25,0.18,0.10], roughness=0.80, uv_mode="tile", uv_scale=3.0)
+material "trim_dark" (color=[0.20,0.15,0.10], roughness=0.85)
+material "window_amber" (color=[0.65,0.55,0.30], transmission=0.30, roughness=0.10, emissive=[0.40,0.30,0.15], emissive_strength=0.6)
+material "door_wood" (color=[0.20,0.12,0.08], roughness=0.65)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "grass" (color=[0.22,0.38,0.16], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "metal_dark" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.7)
+module "hc_win" () {
+  box "frame" (size=[0.70, 0.80, 0.06], mat="trim_dark")
+  box "glass" (size=[0.55, 0.65, 0.02], mat="window_amber", pos=[0,0,-0.04])
+}
+scene {
+  slab "ground" (size=[14.0, 0.04, 12.0], mat="grass", tags="floating")
+  slab "foundation" (size=[6.0, 0.30, 5.0], mat="concrete", pos=[0, 0.15, 0])
+  // Log walls — simulate horizontal log courses with stacked boxes
+  box "log_row_1" (size=[6.0, 0.30, 0.25], mat="log_dark", pos=[0, 0.45, -2.5])
+  box "log_row_2" (size=[6.0, 0.30, 0.25], mat="log_light", pos=[0, 0.75, -2.5])
+  box "log_row_3" (size=[6.0, 0.30, 0.25], mat="log_dark", pos=[0, 1.05, -2.5])
+  box "log_row_4" (size=[6.0, 0.30, 0.25], mat="log_light", pos=[0, 1.35, -2.5])
+  box "log_row_5" (size=[6.0, 0.30, 0.25], mat="log_dark", pos=[0, 1.65, -2.5])
+  // Use a real wall primitive for back (solid)
+  wall "back_wall" (size=[6.0, 2.20, 0.20], pos=[0, 1.40, 2.5], mat="log_dark")
+  wall "left_wall" (size=[5.0, 2.20, 0.20], pos=[-3.0, 1.40, 0], rot=[0,90,0], mat="log_dark")
+  wall "right_wall" (size=[5.0, 2.20, 0.20], pos=[3.0, 1.40, 0], rot=[0,90,0], mat="log_dark")
+  // Front wall with door + window holes
+  wall "front_l" (size=[6.0, 2.20, 0.20], pos=[0, 1.40, -2.5], mat="log_dark", holes=[[-1.5,-0.30,1.00,2.00],[1.5,0.30,0.80,0.80]])
+  // Roof
+  prism "roof" (size=[6.5, 1.50, 5.5], pos=[0, 3.30, 0], mat="roof_wood", tags="floating")
+  // Chimney
+  box "chimney" (size=[0.40, 1.50, 0.40], mat="concrete", pos=[1.5, 3.80, 0], tags="floating")
+  box "chim_cap" (size=[0.50, 0.10, 0.50], mat="metal_dark", pos=[1.5, 4.55, 0], tags="floating")
+  // Porch overhang
+  slab "porch_roof" (size=[6.5, 0.10, 1.5], mat="roof_wood", pos=[0, 2.30, -3.5], tags="floating")
+  box "porch_post_l" (size=[0.15, 2.30, 0.15], mat="trim_dark", pos=[-2.9, 1.15, -3.5], tags="floating")
+  box "porch_post_r" (size=[0.15, 2.30, 0.15], mat="trim_dark", pos=[2.9, 1.15, -3.5], tags="floating")
+  slab "porch_floor" (size=[6.0, 0.10, 1.5], mat="log_light", pos=[0, 0.05, -3.5], tags="floating")
+  // Antler mount on front wall
+  box "antler_l" (size=[0.05, 0.40, 0.15], mat="trim_dark", pos=[-0.30, 1.90, -2.60], rot=[0,0,30], tags="floating")
+  box "antler_r" (size=[0.05, 0.40, 0.15], mat="trim_dark", pos=[0.30, 1.90, -2.60], rot=[0,0,-30], tags="floating")
+  // Group placements
+  group "door_g" (pos=[-1.5, 1.20, -2.5]) {
+    box "door_frame" (size=[1.10, 2.10, 0.06], mat="trim_dark")
+    box "door" (size=[0.95, 1.95, 0.05], mat="door_wood", pos=[0,0,-0.08])
+  }
+  group "win_g" (pos=[1.5, 1.90, -2.5]) { use "hc_win" () }
+  // Side windows
+  group "wls" (pos=[-3.0, 1.70, 0], rot=[0,90,0]) { use "hc_win" () }
+  group "wrs" (pos=[3.0, 1.70, 0], rot=[0,90,0]) { use "hc_win" () }
+}

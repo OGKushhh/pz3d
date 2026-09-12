@@ -1,0 +1,30 @@
+// cave_entrance.mog — rocky cave entrance in hillside
+meta (name="cave_entrance", description="Rocky cave entrance in hillside — dark maw with boulders around opening", tags=["building","forest","cave","natural","tier1"], mogen_version="0.1.12")
+material "rock_grey" (color=[0.45,0.43,0.40], roughness=0.90, uv_mode="tile", uv_scale=3.0)
+material "rock_dark" (color=[0.30,0.28,0.25], roughness=0.95)
+material "hill_green" (color=[0.22,0.35,0.16], roughness=0.90, uv_mode="tile", uv_scale=4.0)
+material "cave_black" (color=[0.05,0.05,0.05], roughness=0.95, transmission=0.10)
+material "moss_green" (color=[0.30,0.45,0.18], roughness=0.95, transmission=0.20)
+scene {
+  // Hill behind cave
+  box "hill_base" (size=[12.0, 5.0, 5.0], mat="hill_green", pos=[0, 2.50, 1.5])
+  box "hill_top" (size=[10.0, 3.0, 4.0], mat="hill_green", pos=[0, 5.00, 2.0])
+  // Rocky face around opening
+  box "rock_face" (size=[6.0, 4.5, 0.50], mat="rock_grey", pos=[0, 2.25, -1.00])
+  // Cave opening (oval — approximated with box + dark interior)
+  box "opening" (size=[2.50, 3.0, 0.50], mat="cave_black", pos=[0, 1.70, -1.20], tags="floating")
+  // Dark interior (tunnel going back)
+  box "interior" (size=[2.20, 2.5, 3.0], mat="cave_black", pos=[0, 1.70, -2.50], tags="floating")
+  // Boulders around entrance
+  sphere "boulder_l" (radius=0.60, mat="rock_grey", pos=[-2.0, 0.50, -0.50], tags="floating")
+  sphere "boulder_r" (radius=0.50, mat="rock_grey", pos=[2.0, 0.40, -0.50], tags="floating")
+  sphere "boulder_top" (radius=0.70, mat="rock_grey", pos=[0, 4.20, -0.80], tags="floating")
+  sphere "boulder_small_1" (radius=0.30, mat="rock_dark", pos=[-1.20, 0.20, -1.20], tags="floating")
+  sphere "boulder_small_2" (radius=0.25, mat="rock_dark", pos=[1.30, 0.20, -1.20], tags="floating")
+  // Moss patches on rocks
+  slab "moss_1" (size=[0.50, 0.05, 0.40], mat="moss_green", pos=[-2.20, 0.85, -0.50], tags="floating")
+  slab "moss_2" (size=[0.40, 0.05, 0.50], mat="moss_green", pos=[1.80, 0.75, -0.50], tags="floating")
+  // Stalactite hint (hanging from top of opening)
+  cone "stalactite_1" (radius=0.10, height=0.40, mat="rock_dark", pos=[-0.50, 3.10, -1.20], tags="floating")
+  cone "stalactite_2" (radius=0.08, height=0.30, mat="rock_dark", pos=[0.40, 3.00, -1.20], tags="floating")
+}

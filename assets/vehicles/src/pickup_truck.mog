@@ -1,0 +1,91 @@
+// pickup_truck.mog — Tier 1 Style Anchor #7
+// Stylized pickup truck with cab + open bed.
+// Target: 15,000 tris (High-preset LOD0).
+// Dimensions: 5.4m long × 2.0m wide × 1.7m tall.
+
+meta (
+  name          = "pickup_truck",
+  description   = "Stylized pickup truck with open bed",
+  tags          = ["vehicle", "truck", "pickup", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "body_paint"   (color=[0.20, 0.32, 0.45], roughness=0.40, metallic=0.4)
+material "glass"        (color=[0.10, 0.13, 0.18], roughness=0.05, transmission=0.6)
+material "tire"         (color=[0.08, 0.08, 0.08], roughness=0.85)
+material "rim"          (color=[0.65, 0.66, 0.68], metallic=0.85, roughness=0.25)
+material "headlight"    (color=[0.95, 0.95, 0.85], roughness=0.1, emissive=[0.8, 0.8, 0.7], emissive_strength=0.6)
+material "taillight"    (color=[0.65, 0.10, 0.10], roughness=0.2, emissive=[0.5, 0.05, 0.05], emissive_strength=0.4)
+material "trim_black"   (color=[0.08, 0.08, 0.10], roughness=0.5)
+material "bed_metal"    (color=[0.35, 0.35, 0.38], roughness=0.6, metallic=0.5)
+material "chrome"       (color=[0.85, 0.85, 0.88], metallic=0.95, roughness=0.15)
+
+scene {
+  // Wrap entire truck in a solid group so all same-material primitives merge.
+  // This eliminates the "floating cluster" errors caused by separate body parts.
+  solid "truck_body" (cleanup="coplanar") {
+    // === CAB + BED (positions overlap to form a connected mesh) ===
+    // cab_lower: X range -2.20 to 0.20 (shifted right by 0.20 to overlap with bed_floor)
+    rounded_box "cab_lower" (size=[2.40, 0.60, 2.00], radius=0.10, mat="body_paint", pos=[-1.00, 0.60, 0])
+    // hood: extended to Y range 0.45-0.85 so it overlaps with front bumper (y=0.41-0.59)
+    // and headlights (y=0.69-0.81) and grille (y=0.625-0.775)
+    rounded_box "hood"      (size=[1.60, 0.40, 1.85], radius=0.05, mat="body_paint", pos=[-2.78, 0.65, 0])
+    // cab_roof overlaps with cab_lower
+    rounded_box "cab_roof"  (size=[1.80, 0.45, 1.80], radius=0.08, mat="body_paint", pos=[-1.00, 1.20, 0])
+
+    // bed_floor: X range 0.20 to 2.40 (overlaps with cab_lower which ends at 0.20)
+    box "bed_floor" (size=[2.20, 0.10, 1.85], mat="bed_metal", pos=[1.30, 0.60, 0])
+    // Bed walls overlap with bed_floor
+    box "bed_wall_l"   (size=[2.20, 0.40, 0.05], mat="bed_metal", pos=[1.30, 0.85,  0.93])
+    box "bed_wall_r"   (size=[2.20, 0.40, 0.05], mat="bed_metal", pos=[1.30, 0.85, -0.93])
+    box "bed_wall_back" (size=[0.05, 0.40, 1.85], mat="bed_metal", pos=[2.40, 0.85, 0])
+    box "tailgate" (size=[0.05, 0.40, 1.85], mat="bed_metal", pos=[0.20, 0.85, 0])
+
+    // Bumpers — overlap with hood + bed respectively
+    // front_bumper at x=-3.55, hood ends at x=-3.58, overlap = 0.03m
+    box "front_bumper" (size=[0.12, 0.18, 1.90], mat="trim_black", pos=[-3.52, 0.50, 0])
+    box "rear_bumper"  (size=[0.12, 0.18, 1.90], mat="trim_black", pos=[ 2.45, 0.50, 0])
+    // grille — slightly inside the front bumper
+    box "grille"       (size=[0.06, 0.15, 1.40], mat="chrome", pos=[-3.50, 0.70, 0])
+
+    // Side mirrors + door lines — overlap with cab sides
+    box "mirror_l" (size=[0.12, 0.07, 0.15], mat="body_paint", pos=[-1.95, 1.15,  0.93])
+    box "mirror_r" (size=[0.12, 0.07, 0.15], mat="body_paint", pos=[-1.95, 1.15, -0.93])
+    box "door_line_fl" (size=[0.02, 0.50, 0.06], mat="trim_black", pos=[-1.95, 0.85,  0.94])
+    box "door_line_fr" (size=[0.02, 0.50, 0.06], mat="trim_black", pos=[-1.95, 0.85, -0.94])
+
+    // Headlights overlap with hood + front bumper
+    box "headlight_l" (size=[0.12, 0.12, 0.35], mat="headlight", pos=[-3.50, 0.75,  0.65])
+    box "headlight_r" (size=[0.12, 0.12, 0.35], mat="headlight", pos=[-3.50, 0.75, -0.65])
+    // Taillights overlap with rear bumper + bed
+    box "taillight_l" (size=[0.10, 0.12, 0.35], mat="taillight", pos=[ 2.45, 0.85,  0.65])
+    box "taillight_r" (size=[0.10, 0.12, 0.35], mat="taillight", pos=[ 2.45, 0.85, -0.65])
+
+    // Exhaust pipe — overlap with rear bumper
+    cylinder "exhaust" (radius=0.05, height=0.40, segments=8, mat="chrome", pos=[2.40, 0.40, -0.85], rot=[0, 90, 0])
+  }
+
+  // Glass parts — separate materials, keep outside solid group
+  box "windshield_front" (size=[0.05, 0.55, 1.70], mat="glass", pos=[-1.95, 1.20, 0], rot=[35, 0, 0])
+  box "cab_window_rear" (size=[0.05, 0.40, 1.60], mat="glass", pos=[-0.10, 1.25, 0])
+  box "cab_window_l" (size=[1.55, 0.30, 0.05], mat="glass", pos=[-1.00, 1.25,  0.92])
+  box "cab_window_r" (size=[1.55, 0.30, 0.05], mat="glass", pos=[-1.00, 1.25, -0.92])
+
+  // === WHEELS (4) — separate from body, in their own groups ===
+  group "wheel_fl" (pos=[-2.30, 0.35,  1.02]) {
+    cylinder "tire_fl" (radius=0.38, height=0.25, segments=16, mat="tire", rot=[0, 0, 90])
+    cylinder "rim_fl"  (radius=0.22, height=0.27, segments=8, mat="rim", rot=[0, 0, 90])
+  }
+  group "wheel_fr" (pos=[-2.30, 0.35, -1.02]) {
+    cylinder "tire_fr" (radius=0.38, height=0.25, segments=16, mat="tire", rot=[0, 0, 90])
+    cylinder "rim_fr"  (radius=0.22, height=0.27, segments=8, mat="rim", rot=[0, 0, 90])
+  }
+  group "wheel_bl" (pos=[1.70, 0.35,  1.02]) {
+    cylinder "tire_bl" (radius=0.38, height=0.25, segments=16, mat="tire", rot=[0, 0, 90])
+    cylinder "rim_bl"  (radius=0.22, height=0.27, segments=8, mat="rim", rot=[0, 0, 90])
+  }
+  group "wheel_br" (pos=[1.70, 0.35, -1.02]) {
+    cylinder "tire_br" (radius=0.38, height=0.25, segments=16, mat="tire", rot=[0, 0, 90])
+    cylinder "rim_br"  (radius=0.22, height=0.27, segments=8, mat="rim", rot=[0, 0, 90])
+  }
+}

@@ -1,0 +1,133 @@
+// old_royal_palace.mog — historic royal palace with 4 corner towers + central gatehouse + inner courtyard
+meta (name="old_royal_palace", description="Historic royal palace with 4 corner towers, central gatehouse, inner courtyard, and crenellated walls", tags=["building","downtown","landmark","hero","historic","tier1"], mogen_version="0.1.12")
+material "wall_stone" (color=[0.70,0.65,0.55], roughness=0.85, uv_mode="tile", uv_scale=6.0)
+material "wall_dark" (color=[0.50,0.45,0.38], roughness=0.85, uv_mode="tile", uv_scale=4.0)
+material "roof_tile" (color=[0.45,0.25,0.18], roughness=0.80, uv_mode="tile", uv_scale=6.0)
+material "roof_tower" (color=[0.40,0.20,0.15], roughness=0.80)
+material "trim_gold" (color=[0.85,0.65,0.20], roughness=0.30, metallic=0.85)
+material "window_glass" (color=[0.25,0.30,0.40], transmission=0.30, roughness=0.10)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "grass" (color=[0.25,0.42,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "door_wood" (color=[0.25,0.15,0.08], roughness=0.65)
+material "flag_purple" (color=[0.45,0.20,0.55], roughness=0.70)
+material "metal_dark" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.85)
+module "pal_window" () {
+  box "frame" (size=[0.80, 1.20, 0.06], mat="wall_stone")
+  box "glass" (size=[0.65, 1.05, 0.02], mat="window_glass", pos=[0,0,-0.04])
+  box "sill" (size=[0.90, 0.06, 0.10], mat="wall_stone", pos=[0,-0.65,0.05])
+}
+module "tower_full" () {
+  // Tower = cylinder body + cone roof + flag pole
+  cylinder "body" (radius=2.5, height=12.0, mat="wall_stone", pos=[0, 6.0, 0])
+  // Crenellations around top (8 small boxes)
+  box "cren_1" (size=[0.50, 0.60, 0.50], mat="wall_stone", pos=[0, 12.30, 2.30], tags="floating")
+  box "cren_2" (size=[0.50, 0.60, 0.50], mat="wall_stone", pos=[1.63, 12.30, 1.63], tags="floating")
+  box "cren_3" (size=[0.50, 0.60, 0.50], mat="wall_stone", pos=[2.30, 12.30, 0], tags="floating")
+  box "cren_4" (size=[0.50, 0.60, 0.50], mat="wall_stone", pos=[1.63, 12.30, -1.63], tags="floating")
+  box "cren_5" (size=[0.50, 0.60, 0.50], mat="wall_stone", pos=[0, 12.30, -2.30], tags="floating")
+  box "cren_6" (size=[0.50, 0.60, 0.50], mat="wall_stone", pos=[-1.63, 12.30, -1.63], tags="floating")
+  box "cren_7" (size=[0.50, 0.60, 0.50], mat="wall_stone", pos=[-2.30, 12.30, 0], tags="floating")
+  box "cren_8" (size=[0.50, 0.60, 0.50], mat="wall_stone", pos=[-1.63, 12.30, 1.63], tags="floating")
+  // Conical roof
+  cone "roof" (radius=3.0, height=4.0, mat="roof_tower", pos=[0, 14.00, 0], tags="floating")
+  // Flag pole + flag
+  cylinder "pole" (radius=0.04, height=2.0, mat="metal_dark", pos=[0, 17.50, 0], tags="floating")
+  box "flag" (size=[0.60, 0.40, 0.02], mat="flag_purple", pos=[0.30, 17.80, 0], tags="floating")
+  // Tower arrow-slit windows (4 sides, narrow)
+  box "win_n" (size=[0.20, 1.20, 0.05], mat="window_glass", pos=[0, 7.0, -2.45], tags="floating")
+  box "win_s" (size=[0.20, 1.20, 0.05], mat="window_glass", pos=[0, 7.0, 2.45], tags="floating")
+  box "win_e" (size=[0.05, 1.20, 0.20], mat="window_glass", pos=[2.45, 7.0, 0], tags="floating")
+  box "win_w" (size=[0.05, 1.20, 0.20], mat="window_glass", pos=[-2.45, 7.0, 0], tags="floating")
+  // Upper windows
+  box "win_n_2" (size=[0.20, 1.20, 0.05], mat="window_glass", pos=[0, 10.0, -2.45], tags="floating")
+  box "win_s_2" (size=[0.20, 1.20, 0.05], mat="window_glass", pos=[0, 10.0, 2.45], tags="floating")
+  box "win_e_2" (size=[0.05, 1.20, 0.20], mat="window_glass", pos=[2.45, 10.0, 0], tags="floating")
+  box "win_w_2" (size=[0.05, 1.20, 0.20], mat="window_glass", pos=[-2.45, 10.0, 0], tags="floating")
+}
+scene {
+  // === LAWN / GROUNDS ===
+  slab "lawn" (size=[70.0, 0.04, 60.0], mat="grass", tags="floating")
+  slab "foundation" (size=[50.0, 0.40, 40.0], mat="concrete", pos=[0, 0.20, 0])
+  // === 4 CORNER TOWERS ===
+  group "tower_NW" (pos=[-25.0, 0, -20.0]) { use "tower_full" () }
+  group "tower_NE" (pos=[25.0, 0, -20.0]) { use "tower_full" () }
+  group "tower_SW" (pos=[-25.0, 0, 20.0]) { use "tower_full" () }
+  group "tower_SE" (pos=[25.0, 0, 20.0]) { use "tower_full" () }
+  // === MAIN BODY — 4 wings around inner courtyard ===
+  // Front wing (north, with gatehouse in middle)
+  box "front_wing_body" (size=[40.0, 10.0, 6.0], mat="wall_stone", pos=[0, 5.0, -17.0])
+  prism "front_wing_roof" (size=[40.5, 2.00, 6.5], pos=[0, 10.50, -17.0], mat="roof_tile")
+  // Crenellations on front wing
+  box "fc_1" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[-19.0, 10.30, -17.0], tags="floating")
+  box "fc_2" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[-17.0, 10.30, -17.0], tags="floating")
+  box "fc_3" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[-15.0, 10.30, -17.0], tags="floating")
+  box "fc_4" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[-13.0, 10.30, -17.0], tags="floating")
+  box "fc_5" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[-11.0, 10.30, -17.0], tags="floating")
+  box "fc_6" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[-9.0, 10.30, -17.0], tags="floating")
+  box "fc_7" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[9.0, 10.30, -17.0], tags="floating")
+  box "fc_8" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[11.0, 10.30, -17.0], tags="floating")
+  box "fc_9" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[13.0, 10.30, -17.0], tags="floating")
+  box "fc_10" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[15.0, 10.30, -17.0], tags="floating")
+  box "fc_11" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[17.0, 10.30, -17.0], tags="floating")
+  box "fc_12" (size=[1.0, 0.6, 0.20], mat="wall_stone", pos=[19.0, 10.30, -17.0], tags="floating")
+  // Back wing (south)
+  box "back_wing_body" (size=[40.0, 10.0, 6.0], mat="wall_stone", pos=[0, 5.0, 17.0])
+  prism "back_wing_roof" (size=[40.5, 2.00, 6.5], pos=[0, 10.50, 17.0], mat="roof_tile")
+  // Left wing (west)
+  box "left_wing_body" (size=[6.0, 10.0, 28.0], mat="wall_stone", pos=[-17.0, 5.0, 0])
+  prism "left_wing_roof" (size=[6.5, 2.00, 28.5], pos=[-17.0, 10.50, 0], mat="roof_tile", rot=[0,90,0])
+  // Right wing (east)
+  box "right_wing_body" (size=[6.0, 10.0, 28.0], mat="wall_stone", pos=[17.0, 5.0, 0])
+  prism "right_wing_roof" (size=[6.5, 2.00, 28.5], pos=[17.0, 10.50, 0], mat="roof_tile", rot=[0,90,0])
+  // === FRONT GATEHOUSE (center, taller than wing) ===
+  box "gatehouse_body" (size=[10.0, 14.0, 8.0], mat="wall_dark", pos=[0, 7.0, -17.0])
+  prism "gatehouse_roof" (size=[10.5, 3.0, 8.5], pos=[0, 14.50, -17.0], mat="roof_tower")
+  // Gatehouse flag
+  cylinder "gh_pole" (radius=0.05, height=2.5, mat="metal_dark", pos=[0, 18.00, -17.0], tags="floating")
+  box "gh_flag" (size=[0.80, 0.50, 0.02], mat="flag_purple", pos=[0.40, 18.40, -17.0], tags="floating")
+  // === MAIN GATE (front, double wood doors) ===
+  box "gate_arch_frame" (size=[4.0, 5.5, 0.40], mat="wall_stone", pos=[0, 3.0, -20.95], tags="floating")
+  box "gate_door_l" (size=[1.80, 4.50, 0.10], mat="door_wood", pos=[-0.90, 2.50, -21.00], tags="floating")
+  box "gate_door_r" (size=[1.80, 4.50, 0.10], mat="door_wood", pos=[0.90, 2.50, -21.00], tags="floating")
+  box "gate_knob_l" (size=[0.06, 0.10, 0.06], mat="trim_gold", pos=[-0.10, 2.50, -21.10], tags="floating")
+  box "gate_knob_r" (size=[0.06, 0.10, 0.06], mat="trim_gold", pos=[0.10, 2.50, -21.10], tags="floating")
+  // === COURTYARD FOUNTAIN (center) ===
+  cylinder "fountain_base" (radius=2.5, height=0.40, mat="wall_stone", pos=[0, 0.20, 0], tags="floating")
+  cylinder "fountain_inner" (radius=1.5, height=0.30, mat="wall_dark", pos=[0, 0.35, 0], tags="floating")
+  cylinder "fountain_pillar" (radius=0.20, height=1.5, mat="wall_stone", pos=[0, 1.20, 0], tags="floating")
+  sphere "fountain_top" (radius=0.40, mat="window_glass", pos=[0, 2.00, 0], tags="floating")
+  // === FRONT WALLS (with windows) ===
+  // Front wing facade — 4 windows + gatehouse door
+  wall "front_wing_wall" (size=[40.0, 10.0, 0.20], pos=[0, 5.0, -20.0], holes=[[-12.0,1.0,0.80,1.20],[-8.0,1.0,0.80,1.20],[8.0,1.0,0.80,1.20],[12.0,1.0,0.80,1.20],[-12.0,4.0,0.80,1.20],[-8.0,4.0,0.80,1.20],[8.0,4.0,0.80,1.20],[12.0,4.0,0.80,1.20]])
+  // Back wing facade — 6 windows
+  wall "back_wing_wall" (size=[40.0, 10.0, 0.20], pos=[0, 5.0, 20.0], holes=[[-15.0,1.0,0.80,1.20],[-10.0,1.0,0.80,1.20],[-5.0,1.0,0.80,1.20],[5.0,1.0,0.80,1.20],[10.0,1.0,0.80,1.20],[15.0,1.0,0.80,1.20],[-15.0,4.0,0.80,1.20],[-10.0,4.0,0.80,1.20],[-5.0,4.0,0.80,1.20],[5.0,4.0,0.80,1.20],[10.0,4.0,0.80,1.20],[15.0,4.0,0.80,1.20]])
+  // Left + right wing courtyard-side walls
+  wall "left_inner_wall" (size=[28.0, 10.0, 0.20], pos=[-14.0, 5.0, 0], rot=[0,90,0], holes=[[-10.0,1.0,0.80,1.20],[-5.0,1.0,0.80,1.20],[5.0,1.0,0.80,1.20],[10.0,1.0,0.80,1.20],[-10.0,4.0,0.80,1.20],[-5.0,4.0,0.80,1.20],[5.0,4.0,0.80,1.20],[10.0,4.0,0.80,1.20]])
+  wall "right_inner_wall" (size=[28.0, 10.0, 0.20], pos=[14.0, 5.0, 0], rot=[0,90,0], holes=[[-10.0,1.0,0.80,1.20],[-5.0,1.0,0.80,1.20],[5.0,1.0,0.80,1.20],[10.0,1.0,0.80,1.20],[-10.0,4.0,0.80,1.20],[-5.0,4.0,0.80,1.20],[5.0,4.0,0.80,1.20],[10.0,4.0,0.80,1.20]])
+  // === GARDEN PATHS (decorative — flagged) ===
+  slab "path_n_s" (size=[3.0, 0.04, 22.0], mat="concrete", pos=[0, 0.02, 0], tags="floating")
+  slab "path_e_w" (size=[28.0, 0.04, 3.0], mat="concrete", pos=[0, 0.02, 0], tags="floating")
+  // === GROUP PLACEMENTS — WINDOWS ===
+  // Front wing windows
+  group "wf_1" (pos=[-12.0, 6.0, -20.0]) { use "pal_window" () }
+  group "wf_2" (pos=[-8.0, 6.0, -20.0]) { use "pal_window" () }
+  group "wf_3" (pos=[8.0, 6.0, -20.0]) { use "pal_window" () }
+  group "wf_4" (pos=[12.0, 6.0, -20.0]) { use "pal_window" () }
+  group "wf_5" (pos=[-12.0, 9.0, -20.0]) { use "pal_window" () }
+  group "wf_6" (pos=[-8.0, 9.0, -20.0]) { use "pal_window" () }
+  group "wf_7" (pos=[8.0, 9.0, -20.0]) { use "pal_window" () }
+  group "wf_8" (pos=[12.0, 9.0, -20.0]) { use "pal_window" () }
+  // Back wing windows
+  group "wb_1" (pos=[-15.0, 6.0, 20.0]) { use "pal_window" () }
+  group "wb_2" (pos=[-10.0, 6.0, 20.0]) { use "pal_window" () }
+  group "wb_3" (pos=[-5.0, 6.0, 20.0]) { use "pal_window" () }
+  group "wb_4" (pos=[5.0, 6.0, 20.0]) { use "pal_window" () }
+  group "wb_5" (pos=[10.0, 6.0, 20.0]) { use "pal_window" () }
+  group "wb_6" (pos=[15.0, 6.0, 20.0]) { use "pal_window" () }
+  group "wb_7" (pos=[-15.0, 9.0, 20.0]) { use "pal_window" () }
+  group "wb_8" (pos=[-10.0, 9.0, 20.0]) { use "pal_window" () }
+  group "wb_9" (pos=[-5.0, 9.0, 20.0]) { use "pal_window" () }
+  group "wb_10" (pos=[5.0, 9.0, 20.0]) { use "pal_window" () }
+  group "wb_11" (pos=[10.0, 9.0, 20.0]) { use "pal_window" () }
+  group "wb_12" (pos=[15.0, 9.0, 20.0]) { use "pal_window" () }
+}

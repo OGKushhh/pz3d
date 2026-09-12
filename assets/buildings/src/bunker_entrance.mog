@@ -1,0 +1,45 @@
+// bunker_entrance.mog — Hillside bunker entrance with steel door
+meta (name="bunker_entrance", description="Hillside bunker entrance with reinforced steel door", tags=["building","military","bunker","tier1"], mogen_version="0.1.12")
+material "concrete_grey" (color=[0.50,0.48,0.45], roughness=0.90, uv_mode="tile", uv_scale=4.0)
+material "concrete_dark" (color=[0.35,0.33,0.30], roughness=0.90)
+material "steel_door" (color=[0.30,0.32,0.25], roughness=0.50, metallic=0.85)
+material "hill_green" (color=[0.22,0.35,0.16], roughness=0.90, uv_mode="tile", uv_scale=4.0)
+material "rock_grey" (color=[0.45,0.43,0.40], roughness=0.90, uv_mode="tile", uv_scale=2.0)
+material "warning_yellow" (color=[0.85,0.70,0.10], roughness=0.60, emissive=[0.40,0.30,0.05], emissive_strength=0.3)
+material "metal_dark" (color=[0.25,0.25,0.28], roughness=0.50, metallic=0.85)
+scene {
+  // Hill shape — sloped back from entrance
+  box "hill_base" (size=[12.0, 4.0, 6.0], mat="hill_green", pos=[0, 2.00, 2.0])
+  box "hill_top" (size=[10.0, 2.0, 4.0], mat="hill_green", pos=[0, 4.50, 2.0])
+  // Rock facing around entrance
+  box "rock_face" (size=[6.0, 4.0, 0.30], mat="rock_grey", pos=[0, 2.00, -1.0])
+  // Concrete frame around door
+  box "frame" (size=[4.5, 4.0, 0.50], mat="concrete_grey", pos=[0, 2.00, -0.85])
+  // Steel door (heavy)
+  box "door_l" (size=[1.50, 3.20, 0.20], mat="steel_door", pos=[-0.80, 1.60, -1.05])
+  box "door_r" (size=[1.50, 3.20, 0.20], mat="steel_door", pos=[0.80, 1.60, -1.05])
+  // Door hinges
+  cylinder "hinge_l_t" (radius=0.08, height=0.30, mat="metal_dark", pos=[-1.55, 3.0, -1.05], rot=[0,90,0], tags="floating")
+  cylinder "hinge_l_b" (radius=0.08, height=0.30, mat="metal_dark", pos=[-1.55, 0.5, -1.05], rot=[0,90,0], tags="floating")
+  cylinder "hinge_r_t" (radius=0.08, height=0.30, mat="metal_dark", pos=[1.55, 3.0, -1.05], rot=[0,90,0], tags="floating")
+  cylinder "hinge_r_b" (radius=0.08, height=0.30, mat="metal_dark", pos=[1.55, 0.5, -1.05], rot=[0,90,0], tags="floating")
+  // Center seam (between doors)
+  box "seam" (size=[0.05, 3.20, 0.22], mat="metal_dark", pos=[0, 1.60, -1.07], tags="floating")
+  // Door handles (wheel-style, for vault)
+  cylinder "handle_l" (radius=0.20, height=0.10, mat="metal_dark", pos=[-0.20, 1.60, -1.20], rot=[90,0,0], tags="floating")
+  cylinder "handle_r" (radius=0.20, height=0.10, mat="metal_dark", pos=[0.20, 1.60, -1.20], rot=[90,0,0], tags="floating")
+  // Spokes on handles
+  box "spoke_l_1" (size=[0.05, 0.40, 0.05], mat="metal_dark", pos=[-0.20, 1.60, -1.20], rot=[0,0,0], tags="floating")
+  box "spoke_l_2" (size=[0.05, 0.40, 0.05], mat="metal_dark", pos=[-0.20, 1.60, -1.20], rot=[0,0,90], tags="floating")
+  // Warning sign above door
+  box "sign_board" (size=[1.5, 0.8, 0.10], mat="warning_yellow", pos=[0, 3.80, -0.80], tags="floating")
+  // Vent pipe
+  cylinder "vent" (radius=0.20, height=6.0, mat="metal_dark", pos=[2.0, 5.00, 0], rot=[0,0,0], tags="floating")
+  // Concrete step at door
+  slab "step" (size=[4.5, 0.20, 1.0], mat="concrete_dark", pos=[0, 0.10, -1.50])
+  // Sandbags in front
+  box "sandbag_1" (size=[0.50, 0.30, 0.40], mat="concrete_grey", pos=[-2.5, 0.15, -1.5], tags="floating")
+  box "sandbag_2" (size=[0.50, 0.30, 0.40], mat="concrete_grey", pos=[2.5, 0.15, -1.5], tags="floating")
+  box "sandbag_3" (size=[0.50, 0.30, 0.40], mat="concrete_grey", pos=[-2.5, 0.45, -1.7], tags="floating")
+  box "sandbag_4" (size=[0.50, 0.30, 0.40], mat="concrete_grey", pos=[2.5, 0.45, -1.7], tags="floating")
+}

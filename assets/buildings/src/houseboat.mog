@@ -1,0 +1,46 @@
+// houseboat.mog — Small houseboat floating on water
+meta (name="houseboat", description="Small houseboat with cabin and small deck", tags=["building","coastal","houseboat","tier1"], mogen_version="0.1.12")
+material "hull_white" (color=[0.85,0.82,0.78], roughness=0.70, uv_mode="tile", uv_scale=3.0)
+material "hull_trim" (color=[0.30,0.40,0.50], roughness=0.60, metallic=0.3)
+material "cabin_wood" (color=[0.55,0.40,0.25], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_red" (color=[0.50,0.20,0.15], roughness=0.80, uv_mode="tile", uv_scale=4.0)
+material "window_amber" (color=[0.65,0.55,0.30], transmission=0.30, roughness=0.10, emissive=[0.40,0.30,0.15], emissive_strength=0.5)
+material "door_wood" (color=[0.25,0.15,0.08], roughness=0.65)
+material "water_dark" (color=[0.10,0.25,0.30], roughness=0.20, transmission=0.30)
+material "metal_dark" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.7)
+scene {
+  slab "water" (size=[16.0, 0.04, 8.0], mat="water_dark", tags="floating")
+  // Hull (rectangular box hull — pontoon style)
+  box "hull" (size=[8.0, 0.80, 3.5], mat="hull_white", pos=[0, 0.40, 0])
+  // Hull trim (waterline)
+  box "trim_band" (size=[8.05, 0.10, 3.55], mat="hull_trim", pos=[0, 0.50, 0])
+  // Bow (slight wedge)
+  box "bow" (size=[0.50, 0.80, 3.5], mat="hull_white", pos=[4.0, 0.40, 0], rot=[0,0,0])
+  // Deck (top of hull)
+  slab "deck" (size=[8.0, 0.10, 3.5], mat="cabin_wood", pos=[0, 0.85, 0], tags="floating")
+  // Cabin
+  box "cabin" (size=[5.0, 2.0, 3.0], mat="cabin_wood", pos=[-0.5, 1.90, 0], tags="floating")
+  // Cabin roof (slight overhang)
+  prism "cabin_roof" (size=[5.5, 0.60, 3.5], pos=[-0.5, 3.10, 0], mat="roof_red", tags="floating")
+  // Door
+  box "door" (size=[0.85, 1.65, 0.05], mat="door_wood", pos=[-0.5, 1.85, -1.50], tags="floating")
+  // Windows (front, side, back)
+  box "win_f_1" (size=[0.80, 0.60, 0.05], mat="window_amber", pos=[-1.50, 2.10, -1.50], tags="floating")
+  box "win_f_2" (size=[0.80, 0.60, 0.05], mat="window_amber", pos=[0.50, 2.10, -1.50], tags="floating")
+  box "win_l" (size=[0.05, 0.60, 0.80], mat="window_amber", pos=[-3.05, 2.10, 0], tags="floating")
+  box "win_r" (size=[0.05, 0.60, 0.80], mat="window_amber", pos=[2.05, 2.10, 0], tags="floating")
+  box "win_b" (size=[0.80, 0.60, 0.05], mat="window_amber", pos=[-0.5, 2.10, 1.50], tags="floating")
+  // Chimney
+  box "chimney" (size=[0.30, 1.0, 0.30], mat="roof_red", pos=[1.5, 3.50, 0], tags="floating")
+  // Front deck railing
+  box "rail_post_1" (size=[0.08, 0.70, 0.08], mat="metal_dark", pos=[3.0, 1.25, -1.60], tags="floating")
+  box "rail_post_2" (size=[0.08, 0.70, 0.08], mat="metal_dark", pos=[3.0, 1.25, 1.60], tags="floating")
+  box "rail_post_3" (size=[0.08, 0.70, 0.08], mat="metal_dark", pos=[3.9, 1.25, -1.60], tags="floating")
+  box "rail_post_4" (size=[0.08, 0.70, 0.08], mat="metal_dark", pos=[3.9, 1.25, 1.60], tags="floating")
+  box "rail_front" (size=[0.05, 0.70, 3.2], mat="metal_dark", pos=[3.95, 1.25, 0], tags="floating")
+  // Mooring cleats
+  box "cleat_1" (size=[0.20, 0.10, 0.10], mat="metal_dark", pos=[3.5, 0.95, -1.5], tags="floating")
+  box "cleat_2" (size=[0.20, 0.10, 0.10], mat="metal_dark", pos=[3.5, 0.95, 1.5], tags="floating")
+  // Antenna
+  cylinder "antenna" (radius=0.02, height=1.5, mat="metal_dark", pos=[-2.0, 3.95, -1.0], tags="floating")
+}

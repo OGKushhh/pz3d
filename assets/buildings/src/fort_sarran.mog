@@ -1,0 +1,133 @@
+// fort_sarran.mog — massive military fortress — the outbreak origin (hero asset)
+meta (name="fort_sarran", description="Massive 5-pointed star fortress with curtain walls, 6 bastions, central keep, and dry moat — the outbreak origin", tags=["building","military","landmark","hero","outbreak","tier1"], mogen_version="0.1.12")
+material "wall_stone_dark" (color=[0.42,0.38,0.32], roughness=0.90, uv_mode="tile", uv_scale=6.0)
+material "wall_stone" (color=[0.55,0.50,0.43], roughness=0.90, uv_mode="tile", uv_scale=4.0)
+material "wall_concrete" (color=[0.45,0.42,0.38], roughness=0.90, uv_mode="tile", uv_scale=4.0)
+material "roof_keep" (color=[0.20,0.15,0.10], roughness=0.85)
+material "roof_bastion" (color=[0.30,0.20,0.15], roughness=0.85)
+material "grass_dry" (color=[0.35,0.40,0.18], roughness=0.90, uv_mode="tile", uv_scale=4.0)
+material "moat_mud" (color=[0.25,0.20,0.12], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "concrete" (color=[0.40,0.38,0.32], roughness=0.90)
+material "metal_dark" (color=[0.25,0.25,0.28], roughness=0.50, metallic=0.85)
+material "door_steel" (color=[0.20,0.20,0.22], roughness=0.40, metallic=0.85)
+material "warning_red" (color=[0.85,0.10,0.10], roughness=0.50, emissive=[0.50,0.05,0.05], emissive_strength=0.5)
+material "window_glass" (color=[0.20,0.25,0.30], transmission=0.20, roughness=0.10)
+material "fence_metal" (color=[0.30,0.32,0.20], roughness=0.60, metallic=0.7)
+module "bastion" () {
+  // Pentagonal bastion — approximated with rotated box + cylinder cap
+  cylinder "body" (radius=4.0, height=8.0, mat="wall_stone_dark", pos=[0, 4.0, 0])
+  // Crenellations around top
+  box "cren_1" (size=[0.80, 0.80, 0.50], mat="wall_stone_dark", pos=[0, 8.40, 3.60], tags="floating")
+  box "cren_2" (size=[0.80, 0.80, 0.50], mat="wall_stone_dark", pos=[2.55, 8.40, 2.55], tags="floating")
+  box "cren_3" (size=[0.80, 0.80, 0.50], mat="wall_stone_dark", pos=[3.60, 8.40, 0], tags="floating")
+  box "cren_4" (size=[0.80, 0.80, 0.50], mat="wall_stone_dark", pos=[2.55, 8.40, -2.55], tags="floating")
+  box "cren_5" (size=[0.80, 0.80, 0.50], mat="wall_stone_dark", pos=[0, 8.40, -3.60], tags="floating")
+  box "cren_6" (size=[0.80, 0.80, 0.50], mat="wall_stone_dark", pos=[-2.55, 8.40, -2.55], tags="floating")
+  box "cren_7" (size=[0.80, 0.80, 0.50], mat="wall_stone_dark", pos=[-3.60, 8.40, 0], tags="floating")
+  box "cren_8" (size=[0.80, 0.80, 0.50], mat="wall_stone_dark", pos=[-2.55, 8.40, 2.55], tags="floating")
+  // Conical roof (small)
+  cone "roof" (radius=3.0, height=1.5, mat="roof_bastion", pos=[0, 8.80, 0], tags="floating")
+  // Slit windows
+  box "win_n" (size=[0.20, 1.50, 0.05], mat="window_glass", pos=[0, 4.0, -3.95], tags="floating")
+  box "win_s" (size=[0.20, 1.50, 0.05], mat="window_glass", pos=[0, 4.0, 3.95], tags="floating")
+  box "win_e" (size=[0.05, 1.50, 0.20], mat="window_glass", pos=[3.95, 4.0, 0], tags="floating")
+  box "win_w" (size=[0.05, 1.50, 0.20], mat="window_glass", pos=[-3.95, 4.0, 0], tags="floating")
+}
+module "keep_tower" () {
+  // Tall narrow keep tower — 5 stories
+  box "body" (size=[6.0, 18.0, 6.0], mat="wall_concrete", pos=[0, 9.0, 0])
+  // Crenellations
+  box "cren_n" (size=[0.80, 0.80, 0.50], mat="wall_concrete", pos=[-2.0, 18.40, -3.0], tags="floating")
+  box "cren_n2" (size=[0.80, 0.80, 0.50], mat="wall_concrete", pos=[0, 18.40, -3.0], tags="floating")
+  box "cren_n3" (size=[0.80, 0.80, 0.50], mat="wall_concrete", pos=[2.0, 18.40, -3.0], tags="floating")
+  box "cren_s" (size=[0.80, 0.80, 0.50], mat="wall_concrete", pos=[-2.0, 18.40, 3.0], tags="floating")
+  box "cren_s2" (size=[0.80, 0.80, 0.50], mat="wall_concrete", pos=[0, 18.40, 3.0], tags="floating")
+  box "cren_s3" (size=[0.80, 0.80, 0.50], mat="wall_concrete", pos=[2.0, 18.40, 3.0], tags="floating")
+  box "cren_e" (size=[0.50, 0.80, 0.80], mat="wall_concrete", pos=[3.0, 18.40, -2.0], tags="floating")
+  box "cren_e2" (size=[0.50, 0.80, 0.80], mat="wall_concrete", pos=[3.0, 18.40, 0], tags="floating")
+  box "cren_e3" (size=[0.50, 0.80, 0.80], mat="wall_concrete", pos=[3.0, 18.40, 2.0], tags="floating")
+  box "cren_w" (size=[0.50, 0.80, 0.80], mat="wall_concrete", pos=[-3.0, 18.40, -2.0], tags="floating")
+  box "cren_w2" (size=[0.50, 0.80, 0.80], mat="wall_concrete", pos=[-3.0, 18.40, 0], tags="floating")
+  box "cren_w3" (size=[0.50, 0.80, 0.80], mat="wall_concrete", pos=[-3.0, 18.40, 2.0], tags="floating")
+  // Flat roof
+  slab "roof" (size=[6.4, 0.20, 6.4], mat="roof_keep", pos=[0, 18.20, 0], tags="floating")
+  // Windows (4 floors × 4 sides = 16 — but we'll keep it minimal: 8 visible)
+  box "win_n_1" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[-1.50, 4.0, -3.05], tags="floating")
+  box "win_n_2" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[1.50, 4.0, -3.05], tags="floating")
+  box "win_n_3" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[-1.50, 8.0, -3.05], tags="floating")
+  box "win_n_4" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[1.50, 8.0, -3.05], tags="floating")
+  box "win_n_5" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[-1.50, 12.0, -3.05], tags="floating")
+  box "win_n_6" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[1.50, 12.0, -3.05], tags="floating")
+  box "win_n_7" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[-1.50, 16.0, -3.05], tags="floating")
+  box "win_n_8" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[1.50, 16.0, -3.05], tags="floating")
+  box "win_s_1" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[-1.50, 4.0, 3.05], tags="floating")
+  box "win_s_2" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[1.50, 4.0, 3.05], tags="floating")
+  box "win_s_3" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[-1.50, 8.0, 3.05], tags="floating")
+  box "win_s_4" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[1.50, 8.0, 3.05], tags="floating")
+  box "win_s_5" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[-1.50, 12.0, 3.05], tags="floating")
+  box "win_s_6" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[1.50, 12.0, 3.05], tags="floating")
+  box "win_s_7" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[-1.50, 16.0, 3.05], tags="floating")
+  box "win_s_8" (size=[0.60, 0.90, 0.05], mat="window_glass", pos=[1.50, 16.0, 3.05], tags="floating")
+}
+scene {
+  // === OUTER GROUNDS (dry, abandoned) ===
+  slab "outer_ground" (size=[80.0, 0.04, 80.0], mat="grass_dry", tags="floating")
+  // === DRY MOAT (around the fortress) ===
+  // Moat is approximated as a ring of darker ground around the wall perimeter
+  slab "moat_n" (size=[60.0, 0.04, 6.0], mat="moat_mud", pos=[0, 0.02, -33.0], tags="floating")
+  slab "moat_s" (size=[60.0, 0.04, 6.0], mat="moat_mud", pos=[0, 0.02, 33.0], tags="floating")
+  slab "moat_e" (size=[6.0, 0.04, 60.0], mat="moat_mud", pos=[33.0, 0.02, 0], tags="floating")
+  slab "moat_w" (size=[6.0, 0.04, 60.0], mat="moat_mud", pos=[-33.0, 0.02, 0], tags="floating")
+  // === FOUNDATION (inner) ===
+  slab "foundation" (size=[54.0, 0.40, 54.0], mat="concrete", pos=[0, 0.20, 0])
+  // === CURTAIN WALLS (4 sides, 8m tall, 2m thick) ===
+  wall "wall_n" (size=[50.0, 8.0, 0.50], pos=[0, 4.0, -27.0], mat="wall_stone_dark", holes=[[0,-1.0,4.0,3.0]])
+  wall "wall_s" (size=[50.0, 8.0, 0.50], pos=[0, 4.0, 27.0], mat="wall_stone_dark")
+  wall "wall_e" (size=[54.0, 8.0, 0.50], pos=[27.0, 4.0, 0], rot=[0,90,0], mat="wall_stone_dark")
+  wall "wall_w" (size=[54.0, 8.0, 0.50], pos=[-27.0, 4.0, 0], rot=[0,90,0], mat="wall_stone_dark")
+  // === 6 CORNER + MID BASTIONS ===
+  group "bastion_NW" (pos=[-25.0, 0, -25.0]) { use "bastion" () }
+  group "bastion_NE" (pos=[25.0, 0, -25.0]) { use "bastion" () }
+  group "bastion_SW" (pos=[-25.0, 0, 25.0]) { use "bastion" () }
+  group "bastion_SE" (pos=[25.0, 0, 25.0]) { use "bastion" () }
+  group "bastion_N_mid" (pos=[0, 0, -27.0]) { use "bastion" () }
+  group "bastion_S_mid" (pos=[0, 0, 27.0]) { use "bastion" () }
+  // === CENTRAL KEEP (5-story tower in middle) ===
+  group "keep" (pos=[0, 0, 0]) { use "keep_tower" () }
+  // === MAIN GATE (north wall) — double steel doors ===
+  box "gate_arch_frame" (size=[5.0, 4.5, 0.60], mat="wall_stone", pos=[0, 2.50, -27.30], tags="floating")
+  box "gate_door_l" (size=[1.80, 3.50, 0.15], mat="door_steel", pos=[-0.95, 2.0, -27.40], tags="floating")
+  box "gate_door_r" (size=[1.80, 3.50, 0.15], mat="door_steel", pos=[0.95, 2.0, -27.40], tags="floating")
+  // Heavy locking bars
+  box "lock_bar_l" (size=[0.20, 4.0, 0.20], mat="metal_dark", pos=[-2.50, 2.0, -27.30], tags="floating")
+  box "lock_bar_r" (size=[0.20, 4.0, 0.20], mat="metal_dark", pos=[2.50, 2.0, -27.30], tags="floating")
+  // === DRAWBRIDGE (lowered across moat) ===
+  slab "drawbridge" (size=[5.0, 0.20, 6.0], mat="wall_stone", pos=[0, 0.20, -30.0])
+  // Chains (4 corners of drawbridge going up to gate)
+  box "chain_l_1" (size=[0.05, 4.0, 0.05], mat="metal_dark", pos=[-2.0, 2.20, -28.0], rot=[20,0,0], tags="floating")
+  box "chain_l_2" (size=[0.05, 4.0, 0.05], mat="metal_dark", pos=[2.0, 2.20, -28.0], rot=[20,0,0], tags="floating")
+  // === BARBED WIRE FENCE (inner perimeter, just inside wall) ===
+  box "fence_post_n_1" (size=[0.10, 2.0, 0.10], mat="fence_metal", pos=[-20.0, 1.0, -25.5], tags="floating")
+  box "fence_post_n_2" (size=[0.10, 2.0, 0.10], mat="fence_metal", pos=[-10.0, 1.0, -25.5], tags="floating")
+  box "fence_post_n_3" (size=[0.10, 2.0, 0.10], mat="fence_metal", pos=[10.0, 1.0, -25.5], tags="floating")
+  box "fence_post_n_4" (size=[0.10, 2.0, 0.10], mat="fence_metal", pos=[20.0, 1.0, -25.5], tags="floating")
+  box "fence_post_s_1" (size=[0.10, 2.0, 0.10], mat="fence_metal", pos=[-20.0, 1.0, 25.5], tags="floating")
+  box "fence_post_s_2" (size=[0.10, 2.0, 0.10], mat="fence_metal", pos=[-10.0, 1.0, 25.5], tags="floating")
+  box "fence_post_s_3" (size=[0.10, 2.0, 0.10], mat="fence_metal", pos=[10.0, 1.0, 25.5], tags="floating")
+  box "fence_post_s_4" (size=[0.10, 2.0, 0.10], mat="fence_metal", pos=[20.0, 1.0, 25.5], tags="floating")
+  // Wire strands
+  box "wire_n_low" (size=[40.0, 0.03, 0.03], mat="fence_metal", pos=[0, 0.50, -25.5], tags="floating")
+  box "wire_n_high" (size=[40.0, 0.03, 0.03], mat="fence_metal", pos=[0, 1.80, -25.5], tags="floating")
+  box "wire_s_low" (size=[40.0, 0.03, 0.03], mat="fence_metal", pos=[0, 0.50, 25.5], tags="floating")
+  box "wire_s_high" (size=[40.0, 0.03, 0.03], mat="fence_metal", pos=[0, 1.80, 25.5], tags="floating")
+  // === BIOHAZARD WARNING SIGN (on gate) ===
+  box "sign_back" (size=[2.0, 1.0, 0.10], mat="warning_red", pos=[0, 5.50, -27.55], tags="floating")
+  box "sign_text_1" (size=[1.5, 0.15, 0.02], mat="metal_dark", pos=[0, 5.80, -27.61], tags="floating")
+  box "sign_text_2" (size=[1.5, 0.15, 0.02], mat="metal_dark", pos=[0, 5.50, -27.61], tags="floating")
+  box "sign_text_3" (size=[1.5, 0.15, 0.02], mat="metal_dark", pos=[0, 5.20, -27.61], tags="floating")
+  // === INTERIOR COURTYARD PAVING ===
+  slab "courtyard_pave" (size=[40.0, 0.05, 40.0], mat="concrete", pos=[0, 0.42, 0], tags="floating")
+  // === OBSERVATION LIGHT (top of keep, red beacon) ===
+  sphere "keep_beacon" (radius=0.30, mat="warning_red", pos=[0, 18.50, 0], tags="floating")
+  cylinder "beacon_pole" (radius=0.04, height=0.80, mat="metal_dark", pos=[0, 18.40, 0], tags="floating")
+}

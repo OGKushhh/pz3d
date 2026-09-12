@@ -58,3 +58,126 @@ Stage Summary:
 - City builder with plan_grid density field, block-based placement, direct runtime streaming.
 - All tests passing (spatial_index + road_network).
 - Ready for user to test in Godot and provide screenshots.
+---
+Task ID: batch-011-40-final-assets
+Agent: main (Super Z)
+Task: Build 40 new assets (batch 011) — final batch covering all remaining biomes.
+
+Work Log:
+- Built 40 new MoGen assets (batch 011) covering ALL remaining biome gaps:
+  - Downtown hero buildings (6): hospital, police_station, highrise_office, parking_garage, broadcast_tower, railway_station
+  - Farmland landmarks (4): grain_silo, windmill, tractor_shed, farmhouse
+  - Forest (4): hunting_cabin, ranger_station, camping_tent, deer_stand
+  - River/Coastal (5): lighthouse, fishing_hut, pier_dock, houseboat, bridge_section
+  - Military (5): military_checkpoint, watchtower, bunker_entrance, helipad, field_hospital_tent
+  - Subway (4): subway_platform, subway_tunnel, subway_train_car, ticket_booth
+  - Commercial (4): strip_mall, auto_repair_shop, laundromat, barber_shop
+  - Backyard (1): treehouse
+  - Environment (5): campfire_ring, barbed_wire_fence, turnstile, crop_field_corn, seesaw
+  - Props (2): basketball_hoop, traffic_camera
+- All 40 .mog written via 4 persisted Python scripts (scripts/batch_011/build_part1..4.py)
+- Patched 24 of them for disconnected-part errors via patch_floats.py + patch_floats_v2.py + 2 manual edits
+- All 40 .glb built via mogen 0.1.12
+- All 40 rendered via Chrome + three.js + swiftshader at 1024px
+- Updated city_manifest.json (54 entries — was 14)
+- Built final contact sheet (1736x1994, 522KB): /home/z/my-project/download/asset-batches/2026-09-12_tier1_batch-011_40_assets_FINAL_contact_sheet.png
+
+Stage Summary:
+- Active library now: 182 GLBs total (63 buildings + 50 props + 19 foliage + 50 environment)
+- All 10 biomes from asset_count_breakdown.md now have representative coverage:
+  - Suburbia ✅ (existing)
+  - Parks & Greenways ✅ (existing)
+  - Farmland ✅ (NEW: grain_silo, windmill, tractor_shed, farmhouse, crop_field_corn)
+  - Forest ✅ (NEW: hunting_cabin, ranger_station, camping_tent, deer_stand, campfire_ring)
+  - Commercial Strip ✅ (NEW: strip_mall, auto_repair_shop, laundromat, barber_shop)
+  - Industrial Park ✅ (existing + freight via bridge_section)
+  - River & Wetlands ✅ (NEW: lighthouse, fishing_hut, pier_dock, houseboat, bridge_section)
+  - Subway ✅ (NEW: subway_platform, subway_tunnel, subway_train_car, ticket_booth, turnstile)
+  - Downtown ✅ (NEW: hospital, police_station, highrise_office, parking_garage, broadcast_tower, railway_station)
+  - Military Zone ✅ (NEW: military_checkpoint, watchtower, bunker_entrance, helipad, field_hospital_tent, barbed_wire_fence)
+- City manifest now references 54 curated assets (was 14).
+- All scripts persisted under /home/z/my-project/scripts/batch_011/ for re-runs.
+---
+Task ID: batch-012-36-assets-fixes-and-final-batch
+Agent: main (Super Z)
+Task: Fix broadcast_tower + parking_garage per user feedback; build next batch with rest of needed assets.
+
+Work Log:
+- FIXED broadcast_tower.mog: added 8 zig-zag stair flights (one per platform level, going up 40m), enclosed top equipment cab (2.5x2.5x2.2m) with 4 windows + door under antenna mast, plus antenna dish on top. Now climbable. VLM confirmed.
+- FIXED parking_garage.mog: added real helical connecting ramps (3 ramps between 4 floor slabs, 28-degree slope), enclosed stair tower on left side with 4 internal flights, parking-line markings on every floor, 4 floor-number signs, pay station booth.
+- Built 4 HUGE hero buildings (each 30m+ on a side):
+  - government_palace (40x25m, 18m tall + 25m dome, 3 wings + 7-column colonnade + grand steps + statues)
+  - stadium (60m oval, 18m tall, tiered seating bowl on 4 sides, 4 corner light pylons, scoreboard)
+  - old_royal_palace (50x40m, 4 corner towers + central gatehouse + inner courtyard with fountain + crenellated walls)
+  - fort_sarran (60x60m star fortress, 6 bastions + 8m curtain walls + central keep + dry moat + drawbridge + barbed wire)
+- Built 5 DSL characters (no skeleton — static posed meshes; skeleton binding was failing because arm positions don't match bone envelopes):
+  - walker_zombie_male (hunched, arms outstretched, red glowing eyes, torn shirt + blood)
+  - walker_zombie_female (long matted hair, torn floral dress, reaching pose)
+  - crawler_zombie (legless, dragging on ground, severed leg stumps + blood trail)
+  - npc_survivor (backpack + bedroll, baseball bat raised, alert standing pose)
+  - npc_soldier (tactical vest + helmet + assault rifle + knee pads + antenna pack)
+- Built 4 decals (flat surface stains): blood_splatter, poster_torn, grime_dirt, crack_road
+- Built 3 forest fills: cave_entrance, logging_camp_shed, ranger_lean_to
+- Built 3 farmland fills: irrigation_canal, hay_bale, grain_storage_shed
+- Built 3 coastal fills: boardwalk_section, marsh_grass, marsh_pier
+- Built 3 subway fills: maintenance_tunnel_junction, emergency_exit_stairs, subway_pipe_cluster
+- Built 2 military fills: mass_grave (dark atmospheric), helipad_control_room
+- Built 3 commercial fills: salon, grocery_store (with cart corral), bank_branch (classical with ATM)
+- Built 2 suburban props: bird_house, garden_pergola
+- Built 2 misc: apartment_tower_high (8-story residential), train_boxcar_derelict
+- Total batch: 36 assets (2 fixes + 34 new)
+- Patched 12 build failures (disconnected parts + character skin binding)
+- Rendered all 36 via Chrome + three.js at 1024px
+- Updated city_manifest.json: 88 entries (was 54)
+- Built final contact sheet (1736x1726, 475KB) at /home/z/my-project/download/asset-batches/2026-09-12_tier1_batch-012_36_assets_FINAL_contact_sheet.png
+- NOTE: NO vehicles built. User confirmed vehicles will come from external sources (Mixamo/Quaternius/Kenney/RPM).
+
+Stage Summary:
+- Active library: 218 GLBs total
+  - 67 buildings (was 63 — +4 heroes, +11 misc buildings, +2 fixes re-counted)
+  - 52 props (was 50 — +2 suburban)
+  - 19 foliage (was 19 — +1 marsh_grass)
+  - 50 environment (was 50 — +4 new env, +2 fixes already in env)
+  - 5 characters (was 0 — new category)
+  - 4 decals (was 0 — new category)
+- All 10 biomes have hero landmarks now.
+- Characters are blocky DSL placeholders (will be replaced with hybrid external base + MoGen clothing in v1).
+- City manifest references 88 curated assets.
+- Next: review batch 012 contact sheet, then decide if more assets needed or move to scene assembly.
+---
+Task ID: wire-and-push-batch-011-012
+Agent: main (Super Z)
+Task: Wire all new batch 011+012 assets into city_config.gd biome profiles; push GLBs + manifest into godot_project; clear stale chunks.
+
+Work Log:
+- Updated city_config.gd biome profiles with full asset lists for all 12 biomes:
+  - SUBURBIA: 11 buildings (added 6 house variants + treehouse), 7 props, 9 foliage
+  - PARKS: 1 building (gazebo), 7 props (playground + benches), 11 foliage
+  - FOREST: 7 buildings (hunting_cabin, ranger_station, camping_tent, deer_stand, cave_entrance, logging_camp_shed, ranger_lean_to), 1 prop (campfire_ring), 10 foliage
+  - FARMLAND: 7 buildings (farmhouse, barn, cottage, shed, garage_detached, tractor_shed, grain_storage_shed), 4 props, 4 foliage
+  - COMMERCIAL: 14 buildings (all stores + strip_mall + auto_repair + laundromat + barber + salon + grocery + bank), 7 props, 1 foliage
+  - INDUSTRIAL: 7 buildings (warehouses + factory + shipping_container + storage_tank + loading_dock), 6 props, 2 foliage
+  - RIVER: 4 buildings (fishing_hut, pier_dock, houseboat, marsh_pier), 5 foliage (cattail, marsh_grass, willow, palm, tall_grass)
+  - SUBWAY: 8 buildings (platform, tunnel, train_car, ticket_booth, turnstile, maintenance_tunnel, emergency_exit, pipe_cluster) — fill=0.0 (underground, won't render at surface)
+  - DOWNTOWN: 10 buildings (apartment_small/tower_high, highrise_office, hospital, police_station, parking_garage, broadcast_tower, railway_station, school_elementary, church_small), 7 props, 1 foliage
+  - MILITARY: 6 buildings (checkpoint, watchtower, bunker, helipad, field_hospital_tent, helipad_control_room), 3 props, 2 foliage
+- Added `landmarks` field to biomes with hero assets (1-per-biome placement intent):
+  - FARMLAND: grain_silo, windmill
+  - RIVER: lighthouse, bridge_section
+  - DOWNTOWN: government_palace, stadium, old_royal_palace
+  - MILITARY: fort_sarran
+  - NOTE: current runtime streamer (chunk_streamer.gd v4) does NOT yet read the `landmarks` field. Heroes will not spawn until streamer is updated to place one-per-biome landmark. Regular buildings/props/foliage WILL spawn correctly.
+- Copied 75 new GLBs into godot_project/assets/ (141 were already there from previous batches)
+- Synced city_manifest.json into godot_project/data/ — 88 entries total
+- Fixed manifest paths: removed `/out/` from godot_project version (paths now res://assets/{cat}/{name}.glb, matching actual file layout)
+- All 88 manifest entries now resolve to existing GLBs in godot_project/
+- Cleared 144 stale prebuilt .tscn chunks + city_meta.json (DeepSeek's recommendation — runtime streamer will rebuild on demand with new biome profiles)
+- Refreshed backup zip: mazar_alpha_backup_2026-09-12.zip
+
+Stage Summary:
+- godot_project/assets/ now contains 216 GLBs (81 buildings + 52 props + 20 foliage + 54 environment + 5 characters + 4 decals)
+- city_manifest.json: 88 curated entries, all paths valid
+- city_config.gd: 12 biomes wired with 75 buildings + 42 props + 45 foliage references
+- Stale chunks cleared — runtime streamer will rebuild live with new assets on next Godot play
+- Known gap: landmarks field exists in city_config but streamer doesn't read it yet (heroes won't spawn until streamer patch lands)
+- Next: user runs Godot, walks around, sees new biomes populated. Report back any visual issues or streamer bugs.

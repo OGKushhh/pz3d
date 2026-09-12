@@ -1,0 +1,84 @@
+// kitchen_counter.mog — Tier 1 prop #6 (STATIC furniture — part of room shell) — FIXED orientation
+// L-shaped kitchen counter with stove + sink + cabinets.
+// FIX from v1: L-turn was going the wrong direction (looked "reversed").
+//   Now: long side runs along X (west-east), L-turn extends toward -Z (back, toward wall).
+//   Stove on the LEFT (west), sink in the MIDDLE, L-turn on the RIGHT (east, going back).
+//   This is the standard "galley kitchen" layout.
+// Per the furniture_merging_decision.md, this is STATIC — merged into room shell.
+// Target: 1,500 tris (per poly budget interior shell allowance). Actual: ~600 tris.
+// Dimensions: 2.4m long (L-shape, 1.5m + 1.0m) × 0.60m deep × 0.90m tall.
+
+meta (
+  name          = "kitchen_counter",
+  description   = "L-shaped kitchen counter with stove, sink, cabinets (static fixture) — fixed orientation",
+  tags          = ["prop", "furniture", "kitchen", "static", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "counter_top"  (color=[0.20, 0.20, 0.22], roughness=0.30, metallic=0.2)  // dark granite
+material "cabinet_wood" (color=[0.55, 0.40, 0.25], roughness=0.70, uv_mode="tile", uv_scale=2.0)
+material "stove_metal"  (color=[0.18, 0.18, 0.20], roughness=0.40, metallic=0.6)
+material "burner_black" (color=[0.08, 0.08, 0.08], roughness=0.85)
+material "sink_steel"   (color=[0.78, 0.80, 0.82], roughness=0.20, metallic=0.85)
+material "faucet_chrome" (color=[0.85, 0.85, 0.88], metallic=0.95, roughness=0.15)
+material "handle_metal" (color=[0.45, 0.45, 0.48], metallic=0.7, roughness=0.30)
+
+scene {
+  // === L-SHAPED COUNTER BASE (single solid group, all merged) ===
+  // Long side (along X): 2.4m × 0.6m × 0.85m, at Z=0 (front face toward +Z = camera)
+  // L-turn (along Z): 1.0m × 0.6m × 0.85m, at X=+1.475 (east end), extends toward -Z (back, toward wall)
+  solid "counter_base" (mat="cabinet_wood", cleanup="coplanar") {
+    // Long side components
+    box "long_back"  (size=[2.40, 0.85, 0.05], pos=[0, 0.425, -0.275])   // back panel at -Z (toward wall)
+    box "long_left"  (size=[0.05, 0.85, 0.60], pos=[-1.175, 0.425, 0])
+    box "long_right" (size=[0.05, 0.85, 0.60], pos=[ 1.175, 0.425, 0])
+    box "long_floor" (size=[2.40, 0.05, 0.60], pos=[0, 0.025, 0])
+    // Internal dividers (2 cabinets on long side)
+    box "divider_1" (size=[0.04, 0.78, 0.55], pos=[-0.40, 0.44, 0])
+    box "divider_2" (size=[0.04, 0.78, 0.55], pos=[ 0.80, 0.44, 0])
+
+    // L-turn (extends toward -Z from east end of long side)
+    box "short_back"  (size=[0.05, 0.85, 1.00], pos=[1.475, 0.425, -0.50])  // back panel at +X (toward wall)
+    box "short_left"  (size=[0.60, 0.85, 0.05], pos=[1.175, 0.425, -0.025])
+    box "short_right" (size=[0.60, 0.85, 0.05], pos=[1.175, 0.425, -0.975])
+    box "short_floor" (size=[0.60, 0.05, 1.00], pos=[1.475, 0.025, -0.50])
+  }
+
+  // === COUNTERTOP (overlaps with base top at y=0.85) ===
+  slab "counter_top_long"  (size=[2.42, 0.06, 0.62], mat="counter_top", pos=[0, 0.83, 0])
+  slab "counter_top_short" (size=[0.62, 0.06, 1.02], mat="counter_top", pos=[1.475, 0.83, -0.50])
+
+  // === STOVE (built into long counter, LEFT section) ===
+  slab "stove_top" (size=[0.55, 0.04, 0.50], mat="stove_metal", pos=[-0.80, 0.86, 0])
+  // 4 burners (small dark discs on top of stove)
+  cylinder "burner_fl" (radius=0.08, height=0.01, segments=12, mat="burner_black", pos=[-0.95, 0.89, -0.10])
+  cylinder "burner_fr" (radius=0.08, height=0.01, segments=12, mat="burner_black", pos=[-0.65, 0.89, -0.10])
+  cylinder "burner_bl" (radius=0.08, height=0.01, segments=12, mat="burner_black", pos=[-0.95, 0.89,  0.10])
+  cylinder "burner_br" (radius=0.08, height=0.01, segments=12, mat="burner_black", pos=[-0.65, 0.89,  0.10])
+
+  // === SINK (built into long counter, RIGHT section, before L-turn) ===
+  box "sink_basin" (size=[0.40, 0.06, 0.40], mat="sink_steel", pos=[0.50, 0.85, 0])
+  // Faucet (vertical pipe overlapping with countertop)
+  cylinder "faucet_pipe" (radius=0.02, height=0.30, segments=8, mat="faucet_chrome", pos=[0.50, 0.98, -0.15])
+  cylinder "faucet_spout" (radius=0.02, height=0.20, segments=8, mat="faucet_chrome", pos=[0.50, 1.08, -0.05], rot=[90, 0, 0])
+  box "faucet_handle" (size=[0.05, 0.05, 0.10], mat="faucet_chrome", pos=[0.48, 1.10, -0.15])
+
+  // === CABINET DOORS (on +Z face — decorative panels, tagged floating) ===
+  box "door_long_l" (size=[0.35, 0.70, 0.04], mat="cabinet_wood", pos=[-0.60, 0.45, 0.30], tags="floating")
+  box "door_long_m" (size=[0.35, 0.70, 0.04], mat="cabinet_wood", pos=[-0.20, 0.45, 0.30], tags="floating")
+  box "door_long_r" (size=[0.50, 0.70, 0.04], mat="cabinet_wood", pos=[0.40, 0.45, 0.30], tags="floating")
+  box "handle_l" (size=[0.10, 0.02, 0.04], mat="handle_metal", pos=[-0.45, 0.45, 0.32], tags="floating")
+  box "handle_m" (size=[0.10, 0.02, 0.04], mat="handle_metal", pos=[-0.05, 0.45, 0.32], tags="floating")
+  box "handle_r" (size=[0.10, 0.02, 0.04], mat="handle_metal", pos=[0.25, 0.45, 0.32], tags="floating")
+
+  // L-turn cabinet door (on -X face — the side facing the rest of the kitchen)
+  box "door_short" (size=[0.02, 0.70, 0.55], mat="cabinet_wood", pos=[1.175, 0.45, -0.50])
+  box "handle_s" (size=[0.02, 0.10, 0.02], mat="handle_metal", pos=[1.175, 0.45, -0.30])
+
+  // === WALL CABINETS (above counter — connected via backsplash to countertop) ===
+  box "wall_cab_l" (size=[0.80, 0.70, 0.30], mat="cabinet_wood", pos=[-0.80, 1.55, -0.25])
+  box "wall_cab_r" (size=[0.80, 0.70, 0.30], mat="cabinet_wood", pos=[ 0.80, 1.55, -0.25])
+  // Backsplash connecting wall cabinets to countertop
+  box "backsplash_l" (size=[0.80, 0.55, 0.02], mat="cabinet_wood", pos=[-0.80, 1.15, -0.30])
+  box "backsplash_r" (size=[0.80, 0.55, 0.02], mat="cabinet_wood", pos=[ 0.80, 1.15, -0.30])
+}

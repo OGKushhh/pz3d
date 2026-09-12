@@ -1,0 +1,46 @@
+// crawler_zombie.mog — legless crawler zombie dragging torso with arms
+meta (name="crawler_zombie", description="Legless crawler zombie — drags itself forward with arms, torso on ground", tags=["character","zombie","crawler","enemy","tier1"], mogen_version="0.1.12")
+material "skin_zombie" (color=[0.45,0.50,0.40], roughness=0.85)
+material "shirt_ragged" (color=[0.30,0.25,0.20], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "pants_torn" (color=[0.15,0.13,0.10], roughness=0.85)
+material "hair_dark" (color=[0.12,0.10,0.08], roughness=0.80)
+material "eyes_red" (color=[0.85,0.10,0.05], roughness=0.30, emissive=[0.7,0.10,0.05], emissive_strength=0.6)
+material "blood_dark" (color=[0.30,0.05,0.05], roughness=0.95)
+material "teeth_yellow" (color=[0.65,0.55,0.30], roughness=0.70)
+material "ground_dark" (color=[0.20,0.18,0.15], roughness=0.95)
+scene {
+  // Ground patch (small)
+  slab "ground" (size=[3.0, 0.04, 3.0], mat="ground_dark", pos=[0, 0.02, 0], tags="floating")
+  // Torso lying on ground
+  rounded_box "pelvis_mesh" (size=[0.32, 0.18, 0.22], radius=0.04, mat="pants_torn", pos=[0, 0.18, 0], tags="floating")
+  rounded_box "torso_mesh" (size=[0.45, 0.30, 0.28], radius=0.05, mat="shirt_ragged", pos=[0, 0.30, 0.20], tags="floating")
+  rounded_box "head_mesh" (size=[0.22, 0.26, 0.22], radius=0.04, mat="skin_zombie", pos=[0, 0.40, 0.55], tags="floating")
+  // Hair
+  box "hair_mesh" (size=[0.24, 0.06, 0.24], mat="hair_dark", pos=[0, 0.51, 0.55], tags="floating")
+  // Eyes — looking forward
+  sphere "eye_l" (radius=0.025, mat="eyes_red", pos=[-0.05, 0.40, 0.66], tags="floating")
+  sphere "eye_r" (radius=0.025, mat="eyes_red", pos=[0.05, 0.40, 0.66], tags="floating")
+  // Mouth — snarling, blood-covered
+  box "mouth_open" (size=[0.12, 0.06, 0.04], mat="blood_dark", pos=[0, 0.32, 0.66], tags="floating")
+  box "teeth_top" (size=[0.10, 0.02, 0.02], mat="teeth_yellow", pos=[0, 0.34, 0.65], tags="floating")
+  // Arms — reaching forward
+  rounded_box "upper_arm_l" (size=[0.14, 0.20, 0.14], radius=0.04, mat="shirt_ragged", pos=[-0.28, 0.30, 0.40], rot=[80,0,0], tags="floating")
+  rounded_box "forearm_l" (size=[0.12, 0.20, 0.12], radius=0.04, mat="skin_zombie", pos=[-0.28, 0.20, 0.65], rot=[80,0,0], tags="floating")
+  rounded_box "hand_l" (size=[0.10, 0.08, 0.14], radius=0.03, mat="skin_zombie", pos=[-0.28, 0.10, 0.85], tags="floating")
+  rounded_box "upper_arm_r" (size=[0.14, 0.20, 0.14], radius=0.04, mat="shirt_ragged", pos=[0.28, 0.30, 0.40], rot=[80,0,0], tags="floating")
+  rounded_box "forearm_r" (size=[0.12, 0.20, 0.12], radius=0.04, mat="skin_zombie", pos=[0.28, 0.20, 0.65], rot=[80,0,0], tags="floating")
+  rounded_box "hand_r" (size=[0.10, 0.08, 0.14], radius=0.03, mat="skin_zombie", pos=[0.28, 0.10, 0.85], tags="floating")
+  // Severed legs — just stumps with blood
+  rounded_box "leg_stump_l" (size=[0.18, 0.18, 0.18], radius=0.05, mat="pants_torn", pos=[-0.13, 0.18, -0.10], tags="floating")
+  rounded_box "leg_stump_r" (size=[0.18, 0.18, 0.18], radius=0.05, mat="pants_torn", pos=[0.13, 0.18, -0.10], tags="floating")
+  // Blood trail behind
+  box "blood_trail_1" (size=[0.40, 0.04, 0.40], mat="blood_dark", pos=[0, 0.04, -0.30], tags="floating")
+  box "blood_trail_2" (size=[0.30, 0.04, 0.50], mat="blood_dark", pos=[0, 0.04, -0.70], tags="floating")
+  // Blood on torso
+  box "blood_torso" (size=[0.20, 0.10, 0.02], mat="blood_dark", pos=[0, 0.30, 0.34], tags="floating")
+  box "marker_shoulder_l" (size=[0.02, 0.02, 0.02], mat="shirt_ragged", pos=[-0.30, 0.35, 0.45], tags="floating")
+  box "marker_shoulder_r" (size=[0.02, 0.02, 0.02], mat="shirt_ragged", pos=[0.30, 0.35, 0.45], tags="floating")
+  box "marker_forearm_l" (size=[0.02, 0.02, 0.02], mat="skin_zombie", pos=[-0.30, 0.25, 0.70], tags="floating")
+  box "marker_forearm_r" (size=[0.02, 0.02, 0.02], mat="skin_zombie", pos=[0.30, 0.25, 0.70], tags="floating")
+  box "marker_neck" (size=[0.02, 0.02, 0.02], mat="skin_zombie", pos=[0, 0.45, 0.50], tags="floating")
+}

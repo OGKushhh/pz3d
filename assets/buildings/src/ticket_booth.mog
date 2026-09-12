@@ -1,0 +1,39 @@
+// ticket_booth.mog — Small subway ticket booth with window
+meta (name="ticket_booth", description="Small subway ticket booth with service window", tags=["building","subway","ticket","tier1"], mogen_version="0.1.12")
+material "wall_wood" (color=[0.45,0.32,0.20], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "wall_dark" (color=[0.30,0.22,0.15], roughness=0.85)
+material "window_glass" (color=[0.40,0.55,0.65], transmission=0.45, roughness=0.05)
+material "metal_dark" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.7)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+material "light_warm" (color=[0.95,0.85,0.55], roughness=0.20, emissive=[0.80,0.65,0.30], emissive_strength=0.6)
+scene {
+  slab "floor" (size=[4.0, 0.05, 4.0], mat="asphalt", pos=[0, 0.025, 0], tags="floating")
+  slab "base" (size=[2.5, 0.20, 2.0], mat="concrete", pos=[0, 0.10, 0])
+  // Booth body
+  box "body" (size=[2.5, 2.20, 2.0], mat="wall_wood", pos=[0, 1.30, 0])
+  // Roof
+  slab "roof" (size=[2.7, 0.10, 2.2], mat="wall_dark", pos=[0, 2.45, 0], tags="floating")
+  // Service window (large, front)
+  box "win_frame" (size=[1.50, 0.80, 0.06], mat="wall_dark", pos=[0, 1.40, -1.00], tags="floating")
+  box "win_glass" (size=[1.40, 0.70, 0.02], mat="window_glass", pos=[0, 1.40, -1.02], tags="floating")
+  // Window shelf
+  box "shelf" (size=[1.55, 0.05, 0.20], mat="wall_dark", pos=[0, 1.05, -1.05], tags="floating")
+  // Small side window
+  box "win_side" (size=[0.06, 0.60, 0.80], mat="window_glass", pos=[-1.25, 1.50, 0], tags="floating")
+  // Door (side, employee entrance)
+  box "door_frame" (size=[0.80, 1.80, 0.06], mat="wall_dark", pos=[0, 1.20, 1.00], tags="floating")
+  box "door" (size=[0.70, 1.70, 0.05], mat="wall_wood", pos=[0, 1.20, 1.02], tags="floating")
+  box "knob" (size=[0.05, 0.10, 0.05], mat="brass", pos=[0.25, 1.20, 1.08], tags="floating")
+  // Interior light (warm glow visible through windows)
+  box "light" (size=[0.40, 0.20, 0.10], mat="light_warm", pos=[0, 2.10, 0], tags="floating")
+  // Sign on roof
+  box "sign_post_l" (size=[0.05, 0.50, 0.05], mat="metal_dark", pos=[-0.80, 2.70, 0], tags="floating")
+  box "sign_post_r" (size=[0.05, 0.50, 0.05], mat="metal_dark", pos=[0.80, 2.70, 0], tags="floating")
+  box "sign_board" (size=[2.0, 0.40, 0.06], mat="wall_dark", pos=[0, 3.00, 0], tags="floating")
+  // Sign text (simulated with stripe)
+  box "sign_text" (size=[1.8, 0.05, 0.02], mat="light_warm", pos=[0, 3.05, 0.03], tags="floating")
+  // Small step at service window
+  slab "step" (size=[1.80, 0.10, 0.50], mat="concrete", pos=[0, 0.05, -1.30], tags="floating")
+}

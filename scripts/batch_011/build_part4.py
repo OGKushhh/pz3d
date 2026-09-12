@@ -1,0 +1,383 @@
+#!/usr/bin/env python3
+"""Batch 011 — Part 4 of 4 — Environment (5) + Props (2)."""
+from pathlib import Path
+
+BASE = Path("/home/z/my-project/assets")
+
+def w(cat, name, content):
+    d = BASE / cat / "src"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{name}.mog").write_text(content)
+    print(f"  wrote {cat}/{name}.mog")
+
+# ============================================================
+# 34. campfire_ring.mog — circle of stones with ash
+# ============================================================
+w("environment", "campfire_ring", '''// campfire_ring.mog — Circle of stones with ash and unburnt logs
+meta (name="campfire_ring", description="Circle of stones with ash pit and partially burnt logs", tags=["environment","park","camping","fire","tier1"], mogen_version="0.1.12")
+material "stone_grey" (color=[0.50,0.48,0.45], roughness=0.90, uv_mode="tile", uv_scale=1.5)
+material "stone_dark" (color=[0.35,0.33,0.30], roughness=0.90)
+material "ash_grey" (color=[0.40,0.38,0.35], roughness=0.95, uv_mode="tile", uv_scale=2.0)
+material "log_dark" (color=[0.25,0.18,0.10], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "log_burnt" (color=[0.10,0.08,0.06], roughness=0.95)
+material "grass" (color=[0.22,0.38,0.16], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "ember_glow" (color=[0.95,0.40,0.10], roughness=0.40, emissive=[0.80,0.30,0.05], emissive_strength=0.8)
+scene {
+  slab "ground" (size=[6.0, 0.04, 6.0], mat="grass")
+  // Ash pit (darker circle in center)
+  cylinder "ash_pit" (radius=1.0, height=0.06, mat="ash_grey", pos=[0, 0.03, 0])
+  // Ring of 8 stones
+  sphere "stone_1" (radius=0.30, mat="stone_grey", pos=[1.30, 0.20, 0], tags="floating")
+  sphere "stone_2" (radius=0.25, mat="stone_dark", pos=[0.92, 0.20, 0.92], tags="floating")
+  sphere "stone_3" (radius=0.30, mat="stone_grey", pos=[0, 0.20, 1.30], tags="floating")
+  sphere "stone_4" (radius=0.25, mat="stone_dark", pos=[-0.92, 0.20, 0.92], tags="floating")
+  sphere "stone_5" (radius=0.30, mat="stone_grey", pos=[-1.30, 0.20, 0], tags="floating")
+  sphere "stone_6" (radius=0.25, mat="stone_dark", pos=[-0.92, 0.20, -0.92], tags="floating")
+  sphere "stone_7" (radius=0.30, mat="stone_grey", pos=[0, 0.20, -1.30], tags="floating")
+  sphere "stone_8" (radius=0.25, mat="stone_dark", pos=[0.92, 0.20, -0.92], tags="floating")
+  // Burnt logs (tee-pee arrangement)
+  cylinder "log_1" (radius=0.06, height=1.50, mat="log_dark", pos=[0.30, 0.55, 0.30], rot=[20,0,20], tags="floating")
+  cylinder "log_2" (radius=0.06, height=1.50, mat="log_burnt", pos=[-0.30, 0.55, 0.30], rot=[20,0,-20], tags="floating")
+  cylinder "log_3" (radius=0.06, height=1.50, mat="log_dark", pos=[0.30, 0.55, -0.30], rot=[-20,0,20], tags="floating")
+  cylinder "log_4" (radius=0.06, height=1.50, mat="log_burnt", pos=[-0.30, 0.55, -0.30], rot=[-20,0,-20], tags="floating")
+  // Glowing embers (in ash pit)
+  sphere "ember_1" (radius=0.05, mat="ember_glow", pos=[0.10, 0.07, 0.10], tags="floating")
+  sphere "ember_2" (radius=0.04, mat="ember_glow", pos=[-0.15, 0.07, -0.05], tags="floating")
+  sphere "ember_3" (radius=0.05, mat="ember_glow", pos=[0.05, 0.07, -0.20], tags="floating")
+}
+''')
+
+# ============================================================
+# 35. barbed_wire_fence.mog — military barbed wire fence
+# ============================================================
+w("environment", "barbed_wire_fence", '''// barbed_wire_fence.mog — Military barbed wire fence segment
+meta (name="barbed_wire_fence", description="10m military barbed wire fence segment with metal posts", tags=["environment","military","fence","tier1"], mogen_version="0.1.12")
+material "post_metal" (color=[0.40,0.42,0.30], roughness=0.50, metallic=0.7)
+material "wire_rust" (color=[0.55,0.35,0.20], roughness=0.80, metallic=0.4)
+material "wire_shine" (color=[0.60,0.60,0.62], roughness=0.30, metallic=0.85)
+material "grass" (color=[0.22,0.38,0.16], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+scene {
+  slab "ground" (size=[12.0, 0.04, 2.0], mat="grass")
+  // 5 vertical posts
+  box "post_1" (size=[0.10, 2.0, 0.10], mat="post_metal", pos=[-5.0, 1.00, 0], tags="floating")
+  box "post_2" (size=[0.10, 2.0, 0.10], mat="post_metal", pos=[-2.5, 1.00, 0], tags="floating")
+  box "post_3" (size=[0.10, 2.0, 0.10], mat="post_metal", pos=[0, 1.00, 0], tags="floating")
+  box "post_4" (size=[0.10, 2.0, 0.10], mat="post_metal", pos=[2.5, 1.00, 0], tags="floating")
+  box "post_5" (size=[0.10, 2.0, 0.10], mat="post_metal", pos=[5.0, 1.00, 0], tags="floating")
+  // Post caps
+  box "cap_1" (size=[0.12, 0.05, 0.12], mat="post_metal", pos=[-5.0, 2.025, 0], tags="floating")
+  box "cap_2" (size=[0.12, 0.05, 0.12], mat="post_metal", pos=[-2.5, 2.025, 0], tags="floating")
+  box "cap_3" (size=[0.12, 0.05, 0.12], mat="post_metal", pos=[0, 2.025, 0], tags="floating")
+  box "cap_4" (size=[0.12, 0.05, 0.12], mat="post_metal", pos=[2.5, 2.025, 0], tags="floating")
+  box "cap_5" (size=[0.12, 0.05, 0.12], mat="post_metal", pos=[5.0, 2.025, 0], tags="floating")
+  // Horizontal wire strands (3 levels)
+  box "wire_low" (size=[10.0, 0.03, 0.03], mat="wire_rust", pos=[0, 0.50, 0], tags="floating")
+  box "wire_mid" (size=[10.0, 0.03, 0.03], mat="wire_shine", pos=[0, 1.20, 0], tags="floating")
+  box "wire_high" (size=[10.0, 0.03, 0.03], mat="wire_rust", pos=[0, 1.90, 0], tags="floating")
+  // Barbed wire spirals (between posts — 4 sections)
+  // Section 1 (between post_1 and post_2)
+  torus "barb_1a" (radius=0.20, tube_radius=0.015, mat="wire_shine", pos=[-4.0, 1.20, 0], rot=[90,0,0], tags="floating")
+  torus "barb_1b" (radius=0.20, tube_radius=0.015, mat="wire_rust", pos=[-3.5, 1.20, 0], rot=[90,0,0], tags="floating")
+  torus "barb_1c" (radius=0.20, tube_radius=0.015, mat="wire_shine", pos=[-3.0, 1.20, 0], rot=[90,0,0], tags="floating")
+  // Section 2
+  torus "barb_2a" (radius=0.20, tube_radius=0.015, mat="wire_rust", pos=[-1.5, 1.20, 0], rot=[90,0,0], tags="floating")
+  torus "barb_2b" (radius=0.20, tube_radius=0.015, mat="wire_shine", pos=[-1.0, 1.20, 0], rot=[90,0,0], tags="floating")
+  torus "barb_2c" (radius=0.20, tube_radius=0.015, mat="wire_rust", pos=[-0.5, 1.20, 0], rot=[90,0,0], tags="floating")
+  // Section 3
+  torus "barb_3a" (radius=0.20, tube_radius=0.015, mat="wire_shine", pos=[1.0, 1.20, 0], rot=[90,0,0], tags="floating")
+  torus "barb_3b" (radius=0.20, tube_radius=0.015, mat="wire_rust", pos=[1.5, 1.20, 0], rot=[90,0,0], tags="floating")
+  torus "barb_3c" (radius=0.20, tube_radius=0.015, mat="wire_shine", pos=[2.0, 1.20, 0], rot=[90,0,0], tags="floating")
+  // Section 4
+  torus "barb_4a" (radius=0.20, tube_radius=0.015, mat="wire_rust", pos=[3.0, 1.20, 0], rot=[90,0,0], tags="floating")
+  torus "barb_4b" (radius=0.20, tube_radius=0.015, mat="wire_shine", pos=[3.5, 1.20, 0], rot=[90,0,0], tags="floating")
+  torus "barb_4c" (radius=0.20, tube_radius=0.015, mat="wire_rust", pos=[4.0, 1.20, 0], rot=[90,0,0], tags="floating")
+  // Top concertina wire (large coil on top)
+  torus "concertina_1" (radius=0.40, tube_radius=0.02, mat="wire_rust", pos=[-3.5, 2.30, 0], rot=[0,90,0], tags="floating")
+  torus "concertina_2" (radius=0.40, tube_radius=0.02, mat="wire_shine", pos=[-2.5, 2.30, 0], rot=[0,90,0], tags="floating")
+  torus "concertina_3" (radius=0.40, tube_radius=0.02, mat="wire_rust", pos=[-1.5, 2.30, 0], rot=[0,90,0], tags="floating")
+  torus "concertina_4" (radius=0.40, tube_radius=0.02, mat="wire_shine", pos=[-0.5, 2.30, 0], rot=[0,90,0], tags="floating")
+  torus "concertina_5" (radius=0.40, tube_radius=0.02, mat="wire_rust", pos=[0.5, 2.30, 0], rot=[0,90,0], tags="floating")
+  torus "concertina_6" (radius=0.40, tube_radius=0.02, mat="wire_shine", pos=[1.5, 2.30, 0], rot=[0,90,0], tags="floating")
+  torus "concertina_7" (radius=0.40, tube_radius=0.02, mat="wire_rust", pos=[2.5, 2.30, 0], rot=[0,90,0], tags="floating")
+  torus "concertina_8" (radius=0.40, tube_radius=0.02, mat="wire_shine", pos=[3.5, 2.30, 0], rot=[0,90,0], tags="floating")
+  // Concrete footing under each post
+  box "foot_1" (size=[0.30, 0.20, 0.30], mat="post_metal", pos=[-5.0, 0.10, 0], tags="floating")
+  box "foot_2" (size=[0.30, 0.20, 0.30], mat="post_metal", pos=[-2.5, 0.10, 0], tags="floating")
+  box "foot_3" (size=[0.30, 0.20, 0.30], mat="post_metal", pos=[0, 0.10, 0], tags="floating")
+  box "foot_4" (size=[0.30, 0.20, 0.30], mat="post_metal", pos=[2.5, 0.10, 0], tags="floating")
+  box "foot_5" (size=[0.30, 0.20, 0.30], mat="post_metal", pos=[5.0, 0.10, 0], tags="floating")
+}
+''')
+
+# ============================================================
+# 36. turnstile.mog — subway turnstile
+# ============================================================
+w("environment", "turnstile", '''// turnstile.mog — Subway turnstile (rotating arms)
+meta (name="turnstile", description="Subway turnstile with rotating arms and metal frame", tags=["environment","subway","transit","tier1"], mogen_version="0.1.12")
+material "metal_stainless" (color=[0.75,0.75,0.78], roughness=0.30, metallic=0.85)
+material "metal_dark" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.85)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "red_lamp" (color=[0.85,0.10,0.10], roughness=0.40, emissive=[0.6,0.05,0.05], emissive_strength=0.6)
+material "green_lamp" (color=[0.20,0.85,0.20], roughness=0.40, emissive=[0.10,0.55,0.10], emissive_strength=0.6)
+scene {
+  slab "floor" (size=[3.0, 0.05, 1.5], mat="asphalt", pos=[0, 0.025, 0])
+  // Base plate
+  slab "base" (size=[1.0, 0.10, 1.0], mat="metal_dark", pos=[0, 0.06, 0])
+  // Two side frames (vertical)
+  box "frame_l" (size=[0.10, 1.20, 0.50], mat="metal_stainless", pos=[-0.40, 0.65, 0])
+  box "frame_r" (size=[0.10, 1.20, 0.50], mat="metal_stainless", pos=[0.40, 0.65, 0])
+  // Top crossbar
+  box "top_bar" (size=[1.0, 0.10, 0.50], mat="metal_stainless", pos=[0, 1.25, 0])
+  // Central hub (rotation point)
+  cylinder "hub" (radius=0.10, height=0.30, mat="metal_dark", pos=[0, 0.85, 0], rot=[90,0,0], tags="floating")
+  // 3 rotating arms (at 120° intervals)
+  box "arm_1" (size=[0.80, 0.06, 0.06], mat="metal_stainless", pos=[0, 0.85, 0.40], tags="floating")
+  box "arm_2" (size=[0.80, 0.06, 0.06], mat="metal_stainless", pos=[0.69, 0.85, -0.20], rot=[0,120,0], tags="floating")
+  box "arm_3" (size=[0.80, 0.06, 0.06], mat="metal_stainless", pos=[-0.69, 0.85, -0.20], rot=[0,-120,0], tags="floating")
+  // Status lamps (red = locked, green = open)
+  sphere "lamp_red" (radius=0.08, mat="red_lamp", pos=[0, 1.10, 0.20], tags="floating")
+  sphere "lamp_green" (radius=0.08, mat="green_lamp", pos=[0, 1.10, -0.20], tags="floating")
+  // Coin slot panel
+  box "slot_panel" (size=[0.20, 0.30, 0.04], mat="metal_dark", pos=[0.40, 0.80, 0.20], tags="floating")
+  box "slot" (size=[0.10, 0.02, 0.05], mat="metal_dark", pos=[0.40, 0.90, 0.22], tags="floating")
+  // Side guard panels (prevent bypassing)
+  box "guard_l_1" (size=[0.10, 0.80, 0.40], mat="metal_stainless", pos=[-0.50, 0.50, 0], tags="floating")
+  box "guard_r_1" (size=[0.10, 0.80, 0.40], mat="metal_stainless", pos=[0.50, 0.50, 0], tags="floating")
+}
+''')
+
+# ============================================================
+# 37. crop_field_corn.mog — farm corn crop rows
+# ============================================================
+w("environment", "crop_field_corn", '''// crop_field_corn.mog — Farmland corn field with rows
+meta (name="crop_field_corn", description="10m × 10m corn field with rows of corn stalks", tags=["environment","farmland","crop","tier1"], mogen_version="0.1.12")
+material "soil_dark" (color=[0.25,0.18,0.10], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "corn_green" (color=[0.30,0.50,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "corn_dark" (color=[0.20,0.35,0.12], roughness=0.85)
+material "corn_yellow" (color=[0.85,0.70,0.20], roughness=0.70, emissive=[0.40,0.30,0.10], emissive_strength=0.2)
+material "stalk_tan" (color=[0.60,0.50,0.30], roughness=0.85)
+scene {
+  slab "soil" (size=[10.0, 0.10, 10.0], mat="soil_dark", pos=[0, 0.05, 0])
+  // Row markers (slight ridges in soil)
+  slab "row_1" (size=[10.0, 0.04, 0.20], mat="soil_dark", pos=[0, 0.10, -3.5], tags="floating")
+  slab "row_2" (size=[10.0, 0.04, 0.20], mat="soil_dark", pos=[0, 0.10, -2.0], tags="floating")
+  slab "row_3" (size=[10.0, 0.04, 0.20], mat="soil_dark", pos=[0, 0.10, -0.5], tags="floating")
+  slab "row_4" (size=[10.0, 0.04, 0.20], mat="soil_dark", pos=[0, 0.10, 1.0], tags="floating")
+  slab "row_5" (size=[10.0, 0.04, 0.20], mat="soil_dark", pos=[0, 0.10, 2.5], tags="floating")
+  // Corn stalks — clusters along each row
+  // Row 1
+  cylinder "stalk_1a" (radius=0.05, height=2.20, mat="stalk_tan", pos=[-4.0, 1.20, -3.5], tags="floating")
+  sphere "leaf_1a_1" (radius=0.40, mat="corn_green", pos=[-4.0, 1.80, -3.5], tags="floating")
+  sphere "leaf_1a_2" (radius=0.30, mat="corn_dark", pos=[-4.0, 1.40, -3.5], tags="floating")
+  cylinder "stalk_1b" (radius=0.05, height=2.00, mat="stalk_tan", pos=[-2.0, 1.10, -3.5], tags="floating")
+  sphere "leaf_1b_1" (radius=0.40, mat="corn_green", pos=[-2.0, 1.70, -3.5], tags="floating")
+  sphere "leaf_1b_2" (radius=0.30, mat="corn_dark", pos=[-2.0, 1.30, -3.5], tags="floating")
+  cylinder "stalk_1c" (radius=0.05, height=2.30, mat="stalk_tan", pos=[0, 1.25, -3.5], tags="floating")
+  sphere "leaf_1c_1" (radius=0.40, mat="corn_green", pos=[0, 1.85, -3.5], tags="floating")
+  sphere "leaf_1c_2" (radius=0.30, mat="corn_dark", pos=[0, 1.45, -3.5], tags="floating")
+  cylinder "stalk_1d" (radius=0.05, height=2.10, mat="stalk_tan", pos=[2.0, 1.15, -3.5], tags="floating")
+  sphere "leaf_1d_1" (radius=0.40, mat="corn_green", pos=[2.0, 1.75, -3.5], tags="floating")
+  sphere "leaf_1d_2" (radius=0.30, mat="corn_dark", pos=[2.0, 1.35, -3.5], tags="floating")
+  cylinder "stalk_1e" (radius=0.05, height=2.20, mat="stalk_tan", pos=[4.0, 1.20, -3.5], tags="floating")
+  sphere "leaf_1e_1" (radius=0.40, mat="corn_green", pos=[4.0, 1.80, -3.5], tags="floating")
+  sphere "leaf_1e_2" (radius=0.30, mat="corn_dark", pos=[4.0, 1.40, -3.5], tags="floating")
+  // Row 2
+  cylinder "stalk_2a" (radius=0.05, height=2.20, mat="stalk_tan", pos=[-4.0, 1.20, -2.0], tags="floating")
+  sphere "leaf_2a_1" (radius=0.40, mat="corn_green", pos=[-4.0, 1.80, -2.0], tags="floating")
+  sphere "leaf_2a_2" (radius=0.30, mat="corn_dark", pos=[-4.0, 1.40, -2.0], tags="floating")
+  cylinder "stalk_2b" (radius=0.05, height=2.00, mat="stalk_tan", pos=[-2.0, 1.10, -2.0], tags="floating")
+  sphere "leaf_2b_1" (radius=0.40, mat="corn_green", pos=[-2.0, 1.70, -2.0], tags="floating")
+  sphere "leaf_2b_2" (radius=0.30, mat="corn_dark", pos=[-2.0, 1.30, -2.0], tags="floating")
+  cylinder "stalk_2c" (radius=0.05, height=2.20, mat="stalk_tan", pos=[0, 1.20, -2.0], tags="floating")
+  sphere "leaf_2c_1" (radius=0.40, mat="corn_green", pos=[0, 1.80, -2.0], tags="floating")
+  sphere "leaf_2c_2" (radius=0.30, mat="corn_dark", pos=[0, 1.40, -2.0], tags="floating")
+  cylinder "stalk_2d" (radius=0.05, height=2.10, mat="stalk_tan", pos=[2.0, 1.15, -2.0], tags="floating")
+  sphere "leaf_2d_1" (radius=0.40, mat="corn_green", pos=[2.0, 1.75, -2.0], tags="floating")
+  sphere "leaf_2d_2" (radius=0.30, mat="corn_dark", pos=[2.0, 1.35, -2.0], tags="floating")
+  cylinder "stalk_2e" (radius=0.05, height=2.20, mat="stalk_tan", pos=[4.0, 1.20, -2.0], tags="floating")
+  sphere "leaf_2e_1" (radius=0.40, mat="corn_green", pos=[4.0, 1.80, -2.0], tags="floating")
+  sphere "leaf_2e_2" (radius=0.30, mat="corn_dark", pos=[4.0, 1.40, -2.0], tags="floating")
+  // Row 3
+  cylinder "stalk_3a" (radius=0.05, height=2.30, mat="stalk_tan", pos=[-4.0, 1.25, -0.5], tags="floating")
+  sphere "leaf_3a_1" (radius=0.40, mat="corn_green", pos=[-4.0, 1.85, -0.5], tags="floating")
+  sphere "leaf_3a_2" (radius=0.30, mat="corn_dark", pos=[-4.0, 1.45, -0.5], tags="floating")
+  cylinder "stalk_3b" (radius=0.05, height=2.00, mat="stalk_tan", pos=[-2.0, 1.10, -0.5], tags="floating")
+  sphere "leaf_3b_1" (radius=0.40, mat="corn_green", pos=[-2.0, 1.70, -0.5], tags="floating")
+  sphere "leaf_3b_2" (radius=0.30, mat="corn_dark", pos=[-2.0, 1.30, -0.5], tags="floating")
+  cylinder "stalk_3c" (radius=0.05, height=2.20, mat="stalk_tan", pos=[0, 1.20, -0.5], tags="floating")
+  sphere "leaf_3c_1" (radius=0.40, mat="corn_green", pos=[0, 1.80, -0.5], tags="floating")
+  sphere "leaf_3c_2" (radius=0.30, mat="corn_dark", pos=[0, 1.40, -0.5], tags="floating")
+  cylinder "stalk_3d" (radius=0.05, height=2.10, mat="stalk_tan", pos=[2.0, 1.15, -0.5], tags="floating")
+  sphere "leaf_3d_1" (radius=0.40, mat="corn_green", pos=[2.0, 1.75, -0.5], tags="floating")
+  sphere "leaf_3d_2" (radius=0.30, mat="corn_dark", pos=[2.0, 1.35, -0.5], tags="floating")
+  cylinder "stalk_3e" (radius=0.05, height=2.20, mat="stalk_tan", pos=[4.0, 1.20, -0.5], tags="floating")
+  sphere "leaf_3e_1" (radius=0.40, mat="corn_green", pos=[4.0, 1.80, -0.5], tags="floating")
+  sphere "leaf_3e_2" (radius=0.30, mat="corn_dark", pos=[4.0, 1.40, -0.5], tags="floating")
+  // Row 4
+  cylinder "stalk_4a" (radius=0.05, height=2.20, mat="stalk_tan", pos=[-4.0, 1.20, 1.0], tags="floating")
+  sphere "leaf_4a_1" (radius=0.40, mat="corn_green", pos=[-4.0, 1.80, 1.0], tags="floating")
+  sphere "leaf_4a_2" (radius=0.30, mat="corn_dark", pos=[-4.0, 1.40, 1.0], tags="floating")
+  cylinder "stalk_4b" (radius=0.05, height=2.00, mat="stalk_tan", pos=[-2.0, 1.10, 1.0], tags="floating")
+  sphere "leaf_4b_1" (radius=0.40, mat="corn_green", pos=[-2.0, 1.70, 1.0], tags="floating")
+  sphere "leaf_4b_2" (radius=0.30, mat="corn_dark", pos=[-2.0, 1.30, 1.0], tags="floating")
+  cylinder "stalk_4c" (radius=0.05, height=2.20, mat="stalk_tan", pos=[0, 1.20, 1.0], tags="floating")
+  sphere "leaf_4c_1" (radius=0.40, mat="corn_green", pos=[0, 1.80, 1.0], tags="floating")
+  sphere "leaf_4c_2" (radius=0.30, mat="corn_dark", pos=[0, 1.40, 1.0], tags="floating")
+  cylinder "stalk_4d" (radius=0.05, height=2.30, mat="stalk_tan", pos=[2.0, 1.25, 1.0], tags="floating")
+  sphere "leaf_4d_1" (radius=0.40, mat="corn_green", pos=[2.0, 1.85, 1.0], tags="floating")
+  sphere "leaf_4d_2" (radius=0.30, mat="corn_dark", pos=[2.0, 1.45, 1.0], tags="floating")
+  cylinder "stalk_4e" (radius=0.05, height=2.10, mat="stalk_tan", pos=[4.0, 1.15, 1.0], tags="floating")
+  sphere "leaf_4e_1" (radius=0.40, mat="corn_green", pos=[4.0, 1.75, 1.0], tags="floating")
+  sphere "leaf_4e_2" (radius=0.30, mat="corn_dark", pos=[4.0, 1.35, 1.0], tags="floating")
+  // Row 5
+  cylinder "stalk_5a" (radius=0.05, height=2.20, mat="stalk_tan", pos=[-4.0, 1.20, 2.5], tags="floating")
+  sphere "leaf_5a_1" (radius=0.40, mat="corn_green", pos=[-4.0, 1.80, 2.5], tags="floating")
+  sphere "leaf_5a_2" (radius=0.30, mat="corn_dark", pos=[-4.0, 1.40, 2.5], tags="floating")
+  cylinder "stalk_5b" (radius=0.05, height=2.00, mat="stalk_tan", pos=[-2.0, 1.10, 2.5], tags="floating")
+  sphere "leaf_5b_1" (radius=0.40, mat="corn_green", pos=[-2.0, 1.70, 2.5], tags="floating")
+  sphere "leaf_5b_2" (radius=0.30, mat="corn_dark", pos=[-2.0, 1.30, 2.5], tags="floating")
+  cylinder "stalk_5c" (radius=0.05, height=2.20, mat="stalk_tan", pos=[0, 1.20, 2.5], tags="floating")
+  sphere "leaf_5c_1" (radius=0.40, mat="corn_green", pos=[0, 1.80, 2.5], tags="floating")
+  sphere "leaf_5c_2" (radius=0.30, mat="corn_dark", pos=[0, 1.40, 2.5], tags="floating")
+  cylinder "stalk_5d" (radius=0.05, height=2.20, mat="stalk_tan", pos=[2.0, 1.20, 2.5], tags="floating")
+  sphere "leaf_5d_1" (radius=0.40, mat="corn_green", pos=[2.0, 1.80, 2.5], tags="floating")
+  sphere "leaf_5d_2" (radius=0.30, mat="corn_dark", pos=[2.0, 1.40, 2.5], tags="floating")
+  cylinder "stalk_5e" (radius=0.05, height=2.10, mat="stalk_tan", pos=[4.0, 1.15, 2.5], tags="floating")
+  sphere "leaf_5e_1" (radius=0.40, mat="corn_green", pos=[4.0, 1.75, 2.5], tags="floating")
+  sphere "leaf_5e_2" (radius=0.30, mat="corn_dark", pos=[4.0, 1.35, 2.5], tags="floating")
+  // Corn cobs (visible at top of some stalks — yellow)
+  cylinder "cob_1" (radius=0.08, height=0.30, mat="corn_yellow", pos=[-2.0, 2.0, -2.0], rot=[0,0,30], tags="floating")
+  cylinder "cob_2" (radius=0.08, height=0.30, mat="corn_yellow", pos=[2.0, 2.05, 1.0], rot=[0,0,-30], tags="floating")
+  cylinder "cob_3" (radius=0.08, height=0.30, mat="corn_yellow", pos=[0, 2.10, -0.5], rot=[0,0,15], tags="floating")
+  cylinder "cob_4" (radius=0.08, height=0.30, mat="corn_yellow", pos=[-4.0, 2.0, 2.5], rot=[0,0,-20], tags="floating")
+}
+''')
+
+# ============================================================
+# 38. seesaw.mog — playground seesaw
+# ============================================================
+w("environment", "seesaw", '''// seesaw.mog — Playground seesaw
+meta (name="seesaw", description="Playground seesaw with central pivot and two seats", tags=["environment","park","playground","tier1"], mogen_version="0.1.12")
+material "metal_yellow" (color=[0.85,0.65,0.10], roughness=0.50, metallic=0.85)
+material "metal_red" (color=[0.85,0.20,0.15], roughness=0.60, metallic=0.5)
+material "metal_blue" (color=[0.20,0.35,0.65], roughness=0.60, metallic=0.5)
+material "metal_dark" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.85)
+material "handle_grip" (color=[0.20,0.20,0.22], roughness=0.85)
+material "sand_tan" (color=[0.75,0.65,0.45], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "grass" (color=[0.22,0.38,0.16], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+scene {
+  slab "ground" (size=[6.0, 0.04, 3.0], mat="grass")
+  // Sand pit under seesaw (safety surface)
+  slab "sand_pit" (size=[5.0, 0.06, 2.5], mat="sand_tan", pos=[0, 0.03, 0])
+  // Central pivot post (vertical)
+  box "pivot_post" (size=[0.20, 0.80, 0.40], mat="metal_dark", pos=[0, 0.40, 0])
+  // Pivot axle
+  cylinder "axle" (radius=0.06, height=0.50, mat="metal_dark", pos=[0, 0.70, 0], rot=[90,0,0], tags="floating")
+  // Beam (the seesaw plank — tilted slightly)
+  box "beam" (size=[4.0, 0.10, 0.20], mat="metal_yellow", pos=[0, 0.80, 0], rot=[0,0,5])
+  // Left seat (red)
+  box "seat_l" (size=[0.50, 0.06, 0.40], mat="metal_red", pos=[-1.80, 0.65, 0], rot=[0,0,5], tags="floating")
+  // Right seat (blue)
+  box "seat_r" (size=[0.50, 0.06, 0.40], mat="metal_blue", pos=[1.80, 0.95, 0], rot=[0,0,5], tags="floating")
+  // Handle bars (vertical grips at each end)
+  box "handle_l" (size=[0.06, 0.50, 0.06], mat="handle_grip", pos=[-2.10, 0.90, 0], rot=[0,0,5], tags="floating")
+  box "handle_r" (size=[0.06, 0.50, 0.06], mat="handle_grip", pos=[1.50, 1.20, 0], rot=[0,0,5], tags="floating")
+  // Handle top grips (horizontal)
+  box "grip_l_top" (size=[0.20, 0.06, 0.06], mat="handle_grip", pos=[-2.05, 1.15, 0], rot=[0,0,5], tags="floating")
+  box "grip_r_top" (size=[0.20, 0.06, 0.06], mat="handle_grip", pos=[1.55, 1.45, 0], rot=[0,0,5], tags="floating")
+  // Pivot cap on top (decorative)
+  sphere "pivot_cap" (radius=0.10, mat="metal_yellow", pos=[0, 0.85, 0], tags="floating")
+  // Side support legs (tripod-like)
+  box "leg_l" (size=[0.10, 0.80, 0.10], mat="metal_dark", pos=[-0.30, 0.40, 0.20], rot=[0,0,15], tags="floating")
+  box "leg_r" (size=[0.10, 0.80, 0.10], mat="metal_dark", pos=[0.30, 0.40, 0.20], rot=[0,0,-15], tags="floating")
+  box "leg_b" (size=[0.10, 0.80, 0.10], mat="metal_dark", pos=[0, 0.40, -0.30], rot=[15,0,0], tags="floating")
+}
+''')
+
+# ============================================================
+# 39. basketball_hoop.mog — driveway basketball hoop
+# ============================================================
+w("props", "basketball_hoop", '''// basketball_hoop.mog — Driveway basketball hoop on pole
+meta (name="basketball_hoop", description="Driveway basketball hoop on metal pole with backboard and rim", tags=["prop","sports","suburban","tier1"], mogen_version="0.1.12")
+material "pole_metal" (color=[0.40,0.40,0.42], roughness=0.50, metallic=0.85)
+material "backboard_white" (color=[0.92,0.92,0.90], roughness=0.40, transmission=0.10)
+material "rim_orange" (color=[0.85,0.40,0.10], roughness=0.50, metallic=0.6)
+material "net_white" (color=[0.92,0.92,0.88], roughness=0.85, transmission=0.30)
+material "square_red" (color=[0.85,0.15,0.10], roughness=0.60)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+scene {
+  slab "pad" (size=[2.0, 0.05, 2.0], mat="asphalt", pos=[0, 0.025, 0])
+  // Concrete base (counterweight)
+  box "base" (size=[1.0, 0.30, 0.80], mat="concrete", pos=[0, 0.15, 0.50])
+  // Pole (vertical)
+  cylinder "pole" (radius=0.08, height=3.50, mat="pole_metal", pos=[0, 2.05, 0])
+  // Pole arm (horizontal extension to backboard)
+  box "arm" (size=[0.10, 0.10, 0.60], mat="pole_metal", pos=[0, 3.50, -0.30], tags="floating")
+  // Backboard (transparent white)
+  box "backboard" (size=[1.80, 1.10, 0.06], mat="backboard_white", pos=[0, 3.80, -0.60], tags="floating")
+  // Target square (red, on backboard)
+  box "square_top" (size=[0.60, 0.05, 0.02], mat="square_red", pos=[0, 4.00, -0.64], tags="floating")
+  box "square_bot" (size=[0.60, 0.05, 0.02], mat="square_red", pos=[0, 3.70, -0.64], tags="floating")
+  box "square_l" (size=[0.05, 0.35, 0.02], mat="square_red", pos=[-0.275, 3.85, -0.64], tags="floating")
+  box "square_r" (size=[0.05, 0.35, 0.02], mat="square_red", pos=[0.275, 3.85, -0.64], tags="floating")
+  // Rim (orange circle)
+  torus "rim" (radius=0.23, tube_radius=0.025, mat="rim_orange", pos=[0, 3.45, -0.80], rot=[90,0,0], tags="floating")
+  // Net (cylindrical mesh below rim — simplified as cone)
+  cone "net" (radius=0.20, height=0.40, mat="net_white", pos=[0, 3.20, -0.80], tags="floating")
+  // Net lines (vertical strips)
+  box "net_l_1" (size=[0.02, 0.40, 0.02], mat="net_white", pos=[0.18, 3.20, -0.80], tags="floating")
+  box "net_l_2" (size=[0.02, 0.40, 0.02], mat="net_white", pos=[-0.18, 3.20, -0.80], tags="floating")
+  box "net_l_3" (size=[0.02, 0.40, 0.02], mat="net_white", pos=[0, 3.20, -0.62], tags="floating")
+  box "net_l_4" (size=[0.02, 0.40, 0.02], mat="net_white", pos=[0, 3.20, -0.98], tags="floating")
+  // Rim mounting bracket (back to backboard)
+  box "bracket" (size=[0.30, 0.10, 0.20], mat="pole_metal", pos=[0, 3.45, -0.70], tags="floating")
+}
+''')
+
+# ============================================================
+# 40. traffic_camera.mog — pole-mounted traffic enforcement camera
+# ============================================================
+w("props", "traffic_camera", '''// traffic_camera.mog — Pole-mounted traffic enforcement camera
+meta (name="traffic_camera", description="Pole-mounted traffic enforcement camera with housing and solar panel", tags=["prop","infrastructure","suburban","tier1"], mogen_version="0.1.12")
+material "pole_grey" (color=[0.40,0.40,0.42], roughness=0.50, metallic=0.85)
+material "housing_white" (color=[0.85,0.85,0.82], roughness=0.60)
+material "lens_dark" (color=[0.10,0.10,0.12], roughness=0.20, metallic=0.7)
+material "lens_glass" (color=[0.20,0.30,0.45], transmission=0.30, roughness=0.10)
+material "solar_blue" (color=[0.20,0.30,0.50], roughness=0.30, metallic=0.7)
+material "flash_clear" (color=[0.95,0.95,0.90], roughness=0.20, emissive=[0.85,0.85,0.80], emissive_strength=0.4)
+material "warning_yellow" (color=[0.85,0.70,0.10], roughness=0.60, emissive=[0.40,0.30,0.05], emissive_strength=0.3)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+scene {
+  slab "pad" (size=[2.0, 0.05, 2.0], mat="asphalt", pos=[0, 0.025, 0])
+  // Concrete footing
+  box "footing" (size=[0.60, 0.30, 0.60], mat="concrete", pos=[0, 0.15, 0])
+  // Vertical pole
+  cylinder "pole" (radius=0.08, height=5.0, mat="pole_grey", pos=[0, 2.80, 0])
+  // Horizontal arm (extends over roadway)
+  box "arm" (size=[2.50, 0.10, 0.10], mat="pole_grey", pos=[1.20, 4.80, 0], tags="floating")
+  // Camera housing (cylinder on arm end)
+  box "housing" (size=[0.50, 0.40, 0.40], mat="housing_white", pos=[2.30, 4.50, 0], tags="floating")
+  // Lens (front, pointing down toward traffic)
+  cylinder "lens_outer" (radius=0.12, height=0.10, mat="lens_dark", pos=[2.30, 4.30, 0], rot=[90,0,0], tags="floating")
+  cylinder "lens_inner" (radius=0.08, height=0.06, mat="lens_glass", pos=[2.30, 4.25, 0], rot=[90,0,0], tags="floating")
+  // Flash unit (next to camera)
+  box "flash_housing" (size=[0.30, 0.30, 0.20], mat="housing_white", pos=[2.30, 4.50, 0.40], tags="floating")
+  box "flash_lens" (size=[0.20, 0.20, 0.02], mat="flash_clear", pos=[2.30, 4.50, 0.51], tags="floating")
+  // Solar panel (top of pole, for power)
+  box "solar_panel" (size=[0.80, 0.05, 0.50], mat="solar_blue", pos=[0, 5.20, 0], rot=[15,0,0], tags="floating")
+  // Warning sign on pole (yellow, "PHOTO ENFORCED")
+  box "sign_post" (size=[0.04, 0.50, 0.04], mat="pole_grey", pos=[0, 3.30, 0.10], tags="floating")
+  box "sign_board" (size=[0.50, 0.40, 0.04], mat="warning_yellow", pos=[0, 3.50, 0.14], tags="floating")
+  box "sign_text_1" (size=[0.40, 0.04, 0.02], mat="pole_grey", pos=[0, 3.60, 0.17], tags="floating")
+  box "sign_text_2" (size=[0.40, 0.04, 0.02], mat="pole_grey", pos=[0, 3.45, 0.17], tags="floating")
+  // Cable conduit (down pole to ground)
+  box "conduit" (size=[0.04, 5.0, 0.04], mat="pole_grey", pos=[0.07, 2.50, 0], tags="floating")
+  // Junction box (at base of pole)
+  box "junction" (size=[0.30, 0.50, 0.20], mat="housing_white", pos=[0, 0.65, 0.20], tags="floating")
+}
+''')
+
+print("=== Part 4: 5 environment + 2 props written ===")

@@ -1,0 +1,31 @@
+// poster_torn.mog — torn wall poster decal
+meta (name="poster_torn", description="Torn wall poster decal — missing-missing person or propaganda poster, partially ripped", tags=["decal","poster","urban","horror","tier1"], mogen_version="0.1.12")
+material "paper_white" (color=[0.88,0.86,0.78], roughness=0.85, transmission=0.10)
+material "paper_dark" (color=[0.45,0.40,0.30], roughness=0.85)
+material "ink_black" (color=[0.10,0.10,0.10], roughness=0.80)
+material "tape_yellow" (color=[0.80,0.70,0.40], roughness=0.70, transmission=0.30)
+scene {
+  // Main poster — flat against wall (XZ plane lying down for now, will be repositioned)
+  slab "paper_main" (size=[1.00, 0.02, 1.40], mat="paper_white")
+  // Torn corner (top-right) — replaced with darker fragment
+  slab "torn_corner" (size=[0.30, 0.025, 0.40], mat="paper_dark", pos=[0.35, 0.015, -0.50], rot=[0,0,-15], tags="floating")
+  // Torn edge (bottom)
+  slab "torn_bottom" (size=[1.00, 0.025, 0.20], mat="paper_dark", pos=[0, 0.015, 0.60], rot=[0,0,5], tags="floating")
+  // Missing person text (visible printed lines)
+  box "text_top" (size=[0.80, 0.025, 0.05], mat="ink_black", pos=[0, 0.025, -0.55], tags="floating")
+  box "text_l_1" (size=[0.70, 0.025, 0.03], mat="ink_black", pos=[-0.10, 0.025, -0.40], tags="floating")
+  box "text_l_2" (size=[0.70, 0.025, 0.03], mat="ink_black", pos=[-0.10, 0.025, -0.30], tags="floating")
+  box "text_l_3" (size=[0.50, 0.025, 0.03], mat="ink_black", pos=[-0.20, 0.025, -0.20], tags="floating")
+  box "text_l_4" (size=[0.60, 0.025, 0.03], mat="ink_black", pos=[-0.15, 0.025, -0.10], tags="floating")
+  box "text_l_5" (size=[0.40, 0.025, 0.03], mat="ink_black", pos=[-0.25, 0.025, 0.00], tags="floating")
+  box "text_l_6" (size=[0.65, 0.025, 0.03], mat="ink_black", pos=[-0.12, 0.025, 0.10], tags="floating")
+  box "text_l_7" (size=[0.30, 0.025, 0.03], mat="ink_black", pos=[-0.30, 0.025, 0.20], tags="floating")
+  // Photo area (rectangle suggesting a photo)
+  box "photo_border" (size=[0.50, 0.025, 0.50], mat="ink_black", pos=[0, 0.025, 0.10], tags="floating")
+  box "photo_inner" (size=[0.46, 0.020, 0.46], mat="paper_dark", pos=[0, 0.027, 0.10], tags="floating")
+  // Tape strips (top corners)
+  box "tape_tl" (size=[0.20, 0.030, 0.10], mat="tape_yellow", pos=[-0.30, 0.028, -0.60], rot=[0,0,30], tags="floating")
+  box "tape_tr" (size=[0.20, 0.030, 0.10], mat="tape_yellow", pos=[0.30, 0.028, -0.60], rot=[0,0,-30], tags="floating")
+  // Smaller torn bit
+  slab "torn_bit" (size=[0.30, 0.020, 0.20], mat="paper_white", pos=[0.90, 0.015, 0.20], rot=[0,30,15], tags="floating")
+}

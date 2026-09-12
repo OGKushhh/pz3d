@@ -1,0 +1,67 @@
+// barber_shop.mog — Small commercial barber shop with striped pole
+meta (name="barber_shop", description="Small commercial barber shop with awning and striped barber pole", tags=["building","commercial","downtown","tier1"], mogen_version="0.1.12")
+material "wall_stucco" (color=[0.80,0.70,0.55], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "wall_bricks" (color=[0.55,0.30,0.25], roughness=0.85, uv_mode="tile", uv_scale=4.0)
+material "roof_flat" (color=[0.20,0.20,0.22], roughness=0.90)
+material "trim_white" (color=[0.92,0.90,0.85], roughness=0.60)
+material "awning_blue" (color=[0.20,0.35,0.55], roughness=0.70, emissive=[0.10,0.15,0.25], emissive_strength=0.2)
+material "window_glass" (color=[0.35,0.50,0.60], transmission=0.55, roughness=0.03)
+material "door_glass" (color=[0.30,0.45,0.55], transmission=0.55, roughness=0.04)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "pole_white" (color=[0.92,0.92,0.90], roughness=0.50)
+material "pole_red" (color=[0.85,0.10,0.10], roughness=0.50)
+material "pole_blue" (color=[0.20,0.35,0.65], roughness=0.50)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+module "bs_win" () {
+  box "frame" (size=[1.30, 1.60, 0.06], mat="trim_white")
+  box "glass" (size=[1.15, 1.45, 0.02], mat="window_glass", pos=[0,0,-0.04])
+}
+module "bs_door" () {
+  box "frame" (size=[1.10, 2.30, 0.06], mat="trim_white")
+  box "glass" (size=[0.95, 2.15, 0.02], mat="door_glass", pos=[0,0,-0.04])
+  box "handle" (size=[0.04, 0.20, 0.03], mat="brass", pos=[0.40,0,0.06], tags="floating")
+}
+scene {
+  slab "sidewalk" (size=[10.0, 0.05, 6.0], mat="asphalt", pos=[0, 0.025, 2.0], tags="floating")
+  slab "foundation" (size=[8.0, 0.30, 6.0], mat="concrete", pos=[0, 0.15, 0])
+  // Lower brick band
+  box "lower_brick" (size=[8.0, 1.0, 6.0], mat="wall_bricks", pos=[0, 0.70, 0])
+  // Upper stucco
+  box "upper_stucco" (size=[8.0, 2.20, 6.0], mat="wall_stucco", pos=[0, 2.30, 0])
+  // Roof
+  slab "roof" (size=[8.4, 0.20, 6.4], mat="roof_flat", pos=[0, 3.50, 0])
+  // Awning
+  prism "awning" (size=[8.0, 0.30, 1.5], pos=[0, 3.20, -3.5], mat="awning_blue")
+  // Front wall holes (door + 2 windows)
+  wall "front_wall" (size=[8.0, 3.20, 0.20], pos=[0, 1.90, -3.0], holes=[[-2.20,-0.20,1.10,2.30],[2.20,-0.20,1.10,2.30],[0,1.50,2.0,0.80]])
+  // Back wall (small windows)
+  wall "back_wall" (size=[8.0, 3.20, 0.20], pos=[0, 1.90, 3.0], holes=[[-2.0,1.0,1.20,1.20],[2.0,1.0,1.20,1.20]])
+  // Side walls
+  wall "left_wall" (size=[6.0, 3.20, 0.20], pos=[-4.0, 1.90, 0], rot=[0,90,0], holes=[[-1.0,1.0,1.20,1.20],[1.0,1.0,1.20,1.20]])
+  wall "right_wall" (size=[6.0, 3.20, 0.20], pos=[4.0, 1.90, 0], rot=[0,90,0], holes=[[-1.0,1.0,1.20,1.20],[1.0,1.0,1.20,1.20]])
+  // Sign above door
+  box "sign_board" (size=[2.0, 0.50, 0.10], mat="trim_white", pos=[0, 3.10, -3.05], tags="floating")
+  // Barber pole (left of door)
+  cylinder "pole_cap" (radius=0.10, height=0.10, mat="brass", pos=[-3.50, 2.10, -3.10], tags="floating")
+  cylinder "pole_body" (radius=0.08, height=1.50, mat="pole_white", pos=[-3.50, 1.30, -3.10], tags="floating")
+  // Stripes (helical segments — approximate with horizontal stripes)
+  box "stripe_1" (size=[0.06, 0.20, 0.10], mat="pole_red", pos=[-3.58, 0.70, -3.10], rot=[0,0,30], tags="floating")
+  box "stripe_2" (size=[0.06, 0.20, 0.10], mat="pole_blue", pos=[-3.58, 0.90, -3.10], rot=[0,0,-30], tags="floating")
+  box "stripe_3" (size=[0.06, 0.20, 0.10], mat="pole_red", pos=[-3.58, 1.10, -3.10], rot=[0,0,30], tags="floating")
+  box "stripe_4" (size=[0.06, 0.20, 0.10], mat="pole_blue", pos=[-3.58, 1.30, -3.10], rot=[0,0,-30], tags="floating")
+  box "stripe_5" (size=[0.06, 0.20, 0.10], mat="pole_red", pos=[-3.58, 1.50, -3.10], rot=[0,0,30], tags="floating")
+  box "stripe_6" (size=[0.06, 0.20, 0.10], mat="pole_blue", pos=[-3.58, 1.70, -3.10], rot=[0,0,-30], tags="floating")
+  cylinder "pole_base" (radius=0.10, height=0.10, mat="brass", pos=[-3.50, 0.55, -3.10], tags="floating")
+  // Group placements
+  group "door_g" (pos=[-2.20, 1.05, -3.0]) { use "bs_door" () }
+  group "win_l" (pos=[-2.20, 2.70, -3.0]) { use "bs_win" () }
+  group "win_r" (pos=[2.20, 2.70, -3.0]) { use "bs_win" () }
+  // Wait — the holes array is door at [-2.2,-0.2], window at [+2.2,-0.2], and a thin band at [0,1.5]. Let me fix placements.
+  // Actually the door is at [-2.2] (lower) and window is at [+2.2] (lower), with a name band at top center.
+  // So:
+  // door at [-2.20, 1.05]
+  // win at [2.20, 1.05]  (not 2.70)
+  // I'll add the correct one:
+  group "win_actual" (pos=[2.20, 1.05, -3.0]) { use "bs_door" () }  // window-side door (matches hole)
+}

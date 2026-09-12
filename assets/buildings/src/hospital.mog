@@ -1,0 +1,52 @@
+// hospital.mog — Downtown civic landmark hospital
+meta (name="hospital", description="3-story hospital with ambulance bay and red cross sign", tags=["building","civic","downtown","landmark","tier1"], mogen_version="0.1.12")
+material "wall_white" (color=[0.92,0.92,0.90], roughness=0.85, uv_mode="tile", uv_scale=4.0)
+material "wall_grey" (color=[0.70,0.70,0.68], roughness=0.85, uv_mode="tile", uv_scale=4.0)
+material "roof_flat" (color=[0.30,0.30,0.32], roughness=0.90)
+material "trim_white" (color=[0.95,0.95,0.93], roughness=0.60)
+material "window_blue" (color=[0.40,0.60,0.75], transmission=0.45, roughness=0.05)
+material "glass_emissive" (color=[0.55,0.75,0.85], transmission=0.50, roughness=0.05, emissive=[0.30,0.45,0.55], emissive_strength=0.6)
+material "red_cross" (color=[0.85,0.10,0.10], roughness=0.40, emissive=[0.6,0.05,0.05], emissive_strength=0.4)
+material "concrete" (color=[0.60,0.58,0.55], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "door_glass" (color=[0.35,0.55,0.70], transmission=0.55, roughness=0.04)
+module "h_win" () {
+  box "frame" (size=[1.30, 1.50, 0.06], mat="trim_white")
+  box "glass" (size=[1.15, 1.35, 0.02], mat="window_blue", pos=[0,0,-0.04])
+}
+module "amb_door" () {
+  box "frame" (size=[3.00, 2.40, 0.06], mat="trim_white")
+  box "glass" (size=[2.85, 2.25, 0.02], mat="door_glass", pos=[0,0,-0.04])
+}
+scene {
+  slab "parking" (size=[20.0, 0.05, 16.0], mat="asphalt", pos=[0, 0.025, 0], tags="floating")
+  slab "foundation" (size=[16.0, 0.30, 12.0], mat="concrete", pos=[0, 0.15, 0])
+  // Main building body (3 floors visible as bands)
+  box "body" (size=[15.0, 9.0, 11.0], mat="wall_white", pos=[0, 4.80, 0])
+  // Ground floor accent band
+  box "ground_band" (size=[15.2, 3.0, 11.2], mat="wall_grey", pos=[0, 1.65, 0])
+  // Roof slab
+  slab "roof" (size=[15.5, 0.20, 11.5], mat="roof_flat", pos=[0, 9.40, 0], tags="floating")
+  // Front wall holes for ambulance bay + windows
+  wall "front_g" (size=[15.0, 3.0, 0.20], pos=[0, 1.50, -5.5], holes=[[-5.0,0.0,3.00,2.40],[-2.0,0.30,1.30,1.50],[0,0.30,1.30,1.50],[2.0,0.30,1.30,1.50],[5.0,0.30,1.30,1.50]])
+  wall "front_u" (size=[15.0, 6.0, 0.20], pos=[0, 6.00, -5.5], holes=[[-5.0,1.50,1.30,1.50],[-2.0,1.50,1.30,1.50],[0,1.50,1.30,1.50],[2.0,1.50,1.30,1.50],[5.0,1.50,1.30,1.50],[-5.0,-0.80,1.30,1.50],[-2.0,-0.80,1.30,1.50],[0,-0.80,1.30,1.50],[2.0,-0.80,1.30,1.50],[5.0,-0.80,1.30,1.50]])
+  wall "back_wall" (size=[15.0, 9.0, 0.20], pos=[0, 4.80, 5.5], holes=[[-5.0,1.0,1.30,1.50],[-2.0,1.0,1.30,1.50],[0,1.0,1.30,1.50],[2.0,1.0,1.30,1.50],[5.0,1.0,1.30,1.50],[-5.0,-2.0,1.30,1.50],[-2.0,-2.0,1.30,1.50],[0,-2.0,1.30,1.50],[2.0,-2.0,1.30,1.50],[5.0,-2.0,1.30,1.50]])
+  wall "left_wall" (size=[11.0, 9.0, 0.20], pos=[-7.5, 4.80, 0], rot=[0,90,0], holes=[[-3.0,1.0,1.30,1.50],[0,1.0,1.30,1.50],[3.0,1.0,1.30,1.50],[-3.0,-2.0,1.30,1.50],[0,-2.0,1.30,1.50],[3.0,-2.0,1.30,1.50]])
+  wall "right_wall" (size=[11.0, 9.0, 0.20], pos=[7.5, 4.80, 0], rot=[0,90,0], holes=[[-3.0,1.0,1.30,1.50],[0,1.0,1.30,1.50],[3.0,1.0,1.30,1.50],[-3.0,-2.0,1.30,1.50],[0,-2.0,1.30,1.50],[3.0,-2.0,1.30,1.50]])
+  // Red cross sign on front (emissive)
+  box "cross_v" (size=[0.40, 2.00, 0.10], mat="red_cross", pos=[0, 11.00, -5.55], tags="floating")
+  box "cross_h" (size=[2.00, 0.40, 0.10], mat="red_cross", pos=[0, 11.00, -5.55], tags="floating")
+  // Rooftop helipad marker
+  box "h_mark" (size=[3.0, 0.05, 3.0], mat="red_cross", pos=[0, 9.55, 0], tags="floating")
+  // Group placements (windows / doors)
+  group "amb_g" (pos=[-5.0, 1.20, -5.5]) { use "amb_door" () }
+  group "wfg_1" (pos=[-2.0, 1.95, -5.5]) { use "h_win" () }
+  group "wfg_2" (pos=[0, 1.95, -5.5]) { use "h_win" () }
+  group "wfg_3" (pos=[2.0, 1.95, -5.5]) { use "h_win" () }
+  group "wfg_4" (pos=[5.0, 1.95, -5.5]) { use "h_win" () }
+  group "wfu_1" (pos=[-5.0, 7.50, -5.5]) { use "h_win" () }
+  group "wfu_2" (pos=[-2.0, 7.50, -5.5]) { use "h_win" () }
+  group "wfu_3" (pos=[0, 7.50, -5.5]) { use "h_win" () }
+  group "wfu_4" (pos=[2.0, 7.50, -5.5]) { use "h_win" () }
+  group "wfu_5" (pos=[5.0, 7.50, -5.5]) { use "h_win" () }
+}

@@ -1,0 +1,20 @@
+// blood_splatter_decal.mog — Tier 1 Style Anchor #8
+// Simple decal: a flat plane representing a blood splatter on the ground/wall.
+// Target: 6 verts (2 triangles, 1 quad plane).
+// This will be projected as a Decal in Godot, not a mesh.
+// The .mog just defines the geometry — Godot's Decal node does the projection.
+
+meta (
+  name          = "blood_splatter_decal",
+  description   = "Blood splatter decal — flat quad for Godot Decal projection",
+  tags          = ["decal", "blood", "tier1"],
+  mogen_version = "0.1.12"
+)
+
+material "blood_fresh" (color=[0.45, 0.05, 0.05], roughness=0.6, metallic=0.0, alpha=0.85, alpha_mode="blend")
+
+scene {
+  // Single flat plane — 1m × 1m, lying flat on ground (Y=0.01 to avoid z-fight)
+  // plane uses size=[x, _, z] (Y ignored, plane is XZ-aligned)
+  plane "blood_splatter" (size=[1.0, 1.0, 1.0], mat="blood_fresh", pos=[0, 0.01, 0])
+}

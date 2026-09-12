@@ -1,0 +1,24 @@
+// crack_road.mog — road surface crack decal
+meta (name="crack_road", description="Road surface crack decal — branching cracks and small potholes", tags=["decal","crack","road","urban","tier1"], mogen_version="0.1.12")
+material "crack_dark" (color=[0.10,0.10,0.08], roughness=0.95)
+material "pothole_dark" (color=[0.15,0.13,0.10], roughness=0.95)
+material "asphalt_around" (color=[0.18,0.18,0.20], roughness=0.95, transmission=0.05)
+scene {
+  // Main asphalt patch (slightly darker than surrounding road, marking the damaged area)
+  slab "asphalt_patch" (size=[3.00, 0.015, 3.00], mat="asphalt_around")
+  // Main crack line (zig-zag)
+  box "crack_1" (size=[0.04, 0.020, 0.50], mat="crack_dark", pos=[-1.00, 0.018, -0.80], tags="floating")
+  box "crack_2" (size=[0.04, 0.020, 0.50], mat="crack_dark", pos=[-0.70, 0.018, -0.30], rot=[0,15,0], tags="floating")
+  box "crack_3" (size=[0.04, 0.020, 0.60], mat="crack_dark", pos=[-0.40, 0.018, 0.20], rot=[0,-10,0], tags="floating")
+  box "crack_4" (size=[0.04, 0.020, 0.50], mat="crack_dark", pos=[0.00, 0.018, 0.70], rot=[0,20,0], tags="floating")
+  box "crack_5" (size=[0.04, 0.020, 0.40], mat="crack_dark", pos=[0.40, 0.018, 1.00], rot=[0,-15,0], tags="floating")
+  // Branch cracks
+  box "branch_1" (size=[0.03, 0.020, 0.30], mat="crack_dark", pos=[-0.50, 0.018, 0.00], rot=[0,45,0], tags="floating")
+  box "branch_2" (size=[0.03, 0.020, 0.30], mat="crack_dark", pos=[-0.20, 0.018, 0.50], rot=[0,-45,0], tags="floating")
+  // Pothole (bigger darker patch)
+  cylinder "pothole_1" (radius=0.20, height=0.030, mat="pothole_dark", pos=[0.70, 0.020, -0.40], tags="floating")
+  cylinder "pothole_2" (radius=0.15, height=0.030, mat="pothole_dark", pos=[-0.80, 0.020, 0.60], tags="floating")
+  // Small fragments
+  sphere "frag_1" (radius=0.04, mat="pothole_dark", pos=[0.50, 0.018, -0.20], tags="floating")
+  sphere "frag_2" (radius=0.03, mat="pothole_dark", pos=[-0.60, 0.018, 0.80], tags="floating")
+}

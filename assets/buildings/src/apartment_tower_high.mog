@@ -1,0 +1,112 @@
+// apartment_tower_high.mog — 8-story residential apartment tower
+meta (name="apartment_tower_high", description="8-story residential apartment tower with balconies and repeating window pattern", tags=["building","downtown","residential","highrise","tier1"], mogen_version="0.1.12")
+material "wall_tan" (color=[0.78,0.72,0.60], roughness=0.85, uv_mode="tile", uv_scale=8.0)
+material "wall_white" (color=[0.88,0.86,0.80], roughness=0.85, uv_mode="tile", uv_scale=6.0)
+material "roof_flat" (color=[0.20,0.20,0.22], roughness=0.90)
+material "trim_white" (color=[0.95,0.95,0.93], roughness=0.60)
+material "balcony_rail" (color=[0.30,0.30,0.35], roughness=0.40, metallic=0.85)
+material "balcony_floor" (color=[0.40,0.35,0.30], roughness=0.85)
+material "window_glass" (color=[0.30,0.40,0.50], transmission=0.40, roughness=0.05)
+material "window_amber" (color=[0.65,0.55,0.30], transmission=0.20, roughness=0.10, emissive=[0.40,0.30,0.15], emissive_strength=0.5)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "metal_dark" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.85)
+module "apt_window" () {
+  box "frame" (size=[1.20, 1.30, 0.06], mat="trim_white")
+  box "glass" (size=[1.05, 1.15, 0.02], mat="window_glass", pos=[0,0,-0.04])
+}
+module "apt_window_lit" () {
+  box "frame" (size=[1.20, 1.30, 0.06], mat="trim_white")
+  box "glass" (size=[1.05, 1.15, 0.02], mat="window_amber", pos=[0,0,-0.04])
+}
+module "balcony" () {
+  // Floor slab projecting from wall
+  slab "floor" (size=[3.0, 0.10, 1.20], mat="balcony_floor", pos=[0, 0, 0.60])
+  // Railings (3 sides — front + 2 sides)
+  box "rail_front" (size=[3.0, 0.90, 0.05], mat="balcony_rail", pos=[0, 0.50, 1.20], tags="floating")
+  box "rail_left" (size=[0.05, 0.90, 1.20], mat="balcony_rail", pos=[-1.50, 0.50, 0.60], tags="floating")
+  box "rail_right" (size=[0.05, 0.90, 1.20], mat="balcony_rail", pos=[1.50, 0.50, 0.60], tags="floating")
+  // Mid rail (lower)
+  box "midrail_front" (size=[3.0, 0.05, 0.04], mat="balcony_rail", pos=[0, 0.25, 1.18], tags="floating")
+  // Vertical balusters (4)
+  box "bal_1" (size=[0.04, 0.80, 0.04], mat="balcony_rail", pos=[-1.20, 0.45, 1.20], tags="floating")
+  box "bal_2" (size=[0.04, 0.80, 0.04], mat="balcony_rail", pos=[-0.40, 0.45, 1.20], tags="floating")
+  box "bal_3" (size=[0.04, 0.80, 0.04], mat="balcony_rail", pos=[0.40, 0.45, 1.20], tags="floating")
+  box "bal_4" (size=[0.04, 0.80, 0.04], mat="balcony_rail", pos=[1.20, 0.45, 1.20], tags="floating")
+}
+scene {
+  slab "plaza" (size=[20.0, 0.05, 14.0], mat="asphalt", pos=[0, 0.025, 0], tags="floating")
+  slab "foundation" (size=[12.0, 0.50, 8.0], mat="concrete", pos=[0, 0.25, 0])
+  // Main body (8 stories ~ 24m)
+  box "body" (size=[12.0, 24.0, 8.0], mat="wall_tan", pos=[0, 12.50, 0])
+  // Horizontal floor bands (visible between windows)
+  box "band_1" (size=[12.05, 0.10, 8.05], mat="wall_white", pos=[0, 3.00, 0], tags="floating")
+  box "band_2" (size=[12.05, 0.10, 8.05], mat="wall_white", pos=[0, 6.00, 0], tags="floating")
+  box "band_3" (size=[12.05, 0.10, 8.05], mat="wall_white", pos=[0, 9.00, 0], tags="floating")
+  box "band_4" (size=[12.05, 0.10, 8.05], mat="wall_white", pos=[0, 12.00, 0], tags="floating")
+  box "band_5" (size=[12.05, 0.10, 8.05], mat="wall_white", pos=[0, 15.00, 0], tags="floating")
+  box "band_6" (size=[12.05, 0.10, 8.05], mat="wall_white", pos=[0, 18.00, 0], tags="floating")
+  box "band_7" (size=[12.05, 0.10, 8.05], mat="wall_white", pos=[0, 21.00, 0], tags="floating")
+  // Roof slab + parapet
+  slab "roof" (size=[12.4, 0.30, 8.4], mat="roof_flat", pos=[0, 24.70, 0], tags="floating")
+  box "parapet_n" (size=[12.4, 0.50, 0.20], mat="wall_tan", pos=[0, 25.10, -4.10], tags="floating")
+  box "parapet_s" (size=[12.4, 0.50, 0.20], mat="wall_tan", pos=[0, 25.10, 4.10], tags="floating")
+  box "parapet_e" (size=[0.20, 0.50, 8.4], mat="wall_tan", pos=[6.10, 25.10, 0], tags="floating")
+  box "parapet_w" (size=[0.20, 0.50, 8.4], mat="wall_tan", pos=[-6.10, 25.10, 0], tags="floating")
+  // Rooftop water tank
+  cylinder "tank_body" (radius=1.20, height=2.0, mat="wall_white", pos=[-3.0, 26.20, 0], tags="floating")
+  cone "tank_top" (radius=1.30, height=0.80, mat="roof_flat", pos=[-3.0, 27.60, 0], tags="floating")
+  // Rooftop AC units
+  box "ac_1" (size=[1.50, 1.0, 1.50], mat="metal_dark", pos=[3.0, 25.40, 0], tags="floating")
+  box "ac_2" (size=[1.0, 0.80, 1.0], mat="metal_dark", pos=[0, 25.30, 2.0], tags="floating")
+  // Front wall — balconies on alternate floors + windows on others
+  // Use wall with many holes pattern: each floor has 4 windows
+  wall "front_wall" (size=[12.0, 24.0, 0.20], pos=[0, 12.50, -4.0], holes=[
+    [-4.5,1.0,3.0,1.30],[-1.5,1.0,3.0,1.30],[1.5,1.0,3.0,1.30],[4.5,1.0,3.0,1.30],
+    [-4.5,4.0,3.0,1.30],[-1.5,4.0,3.0,1.30],[1.5,4.0,3.0,1.30],[4.5,4.0,3.0,1.30],
+    [-4.5,7.0,3.0,1.30],[-1.5,7.0,3.0,1.30],[1.5,7.0,3.0,1.30],[4.5,7.0,3.0,1.30],
+    [-4.5,10.0,3.0,1.30],[-1.5,10.0,3.0,1.30],[1.5,10.0,3.0,1.30],[4.5,10.0,3.0,1.30],
+    [-4.5,13.0,3.0,1.30],[-1.5,13.0,3.0,1.30],[1.5,13.0,3.0,1.30],[4.5,13.0,3.0,1.30],
+    [-4.5,16.0,3.0,1.30],[-1.5,16.0,3.0,1.30],[1.5,16.0,3.0,1.30],[4.5,16.0,3.0,1.30],
+    [-4.5,19.0,3.0,1.30],[-1.5,19.0,3.0,1.30],[1.5,19.0,3.0,1.30],[4.5,19.0,3.0,1.30],
+    [-4.5,22.0,3.0,1.30],[-1.5,22.0,3.0,1.30],[1.5,22.0,3.0,1.30],[4.5,22.0,3.0,1.30],
+  ])
+  // Back wall (similar pattern, no balconies)
+  wall "back_wall" (size=[12.0, 24.0, 0.20], pos=[0, 12.50, 4.0], holes=[
+    [-4.5,1.0,1.20,1.30],[-1.5,1.0,1.20,1.30],[1.5,1.0,1.20,1.30],[4.5,1.0,1.20,1.30],
+    [-4.5,4.0,1.20,1.30],[-1.5,4.0,1.20,1.30],[1.5,4.0,1.20,1.30],[4.5,4.0,1.20,1.30],
+    [-4.5,7.0,1.20,1.30],[-1.5,7.0,1.20,1.30],[1.5,7.0,1.20,1.30],[4.5,7.0,1.20,1.30],
+    [-4.5,10.0,1.20,1.30],[-1.5,10.0,1.20,1.30],[1.5,10.0,1.20,1.30],[4.5,10.0,1.20,1.30],
+    [-4.5,13.0,1.20,1.30],[-1.5,13.0,1.20,1.30],[1.5,13.0,1.20,1.30],[4.5,13.0,1.20,1.30],
+    [-4.5,16.0,1.20,1.30],[-1.5,16.0,1.20,1.30],[1.5,16.0,1.20,1.30],[4.5,16.0,1.20,1.30],
+    [-4.5,19.0,1.20,1.30],[-1.5,19.0,1.20,1.30],[1.5,19.0,1.20,1.30],[4.5,19.0,1.20,1.30],
+    [-4.5,22.0,1.20,1.30],[-1.5,22.0,1.20,1.30],[1.5,22.0,1.20,1.30],[4.5,22.0,1.20,1.30],
+  ])
+  // Side walls
+  wall "left_wall" (size=[8.0, 24.0, 0.20], pos=[-6.0, 12.50, 0], rot=[0,90,0], holes=[[-2.0,1.0,1.20,1.30],[2.0,1.0,1.20,1.30],[-2.0,4.0,1.20,1.30],[2.0,4.0,1.20,1.30],[-2.0,7.0,1.20,1.30],[2.0,7.0,1.20,1.30],[-2.0,10.0,1.20,1.30],[2.0,10.0,1.20,1.30],[-2.0,13.0,1.20,1.30],[2.0,13.0,1.20,1.30],[-2.0,16.0,1.20,1.30],[2.0,16.0,1.20,1.30],[-2.0,19.0,1.20,1.30],[2.0,19.0,1.20,1.30],[-2.0,22.0,1.20,1.30],[2.0,22.0,1.20,1.30]])
+  wall "right_wall" (size=[8.0, 24.0, 0.20], pos=[6.0, 12.50, 0], rot=[0,90,0], holes=[[-2.0,1.0,1.20,1.30],[2.0,1.0,1.20,1.30],[-2.0,4.0,1.20,1.30],[2.0,4.0,1.20,1.30],[-2.0,7.0,1.20,1.30],[2.0,7.0,1.20,1.30],[-2.0,10.0,1.20,1.30],[2.0,10.0,1.20,1.30],[-2.0,13.0,1.20,1.30],[2.0,13.0,1.20,1.30],[-2.0,16.0,1.20,1.30],[2.0,16.0,1.20,1.30],[-2.0,19.0,1.20,1.30],[2.0,19.0,1.20,1.30],[-2.0,22.0,1.20,1.30],[2.0,22.0,1.20,1.30]])
+  // Balconies on front (every other floor: floors 1, 3, 5, 7)
+  group "bal_f1_1" (pos=[-4.5, 3.10, -4.0]) { use "balcony" () }
+  group "bal_f1_2" (pos=[-1.5, 3.10, -4.0]) { use "balcony" () }
+  group "bal_f1_3" (pos=[1.5, 3.10, -4.0]) { use "balcony" () }
+  group "bal_f1_4" (pos=[4.5, 3.10, -4.0]) { use "balcony" () }
+  group "bal_f3_1" (pos=[-4.5, 9.10, -4.0]) { use "balcony" () }
+  group "bal_f3_2" (pos=[-1.5, 9.10, -4.0]) { use "balcony" () }
+  group "bal_f3_3" (pos=[1.5, 9.10, -4.0]) { use "balcony" () }
+  group "bal_f3_4" (pos=[4.5, 9.10, -4.0]) { use "balcony" () }
+  group "bal_f5_1" (pos=[-4.5, 15.10, -4.0]) { use "balcony" () }
+  group "bal_f5_2" (pos=[-1.5, 15.10, -4.0]) { use "balcony" () }
+  group "bal_f5_3" (pos=[1.5, 15.10, -4.0]) { use "balcony" () }
+  group "bal_f5_4" (pos=[4.5, 15.10, -4.0]) { use "balcony" () }
+  group "bal_f7_1" (pos=[-4.5, 21.10, -4.0]) { use "balcony" () }
+  group "bal_f7_2" (pos=[-1.5, 21.10, -4.0]) { use "balcony" () }
+  group "bal_f7_3" (pos=[1.5, 21.10, -4.0]) { use "balcony" () }
+  group "bal_f7_4" (pos=[4.5, 21.10, -4.0]) { use "balcony" () }
+  // Ground floor entrance (lobby door)
+  box "lobby_door" (size=[3.0, 2.50, 0.10], mat="balcony_rail", pos=[0, 1.30, -4.05], tags="floating")
+  // Ground floor windows on either side of lobby
+  box "lobby_win_l" (size=[1.50, 1.50, 0.05], mat="window_glass", pos=[-4.50, 1.50, -4.04], tags="floating")
+  box "lobby_win_r" (size=[1.50, 1.50, 0.05], mat="window_glass", pos=[4.50, 1.50, -4.04], tags="floating")
+  // Address plate near door
+  box "address_plate" (size=[0.60, 0.30, 0.05], mat="trim_white", pos=[2.50, 1.50, -4.04], tags="floating")
+}

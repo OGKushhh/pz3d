@@ -1,0 +1,114 @@
+// government_palace.mog — massive 3-wing government building with central dome
+meta (name="government_palace", description="Massive 3-wing government palace with central dome, colonnaded entrance, and grand steps", tags=["building","downtown","landmark","hero","civic","tier1"], mogen_version="0.1.12")
+material "wall_stone" (color=[0.78,0.74,0.65], roughness=0.85, uv_mode="tile", uv_scale=6.0)
+material "wall_marble" (color=[0.88,0.86,0.80], roughness=0.50, uv_mode="tile", uv_scale=4.0)
+material "roof_copper" (color=[0.30,0.55,0.45], roughness=0.60, metallic=0.4, uv_mode="tile", uv_scale=4.0)
+material "dome_copper" (color=[0.35,0.60,0.50], roughness=0.50, metallic=0.6)
+material "column_marble" (color=[0.92,0.90,0.85], roughness=0.40)
+material "trim_gold" (color=[0.85,0.65,0.20], roughness=0.30, metallic=0.85)
+material "window_glass" (color=[0.30,0.40,0.50], transmission=0.40, roughness=0.05)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "grass" (color=[0.25,0.42,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "door_wood" (color=[0.30,0.18,0.10], roughness=0.65)
+module "gp_column" () {
+  // Classical column — base + shaft + capital
+  box "base" (size=[0.80, 0.20, 0.80], mat="column_marble", tags="floating")
+  cylinder "shaft" (radius=0.30, height=4.50, mat="column_marble", pos=[0, 2.45, 0], tags="floating")
+  box "capital" (size=[0.80, 0.30, 0.80], mat="column_marble", pos=[0, 4.85, 0], tags="floating")
+}
+module "gp_window" () {
+  box "frame" (size=[1.30, 2.20, 0.06], mat="column_marble")
+  box "glass" (size=[1.15, 2.05, 0.02], mat="window_glass", pos=[0,0,-0.04])
+  box "sill" (size=[1.40, 0.08, 0.15], mat="column_marble", pos=[0,-1.15,0.05])
+}
+module "gp_door" () {
+  box "frame" (size=[3.00, 4.50, 0.20], mat="column_marble")
+  box "panel_l" (size=[1.40, 4.30, 0.10], mat="door_wood", pos=[-0.75,0,-0.15])
+  box "panel_r" (size=[1.40, 4.30, 0.10], mat="door_wood", pos=[0.75,0,-0.15])
+  box "knob_l" (size=[0.05, 0.10, 0.05], mat="trim_gold", pos=[-0.10,0,-0.25], tags="floating")
+  box "knob_r" (size=[0.05, 0.10, 0.05], mat="trim_gold", pos=[0.10,0,-0.25], tags="floating")
+}
+scene {
+  // === PLAZA ===
+  slab "plaza" (size=[60.0, 0.05, 40.0], mat="asphalt", pos=[0, 0.025, 5.0], tags="floating")
+  slab "lawn_l" (size=[15.0, 0.04, 25.0], mat="grass", pos=[-22.5, 0.02, 5.0], tags="floating")
+  slab "lawn_r" (size=[15.0, 0.04, 25.0], mat="grass", pos=[22.5, 0.02, 5.0], tags="floating")
+  slab "foundation" (size=[42.0, 0.50, 25.0], mat="concrete", pos=[0, 0.25, 0])
+  // === GRAND STEPS (front, 5 steps) ===
+  slab "step_1" (size=[20.0, 0.20, 1.50], mat="column_marble", pos=[0, 0.20, -13.50])
+  slab "step_2" (size=[20.0, 0.20, 1.50], mat="column_marble", pos=[0, 0.40, -12.50])
+  slab "step_3" (size=[20.0, 0.20, 1.50], mat="column_marble", pos=[0, 0.60, -11.50])
+  slab "step_4" (size=[20.0, 0.20, 1.50], mat="column_marble", pos=[0, 0.80, -10.50])
+  slab "step_5" (size=[20.0, 0.20, 1.50], mat="column_marble", pos=[0, 1.00, -9.50])
+  // === MAIN BODY (3 wings — center + 2 sides, all 3 stories tall) ===
+  // Center wing (front, with colonnade)
+  box "center_body" (size=[20.0, 14.0, 12.0], mat="wall_marble", pos=[0, 7.50, 0])
+  // Left wing (set back)
+  box "left_body" (size=[10.0, 14.0, 18.0], mat="wall_stone", pos=[-15.0, 7.50, 3.0])
+  // Right wing (mirrored)
+  box "right_body" (size=[10.0, 14.0, 18.0], mat="wall_stone", pos=[15.0, 7.50, 3.0])
+  // === ROOFS (3 separate roofs, copper-green) ===
+  prism "center_roof" (size=[20.5, 2.50, 12.5], pos=[0, 15.50, 0], mat="roof_copper")
+  prism "left_roof" (size=[10.5, 2.00, 18.5], pos=[-15.0, 15.00, 3.0], mat="roof_copper")
+  prism "right_roof" (size=[10.5, 2.00, 18.5], pos=[15.0, 15.00, 3.0], mat="roof_copper")
+  // === CENTRAL DOME (above center wing) ===
+  cylinder "drum" (radius=4.0, height=3.0, mat="wall_marble", pos=[0, 17.50, 0])
+  sphere "dome" (radius=4.5, mat="dome_copper", pos=[0, 20.50, 0])
+  // Dome finial
+  cylinder "finial_pole" (radius=0.05, height=2.0, mat="trim_gold", pos=[0, 25.50, 0], tags="floating")
+  sphere "finial_ball" (radius=0.30, mat="trim_gold", pos=[0, 25.00, 0], tags="floating")
+  // === COLONNADE (front of center wing — 8 columns at ground level) ===
+  group "col_1" (pos=[-9.0, 1.00, -7.0]) { use "gp_column" () }
+  group "col_2" (pos=[-6.0, 1.00, -7.0]) { use "gp_column" () }
+  group "col_3" (pos=[-3.0, 1.00, -7.0]) { use "gp_column" () }
+  group "col_4" (pos=[0, 1.00, -7.0]) { use "gp_column" () }
+  group "col_5" (pos=[3.0, 1.00, -7.0]) { use "gp_column" () }
+  group "col_6" (pos=[6.0, 1.00, -7.0]) { use "gp_column" () }
+  group "col_7" (pos=[9.0, 1.00, -7.0]) { use "gp_column" () }
+  // Pediment over colonnade (triangular gable)
+  prism "pediment" (size=[22.0, 2.00, 1.50], pos=[0, 14.50, -7.0], mat="wall_marble")
+  // === FRONT WALL (center wing — main door + windows) ===
+  wall "front_wall_center" (size=[20.0, 14.0, 0.20], pos=[0, 7.50, -6.0], holes=[[0,-3.20,3.00,4.50],[-7.0,1.0,1.30,2.20],[7.0,1.0,1.30,2.20],[-4.0,-1.0,1.30,2.20],[4.0,-1.0,1.30,2.20],[-4.0,3.5,1.30,2.20],[4.0,3.5,1.30,2.20]])
+  // Left wing front wall
+  wall "front_wall_left" (size=[10.0, 14.0, 0.20], pos=[-15.0, 7.50, -6.0], holes=[[-2.5,1.0,1.30,2.20],[0,1.0,1.30,2.20],[2.5,1.0,1.30,2.20],[-2.5,-2.5,1.30,2.20],[2.5,-2.5,1.30,2.20]])
+  // Right wing front wall
+  wall "front_wall_right" (size=[10.0, 14.0, 0.20], pos=[15.0, 7.50, -6.0], holes=[[-2.5,1.0,1.30,2.20],[0,1.0,1.30,2.20],[2.5,1.0,1.30,2.20],[-2.5,-2.5,1.30,2.20],[2.5,-2.5,1.30,2.20]])
+  // Back walls (3 wings)
+  wall "back_wall_center" (size=[20.0, 14.0, 0.20], pos=[0, 7.50, 6.0], holes=[[-7.0,1.0,1.30,2.20],[0,1.0,1.30,2.20],[7.0,1.0,1.30,2.20],[-4.0,-2.5,1.30,2.20],[4.0,-2.5,1.30,2.20]])
+  wall "back_wall_left" (size=[18.0, 14.0, 0.20], pos=[-15.0, 7.50, 12.0], rot=[0,90,0], holes=[[-5.0,1.0,1.30,2.20],[-2.5,1.0,1.30,2.20],[0,1.0,1.30,2.20],[2.5,1.0,1.30,2.20],[5.0,1.0,1.30,2.20],[-5.0,-2.5,1.30,2.20],[5.0,-2.5,1.30,2.20]])
+  wall "back_wall_right" (size=[18.0, 14.0, 0.20], pos=[15.0, 7.50, 12.0], rot=[0,90,0], holes=[[-5.0,1.0,1.30,2.20],[-2.5,1.0,1.30,2.20],[0,1.0,1.30,2.20],[2.5,1.0,1.30,2.20],[5.0,1.0,1.30,2.20],[-5.0,-2.5,1.30,2.20],[5.0,-2.5,1.30,2.20]])
+  // Side walls (outer ends of left + right wings)
+  wall "outer_wall_left" (size=[18.0, 14.0, 0.20], pos=[-20.0, 7.50, 3.0], rot=[0,90,0], holes=[[-5.0,1.0,1.30,2.20],[0,1.0,1.30,2.20],[5.0,1.0,1.30,2.20],[-5.0,-2.5,1.30,2.20],[5.0,-2.5,1.30,2.20]])
+  wall "outer_wall_right" (size=[18.0, 14.0, 0.20], pos=[20.0, 7.50, 3.0], rot=[0,90,0], holes=[[-5.0,1.0,1.30,2.20],[0,1.0,1.30,2.20],[5.0,1.0,1.30,2.20],[-5.0,-2.5,1.30,2.20],[5.0,-2.5,1.30,2.20]])
+  // === MAIN DOOR (center, grand) ===
+  group "door_main" (pos=[0, 4.50, -6.0]) { use "gp_door" () }
+  // === WINDOWS (placed at hole positions) ===
+  // Center wing front
+  group "wf_c_1" (pos=[-7.0, 8.50, -6.0]) { use "gp_window" () }
+  group "wf_c_2" (pos=[7.0, 8.50, -6.0]) { use "gp_window" () }
+  group "wf_c_3" (pos=[-4.0, 6.50, -6.0]) { use "gp_window" () }
+  group "wf_c_4" (pos=[4.0, 6.50, -6.0]) { use "gp_window" () }
+  group "wf_c_5" (pos=[-4.0, 11.00, -6.0]) { use "gp_window" () }
+  group "wf_c_6" (pos=[4.0, 11.00, -6.0]) { use "gp_window" () }
+  // Left wing front
+  group "wf_l_1" (pos=[-17.5, 8.50, -6.0]) { use "gp_window" () }
+  group "wf_l_2" (pos=[-15.0, 8.50, -6.0]) { use "gp_window" () }
+  group "wf_l_3" (pos=[-12.5, 8.50, -6.0]) { use "gp_window" () }
+  group "wf_l_4" (pos=[-17.5, 5.00, -6.0]) { use "gp_window" () }
+  group "wf_l_5" (pos=[-12.5, 5.00, -6.0]) { use "gp_window" () }
+  // Right wing front
+  group "wf_r_1" (pos=[12.5, 8.50, -6.0]) { use "gp_window" () }
+  group "wf_r_2" (pos=[15.0, 8.50, -6.0]) { use "gp_window" () }
+  group "wf_r_3" (pos=[17.5, 8.50, -6.0]) { use "gp_window" () }
+  group "wf_r_4" (pos=[12.5, 5.00, -6.0]) { use "gp_window" () }
+  group "wf_r_5" (pos=[17.5, 5.00, -6.0]) { use "gp_window" () }
+  // === FLAGPOLE (in front of colonnade) ===
+  cylinder "flag_pole" (radius=0.10, height=10.0, mat="trim_gold", pos=[0, 5.00, -10.0], tags="floating")
+  box "flag" (size=[2.0, 1.2, 0.02], mat="trim_gold", pos=[1.0, 13.50, -10.0], tags="floating")
+  // === STATUES (2 flanking the grand steps) ===
+  box "statue_pedestal_l" (size=[1.0, 1.5, 1.0], mat="column_marble", pos=[-7.0, 0.75, -14.0], tags="floating")
+  box "statue_l" (size=[0.4, 1.0, 0.4], mat="column_marble", pos=[-7.0, 2.0, -14.0], tags="floating")
+  box "statue_pedestal_r" (size=[1.0, 1.5, 1.0], mat="column_marble", pos=[7.0, 0.75, -14.0], tags="floating")
+  box "statue_r" (size=[0.4, 1.0, 0.4], mat="column_marble", pos=[7.0, 2.0, -14.0], tags="floating")
+}

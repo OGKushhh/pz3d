@@ -1,0 +1,30 @@
+// tractor_shed.mog — open-front corrugated metal farm shed
+meta (name="tractor_shed", description="Open-front corrugated metal farm shed for tractor storage", tags=["building","farmland","shed","tier1"], mogen_version="0.1.12")
+material "metal_roof" (color=[0.45,0.42,0.40], roughness=0.60, metallic=0.6, uv_mode="tile", uv_scale=6.0)
+material "metal_wall" (color=[0.40,0.38,0.36], roughness=0.60, metallic=0.6)
+material "wood_post" (color=[0.35,0.25,0.15], roughness=0.85)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "grass" (color=[0.25,0.45,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "rust" (color=[0.45,0.25,0.15], roughness=0.85)
+scene {
+  slab "ground" (size=[14.0, 0.04, 10.0], mat="grass", tags="floating")
+  slab "floor" (size=[8.0, 0.10, 6.0], mat="concrete", pos=[0, 0.05, 0])
+  // Back wall
+  wall "back_wall" (size=[8.0, 3.5, 0.10], pos=[0, 1.80, 3.0], mat="metal_wall")
+  // Side walls (partial — open front)
+  wall "left_wall" (size=[6.0, 3.5, 0.10], pos=[-4.0, 1.80, 0], rot=[0,90,0], mat="metal_wall")
+  wall "right_wall" (size=[6.0, 3.5, 0.10], pos=[4.0, 1.80, 0], rot=[0,90,0], mat="metal_wall")
+  // Roof (slight slope)
+  slab "roof" (size=[8.5, 0.10, 6.5], mat="metal_roof", pos=[0, 3.55, 0], rot=[3,0,0])
+  // Front posts (open front)
+  box "post_fl" (size=[0.20, 3.5, 0.20], mat="wood_post", pos=[-3.9, 1.75, -3.0], tags="floating")
+  box "post_fr" (size=[0.20, 3.5, 0.20], mat="wood_post", pos=[3.9, 1.75, -3.0], tags="floating")
+  // Open beam across front
+  box "lintel" (size=[8.0, 0.20, 0.20], mat="wood_post", pos=[0, 3.40, -3.0], tags="floating")
+  // Corrugated roof ridges
+  box "ridge_1" (size=[8.5, 0.04, 0.05], mat="rust", pos=[0, 3.62, -2.0], tags="floating")
+  box "ridge_2" (size=[8.5, 0.04, 0.05], mat="rust", pos=[0, 3.62, 0], tags="floating")
+  box "ridge_3" (size=[8.5, 0.04, 0.05], mat="rust", pos=[0, 3.62, 2.0], tags="floating")
+  // Small side door (cut into back wall, just visual hint)
+  box "door_h" (size=[2.5, 2.5, 0.12], mat="wood_post", pos=[0, 1.30, 2.95], tags="floating")
+}

@@ -1,0 +1,30 @@
+// hay_bale.mog — large round hay bale
+meta (name="hay_bale", description="Large round hay bale — cylindrical straw bale wrapped in netting", tags=["environment","farmland","hay","prop","tier1"], mogen_version="0.1.12")
+material "hay_yellow" (color=[0.78,0.65,0.30], roughness=0.95, uv_mode="tile", uv_scale=8.0)
+material "hay_dark" (color=[0.55,0.45,0.20], roughness=0.95, uv_mode="tile", uv_scale=6.0)
+material "net_white" (color=[0.85,0.85,0.80], roughness=0.85, transmission=0.30)
+material "grass" (color=[0.22,0.38,0.16], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+scene {
+  slab "ground" (size=[4.0, 0.04, 4.0], mat="grass", tags="floating")
+  // Main bale body — large cylinder lying on its side
+  cylinder "bale_body" (radius=0.80, height=1.60, mat="hay_yellow", pos=[0, 0.80, 0], rot=[0,90,0])
+  // Darker hay rings (visible texture lines)
+  torus "ring_1" (radius=0.81, tube_radius=0.03, mat="hay_dark", pos=[-0.60, 0.80, 0], rot=[90,0,0], tags="floating")
+  torus "ring_2" (radius=0.81, tube_radius=0.03, mat="hay_dark", pos=[-0.30, 0.80, 0], rot=[90,0,0], tags="floating")
+  torus "ring_3" (radius=0.81, tube_radius=0.03, mat="hay_dark", pos=[0, 0.80, 0], rot=[90,0,0], tags="floating")
+  torus "ring_4" (radius=0.81, tube_radius=0.03, mat="hay_dark", pos=[0.30, 0.80, 0], rot=[90,0,0], tags="floating")
+  torus "ring_5" (radius=0.81, tube_radius=0.03, mat="hay_dark", pos=[0.60, 0.80, 0], rot=[90,0,0], tags="floating")
+  // Net wrap (cylindrical, slightly larger than bale)
+  cylinder "net_wrap" (radius=0.82, height=1.65, mat="net_white", pos=[0, 0.80, 0], rot=[0,90,0], tags="floating")
+  // End cap texture (visible hay strands on flat end)
+  box "end_l_strand_1" (size=[0.04, 0.40, 0.10], mat="hay_dark", pos=[-0.81, 0.80, 0], tags="floating")
+  box "end_l_strand_2" (size=[0.04, 0.30, 0.15], mat="hay_dark", pos=[-0.81, 0.60, -0.20], tags="floating")
+  box "end_l_strand_3" (size=[0.04, 0.50, 0.08], mat="hay_dark", pos=[-0.81, 0.90, 0.20], tags="floating")
+  box "end_r_strand_1" (size=[0.04, 0.40, 0.10], mat="hay_dark", pos=[0.81, 0.80, 0], tags="floating")
+  box "end_r_strand_2" (size=[0.04, 0.30, 0.15], mat="hay_dark", pos=[0.81, 0.60, 0.20], tags="floating")
+  box "end_r_strand_3" (size=[0.04, 0.50, 0.08], mat="hay_dark", pos=[0.81, 0.90, -0.20], tags="floating")
+  // Loose hay scattered on ground
+  box "scatter_1" (size=[0.30, 0.04, 0.20], mat="hay_yellow", pos=[1.50, 0.04, 0.50], rot=[0,20,0], tags="floating")
+  box "scatter_2" (size=[0.20, 0.04, 0.30], mat="hay_yellow", pos=[-1.50, 0.04, 0.30], rot=[0,-15,0], tags="floating")
+  box "scatter_3" (size=[0.40, 0.04, 0.15], mat="hay_dark", pos=[1.30, 0.04, -0.80], rot=[0,30,0], tags="floating")
+}

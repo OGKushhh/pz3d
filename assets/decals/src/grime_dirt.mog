@@ -1,0 +1,26 @@
+// grime_dirt.mog — surface grime / dirt stain decal
+meta (name="grime_dirt", description="Surface grime and dirt stain decal — for walls and floors", tags=["decal","grime","urban","horror","tier1"], mogen_version="0.1.12")
+material "grime_dark" (color=[0.20,0.18,0.14], roughness=0.95, transmission=0.10)
+material "grime_mid" (color=[0.35,0.30,0.24], roughness=0.90, transmission=0.15)
+material "mold_green" (color=[0.25,0.35,0.18], roughness=0.95, transmission=0.20)
+material "rust_brown" (color=[0.40,0.25,0.15], roughness=0.85)
+scene {
+  // Main grime — irregular patch
+  slab "grime_main" (size=[2.00, 0.02, 1.50], mat="grime_dark")
+  // Darker inner patch
+  slab "grime_inner" (size=[1.20, 0.025, 0.80], mat="grime_mid", pos=[-0.20, 0.015, 0.10], tags="floating")
+  // Drip stains (vertical streaks)
+  slab "drip_1" (size=[0.10, 0.025, 0.60], mat="grime_dark", pos=[-0.60, 0.015, 0.30], tags="floating")
+  slab "drip_2" (size=[0.06, 0.025, 0.40], mat="grime_dark", pos=[0.40, 0.015, -0.30], tags="floating")
+  slab "drip_3" (size=[0.08, 0.025, 0.80], mat="grime_dark", pos=[0.80, 0.015, 0.10], tags="floating")
+  // Mold patches (green, biological)
+  slab "mold_1" (size=[0.30, 0.020, 0.20], mat="mold_green", pos=[0.40, 0.015, 0.50], tags="floating")
+  slab "mold_2" (size=[0.20, 0.020, 0.30], mat="mold_green", pos=[-0.70, 0.015, -0.30], tags="floating")
+  // Rust spots
+  sphere "rust_1" (radius=0.08, mat="rust_brown", pos=[0.50, 0.020, -0.40], tags="floating")
+  sphere "rust_2" (radius=0.06, mat="rust_brown", pos=[-0.80, 0.020, 0.40], tags="floating")
+  // Tiny dots
+  sphere "dot_1" (radius=0.015, mat="grime_dark", pos=[0.90, 0.015, 0.60], tags="floating")
+  sphere "dot_2" (radius=0.015, mat="grime_dark", pos=[-0.90, 0.015, -0.60], tags="floating")
+  sphere "dot_3" (radius=0.015, mat="grime_dark", pos=[0.20, 0.015, 0.80], tags="floating")
+}

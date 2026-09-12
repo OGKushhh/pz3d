@@ -1,0 +1,40 @@
+// lighthouse.mog — Coastal lighthouse (River/Coastal civic landmark)
+meta (name="lighthouse", description="Coastal lighthouse with tapered white tower and rotating light", tags=["building","coastal","landmark","lighthouse","tier1"], mogen_version="0.1.12")
+material "wall_white" (color=[0.92,0.92,0.90], roughness=0.80, uv_mode="tile", uv_scale=4.0)
+material "wall_red" (color=[0.65,0.20,0.15], roughness=0.80, uv_mode="tile", uv_scale=4.0)
+material "lantern_glass" (color=[0.95,0.85,0.45], transmission=0.40, roughness=0.05, emissive=[0.80,0.70,0.40], emissive_strength=1.0)
+material "metal_dark" (color=[0.30,0.30,0.32], roughness=0.50, metallic=0.7)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "rock_grey" (color=[0.50,0.48,0.45], roughness=0.90, uv_mode="tile", uv_scale=2.0)
+scene {
+  slab "rock_base" (size=[10.0, 0.50, 10.0], mat="rock_grey", pos=[0, 0.25, 0], tags="floating")
+  slab "foundation" (size=[5.0, 0.30, 5.0], mat="concrete", pos=[0, 0.65, 0])
+  // Tapered tower (stacked cylinders)
+  cylinder "tier_1" (radius=1.80, height=4.0, mat="wall_white", pos=[0, 2.65, 0])
+  cylinder "tier_2" (radius=1.70, height=4.0, mat="wall_red", pos=[0, 6.65, 0])
+  cylinder "tier_3" (radius=1.60, height=4.0, mat="wall_white", pos=[0, 10.65, 0])
+  cylinder "tier_4" (radius=1.50, height=3.0, mat="wall_red", pos=[0, 14.15, 0])
+  cylinder "tier_5" (radius=1.40, height=2.0, mat="wall_white", pos=[0, 16.65, 0])
+  // Gallery deck (wider than tower)
+  cylinder "gallery_base" (radius=1.80, height=0.30, mat="concrete", pos=[0, 17.95, 0], tags="floating")
+  // Lantern room
+  cylinder "lantern_room" (radius=1.20, height=2.0, mat="lantern_glass", pos=[0, 19.20, 0], tags="floating")
+  // Lantern roof
+  cone "lantern_roof" (radius=1.40, height=1.0, mat="metal_dark", pos=[0, 20.80, 0], tags="floating")
+  // Vent ball on top
+  sphere "vent" (radius=0.20, mat="metal_dark", pos=[0, 21.50, 0], tags="floating")
+  // Lightning rod
+  cylinder "rod" (radius=0.02, height=1.0, mat="metal_dark", pos=[0, 22.10, 0], tags="floating")
+  // Gallery railing
+  torus "rail_gallery" (radius=1.80, tube_radius=0.05, mat="metal_dark", pos=[0, 18.30, 0], rot=[90,0,0], tags="floating")
+  // Door at base
+  box "door" (size=[0.80, 1.80, 0.10], mat="metal_dark", pos=[0, 1.55, 1.75], tags="floating")
+  // Small windows
+  box "win_1" (size=[0.40, 0.60, 0.10], mat="lantern_glass", pos=[0, 4.0, 1.79], tags="floating")
+  box "win_2" (size=[0.40, 0.60, 0.10], mat="lantern_glass", pos=[0, 8.0, 1.69], tags="floating")
+  box "win_3" (size=[0.40, 0.60, 0.10], mat="lantern_glass", pos=[0, 12.0, 1.59], tags="floating")
+  // Adjacent keeper's house
+  box "house" (size=[4.0, 2.5, 3.0], mat="wall_white", pos=[3.5, 1.75, 0], tags="floating")
+  prism "house_roof" (size=[4.2, 0.80, 3.2], pos=[3.5, 3.40, 0], mat="wall_red", tags="floating")
+  box "house_door" (size=[0.80, 1.80, 0.10], mat="metal_dark", pos=[3.5, 1.40, -1.50], tags="floating")
+}

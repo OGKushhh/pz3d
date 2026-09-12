@@ -1,0 +1,90 @@
+// grocery_store.mog — small neighborhood grocery with storefront windows
+meta (name="grocery_store", description="Small neighborhood grocery store with storefront windows and shopping cart return", tags=["building","commercial","downtown","tier1"], mogen_version="0.1.12")
+material "wall_brick" (color=[0.55,0.30,0.25], roughness=0.85, uv_mode="tile", uv_scale=4.0)
+material "wall_stucco" (color=[0.75,0.70,0.60], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_flat" (color=[0.20,0.20,0.22], roughness=0.90)
+material "trim_white" (color=[0.95,0.95,0.93], roughness=0.60)
+material "window_glass" (color=[0.30,0.45,0.55], transmission=0.55, roughness=0.04)
+material "door_glass" (color=[0.30,0.45,0.55], transmission=0.55, roughness=0.04)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "sign_red" (color=[0.65,0.15,0.10], roughness=0.70, emissive=[0.40,0.05,0.05], emissive_strength=0.4)
+material "shelf_wood" (color=[0.45,0.32,0.20], roughness=0.85)
+material "produce_orange" (color=[0.85,0.55,0.20], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "produce_green" (color=[0.30,0.55,0.18], roughness=0.85, uv_mode="tile", uv_scale=2.0)
+material "cart_metal" (color=[0.40,0.40,0.42], roughness=0.50, metallic=0.85)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+module "gro_shelf" () {
+  // 4-tier shelf with produce
+  box "frame_l" (size=[0.10, 2.0, 0.10], mat="shelf_wood", pos=[-0.80, 1.00, 0])
+  box "frame_r" (size=[0.10, 2.0, 0.10], mat="shelf_wood", pos=[0.80, 1.00, 0])
+  box "shelf_1" (size=[1.70, 0.05, 0.40], mat="shelf_wood", pos=[0, 0.30, 0])
+  box "shelf_2" (size=[1.70, 0.05, 0.40], mat="shelf_wood", pos=[0, 0.80, 0])
+  box "shelf_3" (size=[1.70, 0.05, 0.40], mat="shelf_wood", pos=[0, 1.30, 0])
+  box "shelf_4" (size=[1.70, 0.05, 0.40], mat="shelf_wood", pos=[0, 1.80, 0])
+  // Produce (small spheres) on each shelf
+  sphere "p_1a" (radius=0.10, mat="produce_orange", pos=[-0.60, 0.45, 0], tags="floating")
+  sphere "p_1b" (radius=0.10, mat="produce_orange", pos=[-0.30, 0.45, 0], tags="floating")
+  sphere "p_1c" (radius=0.10, mat="produce_green", pos=[0, 0.45, 0], tags="floating")
+  sphere "p_1d" (radius=0.10, mat="produce_green", pos=[0.30, 0.45, 0], tags="floating")
+  sphere "p_1e" (radius=0.10, mat="produce_orange", pos=[0.60, 0.45, 0], tags="floating")
+  sphere "p_2a" (radius=0.10, mat="produce_green", pos=[-0.60, 0.95, 0], tags="floating")
+  sphere "p_2b" (radius=0.10, mat="produce_green", pos=[-0.30, 0.95, 0], tags="floating")
+  sphere "p_2c" (radius=0.10, mat="produce_orange", pos=[0, 0.95, 0], tags="floating")
+  sphere "p_2d" (radius=0.10, mat="produce_orange", pos=[0.30, 0.95, 0], tags="floating")
+  sphere "p_2e" (radius=0.10, mat="produce_green", pos=[0.60, 0.95, 0], tags="floating")
+  sphere "p_3a" (radius=0.10, mat="produce_orange", pos=[-0.40, 1.45, 0], tags="floating")
+  sphere "p_3b" (radius=0.10, mat="produce_green", pos=[0.40, 1.45, 0], tags="floating")
+}
+module "shopping_cart_small" () {
+  // Simplified cart
+  box "basket" (size=[0.60, 0.40, 0.40], mat="cart_metal", tags="floating")
+  box "handle" (size=[0.05, 0.50, 0.05], mat="cart_metal", pos=[0, 0.45, -0.25], tags="floating")
+  box "handle_top" (size=[0.30, 0.05, 0.05], mat="cart_metal", pos=[0, 0.70, -0.25], tags="floating")
+  cylinder "wheel_fl" (radius=0.10, height=0.05, mat="cart_metal", pos=[-0.30, 0.05, -0.20], rot=[90,0,0], tags="floating")
+  cylinder "wheel_fr" (radius=0.10, height=0.05, mat="cart_metal", pos=[0.30, 0.05, -0.20], rot=[90,0,0], tags="floating")
+  cylinder "wheel_bl" (radius=0.10, height=0.05, mat="cart_metal", pos=[-0.30, 0.05, 0.20], rot=[90,0,0], tags="floating")
+  cylinder "wheel_br" (radius=0.10, height=0.05, mat="cart_metal", pos=[0.30, 0.05, 0.20], rot=[90,0,0], tags="floating")
+}
+scene {
+  slab "parking" (size=[14.0, 0.05, 8.0], mat="asphalt", pos=[0, 0.025, 3.0], tags="floating")
+  slab "foundation" (size=[12.0, 0.30, 7.0], mat="concrete", pos=[0, 0.15, 0])
+  // Lower brick band
+  box "lower_brick" (size=[12.0, 1.0, 7.0], mat="wall_brick", pos=[0, 0.70, 0])
+  // Upper stucco
+  box "upper_stucco" (size=[12.0, 2.50, 7.0], mat="wall_stucco", pos=[0, 2.45, 0])
+  // Roof
+  slab "roof" (size=[12.4, 0.20, 7.4], mat="roof_flat", pos=[0, 3.80, 0], tags="floating")
+  // Front wall — 2 storefront windows + central door
+  wall "front_wall" (size=[12.0, 3.50, 0.20], pos=[0, 2.25, -3.5], holes=[[-3.50,-0.40,3.00,2.50],[3.50,-0.40,3.00,2.50],[0,-0.30,1.50,2.40]])
+  // Back wall (small windows)
+  wall "back_wall" (size=[12.0, 3.50, 0.20], pos=[0, 2.25, 3.5], holes=[[-4.0,0.5,1.20,1.20],[-2.0,0.5,1.20,1.20],[2.0,0.5,1.20,1.20],[4.0,0.5,1.20,1.20]])
+  // Side walls
+  wall "left_wall" (size=[7.0, 3.50, 0.20], pos=[-6.0, 2.25, 0], rot=[0,90,0], holes=[[-2.0,0.5,1.20,1.20],[2.0,0.5,1.20,1.20]])
+  wall "right_wall" (size=[7.0, 3.50, 0.20], pos=[6.0, 2.25, 0], rot=[0,90,0], holes=[[-2.0,0.5,1.20,1.20],[2.0,0.5,1.20,1.20]])
+  // Storefront windows
+  box "storefront_l_frame" (size=[3.10, 2.60, 0.06], mat="trim_white", pos=[-3.50, 1.10, -3.5], tags="floating")
+  box "storefront_l_glass" (size=[2.90, 2.40, 0.02], mat="window_glass", pos=[-3.50, 1.10, -3.54], tags="floating")
+  box "storefront_r_frame" (size=[3.10, 2.60, 0.06], mat="trim_white", pos=[3.50, 1.10, -3.5], tags="floating")
+  box "storefront_r_glass" (size=[2.90, 2.40, 0.02], mat="window_glass", pos=[3.50, 1.10, -3.54], tags="floating")
+  // Door
+  box "door_frame" (size=[1.60, 2.40, 0.06], mat="trim_white", pos=[0, 1.05, -3.5], tags="floating")
+  box "door_glass" (size=[1.45, 2.25, 0.02], mat="door_glass", pos=[0, 1.05, -3.54], tags="floating")
+  box "handle" (size=[0.04, 0.20, 0.03], mat="brass", pos=[0.60, 1.05, -3.56], tags="floating")
+  // Sign (big, on roof)
+  box "sign_back" (size=[10.0, 1.50, 0.20], mat="sign_red", pos=[0, 4.80, -3.5], tags="floating")
+  box "sign_text_1" (size=[8.0, 0.20, 0.02], mat="trim_white", pos=[0, 5.20, -3.61], tags="floating")
+  box "sign_text_2" (size=[6.0, 0.20, 0.02], mat="trim_white", pos=[0, 4.80, -3.61], tags="floating")
+  // Interior shelves (visible through windows)
+  group "shelf_l" (pos=[-3.50, 0.30, -1.0]) { use "gro_shelf" () }
+  group "shelf_r" (pos=[3.50, 0.30, -1.0]) { use "gro_shelf" () }
+  // Shopping cart return (outside, on parking)
+  box "cart_corral_l" (size=[0.05, 1.0, 3.0], mat="cart_metal", pos=[-1.50, 0.50, 5.0], tags="floating")
+  box "cart_corral_r" (size=[0.05, 1.0, 3.0], mat="cart_metal", pos=[1.50, 0.50, 5.0], tags="floating")
+  box "cart_corral_b" (size=[3.0, 1.0, 0.05], mat="cart_metal", pos=[0, 0.50, 6.50], tags="floating")
+  // 2 shopping carts in the corral
+  group "cart_1" (pos=[-0.70, 0.10, 5.50]) { use "shopping_cart_small" () }
+  group "cart_2" (pos=[0.50, 0.10, 5.50]) { use "shopping_cart_small" () }
+  // Entrance mat
+  slab "mat" (size=[2.0, 0.04, 1.0], mat="wall_brick", pos=[0, 0.04, -4.0], tags="floating")
+}

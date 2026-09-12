@@ -1,0 +1,54 @@
+// laundromat.mog — Small commercial laundromat with storefront windows
+meta (name="laundromat", description="Small commercial laundromat with large storefront windows", tags=["building","commercial","downtown","tier1"], mogen_version="0.1.12")
+material "wall_stucco" (color=[0.78,0.75,0.70], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "wall_tile" (color=[0.88,0.88,0.85], roughness=0.50, uv_mode="tile", uv_scale=6.0)
+material "roof_flat" (color=[0.25,0.25,0.28], roughness=0.90)
+material "trim_white" (color=[0.95,0.95,0.93], roughness=0.60)
+material "window_glass" (color=[0.35,0.50,0.60], transmission=0.55, roughness=0.03)
+material "door_glass" (color=[0.30,0.45,0.55], transmission=0.55, roughness=0.04)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "machine_white" (color=[0.92,0.92,0.90], roughness=0.60)
+material "machine_glass" (color=[0.40,0.55,0.65], transmission=0.30, roughness=0.10)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+module "lm_door" () {
+  box "frame" (size=[1.20, 2.30, 0.06], mat="trim_white")
+  box "glass" (size=[1.05, 2.15, 0.02], mat="door_glass", pos=[0,0,-0.04])
+  box "handle" (size=[0.04, 0.20, 0.03], mat="brass", pos=[0.45,0,0.06], tags="floating")
+}
+module "washer" () {
+  box "body" (size=[0.70, 1.00, 0.70], mat="machine_white")
+  cylinder "door" (radius=0.25, height=0.05, mat="machine_glass", pos=[0, 0.10, 0.36], rot=[90,0,0], tags="floating")
+  box "controls" (size=[0.60, 0.20, 0.04], mat="machine_glass", pos=[0, 0.55, 0.36], tags="floating")
+}
+scene {
+  slab "parking" (size=[14.0, 0.05, 8.0], mat="asphalt", pos=[0, 0.025, 2.0], tags="floating")
+  slab "foundation" (size=[10.0, 0.30, 6.0], mat="concrete", pos=[0, 0.15, 0])
+  // Body
+  box "body" (size=[10.0, 3.20, 6.0], mat="wall_stucco", pos=[0, 1.90, 0])
+  // Lower tile band (waterproof)
+  box "tile_band" (size=[10.0, 0.60, 6.0], mat="wall_tile", pos=[0, 0.50, 0])
+  // Roof
+  slab "roof" (size=[10.4, 0.20, 6.4], mat="roof_flat", pos=[0, 3.60, 0], tags="floating")
+  // Front wall — big storefront window + door
+  wall "front_wall" (size=[10.0, 3.20, 0.20], pos=[0, 1.90, -3.0], holes=[[-3.0,0.0,4.0,2.30],[-3.0,-1.00,1.20,2.30],[2.0,-1.00,1.20,2.30]])
+  // Back wall (smaller windows)
+  wall "back_wall" (size=[10.0, 3.20, 0.20], pos=[0, 1.90, 3.0], holes=[[-3.0,0.30,1.40,1.20],[0,0.30,1.40,1.20],[3.0,0.30,1.40,1.20]])
+  // Side walls
+  wall "left_wall" (size=[6.0, 3.20, 0.20], pos=[-5.0, 1.90, 0], rot=[0,90,0], holes=[[-1.5,0.30,1.40,1.20],[1.5,0.30,1.40,1.20]])
+  wall "right_wall" (size=[6.0, 3.20, 0.20], pos=[5.0, 1.90, 0], rot=[0,90,0], holes=[[-1.5,0.30,1.40,1.20],[1.5,0.30,1.40,1.20]])
+  // Awning
+  prism "awning" (size=[10.0, 0.40, 1.5], pos=[0, 3.30, -3.5], mat="trim_white")
+  // Sign on roof
+  box "sign_post_l" (size=[0.08, 0.50, 0.08], mat="trim_white", pos=[-3.0, 3.95, -3.0], tags="floating")
+  box "sign_post_r" (size=[0.08, 0.50, 0.08], mat="trim_white", pos=[3.0, 3.95, -3.0], tags="floating")
+  box "sign_board" (size=[6.0, 0.50, 0.10], mat="trim_white", pos=[0, 4.40, -3.0], tags="floating")
+  // Washers (visible through windows — 4 in a row)
+  group "washer_1" (pos=[-2.0, 0.50, -2.0]) { use "washer" () }
+  group "washer_2" (pos=[-0.8, 0.50, -2.0]) { use "washer" () }
+  group "washer_3" (pos=[0.4, 0.50, -2.0]) { use "washer" () }
+  group "washer_4" (pos=[1.6, 0.50, -2.0]) { use "washer" () }
+  // Group placements (doors + windows)
+  group "door_main" (pos=[-3.0, 1.05, -3.0]) { use "lm_door" () }
+  group "door_side" (pos=[2.0, 1.05, -3.0]) { use "lm_door" () }
+}

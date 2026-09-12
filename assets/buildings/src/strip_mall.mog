@@ -1,0 +1,73 @@
+// strip_mall.mog — Long multi-storefront commercial strip mall
+meta (name="strip_mall", description="Long multi-storefront commercial strip mall with 4 units", tags=["building","commercial","downtown","tier1"], mogen_version="0.1.12")
+material "wall_stucco" (color=[0.75,0.65,0.55], roughness=0.85, uv_mode="tile", uv_scale=4.0)
+material "wall_stone" (color=[0.55,0.50,0.45], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_flat" (color=[0.20,0.20,0.22], roughness=0.90)
+material "trim_cream" (color=[0.92,0.90,0.85], roughness=0.60)
+material "awning_red" (color=[0.55,0.20,0.18], roughness=0.70)
+material "awning_green" (color=[0.30,0.45,0.20], roughness=0.70)
+material "awning_blue" (color=[0.20,0.35,0.55], roughness=0.70)
+material "awning_yellow" (color=[0.75,0.60,0.20], roughness=0.70)
+material "window_glass" (color=[0.30,0.45,0.55], transmission=0.55, roughness=0.05)
+material "door_glass" (color=[0.30,0.45,0.55], transmission=0.55, roughness=0.04)
+material "concrete" (color=[0.55,0.53,0.50], roughness=0.90)
+material "asphalt" (color=[0.14,0.14,0.16], roughness=0.95, uv_mode="tile", uv_scale=4.0)
+material "brass" (color=[0.95,0.70,0.25], metallic=0.85, roughness=0.25)
+module "sm_win" () {
+  box "frame" (size=[1.40, 1.80, 0.06], mat="trim_cream")
+  box "glass" (size=[1.30, 1.70, 0.02], mat="window_glass", pos=[0,0,-0.04])
+}
+module "sm_door" () {
+  box "frame" (size=[1.10, 2.30, 0.06], mat="trim_cream")
+  box "glass" (size=[0.95, 2.15, 0.02], mat="door_glass", pos=[0,0,-0.04])
+  box "handle" (size=[0.04, 0.20, 0.03], mat="brass", pos=[0.40,0,0.06], tags="floating")
+}
+scene {
+  slab "parking" (size=[40.0, 0.05, 14.0], mat="asphalt", pos=[0, 0.025, 3.0])
+  slab "foundation" (size=[32.0, 0.30, 8.0], mat="concrete", pos=[0, 0.15, 0])
+  // Lower stone band
+  box "lower_band" (size=[32.0, 1.20, 8.0], mat="wall_stone", pos=[0, 0.90, 0])
+  // Upper stucco
+  box "upper_body" (size=[32.0, 2.50, 8.0], mat="wall_stucco", pos=[0, 2.80, 0])
+  // Roof slab
+  slab "roof" (size=[32.4, 0.20, 8.4], mat="roof_flat", pos=[0, 4.20, 0])
+  // Front wall — 4 storefront holes (each with door + window)
+  wall "front_wall" (size=[32.0, 4.0, 0.20], pos=[0, 2.30, -4.0], holes=[
+    [-12.5,-0.30,1.10,2.30], [-12.5,1.50,1.40,1.80],
+    [-4.5,-0.30,1.10,2.30], [-4.5,1.50,1.40,1.80],
+    [4.5,-0.30,1.10,2.30], [4.5,1.50,1.40,1.80],
+    [12.5,-0.30,1.10,2.30], [12.5,1.50,1.40,1.80],
+  ])
+  wall "back_wall" (size=[32.0, 4.0, 0.20], pos=[0, 2.30, 4.0], holes=[
+    [-12.5,1.50,1.40,1.80], [-4.5,1.50,1.40,1.80],
+    [4.5,1.50,1.40,1.80], [12.5,1.50,1.40,1.80],
+  ])
+  // 4 colored awnings (one per unit)
+  prism "awning_1" (size=[3.5, 0.30, 2.0], pos=[-12.5, 2.40, -4.5], mat="awning_red")
+  prism "awning_2" (size=[3.5, 0.30, 2.0], pos=[-4.5, 2.40, -4.5], mat="awning_green")
+  prism "awning_3" (size=[3.5, 0.30, 2.0], pos=[4.5, 2.40, -4.5], mat="awning_blue")
+  prism "awning_4" (size=[3.5, 0.30, 2.0], pos=[12.5, 2.40, -4.5], mat="awning_yellow")
+  // Group placements
+  // Unit 1
+  group "d_1" (pos=[-12.5, 1.05, -4.0]) { use "sm_door" () }
+  group "w_1" (pos=[-12.5, 3.20, -4.0]) { use "sm_win" () }
+  // Unit 2
+  group "d_2" (pos=[-4.5, 1.05, -4.0]) { use "sm_door" () }
+  group "w_2" (pos=[-4.5, 3.20, -4.0]) { use "sm_win" () }
+  // Unit 3
+  group "d_3" (pos=[4.5, 1.05, -4.0]) { use "sm_door" () }
+  group "w_3" (pos=[4.5, 3.20, -4.0]) { use "sm_win" () }
+  // Unit 4
+  group "d_4" (pos=[12.5, 1.05, -4.0]) { use "sm_door" () }
+  group "w_4" (pos=[12.5, 3.20, -4.0]) { use "sm_win" () }
+  // Sign band across top
+  box "sign_band" (size=[32.0, 0.80, 0.10], mat="trim_cream", pos=[0, 4.30, -4.10], tags="floating")
+  // Back wall windows
+  group "wb_1" (pos=[-12.5, 3.20, 4.0]) { use "sm_win" () }
+  group "wb_2" (pos=[-4.5, 3.20, 4.0]) { use "sm_win" () }
+  group "wb_3" (pos=[4.5, 3.20, 4.0]) { use "sm_win" () }
+  group "wb_4" (pos=[12.5, 3.20, 4.0]) { use "sm_win" () }
+  // Side walls
+  wall "left_wall" (size=[8.0, 4.0, 0.20], pos=[-16.0, 2.30, 0], rot=[0,90,0])
+  wall "right_wall" (size=[8.0, 4.0, 0.20], pos=[16.0, 2.30, 0], rot=[0,90,0])
+}
