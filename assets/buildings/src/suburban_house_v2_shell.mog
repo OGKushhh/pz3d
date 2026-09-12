@@ -1,0 +1,142 @@
+// suburban_house_v2_shell.mog — SHELL ONLY (no doors/windows in the holes)
+//
+// This is the building shell: walls with holes cut out, roof, foundation,
+// porch, chimney, gutters — but NO door panels, NO window glass, NO frames.
+// Those are loaded as separate child GLBs at runtime:
+//   - door_front.glb at each door hole position
+//   - window_unit.glb at each window hole position
+//   - door_garage.glb at the garage door hole position
+//
+// This enables: doors that open/close, windows that break, interactive gameplay.
+//
+// HOLE POSITIONS (for runtime child placement):
+//   Front door:    pos=[0, 1.25, -3.0], rot=0,     size=1.0×2.10
+//   Front window L: pos=[-2.20, 1.575, -3.0], rot=0,  size=1.2×1.0
+//   Front window R: pos=[2.20, 1.575, -3.0], rot=0,   size=1.2×1.0
+//   Back window L:  pos=[-1.80, 1.575, 3.0], rot=180, size=1.2×1.0
+//   Back window R:  pos=[1.80, 1.575, 3.0], rot=180,  size=1.2×1.0
+//   Left window:   pos=[-4.0, 1.575, 0], rot=90,      size=1.2×1.0
+//   Right window:  pos=[4.0, 1.575, 1.5], rot=-90,    size=1.2×1.0
+//   Garage door:   pos=[5.0, 1.20, -3.0], rot=0,     size=2.6×2.2
+
+meta (
+  name          = "suburban_house_v2_shell",
+  description   = "Suburban house shell — walls with holes, no doors/windows (loaded as child GLBs at runtime)",
+  tags          = ["building", "house", "suburban", "shell", "interactive"],
+  mogen_version = "0.1.12"
+)
+
+material "wall_stucco"   (color=[0.86, 0.82, 0.72], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+material "roof_tile"     (color=[0.55, 0.22, 0.15], roughness=0.80, uv_mode="tile", uv_scale=4.0)
+material "trim_white"    (color=[0.92, 0.91, 0.86], roughness=0.60)
+material "concrete"      (color=[0.55, 0.53, 0.50], roughness=0.90, uv_mode="tile", uv_scale=1.2)
+material "grass"         (color=[0.25, 0.45, 0.18], roughness=0.85, uv_mode="tile", uv_scale=2.5)
+material "brick_chimney" (color=[0.50, 0.20, 0.14], roughness=0.85, uv_mode="tile", uv_scale=3.0)
+
+scene {
+  // --- FOUNDATION + LAWN ---
+  slab "lawn" (size=[14.0, 0.04, 10.0], mat="grass", pos=[0, 0, 0])
+  slab "foundation" (size=[9.0, 0.20, 6.0], mat="concrete", pos=[0, 0.10, 0])
+  slab "driveway" (size=[3.5, 0.04, 4.0], mat="concrete", pos=[3.8, 0.02, -3.5])
+
+  // --- MAIN BODY (walls with holes — NO door/window modules placed) ---
+  solid "main_shell" (mat="wall_stucco", cleanup="coplanar") {
+    slab "floor" (size=[8.0, 0.10, 6.0], pos=[0, 0.20, 0], mat="concrete")
+    slab "ceiling" (size=[8.0, 0.10, 6.0], pos=[0, 2.65, 0], mat="wall_stucco")
+
+    // FRONT WALL — door hole + 2 window holes (holes stay, no modules placed)
+    wall "front_wall" (
+      size=[8.0, 2.55, 0.20],
+      pos=[0, 1.475, -3.0],
+      holes=[
+        [0.0, -0.225, 1.00, 2.10],   // Front door hole
+        [-2.20, 0.10, 1.20, 1.00],   // Front window L hole
+        [ 2.20, 0.10, 1.20, 1.00],   // Front window R hole
+      ]
+    )
+
+    // BACK WALL — 2 window holes
+    wall "back_wall" (
+      size=[8.0, 2.55, 0.20],
+      pos=[0, 1.475, 3.0],
+      holes=[
+        [-1.80, 0.10, 1.20, 1.00],
+        [ 1.80, 0.10, 1.20, 1.00],
+      ]
+    )
+
+    // LEFT WALL — 1 window hole
+    wall "left_wall" (
+      size=[6.0, 2.55, 0.20],
+      pos=[-4.0, 1.475, 0],
+      rot=[0, 90, 0],
+      holes=[
+        [0.0, 0.10, 1.20, 1.00],
+      ]
+    )
+
+    // RIGHT WALL (back half) — 1 window hole
+    wall "right_wall_back" (
+      size=[3.0, 2.55, 0.20],
+      pos=[4.0, 1.475, 1.5],
+      rot=[0, 90, 0],
+      holes=[
+        [0.0, 0.10, 1.20, 1.00],
+      ]
+    )
+  }
+
+  // --- GARAGE (with door hole — no garage door module placed) ---
+  solid "garage_shell" (mat="wall_stucco", cleanup="coplanar") {
+    slab "garage_floor" (size=[3.5, 0.10, 4.0], pos=[5.0, 0.20, -1.0], mat="concrete")
+    slab "garage_ceiling" (size=[3.5, 0.10, 4.0], pos=[5.0, 2.60, -1.0], mat="wall_stucco")
+
+    wall "garage_front" (
+      size=[3.5, 2.50, 0.20],
+      pos=[5.0, 1.35, -3.0],
+      holes=[
+        [0.0, -0.15, 2.60, 2.20],   // Garage door hole
+      ]
+    )
+    wall "garage_back" (
+      size=[3.5, 2.50, 0.20],
+      pos=[5.0, 1.35, 1.0]
+    )
+    wall "garage_right" (
+      size=[4.0, 2.50, 0.20],
+      pos=[6.75, 1.35, -1.0],
+      rot=[0, 90, 0]
+    )
+  }
+
+  // --- ROOFS ---
+  prism "main_roof" (size=[8.8, 1.4, 6.8], pos=[0, 3.40, 0], mat="roof_tile")
+  prism "garage_roof" (size=[4.3, 0.9, 4.8], pos=[5.0, 3.20, -1.0], mat="roof_tile")
+
+  // --- PORCH (stays on shell — not interactive) ---
+  slab "porch_slab" (size=[1.40, 0.12, 1.00], mat="concrete", pos=[0, 0.06, -3.5])
+  prism "porch_roof" (size=[1.60, 0.20, 1.20], pos=[0, 2.75, -3.5], mat="roof_tile")
+  cylinder "porch_post_l" (radius=0.05, height=2.65, segments=12, mat="trim_white", pos=[-0.65, 1.45, -3.95])
+  cylinder "porch_post_r" (radius=0.05, height=2.65, segments=12, mat="trim_white", pos=[ 0.65, 1.45, -3.95])
+
+  // --- CHIMNEY ---
+  box "chimney" (size=[0.50, 1.40, 0.50], mat="brick_chimney", pos=[1.50, 4.10, 0])
+  slab "chimney_cap" (size=[0.60, 0.10, 0.60], mat="concrete", pos=[1.50, 4.75, 0])
+
+  // --- GUTTERS ---
+  box "front_gutter" (size=[8.8, 0.08, 0.10], mat="trim_white", pos=[0, 2.75, -3.45])
+  box "back_gutter"  (size=[8.8, 0.08, 0.10], mat="trim_white", pos=[0, 2.75,  3.45])
+
+  // --- DOOR STEP ---
+  slab "door_step" (size=[1.20, 0.06, 0.30], mat="concrete", pos=[0, 0.03, -3.20])
+
+  // NOTE: No door/window modules here. They are loaded as child GLBs at runtime:
+  //   door_front.glb at [0, 1.25, -3.0]
+  //   window_unit.glb at [-2.20, 1.575, -3.0]
+  //   window_unit.glb at [2.20, 1.575, -3.0]
+  //   window_unit.glb at [-1.80, 1.575, 3.0] rot=180
+  //   window_unit.glb at [1.80, 1.575, 3.0] rot=180
+  //   window_unit.glb at [-4.0, 1.575, 0] rot=90
+  //   window_unit.glb at [4.0, 1.575, 1.5] rot=-90
+  //   door_garage.glb at [5.0, 1.20, -3.0]
+}
