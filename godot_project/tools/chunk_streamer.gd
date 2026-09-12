@@ -165,45 +165,128 @@ func _build_chunk(key: Vector2i) -> void:
                 l_count += 1
                 print("[ChunkStreamer] POI placed: %s at %s" % [poi.get("id", poi_asset), poi_pos])
 
-        # === BUILDINGS (block-based, denser) ===
+        # === BUILDINGS (lot-based, v3 rules, per-biome density) ===
+        # v3 placement: buildings line up in lots that face the nearest road.
+        # Each lot is LOT_WIDTH × LOT_DEPTH. Buildings are placed at the
+        # building_offset distance from road centerlines, facing the road.
+        # See docs/retired_city_builder_v3_extraction.md §3 rules #4.
         var buildings: Array = profile.get("buildings", [])
         if not buildings.is_empty():
-                var block_count := 4
-                var block_size: float = CityConfig.CHUNK_SIZE_M / float(block_count)
-                var inset: float = CityConfig.BUILDING_SETBACK + CityConfig.SIDEWALK_WIDTH + CityConfig.ROAD_WIDTH * 0.5
                 var fill: float = profile.get("fill", 0.5)
-                var building_radius: float = 8.0
+                var building_radius: float = max(CityConfig.LOT_WIDTH, CityConfig.LOT_DEPTH) * 0.4
 
-                for bx in range(block_count):
-                        for bz in range(block_count):
-                                var block_origin: Vector3 = origin + Vector3(bx * block_size, 0, bz * block_size)
-                                if crng.randf() > plan_grid.sample_density(block_origin):
+                # Per-biome density: tune target building count per chunk
+                # Downtown=fill*60, Commercial=fill*50, Suburbia=fill*30,
+                # Farmland=fill*15, Forest=fill*10, Military=fill*8
+                var density_mult: float = 30.0
+                match biome:
+                        CityConfig.Biome.DOWNTOWN: density_mult = 60.0
+                        CityConfig.Biome.COMMERCIAL: density_mult = 50.0
+                        CityConfig.Biome.SUBURBIA: density_mult = 30.0
+                        CityConfig.Biome.INDUSTRIAL: density_mult = 25.0
+                        CityConfig.Biome.FARMLAND: density_mult = 15.0
+                        CityConfig.Biome.FOREST: density_mult = 10.0
+                        CityConfig.Biome.PARKS: density_mult = 5.0
+                        CityConfig.Biome.MILITARY: density_mult = 8.0
+                        CityConfig.Biome.COASTAL_BEACH: density_mult = 12.0
+                        _: density_mult = 20.0
+
+                var target: int = crng.randi_range(int(fill * density_mult * 0.5), int(fill * density_mult))
+                target = min(target, 30)  # hard cap per chunk
+
+                # building_offset = road edge + sidewalk + grass strip + setback
+                var building_offset: float = CityConfig.ROAD_WIDTH * 0.5 + CityConfig.SIDEWALK_WIDTH + CityConfig.GRASS_STRIP_WIDTH + CityConfig.BUILDING_SETBACK
+
+                # Find road grid lines within or near this chunk
+                var chunk_x_start: float = origin.x
+                var chunk_x_end: float = origin.x + CityConfig.CHUNK_SIZE_M
+                var chunk_z_start: float = origin.z
+                var chunk_z_end: float = origin.z + CityConfig.CHUNK_SIZE_M
+
+                # Check each road grid line (every CELL_SIZE_M=500m)
+                # Place buildings along both sides of roads
+                var placed := 0
+                for road_z in range(int(chunk_z_start / 500.0) * 500, int(chunk_z_end / 500.0) * 500 + 500, 500):
+                        if placed >= target:
+                                break
+                        # Horizontal road at Z=road_z — place buildings on north + south sides
+                        for side in [-1, 1]:
+                                if placed >= target:
+                                        break
+                                var lot_z: float = road_z + float(side) * building_offset + float(side) * CityConfig.LOT_DEPTH * 0.5
+                                if lot_z < chunk_z_start or lot_z > chunk_z_end:
                                         continue
-                                var target: int = crng.randi_range(int(fill * 30), int(fill * 60))
-                                target = min(target, 6)
-                                for i in range(target):
+                                # Place lots along X at LOT_WIDTH intervals
+                                for lot_x in range(int(chunk_x_start / CityConfig.LOT_WIDTH) * int(CityConfig.LOT_WIDTH), int(chunk_x_end / CityConfig.LOT_WIDTH) * int(CityConfig.LOT_WIDTH), int(CityConfig.LOT_WIDTH)):
+                                        if placed >= target:
+                                                break
+                                        if crng.randf() > fill:
+                                                continue  # skip lot (empty lot)
+                                        var pos := Vector3(
+                                                float(lot_x) + CityConfig.LOT_WIDTH * 0.5 + crng.randf_range(-2.0, 2.0),
+                                                0,
+                                                lot_z
+                                        )
+                                        if pos.x < chunk_x_start or pos.x > chunk_x_end:
+                                                continue
+                                        if not spatial.is_free(pos, building_radius) or spatial.is_on_road(pos):
+                                                continue
+                                        if _is_in_poi_exclusion(pos, poi_exclusions):
+                                                continue
                                         var bname: String = buildings[crng.randi() % buildings.size()]
                                         var scene: PackedScene = _get_asset(bname)
                                         if scene == null:
                                                 continue
-                                        var pos: Vector3 = block_origin + Vector3(
-                                                crng.randf_range(inset, block_size - inset),
-                                                0,
-                                                crng.randf_range(inset, block_size - inset)
-                                        )
-                                        if not spatial.is_free(pos, building_radius) or spatial.is_on_road(pos):
-                                                continue
-                                        # Phase F: skip if within POI exclusion radius
-                                        if _is_in_poi_exclusion(pos, poi_exclusions):
-                                                continue
-                                        # Phase C: unified Y from Terrain3D (matches player collision)
                                         pos.y = _get_terrain_y(pos.x, pos.z)
                                         var inst: Node3D = scene.instantiate()
                                         inst.position = pos
-                                        inst.rotation.y = _face_nearest_road(pos, crng)
+                                        # Face the road: south side faces -Z, north side faces +Z
+                                        inst.rotation.y = 0.0 if side < 0 else PI
                                         inst.name = "%s_%d" % [bname, crng.randi() % 100000]
                                         chunk_root.add_child(inst)
                                         spatial.insert(pos, building_radius)
+                                        placed += 1
+                                        b_count += 1
+
+                # Also place along vertical roads
+                for road_x in range(int(chunk_x_start / 500.0) * 500, int(chunk_x_end / 500.0) * 500 + 500, 500):
+                        if placed >= target:
+                                break
+                        for side in [-1, 1]:
+                                if placed >= target:
+                                        break
+                                var lot_x: float = road_x + float(side) * building_offset + float(side) * CityConfig.LOT_DEPTH * 0.5
+                                if lot_x < chunk_x_start or lot_x > chunk_x_end:
+                                        continue
+                                for lot_z in range(int(chunk_z_start / CityConfig.LOT_WIDTH) * int(CityConfig.LOT_WIDTH), int(chunk_z_end / CityConfig.LOT_WIDTH) * int(CityConfig.LOT_WIDTH), int(CityConfig.LOT_WIDTH)):
+                                        if placed >= target:
+                                                break
+                                        if crng.randf() > fill:
+                                                continue
+                                        var pos := Vector3(
+                                                lot_x,
+                                                0,
+                                                float(lot_z) + CityConfig.LOT_WIDTH * 0.5 + crng.randf_range(-2.0, 2.0)
+                                        )
+                                        if pos.z < chunk_z_start or pos.z > chunk_z_end:
+                                                continue
+                                        if not spatial.is_free(pos, building_radius) or spatial.is_on_road(pos):
+                                                continue
+                                        if _is_in_poi_exclusion(pos, poi_exclusions):
+                                                continue
+                                        var bname: String = buildings[crng.randi() % buildings.size()]
+                                        var scene: PackedScene = _get_asset(bname)
+                                        if scene == null:
+                                                continue
+                                        pos.y = _get_terrain_y(pos.x, pos.z)
+                                        var inst: Node3D = scene.instantiate()
+                                        inst.position = pos
+                                        # Face the road: west side faces +X, east side faces -X
+                                        inst.rotation.y = PI * 0.5 if side < 0 else -PI * 0.5
+                                        inst.name = "%s_%d" % [bname, crng.randi() % 100000]
+                                        chunk_root.add_child(inst)
+                                        spatial.insert(pos, building_radius)
+                                        placed += 1
                                         b_count += 1
 
         # === PROPS (denser: 25-50, was 6-16) ===

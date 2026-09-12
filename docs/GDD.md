@@ -429,6 +429,50 @@ Per-district fixed loot table. Within the table, rarity is random:
 
 **Logic:** safe rural → risky commercial → industrial → underground → urban endgame → military endgame.
 
+## 4.6 World Layering Model 🔒
+
+> **Locked 2026-09-12.** This is the architectural backbone for chunk loading, save/load, and prebuilt vs runtime generation.
+
+The world is composed of three layers, each with a different lifecycle:
+
+### Layer 1 — Baked (permanent)
+Terrain mesh, roads, building shells, static furniture (kitchen counters, sinks, built-ins), foliage, landmarks, POIs. Generated once by the offline builder (`city_builder.gd` + `terrain_baker.gd`). Saved as `.tscn` (or a custom binary format later). Never changes at runtime.
+
+- **Source of truth:** `map_seed` + `city_config.gd` + `terrain_height.gd` + `pois.json`
+- **When generated:** At design time (offline) or at "New Game" start
+- **Where stored:** `res://chunks/chunk_X_Y.tscn` (prebuilt) or regenerated at game start
+- **Invalidated when:** `TERRAIN_HEIGHT_VERSION` bumps, manifest changes, or `city_config.gd` changes (tracked by `CityMeta`)
+
+### Layer 2 — Generated per run
+Loot contents, zombie spawns, locked door states, radio rumor modifier, ambient props (blood decals, debris, scattered furniture). Deterministic from `(map_seed + run_seed)`. Rebuilds every new game; identical within a single run.
+
+- **Source of truth:** `map_seed` + `run_seed` (per-save RNG)
+- **When generated:** At game start, applied as overlay on Layer 1 chunks when they load
+- **Where stored:** In-memory only (regenerated from seed on load)
+- **Invalidated when:** New game (new run_seed)
+
+### Layer 3 — Delta (modified during play)
+Opened doors, dead zombies, moved furniture, looted containers, barricades, base upgrades, story keys collected. Saved as a delta file per session. Applied on top of Layer 1 + Layer 2 when a chunk loads.
+
+- **Source of truth:** Player actions during the current run
+- **When generated:** Continuously during play
+- **Where stored:** `user://save_<run_id>/chunk_X_Y.delta.json`
+- **Invalidated when:** Death (meta-progression resources extracted, delta discarded)
+
+### Load order when a chunk enters stream radius:
+1. Load Layer 1 `.tscn` (or build from seed if not prebuilt)
+2. Apply Layer 2 overlay (deterministic from run_seed)
+3. Apply Layer 3 delta (from save file, if exists)
+4. Add to scene tree
+
+### Why this matters
+This layering answers the prebuilt vs runtime question definitively:
+- Layer 1 = prebuilt (compute once, save as .tscn)
+- Layer 2 = generated at game start (fast, deterministic, in-memory)
+- Layer 3 = loaded from save (small delta, fast to apply)
+
+The current runtime-only `chunk_streamer.gd` is a prototype that conflates Layer 1 + Layer 2. The final architecture separates them.
+
 ---
 
 # PART 5: VISUAL STYLE & CAMERA
