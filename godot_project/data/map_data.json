@@ -1,16 +1,16 @@
 {
-  "version": 1,
+  "version": 2,
   "map_size": [4000, 3000],
   "cell_size": 500,
   "chunk_size": 250,
 
   "biome_grid": [
-    [0, 0, 3, 3, 6, 9, 5, 5],
-    [0, 3, 3, 3, 6, 9, 5, 8],
-    [0, 0, 3, 1, 6, 9, 7, 8],
-    [0, 1, 4, 1, 6, 9, 7, 5],
-    [1, 1, 4, 4, 6, 9, 7, 5],
-    [1, 0, 0, 4, 6, 9, 5, 5]
+    [0, 0, 3, 3, 2, 9, 5, 5],
+    [0, 3, 3, 3, 3, 9, 5, 8],
+    [0, 0, 3, 1, 3, 9, 7, 8],
+    [0, 1, 4, 1, 4, 9, 7, 5],
+    [1, 1, 4, 4, 4, 9, 7, 5],
+    [1, 0, 0, 4, 0, 9, 5, 5]
   ],
 
   "biome_names": {
@@ -20,12 +20,12 @@
     "3": "FARMLAND",
     "4": "COMMERCIAL",
     "5": "INDUSTRIAL",
-    "6": "RIVER",
     "7": "DOWNTOWN",
     "8": "MILITARY",
     "9": "COASTAL_BEACH",
     "10": "WATER",
-    "11": "EMPTY"
+    "11": "EMPTY",
+    "12": "WETLANDS"
   },
 
   "roads": [
@@ -52,7 +52,15 @@
   ],
 
   "river": {
-    "center_x": 2250,
+    "control_points": [
+      [2250, 0],
+      [2150, 500],
+      [2300, 1000],
+      [2250, 1500],
+      [2200, 2000],
+      [2400, 2500],
+      [2400, 3000]
+    ],
     "half_width": 30,
     "depth": 4.0,
     "water_level": 0.0
@@ -89,11 +97,11 @@
     "FARMLAND": {"base": 0.2, "amp": 0.3, "freq": 0.005},
     "COMMERCIAL": {"base": 0.5, "amp": 0.5, "freq": 0.005},
     "INDUSTRIAL": {"base": 0.5, "amp": 0.5, "freq": 0.005},
-    "RIVER": {"base": -4.0, "amp": 0.0, "freq": 0.0},
     "DOWNTOWN": {"base": 0.5, "amp": 0.5, "freq": 0.005},
     "MILITARY": {"base": 3.0, "amp": 0.0, "freq": 0.0},
     "COASTAL_BEACH": {"base": -1.0, "amp": 8.0, "freq": 0.020},
     "WATER": {"base": -2.0, "amp": 0.0, "freq": 0.0},
-    "EMPTY": {"base": 0.0, "amp": 0.0, "freq": 0.0}
+    "EMPTY": {"base": 0.0, "amp": 0.0, "freq": 0.0},
+    "WETLANDS": {"base": -0.5, "amp": 0.4, "freq": 0.010}
   }
 }

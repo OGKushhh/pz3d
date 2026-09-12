@@ -94,7 +94,10 @@ func _biome_at_chunk(cx: int, cy: int) -> int:
 
 func _build_one_chunk(cx: int, cy: int, stats: Dictionary) -> bool:
     var biome := _biome_at_chunk(cx, cy)
-    if biome == CityConfig.Biome.RIVER or biome == CityConfig.Biome.WATER:
+    # v8.2 Phase A.4: removed Biome.RIVER check (no longer a biome —
+    # river is now a polyline overlay). WATER still skipped (sea level
+    # terrain, no buildings). WETLANDS is buildable (fishing_hut, marsh_pier).
+    if biome == CityConfig.Biome.WATER:
         return false
     var origin := Vector3(cx * CityConfig.CHUNK_SIZE_M, 0, cy * CityConfig.CHUNK_SIZE_M)
     var chunk_seed := hash(Vector2i(cx, cy)) ^ map_seed

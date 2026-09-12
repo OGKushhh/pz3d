@@ -12,6 +12,7 @@
 | Furniture decision | `docs/furniture_decision.md` (was `download/furniture_merging_decision.md`) |
 | Asset count | `docs/asset_count.md` |
 | Asset review strategy | `docs/asset_review_strategy.md` |
+| Shells needed audit | `docs/shells_needed.md` (Phase A.4 — which buildings need shells for gameplay) |
 | Retired v3 extraction | `docs/retired_city_builder_v3_extraction.md` (Phase B reference) |
 | Worklog | `worklog.md` (root, append-only) |
 | Godot project | `godot_project/` |

@@ -261,15 +261,24 @@ func _build_chunk(key: Vector2i) -> void:
         # look organic instead of checker-boarded.
         #
         # Excluded from borrowing:
-        #   - RIVER, WATER, EMPTY (water bodies need stable banks/geometry)
+        #   - WATER, EMPTY (water bodies need stable banks/geometry)
         #   - COASTAL_BEACH (it's a thin 1-column strip; borrowing would erase it)
+        #   - WETLANDS (low-elevation emergent, v1 placement should stay explicit)
+        #
+        # v8.2 Phase A.4: removed RIVER exclusion — RIVER is no longer a biome.
         #
         # The borrow direction is chosen from the actual 4 grid neighbors
         # (N/S/E/W), so borrowed chunks always sit adjacent to their parent
         # biome cell — no orphans.
         var biome: int = base_biome
-        if base_biome != CityConfig.Biome.RIVER and base_biome != CityConfig.Biome.WATER \
-                and base_biome != CityConfig.Biome.EMPTY and base_biome != CityConfig.Biome.COASTAL_BEACH:
+        # v8.2 Phase A.4: removed RIVER exclusion — RIVER is no longer a biome.
+        # WETLANDS is excluded too for now (low-elevation emergent, will be
+        # driven by terrain height in a later phase — for v1 we want it to
+        # appear only where explicitly placed, not borrowed from).
+        if base_biome != CityConfig.Biome.WATER \
+                and base_biome != CityConfig.Biome.EMPTY \
+                and base_biome != CityConfig.Biome.COASTAL_BEACH \
+                and base_biome != CityConfig.Biome.WETLANDS:
                 var nval: float = _biome_noise(key)
                 if nval > DISTRICT_NOISE_THRESHOLD:
                         var borrowed := _borrow_neighbor_biome(row, col, key)
@@ -470,7 +479,12 @@ func _build_chunk(key: Vector2i) -> void:
         # === PARKS — every 4th chunk, convert center to a park ===
         # v8: skip if a landmark was placed at the chunk center this pass
         # (otherwise the park would overwrite the landmark).
-        if (key.x + key.y) % 4 == 0 and biome != CityConfig.Biome.RIVER and biome != CityConfig.Biome.WATER and lm_count == 0:
+        # v8.2 Phase A.4: removed RIVER check (RIVER is no longer a biome —
+        # it's a polyline overlay. The biome underneath the river is whatever
+        # the district grid says. A "park" could in principle spawn under the
+        # river's X but the spatial.is_on_road check + river carve in
+        # terrain_height handles non-buildable terrain at runtime).
+        if (key.x + key.y) % 4 == 0 and biome != CityConfig.Biome.WATER and biome != CityConfig.Biome.WETLANDS and lm_count == 0:
                 var park_center := origin + Vector3(CityConfig.CHUNK_SIZE_M * 0.5, 0, CityConfig.CHUNK_SIZE_M * 0.5)
                 _place_park(chunk_root, park_center, crng)
 
@@ -1291,8 +1305,8 @@ func _place_zombies(
 # Borrowing rules:
 #   - Only the BASE biome of the chunk's grid cell can be borrowed-from
 #     (we don't recursively borrow from borrowed chunks).
-#   - RIVER, WATER, EMPTY, COASTAL_BEACH are never borrowed-into (their
-#     water/beach geometry must stay stable).
+#   - WATER, EMPTY, COASTAL_BEACH, WETLANDS are never borrowed-into (their
+#     water/beach/marsh geometry must stay stable).
 #   - The borrowed biome comes from one of the 4 grid-neighbor cells (N/S/E/W)
 #     so borrowed chunks always sit adjacent to their parent biome.
 #
@@ -1369,15 +1383,16 @@ func _borrow_neighbor_biome(row: int, col: int, key: Vector2i) -> int:
         return int(candidates[pick])
 
 # Returns true if `biome` is borrowable (i.e., can be borrowed INTO another
-# chunk). Water bodies and the thin coastal strip are excluded so their
-# geometry stays stable.
+# chunk). Water bodies, the thin coastal strip, and WETLANDS are excluded so
+# their geometry stays stable.
+# v8.2 Phase A.4: removed RIVER case (no longer a biome).
 static func _is_borrowable(biome: int) -> bool:
-        if biome == CityConfig.Biome.RIVER:
-                return false
         if biome == CityConfig.Biome.WATER:
                 return false
         if biome == CityConfig.Biome.EMPTY:
                 return false
         if biome == CityConfig.Biome.COASTAL_BEACH:
+                return false
+        if biome == CityConfig.Biome.WETLANDS:
                 return false
         return true

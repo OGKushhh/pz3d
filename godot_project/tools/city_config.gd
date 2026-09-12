@@ -6,13 +6,31 @@ extends RefCounted
 
 enum Biome {
     SUBURBIA, PARKS, FOREST, FARMLAND, COMMERCIAL,
-    INDUSTRIAL, RIVER, DOWNTOWN, MILITARY, COASTAL_BEACH, WATER, EMPTY
+    INDUSTRIAL, WETLANDS, DOWNTOWN, MILITARY, COASTAL_BEACH, WATER, EMPTY
 }
 # NOTE: Biome.SUBWAY removed 2026-09-12 (Phase A.3).
 # Subway is now a parallel underground layer, not a surface biome.
 # See GDD §12 "Subway-as-layer, not biome" for rationale.
 # Subway assets (subway_platform, subway_tunnel, subway_train_car, etc.)
 # are placed by tools/subway_network.gd when player enters a station.
+#
+# NOTE: Biome.RIVER removed 2026-09-13 (Phase A.4 — "River-as-feature").
+# Same precedent as the Subway removal: a river is a linear geographic
+# feature that can run THROUGH any surface biome, not a tileable cell.
+# The river is now a polyline (control_points array) stored in
+# map_data.json and queried via RiverNetwork. Bridges cross the polyline
+# at declared anchor rows. The biome underneath any given river point is
+# whatever the district grid says at that location (FOREST in the north,
+# FARMLAND in the middle, COMMERCIAL/SUBURBIA in the south).
+#
+# NOTE: Biome.WETLANDS added 2026-09-13 (Phase A.4).
+# Split out from old biome row #7 ("River & Wetlands / Coastal Beach"
+# was a three-way conflation). Wetlands = low-elevation biome with
+# cattails, marsh_grass, willow_tree, fishing_hut, marsh_pier. Kept as
+# a survival source (clean water, herbs, fish) — fishing mechanics are
+# future-work but the biome type needs to exist now so terrain/elevation
+# can drive its placement (emergent where height < 0.5m and not in river
+# channel — to be wired in a later phase).
 
 # ── MAP DIMENSIONS ────────────────────────────────────────
 # 12 km² alpha  →  Vector2(4000, 3000), GRID 8×6
@@ -222,17 +240,17 @@ static func biomes() -> Dictionary:
             "lights": true,
             "zombies": 8
         },
-        Biome.RIVER: {
-            "name": "River & Wetlands",
-            "fill": 0.15,
+        Biome.WETLANDS: {
+            "name": "Wetlands & Marshes",
+            "fill": 0.10,
             "buildings": [
-                "fishing_hut", "pier_dock", "houseboat", "marsh_pier"
+                "fishing_hut", "marsh_pier", "houseboat"
             ],
-            "landmarks": ["lighthouse", "bridge_section"],
+            "landmarks": [],
             "props": [],
             "foliage": [
-                "cattail", "marsh_grass", "willow_tree", "palm_tree",
-                "tall_grass"
+                "cattail", "marsh_grass", "willow_tree", "tall_grass",
+                "fern", "weeds", "rocks_small"
             ],
             "lights": false,
             "zombies": 4
@@ -310,37 +328,48 @@ static func biomes() -> Dictionary:
     }
 
 # ── GRID LAYOUT (8×6 for 12 km²) ──────────────────────────
-# Phase A.2 (2026-09-12): River reduced from 2 columns to 1 (12.5% of map, was 25%).
-# Freed column (col 5) is now COASTAL_BEACH.
-# CB = Coastal Beach (rolling cliffs, fishing huts, lighthouse, boardwalks).
-# Player walks along coast instead of through endless water.
+# Phase A.4 (2026-09-13): RIVER removed from grid (now a polyline overlay).
+# Column 4 (was RIVER) redistributed — each row's col 4 now matches the
+# dominant biome of that row's col 3 / col 5 context, so the river polyline
+# (which still runs roughly through x≈2250) crosses biomes organically:
+#   row 0 (north forest):     col 4 = FOREST
+#   row 1 (north farmland):    col 4 = FARMLAND
+#   row 2 (transition):        col 4 = FARMLAND
+#   row 3 (commercial edge):   col 4 = COMMERCIAL
+#   row 4 (commercial south):  col 4 = COMMERCIAL
+#   row 5 (suburbia south):    col 4 = SUBURBIA
+# This matches GDD §2.12 lore: "Sarran River flows from the northern forest
+# through the farmland and into Sarran Bay." The bay is at column 5
+# (COASTAL_BEACH) — the river exits the south edge of the map into the bay.
 static func grid_layout() -> Array:
     var F  := Biome.FOREST
     var FA := Biome.FARMLAND
     var IN := Biome.INDUSTRIAL
     var MI := Biome.MILITARY
-    var RI := Biome.RIVER
     var SU := Biome.SUBURBIA
     var PA := Biome.PARKS
     var CO := Biome.COMMERCIAL
     var DT := Biome.DOWNTOWN
     var CB := Biome.COASTAL_BEACH
     return [
-        [F,  F,  FA, FA, RI, CB, IN, IN],
-        [F,  FA, FA, FA, RI, CB, IN, MI],
-        [SU, SU, FA, PA, RI, CB, DT, MI],
-        [SU, SU, CO, PA, RI, CB, DT, IN],
-        [SU, PA, CO, CO, RI, CB, DT, IN],
-        [PA, SU, SU, CO, RI, CB, IN, IN],
+        [F,  F,  FA, FA, F,  CB, IN, IN],
+        [F,  FA, FA, FA, FA, CB, IN, MI],
+        [SU, SU, FA, PA, FA, CB, DT, MI],
+        [SU, SU, CO, PA, CO, CB, DT, IN],
+        [SU, PA, CO, CO, CO, CB, DT, IN],
+        [PA, SU, SU, CO, SU, CB, IN, IN],
     ]
 
 static func bridges() -> Array:
-    # Bridges now span the 1-column river (col 4) + 1 bank on each side.
-    # was: from_col=4, to_col=7 (spanned 4 cols, 2 of which were river)
-    # now: from_col=3, to_col=5 (spans 3 cols, 1 of which is river)
+    # Phase A.4: bridges still declared in row/col format because they're
+    # grid-aligned horizontal segments. They cross the river polyline
+    # wherever the polyline happens to be at that row's Z.
+    # The polyline is designed so its X at z=1750 (row 3 anchor) and z=2250
+    # (row 4 anchor) falls within [from_col*500, (to_col+1)*500).
+    # See map_data.json `river.control_points` for the polyline geometry.
     return [
-        {"row":4, "from_col":3, "to_col":5, "name":"Sarran Bridge"},
-        {"row":5, "from_col":3, "to_col":5, "name":"Old Town Bridge"},
+        {"row":3, "from_col":3, "to_col":5, "name":"Sarran Bridge"},
+        {"row":4, "from_col":3, "to_col":5, "name":"Old Town Bridge"},
     ]
 
 static func sky_colors() -> Dictionary:
