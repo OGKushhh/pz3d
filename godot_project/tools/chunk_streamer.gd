@@ -237,7 +237,7 @@ func _build_chunk(key: Vector2i) -> void:
                 var scene: PackedScene = _get_asset("street_light")
                 if scene != null:
                         var owned: Array = roads.owned_segments_in_chunk(origin, CityConfig.CHUNK_SIZE_M)
-                        var edge_offset: float = CityConfig.ROAD_WIDTH * 0.5 + CityConfig.SIDEWALK_WIDTH * 0.5
+                        var edge_offset: float = CityConfig.ROAD_WIDTH * 0.5 + CityConfig.SIDEWALK_WIDTH + CityConfig.GRASS_STRIP_WIDTH * 0.5
                         for seg in owned:
                                 var a: Vector3 = seg["start"]
                                 var b: Vector3 = seg["end"]
@@ -249,7 +249,7 @@ func _build_chunk(key: Vector2i) -> void:
                                         var dir: Vector3 = (b - a).normalized() if length > 0.001 else Vector3.FORWARD
                                         var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
                                         var pos: Vector3 = base + perp * edge_offset
-                                        if spatial.is_on_road(pos) and spatial.is_free(pos, 0.5):
+                                        if not spatial.is_on_road(pos) and spatial.is_free(pos, 0.5):
                                                 pos.y = _get_terrain_y(pos.x, pos.z)
                                                 var inst: Node3D = scene.instantiate()
                                                 inst.position = pos

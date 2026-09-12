@@ -171,7 +171,7 @@ func _place_streetlights(root: Node3D, origin: Vector3) -> void:
         return
 
     var owned: Array = roads.owned_segments_for_chunk(chunk_coord, CityConfig.CHUNK_SIZE_M)
-    var edge_offset: float = CityConfig.ROAD_WIDTH * 0.5 + CityConfig.SIDEWALK_WIDTH * 0.5
+    var edge_offset: float = CityConfig.ROAD_WIDTH * 0.5 + CityConfig.SIDEWALK_WIDTH + CityConfig.GRASS_STRIP_WIDTH * 0.5
 
     for seg in owned:
         var a: Vector3 = seg["start"]
