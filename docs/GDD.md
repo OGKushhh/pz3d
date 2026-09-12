@@ -1,24 +1,28 @@
 # MAZAR — UNIFIED GAME DESIGN DOCUMENT
 
-> **Version:** 1.8 (merged — supersedes GDD v8, lore, poly_budget v3, furniture_decision)
-> **Status:** Pre-production → vertical slice. Lore semi-locked. Path B locked. Tier 1 production: 28 approved + 5 retired.
+> **Version:** 1.9
+> **Status:** Pre-production → vertical slice. Lore semi-locked. Path B locked. Tier 1 production: 216 active GLBs. Terrain system operational (Terrain3D v1.0.2). City gen pipeline fine-tuned (lot-based placement, per-biome density, POI system).
 > **Repo location:** `/home/z/my-project/docs/GDD.md` (canonical — see `STATUS.md` for what's current vs archived)
 > **Working title:** *Mazar*
 > **Engine:** Godot 4.7.2 (glTF 2.0 native, Compatibility renderer default for Low preset)
 > **Asset toolchain:** MoGen v0.1.12 (`.mog` DSL → `.glb` → Godot)
 > **MoGen reference:** `/home/z/my-project/mogen-docs/compiled.md` (1559 lines, 106KB)
-> **Backups:** `/home/z/my-project/download/mazar_alpha_backup_2026-09-11.zip` (2.2MB) + `mazar_design_backup_2026-09-11.zip` (4.4MB)
-
-**Version history:**
-- v1.0 — initial vision draft
-- v1.1 — lore locked (Republic of Mazar)
-- v1.2 — Path B locked (two-tier Low/High presets)
-- v1.3 — Tier 1 production started
-- v1.4 — furniture merging decision locked
-- v1.5 — cars + blood + grass retired (external assets)
-- v1.6 — kitchen counter split into 4 modular pieces
-- v1.7 — batch 006 (10 new assets, 28 total)
-- **v1.8 — UNIFIED: lore + GDD + poly budget + furniture decision merged into this single document**
+> **Terrain plugin:** Terrain3D v1.0.2-stable (GDExtension, multi-region 4×2048m)
+>
+> ## Version History
+>
+> | Version | Date | Changes |
+> |---|---|---|
+> | 1.9 | 2026-09-12 | Terrain3D plugin + multi-region bake, unified Y via get_height(), road flattening (B.4), bridge placement (B.5), water surface (Phase D), NavMesh hooks (Phase E), POI system with 6 landmarks (Phase F), O(1) road-facing (G.1), MultiMesh batching stub (G.2), SpatialIndex AABB (G.3), city gen pipeline fine-tune (lot-based placement, per-biome density, v3 rules applied), §4.6 World Layering Model locked (3-layer: Baked/Per-run/Delta), CityMeta terrain hash, test suite (9 tests, all PASS), frame budget (1 chunk/frame), repo restructure (docs/archive/STATUS/README), v3 extraction applied, 216 GLBs across all biomes, River 25%→12.5% + Coastal Beach, Subway-as-layer |
+> | 1.8 | 2026-09-11 | Merged GDD v8 + lore v1.2 + poly_budget v3 + furniture_decision. 28 approved assets + 5 retired. Kitchen modular (4 pieces). Biome profiles wired. |
+> | 1.7 | 2026-09-11 | Batch 006 (10 new assets, 28 total). |
+> | 1.6 | 2026-09-11 | Kitchen counter split into 4 modular pieces. |
+> | 1.5 | 2026-09-11 | Cars + blood + grass retired (external assets). |
+> | 1.4 | 2026-09-11 | Furniture merging decision locked. |
+> | 1.3 | 2026-09-11 | Tier 1 production started. |
+> | 1.2 | 2026-09-11 | Path B locked (two-tier Low/High presets). |
+> | 1.1 | 2026-09-11 | Lore locked (Republic of Mazar). |
+> | 1.0 | 2026-09-10 | Initial vision draft. |
 
 ---
 

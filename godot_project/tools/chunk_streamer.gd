@@ -410,23 +410,15 @@ func _build_chunk(key: Vector2i) -> void:
         _stats[bname]["chunks"] += 1
 
 # Phase G.2: Batch identical meshes into MultiMeshInstance3D
+# Recursively searches through GLB hierarchy (Node3D → MeshInstance3D children)
+# to find all meshes with the same resource_path. Groups them into MultiMesh.
 func _batch_meshes(chunk_root: Node3D) -> void:
         var by_mesh: Dictionary = {}  # resource_path → Array[MeshInstance3D]
-        var to_remove: Array = []
 
-        for child in chunk_root.get_children():
-                if not (child is MeshInstance3D):
-                        continue
-                var mi: MeshInstance3D = child
-                if mi.mesh == null:
-                        continue
-                var key: String = mi.mesh.resource_path
-                if key.is_empty():
-                        continue
-                if not by_mesh.has(key):
-                        by_mesh[key] = []
-                by_mesh[key].append(mi)
+        # Recursively collect all MeshInstance3D nodes
+        _collect_meshes(chunk_root, by_mesh)
 
+        var batched: int = 0
         for mesh_path in by_mesh:
                 var list: Array = by_mesh[mesh_path]
                 if list.size() < 3:
@@ -439,17 +431,33 @@ func _batch_meshes(chunk_root: Node3D) -> void:
 
                 for i in range(list.size()):
                         var inst: MeshInstance3D = list[i]
+                        # Use global transform so instances keep their world position
                         var xform: Transform3D = inst.global_transform
                         mm.set_instance_transform(i, xform)
-                        to_remove.append(inst)
+                        inst.queue_free()  # Remove the original MeshInstance3D
 
                 var mmi := MultiMeshInstance3D.new()
                 mmi.multimesh = mm
-                mmi.name = "MultiMesh_%d" % list.size()
+                mmi.name = "MultiMesh_%d_%s" % [list.size(), mesh_path.get_file()]
                 chunk_root.add_child(mmi)
+                batched += list.size()
 
-        for inst in to_remove:
-                inst.queue_free()
+        if batched > 0:
+                print("  [G.2] Batched %d mesh instances into MultiMesh" % batched)
+
+# Recursively find all MeshInstance3D nodes under a node
+func _collect_meshes(node: Node, by_mesh: Dictionary) -> void:
+        for child in node.get_children():
+                if child is MeshInstance3D:
+                        var mi: MeshInstance3D = child
+                        if mi.mesh != null:
+                                var key: String = mi.mesh.resource_path
+                                if not key.is_empty():
+                                        if not by_mesh.has(key):
+                                                by_mesh[key] = []
+                                        by_mesh[key].append(mi)
+                # Recurse into children (GLB instances have nested meshes)
+                _collect_meshes(child, by_mesh)
 
 func _unload_chunk(key: Vector2i) -> void:
         var inst: Node3D = _loaded[key]
