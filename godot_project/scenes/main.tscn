@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://tools/chunk_streamer.gd" id="1_streamer"]
+[ext_resource type="Script" path="res://tools/terrain_baker.gd" id="2_terrain"]
 
 [sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
 sky_top_color = Color(0.15, 0.35, 0.70, 1)
@@ -82,15 +83,8 @@ shadow_enabled = true
 directional_shadow_max_distance = 80.0
 directional_shadow_size = 2048
 
-[node name="Ground" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0, 1500)
-
-[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
-mesh = SubResource("ground_mesh")
-material_override = SubResource("grass_mat")
-
-[node name="GroundCollider" type="CollisionShape3D" parent="Ground"]
-shape = SubResource("ground_col")
+[node name="TerrainBaker" type="Node3D" parent="."]
+script = ExtResource("2_terrain")
 
 [node name="Player" type="CharacterBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1750, 2, 1500)
