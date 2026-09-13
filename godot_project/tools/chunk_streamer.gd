@@ -32,6 +32,7 @@ const PlanGrid = preload("res://tools/plan_grid.gd")
 const TerrainHeight = preload("res://tools/terrain_height.gd")
 const RiverNetwork = preload("res://tools/river_network.gd")
 const DistrictStamper = preload("res://tools/district_stamper.gd")
+const LotStamper = preload("res://tools/lot_stamper.gd")  # Phase B.6: hand-authored Lot recipes
 const AnchorPoints = preload("res://tools/anchor_points.gd")
 const BlockLayout = preload("res://tools/block_layout.gd")
 
@@ -46,6 +47,7 @@ var plan_grid: PlanGrid
 var terrain: TerrainHeight
 var river: RiverNetwork
 var _stamper: DistrictStamper  # Phase A.7: hand-authored district templates
+var _lot_stamper: LotStamper  # Phase B.6: hand-authored Lot recipes (parcel-scale)
 var _city_plan: Dictionary = {}  # Phase B.4: macro plan (density gradient + district budgets)
 var _district_plans: Dictionary = {}  # Phase B.4: meso plan (per-chunk type allocations)
 var _district_type_counts: Dictionary = {}  # Phase B.4: tracks per-district per-type building counts
@@ -296,6 +298,7 @@ func _ready() -> void:
         river = RiverNetwork.new()
         terrain = TerrainHeight.new(1337, river)
         _stamper = DistrictStamper.new()
+        _lot_stamper = LotStamper.new()
         _load_city_plan()
         _load_district_plans()
 
@@ -614,12 +617,15 @@ func _build_chunk(key: Vector2i) -> void:
         var placed := 0
         var target: int = int(fill * 80)
         
-        # Phase B.5: place buildings at parcel fronts
+        # Phase B.6: place buildings via Lot recipes first (suburbs, commercial,
+        # industrial, downtown, farmland, military). Falls back to procedural
+        # parcel-by-parcel placement for biomes without lot recipes (parks,
+        # forest, wetlands, coastal).
         for parcel in parcels:
                 if placed >= target:
                         break
                 var lot_pos: Vector3 = parcel.building_pos
-                # Bounds check
+                # Bounds check (same as procedural path)
                 if lot_pos.x < origin.x or lot_pos.x >= origin.x + CityConfig.CHUNK_SIZE_M:
                         continue
                 if lot_pos.z < origin.z or lot_pos.z >= origin.z + CityConfig.CHUNK_SIZE_M:
@@ -630,13 +636,34 @@ func _build_chunk(key: Vector2i) -> void:
                         continue
                 if _is_near_highway(lot_pos):
                         continue
+                
+                # Phase B.6: try a hand-authored Lot recipe for this biome first.
+                # Skip the lot attempt if this cell's fill probability doesn't fire.
+                var lot_name := _lot_stamper.pick_lot_for_biome(biome, crng)
+                if lot_name != "" and crng.randf() <= fill:
+                        var lot_placed := _lot_stamper.stamp_lot(lot_name, parcel, chunk_root, crng, self)
+                        if lot_placed > 0:
+                                # Mark the parcel's building footprint as occupied so subsequent
+                                # procedural placement skips this area. Companions are placed by
+                                # the lot recipe at known offsets, so we only need to block the
+                                # primary building position (companions are nearby).
+                                spatial.insert(lot_pos, building_radius)
+                                _register_asset_position("lot_" + lot_name, lot_pos)
+                                placed += lot_placed
+                                b_count += lot_placed
+                                continue
+                        # If lot stamping failed (asset missing etc.), fall through
+                        # to the procedural path below as a safety net.
+                
+                # Phase B.5: empty lot check (skip parcel with 1-fill probability).
+                # Only reached for biomes without lot recipes, OR if lot stamping failed.
                 if crng.randf() > fill:
                         # Empty lot — try backyard fill
                         if crng.randf() < 0.7:
                                 _place_backyard_fill(lot_pos, parcel.front_dir, 1, chunk_root, crng, profile)
                         continue
                 
-                # Pick building using height class + meso + halo + zoning
+                # Procedural fallback: pick building using height class + meso + halo + zoning
                 var height_class: String = _roll_height_class(profile, crng)
                 var bname: String = ""
                 # Simple pick: 50% commercial, 50% residential (within meso + height constraints)
@@ -697,17 +724,27 @@ func _build_chunk(key: Vector2i) -> void:
         s_count += _place_fire_hydrants(chunk_root, chunk_roads, crng)
 
         # === GAP FILLER — fill empty spaces with small props ===
-        # v8.2 Phase A.8: increased gap_count from fill*15 to fill*25.
-        # Addresses "map mostly empty" — more props scattered in empty lots.
+        # Phase B.6: removed `shed` and `garage_detached` from the gap filler —
+        # these are now placed ONLY by Lot recipes (as companions with relative
+        # offsets to a primary building). Scattering them at random positions
+        # with random rotation was the LITERAL SOURCE of the "garage facing a
+        # different side" observation from the 2026-09-14 screenshot review.
+        # For biomes WITHOUT lot recipes (PARKS, FOREST, WETLANDS, COASTAL_BEACH),
+        # these props simply won't appear — that's intentional (those biomes are
+        # nature-focused, not suburban).
         var props: Array = profile.get("props", [])
-        var gap_fillers: Array = ["shed", "garage_detached", "picket_fence", "planter_box", "garden_gnome", "trash_can", "mailbox"]
+        var gap_fillers: Array = ["picket_fence", "planter_box", "garden_gnome", "trash_can", "mailbox"]
         # Filter to assets that exist in manifest
         var valid_fillers: Array = []
         for gf in gap_fillers:
                 if manifest.has(gf):
                         valid_fillers.append(gf)
 
-        var gap_count := int(fill * 35)  # Phase B.2: was 25, now 35  # Phase A.8: was 15, now 25
+        # Phase B.6: reduced gap_count from fill*35 to fill*20. Lots now provide
+        # the "props clustered around buildings" feel, so the random scatter
+        # budget can be lower. Still scatters some small props in empty areas
+        # (corners, between buildings) for visual richness.
+        var gap_count := int(fill * 20)  # Phase B.6: was 35  # Phase B.2: was 25
         for i in range(gap_count):
                 var pos := Vector3(
                         origin.x + crng.randf_range(15.0, CityConfig.CHUNK_SIZE_M - 15.0),
