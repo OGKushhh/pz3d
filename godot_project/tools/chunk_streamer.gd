@@ -33,6 +33,7 @@ const TerrainHeight = preload("res://tools/terrain_height.gd")
 const RiverNetwork = preload("res://tools/river_network.gd")
 const DistrictStamper = preload("res://tools/district_stamper.gd")
 const LotStamper = preload("res://tools/lot_stamper.gd")  # Phase B.6: hand-authored Lot recipes
+const PathQuery = preload("res://tools/path_query.gd")  # Phase B.7.5: path segment spatial index
 const AnchorPoints = preload("res://tools/anchor_points.gd")
 const BlockLayout = preload("res://tools/block_layout.gd")
 
@@ -48,6 +49,7 @@ var terrain: TerrainHeight
 var river: RiverNetwork
 var _stamper: DistrictStamper  # Phase A.7: hand-authored district templates
 var _lot_stamper: LotStamper  # Phase B.6: hand-authored Lot recipes (parcel-scale)
+var _path_query: PathQuery  # Phase B.7.5: path segment spatial index (per-chunk)
 var _city_plan: Dictionary = {}  # Phase B.4: macro plan (density gradient + district budgets)
 var _district_plans: Dictionary = {}  # Phase B.4: meso plan (per-chunk type allocations)
 var _district_type_counts: Dictionary = {}  # Phase B.4: tracks per-district per-type building counts
@@ -299,6 +301,7 @@ func _ready() -> void:
         terrain = TerrainHeight.new(1337, river)
         _stamper = DistrictStamper.new()
         _lot_stamper = LotStamper.new()
+        _path_query = PathQuery.new()
         _load_city_plan()
         _load_district_plans()
 
@@ -458,6 +461,10 @@ func _refresh(cx: int, cy: int) -> void:
 func _build_chunk(key: Vector2i) -> void:
         if key.x < 0 or key.y < 0 or key.x >= CityConfig.CHUNKS_COLS or key.y >= CityConfig.CHUNKS_ROWS:
                 return
+        # Phase B.7.5: Clear path query at the start of each chunk build.
+        # Path segments are per-chunk — we don't want path data from the previous
+        # chunk leaking into the current chunk's gap filler / foliage checks.
+        _path_query.clear()
         var col: int = clamp(int(key.x * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_COLS - 1)
         var row: int = clamp(int(key.y * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_ROWS - 1)
         var base_biome: int = CityConfig.grid_layout()[row][col]
@@ -775,6 +782,10 @@ func _build_chunk(key: Vector2i) -> void:
                         continue
                 if _is_in_poi_exclusion(pos, poi_exclusions):
                         continue
+                # Phase B.7.6: skip positions that land on a path (sidewalk/driveway/interior path).
+                # This is THE fix for "props standing in middle of paths".
+                if _path_query.is_on_path(pos, 1.0):
+                        continue
                 # Place a gap filler
                 if not valid_fillers.is_empty():
                         var fname: String = valid_fillers[crng.randi() % valid_fillers.size()]
@@ -805,6 +816,10 @@ func _build_chunk(key: Vector2i) -> void:
                         if not spatial.is_free(pos, 3.0) or spatial.is_on_road(pos):
                                 continue
                         if _is_in_poi_exclusion(pos, poi_exclusions):
+                                continue
+                        # Phase B.7.6: skip positions that land on a path.
+                        # Uses 2m margin (larger than gap filler's 1m) because trees have wider canopies.
+                        if _path_query.is_on_path(pos, 2.0):
                                 continue
                         var fname: String = foliage[crng.randi() % foliage.size()]
                         var scene: PackedScene = _get_asset(fname)
@@ -997,6 +1012,16 @@ func _create_plane_mesh_rotated(parent: Node3D, name: String, pos: Vector3, size
         mi.position = Vector3(pos.x, pos.y, pos.z)
         mi.rotation.y = yaw
         parent.add_child(mi)
+        # Phase B.7.5: Register path segments (Sidewalk / Driveway / Path) in the
+        # spatial index so the gap filler + foliage loops can skip placements that
+        # would land on a path. Reconstructs start/end from center + size + yaw.
+        if name == "Sidewalk" or name == "Driveway" or name == "Path":
+                var half_len: float = size.y * 0.5
+                var dir_x: float = sin(yaw)
+                var dir_z: float = cos(yaw)
+                var start: Vector3 = Vector3(pos.x - dir_x * half_len, pos.y, pos.z - dir_z * half_len)
+                var end: Vector3 = Vector3(pos.x + dir_x * half_len, pos.y, pos.z + dir_z * half_len)
+                _path_query.register_segment(start, end, size.x, name)
 
 func _place_park(chunk_root: Node3D, center: Vector3, crng: RandomNumberGenerator) -> void:
         # Park ground (darker green) — Phase A.6: uses _create_plane_mesh_rotated
