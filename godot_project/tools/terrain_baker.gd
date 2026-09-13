@@ -31,9 +31,17 @@ func _ready() -> void:
         _build_terrain()
 
 func _build_terrain() -> void:
-        _generate_terrain_mesh()
+        # Phase B.3: terrain mesh DISABLED — was causing 3 bugs:
+        # 1. Player stuck (dual colliders: FlatGround box + terrain trimesh conflict)
+        # 2. Z-fighting (terrain at Y=0 vs road meshes at Y=0.02, 25m resolution
+        #    causes terrain bumps to poke through roads)
+        # 3. "Weird green ground" (terrain material + FlatGround material conflict)
+        # Re-enable when we have: proper LOD, single-collider approach, road Y
+        # offset that clears 25m terrain bumps.
+        # _generate_terrain_mesh()
         _place_bridges()
         _place_water()
+        print("[TerrainBaker] terrain mesh DISABLED — using FlatGround (terrain caused stuck/z-fighting)")
 
 # Phase B.1.5: Generate a heightmap mesh from TerrainHeight.height_at().
 # Samples the terrain at 25m intervals across the full map (4000×3000m),
@@ -185,10 +193,10 @@ func _place_water() -> void:
                 return
 
         var water_w: float = river.get_half_width() * 2.0  # full width = 2 × half_width
-        # Phase B.1.5: water at actual water level (Y=0). Was at -1.0 below flat
-        # ground to avoid z-fighting. With terrain mesh, the riverbed is carved
-        # to -4m, so water at Y=0 sits above the riverbed — no z-fighting.
-        var water_y: float = river.get_water_level()
+        # Water below FlatGround (Y=0) to avoid z-fighting. Terrain mesh is
+        # disabled — no riverbed carve visible. Water at Y=-1 sits just below
+        # the flat ground, visible only at river crossings.
+        var water_y: float = river.get_water_level() - 1.0
 
         var water_mat := StandardMaterial3D.new()
         water_mat.albedo_color = Color(0.15, 0.30, 0.45, 0.7)
