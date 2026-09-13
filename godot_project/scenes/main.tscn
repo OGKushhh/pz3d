@@ -73,10 +73,14 @@ directional_shadow_size = 2048
 [node name="TerrainBaker" type="Node3D" parent="."]
 script = ExtResource("2_terrain")
 
+; Phase B.1.5: FlatGround HIDDEN — terrain mesh from TerrainBaker replaces it.
+; Keep the node (visible=false) as a safety net in case terrain trimesh has gaps.
+; The terrain mesh provides visual ground + trimesh collision.
 [node name="FlatGround" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0, 1500)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, -10, 1500)
 
 [node name="FlatGroundMesh" type="MeshInstance3D" parent="FlatGround"]
+visible = false
 mesh = SubResource("flat_ground_mesh")
 material_override = SubResource("flat_ground_mat")
 

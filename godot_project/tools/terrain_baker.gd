@@ -1,16 +1,22 @@
-# TerrainBaker — creates terrain features (bridges, water) at startup.
+# TerrainBaker — creates terrain mesh + bridges + water at startup.
 #
-# Terrain3D is DISABLED — it causes z-fighting with the flat ground and
-# its collision doesn't work properly. The FlatGround in main.tscn
-# provides visible ground + collision at Y=0.
+# Phase B.1.5 (2026-09-13): NOW GENERATES A HEIGHTMAP MESH from
+# TerrainHeight.height_at(). Replaces the flat ground (was a flat PlaneMesh
+# at Y=0) with actual terrain elevation showing:
+#   - River valley (-4m carved by river_network)
+#   - Forest hills (+2m base, +5m amplitude from noise)
+#   - Farmland flats (+0.2m, near-zero amplitude)
+#   - Coastal beach cliffs (-1m base, +8m amplitude)
+#   - Military plateau (+3m)
+#   - Road flattening (terrain flattened to ~0 near road grid lines)
 #
-# This script still places bridges and water surface (they're independent
-# of the terrain mesh).
+# The mesh is generated at 25m resolution (160×120 grid = ~19k vertices)
+# with per-vertex normals computed from triangle cross products. Trimesh
+# collision is generated so the player walks on actual terrain.
 #
-# TODO: re-enable Terrain3D when we solve:
-# 1. Z-fighting between Terrain3D mesh and FlatGround
-# 2. DYNAMIC_GAME collision not working on GTX 1050
-# 3. Proper Forward+ renderer support testing
+# Buildings/props/foliage are placed at terrain height (via chunk_streamer
+# querying terrain.height_at()). Road flattening keeps road-adjacent
+# buildings at Y≈0 (same as before).
 class_name TerrainBaker
 extends Node3D
 
@@ -25,11 +31,80 @@ func _ready() -> void:
         _build_terrain()
 
 func _build_terrain() -> void:
-        print("[TerrainBaker] Terrain3D DISABLED — using flat ground only")
+        _generate_terrain_mesh()
         _place_bridges()
         _place_water()
 
-# B.5 + Phase A.11: Place bridges at locations defined in city_config.gd::bridges()
+# Phase B.1.5: Generate a heightmap mesh from TerrainHeight.height_at().
+# Samples the terrain at 25m intervals across the full map (4000×3000m),
+# creating a 161×121 vertex grid (~19.5k vertices, ~38k triangles).
+# Computes per-vertex normals from triangle cross products for proper
+# lighting. Generates trimesh collision so the player walks on terrain.
+func _generate_terrain_mesh() -> void:
+        var resolution := 25.0  # meters between samples
+        var cols: int = int(CFG.MAP_SIZE_M.x / resolution) + 1
+        var rows: int = int(CFG.MAP_SIZE_M.y / resolution) + 1
+        var verts := PackedVector3Array()
+        var norms := PackedVector3Array()
+        var indices := PackedInt32Array()
+        # Generate vertices
+        verts.resize(cols * rows)
+        norms.resize(cols * rows)
+        for rz in range(rows):
+                for rx in range(cols):
+                        var x: float = float(rx) * resolution
+                        var z: float = float(rz) * resolution
+                        var y: float = _height_fn.height_at(x, z)
+                        var idx: int = rz * cols + rx
+                        verts[idx] = Vector3(x, y, z)
+                        norms[idx] = Vector3.ZERO  # will be computed from triangles
+        # Generate indices (two triangles per grid cell, counter-clockwise from above)
+        var num_cells: int = (cols - 1) * (rows - 1)
+        indices.resize(num_cells * 6)  # 2 triangles × 3 vertices per cell
+        var ti: int = 0
+        for rz in range(rows - 1):
+                for rx in range(cols - 1):
+                        var i: int = rz * cols + rx
+                        # Triangle 1: top-left, bottom-left, top-right (CCW from above)
+                        indices[ti] = i; ti += 1
+                        indices[ti] = i + cols; ti += 1
+                        indices[ti] = i + 1; ti += 1
+                        # Triangle 2: top-right, bottom-right, bottom-left (CCW from above)
+                        indices[ti] = i + 1; ti += 1
+                        indices[ti] = i + cols + 1; ti += 1
+                        indices[ti] = i + cols; ti += 1
+        # Compute normals (accumulate from each triangle's cross product)
+        for j in range(0, indices.size(), 3):
+                var v0: Vector3 = verts[indices[j]]
+                var v1: Vector3 = verts[indices[j + 1]]
+                var v2: Vector3 = verts[indices[j + 2]]
+                var normal: Vector3 = (v1 - v0).cross(v2 - v0).normalized()
+                norms[indices[j]] += normal
+                norms[indices[j + 1]] += normal
+                norms[indices[j + 2]] += normal
+        # Normalize accumulated normals
+        for j in range(norms.size()):
+                norms[j] = norms[j].normalized()
+        # Create ArrayMesh
+        var arrays: Array = []
+        arrays.resize(Mesh.ARRAY_MAX)
+        arrays[Mesh.ARRAY_VERTEX] = verts
+        arrays[Mesh.ARRAY_NORMAL] = norms
+        arrays[Mesh.ARRAY_INDEX] = indices
+        var terrain_mesh := ArrayMesh.new()
+        terrain_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+        # Create MeshInstance3D with terrain material
+        var mi := MeshInstance3D.new()
+        mi.name = "TerrainMesh"
+        mi.mesh = terrain_mesh
+        var mat := StandardMaterial3D.new()
+        mat.albedo_color = Color(0.25, 0.30, 0.18, 1)  # dark green-brown
+        mat.roughness = 0.95
+        mi.material_override = mat
+        add_child(mi)
+        # Generate trimesh collision so the player walks on terrain
+        mi.create_trimesh_collision()
+        print("[TerrainBaker] Terrain mesh: %d verts, %d tris (25m resolution, trimesh collision)" % [verts.size(), indices.size() / 3])
 # Phase A.11: bridges now have ELEVATED decks (Y=+3m above water) + visible
 # support piers at each end. Was flat at Y=0 (looked like a wider road).
 # Now visually distinct from regular roads — players can see they're crossing
@@ -102,7 +177,10 @@ func _place_water() -> void:
                 return
 
         var water_w: float = river.get_half_width() * 2.0  # full width = 2 × half_width
-        var water_y: float = river.get_water_level() - 1.0  # below flat ground to avoid z-fighting
+        # Phase B.1.5: water at actual water level (Y=0). Was at -1.0 below flat
+        # ground to avoid z-fighting. With terrain mesh, the riverbed is carved
+        # to -4m, so water at Y=0 sits above the riverbed — no z-fighting.
+        var water_y: float = river.get_water_level()
 
         var water_mat := StandardMaterial3D.new()
         water_mat.albedo_color = Color(0.15, 0.30, 0.45, 0.7)

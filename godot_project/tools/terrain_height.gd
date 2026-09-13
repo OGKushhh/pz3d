@@ -31,13 +31,12 @@ const ELEVATIONS := {
         3: {"base": 0.2, "amp": 0.3, "freq": 0.005},    # FARMLAND
         4: {"base": 0.5, "amp": 0.5, "freq": 0.005},    # COMMERCIAL
         5: {"base": 0.5, "amp": 0.5, "freq": 0.005},    # INDUSTRIAL
-        # 6 was RIVER — removed Phase A.4
+        6: {"base": -0.5, "amp": 0.4, "freq": 0.010},   # WETLANDS (marshy, near water level)
         7: {"base": 0.5, "amp": 0.5, "freq": 0.005},    # DOWNTOWN
         8: {"base": 3.0, "amp": 0.0, "freq": 0.0},      # MILITARY (plateau)
         9: {"base": -1.0, "amp": 8.0, "freq": 0.020},   # COASTAL_BEACH
         10: {"base": -2.0, "amp": 0.0, "freq": 0.0},    # WATER (sea level)
         11: {"base": 0.0, "amp": 0.0, "freq": 0.0},     # EMPTY
-        12: {"base": -0.5, "amp": 0.4, "freq": 0.010},  # WETLANDS (marshy, near water level)
 }
 
 # River carve parameters

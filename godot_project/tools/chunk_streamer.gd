@@ -218,6 +218,18 @@ const DISTRICT_NOISE_THRESHOLD := 0.62
 # so borrowing tends to happen in 2-chunk-wide patches along grid borders.
 const DISTRICT_NOISE_FREQ := 0.5
 
+# Phase B.1.5: terrain height helper. Returns the terrain Y at (x, z).
+# Used by all placement code to put buildings/props/foliage on terrain
+# instead of flat Y=0. Road flattening keeps road-adjacent placements
+# at Y≈0 (same as before). Block interiors get full biome elevation.
+func _terrain_y(x: float, z: float) -> float:
+        if terrain == null:
+                return 0.0
+        return terrain.height_at(x, z)
+
+func _terrain_pos(flat_pos: Vector3) -> Vector3:
+        return Vector3(flat_pos.x, _terrain_y(flat_pos.x, flat_pos.z), flat_pos.z)
+
 func _ready() -> void:
         await get_tree().process_frame
         var root := get_tree().current_scene
@@ -377,7 +389,7 @@ func _build_chunk(key: Vector2i) -> void:
                         continue
                 var poi_pos := Vector3(float(poi.pos[0]), 0, float(poi.pos[2]))
                 var poi_inst: Node3D = poi_scene.instantiate()
-                poi_inst.position = poi_pos
+                poi_inst.position = _terrain_pos(poi_pos)
                 poi_inst.name = "POI_%s" % poi.get("id", poi_asset)
                 chunk_root.add_child(poi_inst)
                 spatial.insert(poi_pos, float(poi.get("radius", 30)))
@@ -629,7 +641,7 @@ func _build_chunk(key: Vector2i) -> void:
                         var scene: PackedScene = _get_asset(fname)
                         if scene:
                                 var inst: Node3D = scene.instantiate()
-                                inst.position = pos
+                                inst.position = _terrain_pos(pos)
                                 inst.rotation.y = crng.randf_range(0, TAU)
                                 inst.name = "%s_%d" % [fname, crng.randi() % 100000]
                                 chunk_root.add_child(inst)
@@ -659,7 +671,7 @@ func _build_chunk(key: Vector2i) -> void:
                         if scene == null:
                                 continue
                         var inst: Node3D = scene.instantiate()
-                        inst.position = pos
+                        inst.position = _terrain_pos(pos)
                         inst.rotation.y = crng.randf_range(0, TAU)
                         # Scale variation for trees
                         var tree_scale: float = crng.randf_range(0.8, 1.3)
@@ -891,7 +903,7 @@ func _place_street_lights(chunk_root: Node3D, chunk_roads: Array, crng: RandomNu
                                 var pos: Vector3 = base + perp * edge_offset * float(side)
                                 if spatial.is_free(pos, light_radius) and not spatial.is_on_road(pos):
                                         var inst: Node3D = scene.instantiate()
-                                        inst.position = pos
+                                        inst.position = _terrain_pos(pos)
                                         inst.rotation.y = 0.0 if side < 0 else PI
                                         inst.name = "street_light_%d" % crng.randi()
                                         chunk_root.add_child(inst)
@@ -1062,7 +1074,7 @@ func _spawn_building_with_components(
                 return null
 
         var inst: Node3D = scene.instantiate()
-        inst.position = lot_pos
+        inst.position = _terrain_pos(lot_pos)
         # Face the road + slight rotation variation
         var face_angle: float = atan2(perp.x, perp.z) * float(side)
         inst.rotation.y = face_angle + crng.randf_range(-0.1, 0.1)
@@ -1467,7 +1479,7 @@ func _place_landmark(
                 if scene == null:
                         continue
                 var inst: Node3D = scene.instantiate()
-                inst.position = chosen_pos
+                inst.position = _terrain_pos(chosen_pos)
                 inst.rotation.y = crng.randf_range(0, TAU)
                 inst.name = "LANDMARK_%s_%d" % [lm_name, crng.randi() % 100000]
                 inst.set_meta("is_landmark", true)
@@ -1534,7 +1546,7 @@ func _place_utility_poles(chunk_root: Node3D, chunk_roads: Array, crng: RandomNu
                         var pole_pos: Vector3 = base + perp * float(side) * UTILITY_POLE_OFFSET_M
                         if spatial.is_free(pole_pos, pole_radius) and not spatial.is_on_road(pole_pos):
                                 var inst: Node3D = scene.instantiate()
-                                inst.position = pole_pos
+                                inst.position = _terrain_pos(pole_pos)
                                 # Pole faces along the road (crossbar perpendicular to road)
                                 inst.rotation.y = atan2(dir.x, dir.z) + crng.randf_range(-0.05, 0.05)
                                 inst.name = "utility_pole_%d" % crng.randi()
@@ -1600,7 +1612,7 @@ func _place_fire_hydrants(chunk_root: Node3D, chunk_roads: Array, crng: RandomNu
                                 if spatial.is_on_road(hydrant_pos):
                                         continue
                                 var inst: Node3D = scene.instantiate()
-                                inst.position = hydrant_pos
+                                inst.position = _terrain_pos(hydrant_pos)
                                 inst.rotation.y = crng.randf_range(0, TAU)
                                 inst.name = "fire_hydrant_%d" % crng.randi()
                                 chunk_root.add_child(inst)
@@ -1692,7 +1704,7 @@ func _place_zombies(
                 if scene == null:
                         continue
                 var inst: Node3D = scene.instantiate()
-                inst.position = pos
+                inst.position = _terrain_pos(pos)
                 inst.rotation.y = crng.randf_range(0, TAU)
                 # Slight scale variation so the herd doesn't look cloned.
                 var scale_var: float = crng.randf_range(0.95, 1.05)
@@ -1771,7 +1783,7 @@ func _place_backyard_fill(
         if scene == null:
                 return
         var inst: Node3D = scene.instantiate()
-        inst.position = lot_pos
+        inst.position = _terrain_pos(lot_pos)
         # Face the road (perp direction × side)
         inst.rotation.y = atan2(perp.x, perp.z) * float(side) + crng.randf_range(-0.3, 0.3)
         inst.name = "backyard_%s_%d" % [fname, crng.randi() % 100000]
