@@ -113,15 +113,16 @@ func _generate_biome_ground_mesh() -> void:
         arrays[Mesh.ARRAY_INDEX] = indices
         var ground_mesh := ArrayMesh.new()
         ground_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-        # Material with vertex colors as albedo
-        var mat := StandardMaterial3D.new()
-        mat.vertex_color_use_as_albedo = true
-        mat.roughness = 0.95
-        ground_mesh.surface_set_material(0, mat)
         # Create MeshInstance3D
         var mi := MeshInstance3D.new()
         mi.name = "BiomeGroundMesh"
         mi.mesh = ground_mesh
+        # Material with vertex colors as albedo (set AFTER mi is created)
+        var mat := StandardMaterial3D.new()
+        mat.vertex_color_use_as_albedo = true
+        mat.albedo_color = Color(1, 1, 1, 1)  # white base — vertex colors multiply
+        mat.roughness = 0.95
+        mi.material_override = mat
         add_child(mi)
         print("[TerrainBaker] Biome ground mesh: %d verts, %d tris (per-biome colors + noise)" % [verts.size(), indices.size() / 3])
 

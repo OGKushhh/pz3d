@@ -913,32 +913,35 @@ func _build_visible_roads(chunk_root: Node3D, origin: Vector3, chunk_size: float
                         Vector3(mid.x, Y_ROAD, mid.z),
                         Vector2(width, length), C_ROAD, yaw)
 
-                # Center lane line (thin strip down the middle)
-                _create_plane_mesh_rotated(chunk_root, "Lane",
-                        Vector3(mid.x, Y_LANE, mid.z),
-                        Vector2(0.15, length), C_LANE, yaw)
+                # Phase B.4: skip lane/sidewalk/grass near intersections
+                var near_crossing: bool = _is_near_intersection(mid, 20.0)
 
-                # Sidewalks (both sides — offset perpendicular to road direction)
-                var sw_off: float = width * 0.5 + CityConfig.SIDEWALK_WIDTH * 0.5
-                var sw1: Vector3 = mid + perp * sw_off
-                var sw2: Vector3 = mid - perp * sw_off
-                _create_plane_mesh_rotated(chunk_root, "SW1",
-                        Vector3(sw1.x, Y_SIDEWALK, sw1.z),
-                        Vector2(CityConfig.SIDEWALK_WIDTH, length), C_SIDEWALK, yaw)
-                _create_plane_mesh_rotated(chunk_root, "SW2",
-                        Vector3(sw2.x, Y_SIDEWALK, sw2.z),
-                        Vector2(CityConfig.SIDEWALK_WIDTH, length), C_SIDEWALK, yaw)
+                # Center lane line (only on wider roads, not at intersections)
+                if width >= 8.0 and not near_crossing:
+                        _create_plane_mesh_rotated(chunk_root, "Lane",
+                                Vector3(mid.x, Y_LANE, mid.z),
+                                Vector2(0.15, length), C_LANE, yaw)
 
-                # Grass strips (outside sidewalks)
-                var gs_off: float = width * 0.5 + CityConfig.SIDEWALK_WIDTH + CityConfig.GRASS_STRIP_WIDTH * 0.5
-                var gs1: Vector3 = mid + perp * gs_off
-                var gs2: Vector3 = mid - perp * gs_off
-                _create_plane_mesh_rotated(chunk_root, "GS1",
-                        Vector3(gs1.x, Y_GRASS, gs1.z),
-                        Vector2(CityConfig.GRASS_STRIP_WIDTH, length), C_GRASS, yaw)
-                _create_plane_mesh_rotated(chunk_root, "GS2",
-                        Vector3(gs2.x, Y_GRASS, gs2.z),
-                        Vector2(CityConfig.GRASS_STRIP_WIDTH, length), C_GRASS, yaw)
+                # Sidewalks + grass strips — skip at intersections
+                if not near_crossing:
+                        var sw_off: float = width * 0.5 + CityConfig.SIDEWALK_WIDTH * 0.5
+                        var sw1: Vector3 = mid + perp * sw_off
+                        var sw2: Vector3 = mid - perp * sw_off
+                        _create_plane_mesh_rotated(chunk_root, "SW1",
+                                Vector3(sw1.x, Y_SIDEWALK, sw1.z),
+                                Vector2(CityConfig.SIDEWALK_WIDTH, length), C_SIDEWALK, yaw)
+                        _create_plane_mesh_rotated(chunk_root, "SW2",
+                                Vector3(sw2.x, Y_SIDEWALK, sw2.z),
+                                Vector2(CityConfig.SIDEWALK_WIDTH, length), C_SIDEWALK, yaw)
+                        var gs_off: float = width * 0.5 + CityConfig.SIDEWALK_WIDTH + CityConfig.GRASS_STRIP_WIDTH * 0.5
+                        var gs1: Vector3 = mid + perp * gs_off
+                        var gs2: Vector3 = mid - perp * gs_off
+                        _create_plane_mesh_rotated(chunk_root, "GS1",
+                                Vector3(gs1.x, Y_GRASS, gs1.z),
+                                Vector2(CityConfig.GRASS_STRIP_WIDTH, length), C_GRASS, yaw)
+                        _create_plane_mesh_rotated(chunk_root, "GS2",
+                                Vector3(gs2.x, Y_GRASS, gs2.z),
+                                Vector2(CityConfig.GRASS_STRIP_WIDTH, length), C_GRASS, yaw)
 
 # Phase A.6: Plane mesh helper that supports yaw rotation around Y.
 # Used for ALL road rendering (axis-aligned AND diagonal). Size is Vector2
