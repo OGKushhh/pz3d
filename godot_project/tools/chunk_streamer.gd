@@ -395,13 +395,18 @@ func _build_chunk(key: Vector2i) -> void:
         # === BUILDINGS ALONG ROAD SEGMENTS ===
         var buildings: Array = profile.get("buildings", [])
         var commercial_buildings: Array = profile.get("commercial_buildings", ["corner_store", "diner", "gas_station", "corner_store"])
+        # v8.2 Phase A.8: increased fill from 0.5 base to higher density.
+        # Was int(fill * 40) = 20 buildings per chunk at 0.5 fill. Now
+        # int(fill * 60) = 30 buildings per chunk — 50% more buildings.
+        # Addresses "map mostly empty" feedback. Plus reduced empty-lot
+        # probability (was 1-fill, now (1-fill)*0.5 — half as many empty lots).
         var fill: float = profile.get("fill", 0.5)
         var building_radius: float = max(LOT_W, LOT_D) * 0.4
 
         # Get road segments that pass through this chunk
         var chunk_roads: Array = _get_roads_in_chunk(origin, CityConfig.CHUNK_SIZE_M)
         var placed := 0
-        var target: int = int(fill * 40)
+        var target: int = int(fill * 60)  # Phase A.8: was 40, now 60
 
         for seg in chunk_roads:
                 if placed >= target:
@@ -447,8 +452,19 @@ func _build_chunk(key: Vector2i) -> void:
                                 # Prevents buildings spawning on the highway shoulder.
                                 if _is_near_highway(lot_pos):
                                         continue
+                                # v8.2 Phase A.8: reduced empty-lot probability.
+                                # Was: crng.randf() > fill → skip (empty lot).
+                                # Now: crng.randf() > fill OR crng.randf() < 0.3 → skip.
+                                # Effectively halves the number of empty lots. The gap
+                                # filler still runs for some empty space (parking lots,
+                                # backyards) but less of the chunk is bare.
                                 if crng.randf() > fill:
-                                        continue  # Empty lot (will be filled by gap filler)
+                                        # 50% chance to still place a smaller prop here
+                                        # (backyard shed, planter, etc.) instead of leaving
+                                        # the lot completely bare.
+                                        if crng.randf() < 0.5:
+                                                _place_backyard_fill(lot_pos, perp, side, chunk_root, crng, profile)
+                                        continue  # Skip the main building placement
 
                                 # Pick building: commercial at intersections, residential otherwise
                                 var bname: String
@@ -484,6 +500,8 @@ func _build_chunk(key: Vector2i) -> void:
         s_count += _place_fire_hydrants(chunk_root, chunk_roads, crng)
 
         # === GAP FILLER — fill empty spaces with small props ===
+        # v8.2 Phase A.8: increased gap_count from fill*15 to fill*25.
+        # Addresses "map mostly empty" — more props scattered in empty lots.
         var props: Array = profile.get("props", [])
         var gap_fillers: Array = ["shed", "garage_detached", "picket_fence", "planter_box", "garden_gnome", "trash_can", "mailbox"]
         # Filter to assets that exist in manifest
@@ -492,7 +510,7 @@ func _build_chunk(key: Vector2i) -> void:
                 if manifest.has(gf):
                         valid_fillers.append(gf)
 
-        var gap_count := int(fill * 15)
+        var gap_count := int(fill * 25)  # Phase A.8: was 15, now 25
         for i in range(gap_count):
                 var pos := Vector3(
                         origin.x + crng.randf_range(15.0, CityConfig.CHUNK_SIZE_M - 15.0),
@@ -519,9 +537,11 @@ func _build_chunk(key: Vector2i) -> void:
                                 p_count += 1
 
         # === INTERIOR GREENERY — trees/bushes inside blocks ===
+        # v8.2 Phase A.8: increased green_count from fill*25 to fill*40.
+        # Addresses "map mostly empty" + "no land foliage" feedback.
         var foliage: Array = profile.get("foliage", [])
         if not foliage.is_empty():
-                var green_count := int(fill * 25)
+                var green_count := int(fill * 40)  # Phase A.8: was 25, now 40
                 for i in range(green_count):
                         var pos := Vector3(
                                 origin.x + crng.randf_range(5.0, CityConfig.CHUNK_SIZE_M - 5.0),
@@ -1024,7 +1044,7 @@ func _disable_shadows_if_small_prop(inst: Node3D, asset_name: String) -> void:
         if not NO_SHADOW_PROPS.has(asset_name):
                 return
         for mi in inst.find_children("*", "MeshInstance3D", true, false):
-                (mi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_OFF
+                (mi as MeshInstance3D).cast_shadow = 0
 
 # v8.2 Phase A.8: disable shadows on small foliage (bushes, hedges, flowers).
 # Trees (oak_tree, pine_tree, birch_tree, etc.) keep shadows — they're tall
@@ -1034,7 +1054,7 @@ func _disable_shadows_if_small_foliage(inst: Node3D, asset_name: String) -> void
         if not SMALL_FOLIAGE.has(asset_name):
                 return
         for mi in inst.find_children("*", "MeshInstance3D", true, false):
-                (mi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_OFF
+                (mi as MeshInstance3D).cast_shadow = 0
 
 # Look up the shell GLB for a building. Returns null if no shell exists.
 # Cached so we only do the ResourceLoader.exists() check once per asset.
@@ -1548,6 +1568,51 @@ func _place_zombies(
                 spatial.insert(pos, ZOMBIE_RADIUS)
                 count += 1
         return count
+
+# ============================================================
+# v8.2 Phase A.8: BACKYARD FILL — fill empty lots with small props
+# ============================================================
+# When a lot is skipped (crng.randf() > fill), instead of leaving it bare,
+# place a "backyard" prop: a shed, fence section, garden prop, or small
+# tree. This addresses "map mostly empty" by filling skipped lots with
+# visual interest instead of bare grass.
+#
+# Picks from the biome's `props` list + the generic `backyard_fillers` list
+# below. Rotates to match the road-facing direction. Skips if the position
+# is already occupied or on a road.
+const BACKYARD_FILLERS := ["shed", "picket_fence", "planter_box", "garden_gnome", "trash_can", "mailbox", "garden_hose_reel", "basketball_hoop"]
+func _place_backyard_fill(
+        lot_pos: Vector3, perp: Vector3, side: int,
+        chunk_root: Node3D, crng: RandomNumberGenerator, profile: Dictionary
+) -> void:
+        # Combine biome props + generic backyard fillers, filter to manifest
+        var candidates: Array = []
+        var biome_props: Array = profile.get("props", [])
+        for p in biome_props:
+                if manifest.has(p):
+                        candidates.append(p)
+        for bf in BACKYARD_FILLERS:
+                if manifest.has(bf) and not candidates.has(bf):
+                        candidates.append(bf)
+        if candidates.is_empty():
+                return
+        # 60% chance to place a backyard prop (40% stay empty for variety)
+        if crng.randf() > 0.6:
+                return
+        var fname: String = candidates[crng.randi() % candidates.size()]
+        var scene: PackedScene = _get_asset(fname)
+        if scene == null:
+                return
+        var inst: Node3D = scene.instantiate()
+        inst.position = lot_pos
+        # Face the road (perp direction × side)
+        inst.rotation.y = atan2(perp.x, perp.z) * float(side) + crng.randf_range(-0.3, 0.3)
+        inst.name = "backyard_%s_%d" % [fname, crng.randi() % 100000]
+        chunk_root.add_child(inst)
+        # Disable shadows on small props
+        _disable_shadows_if_small_prop(inst, fname)
+        # Insert with small radius so we don't block future building placement nearby
+        spatial.insert(lot_pos, 2.0)
 
 # ============================================================
 # v8.2: DISTRICT NOISE — value noise + neighbor-biome borrowing
