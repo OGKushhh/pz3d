@@ -31,6 +31,15 @@ from collections import defaultdict
 DUMP_PATH = Path("/home/z/my-project/pz3d/godot_project/chunk_states_auto.json")
 PLAN_PATH = Path("/home/z/my-project/pz3d/godot_project/fill_plan.json")
 REPORT_PATH = Path("/home/z/my-project/pz3d/docs/ai_analysis_report.md")
+METRICS_PATH = Path("/home/z/my-project/pz3d/godot_project/ai_metrics.json")
+SEMANTICS_PATH = Path("/home/z/my-project/pz3d/godot_project/data/asset_semantics.json")
+
+# Load semantic tags (Tier 2 — enables conflict + pairing reasoning)
+SEMANTICS = {}
+if SEMANTICS_PATH.exists():
+    SEMANTICS = json.loads(SEMANTICS_PATH.read_text())
+    # Strip the _meta key
+    SEMANTICS.pop("_meta", None)
 
 # Biome constants (must match city_config.gd)
 BIOME_NAMES = {
@@ -153,7 +162,78 @@ def analyze_chunk(state: dict) -> dict:
                 too_close_pairs.append({"a": b1, "b": b2, "dist": dist})
     if too_close_pairs:
         problems.append({"type": "too_close", "count": len(too_close_pairs), "details": too_close_pairs[:5]})
-    
+
+    # 8. SEMANTIC CONFLICT DETECTION (Tier 2)
+    # Use asset_semantics.json to detect: gas_station near park, factory near
+    # school, etc. Each conflict becomes a problem with suggested resolution
+    # (remove the offending asset OR add a buffer).
+    semantic_conflicts = []
+    for i, b1 in enumerate(buildings):
+        name1 = b1["name"]
+        sem1 = SEMANTICS.get(name1, {})
+        conflicts1 = sem1.get("conflicts_with", [])
+        if not conflicts1:
+            continue
+        for j, b2 in enumerate(buildings):
+            if j == i:
+                continue
+            name2 = b2["name"]
+            if name2 in conflicts1:
+                p1, p2 = b1["pos"], b2["pos"]
+                dist = ((p1[0]-p2[0])**2 + (p1[2]-p2[2])**2) ** 0.5
+                semantic_conflicts.append({
+                    "offender": b1,
+                    "victim": b2,
+                    "reason": f"{name1} conflicts with {name2} (dist={dist:.0f}m)",
+                    "dist": dist,
+                })
+    if semantic_conflicts:
+        problems.append({"type": "semantic_conflict", "count": len(semantic_conflicts), "details": semantic_conflicts[:5]})
+
+    # 9. MIN_SPACING VIOLATION (semantic)
+    # Check if any asset appears closer than its declared min_spacing
+    min_spacing_violations = []
+    for i, b1 in enumerate(buildings):
+        name1 = b1["name"]
+        sem1 = SEMANTICS.get(name1, {})
+        min_spacing = sem1.get("min_spacing", 0)
+        if min_spacing <= 0:
+            continue
+        for j, b2 in enumerate(buildings):
+            if j <= i:
+                continue
+            if b2["name"] != name1:
+                continue  # only check same-asset spacing
+            p1, p2 = b1["pos"], b2["pos"]
+            dist = ((p1[0]-p2[0])**2 + (p1[2]-p2[2])**2) ** 0.5
+            if dist < min_spacing:
+                min_spacing_violations.append({
+                    "a": b1, "b": b2, "dist": dist,
+                    "required": min_spacing,
+                    "reason": f"two {name1} within {dist:.0f}m (min {min_spacing}m)",
+                })
+    if min_spacing_violations:
+        problems.append({"type": "min_spacing_violation", "count": len(min_spacing_violations), "details": min_spacing_violations[:5]})
+
+    # 10. PAIRING OPPORTUNITY (semantic)
+    # If an asset's pairs_with isn't present in the chunk, that's an
+    # opportunity to add it (e.g. gas_station exists but no convenience_store)
+    pairing_ops = []
+    building_names = set(b["name"] for b in buildings)
+    for b in buildings:
+        name = b["name"]
+        sem = SEMANTICS.get(name, {})
+        pairs_with = sem.get("pairs_with", [])
+        for pair in pairs_with:
+            if pair not in building_names:
+                pairing_ops.append({
+                    "asset": name,
+                    "missing_pair": pair,
+                    "reason": f"{name} should pair with {pair} (not in chunk)",
+                })
+    if pairing_ops:
+        opportunities.append({"type": "missing_pair", "count": len(pairing_ops), "details": pairing_ops[:5]})
+
     return {
         "chunk_key": state["chunk_key"],
         "biome": biome,
@@ -168,16 +248,17 @@ def analyze_chunk(state: dict) -> dict:
 
 def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
     """Generate concrete actions (fill/remove/reposition) from analysis.
-    Balanced: max 2 removes + 3 fills per chunk (total 5 actions max).
+    Balanced: max 2 removes + 2 repositions + 3 fills per chunk (total 7 max).
     """
     actions = []
     chunk_key = analysis["chunk_key"]
     rng = random.Random(random_seed)
 
-    MAX_REMOVES = 2  # cap removes per chunk (preserve content)
-    MAX_FILLS = 3    # cap fills per chunk (avoid over-crowding)
-    MAX_ACTIONS = MAX_REMOVES + MAX_FILLS
+    MAX_REMOVES = 2       # cap removes per chunk (preserve content)
+    MAX_REPOSITIONS = 2    # cap repositions per chunk (avoid moving everything)
+    MAX_FILLS = 3          # cap fills per chunk (avoid over-crowding)
     remove_count = 0
+    reposition_count = 0
     fill_count = 0
 
     # 1. REMOVE overlapping buildings (priority — fix problems first)
@@ -187,7 +268,6 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                 if remove_count >= MAX_REMOVES:
                     break
                 smaller = overlap["smaller"]
-                # Don't remove landmarks
                 if smaller["name"] in LANDMARK_TYPES:
                     continue
                 actions.append({
@@ -199,10 +279,9 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                 })
                 remove_count += 1
 
-    # 2. REMOVE repetitive buildings (max 1 per chunk — keep variety without nuking)
+    # 2. REMOVE repetitive buildings (max 1 per chunk)
     for problem in analysis["problems"]:
         if problem["type"] == "asset_repetition" and remove_count < MAX_REMOVES:
-            # Remove just 1 excess copy per repetitive asset (not all of them)
             for name, count in problem["details"].items():
                 if remove_count >= MAX_REMOVES:
                     break
@@ -217,11 +296,70 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                             "asset_name": name,
                         })
                         remove_count += 1
-                        break  # just 1 per asset type
+                        break
                 if remove_count >= MAX_REMOVES:
                     break
 
-    # 3. FILL — from opportunities (sorted by priority)
+    # 2b. REMOVE semantic conflicts (gas_station near park, factory near school, etc.)
+    # Priority: if a conflict is detected, remove the offender (the asset that
+    # has the conflict declared in its semantics). E.g. gas_station has
+    # conflicts_with=["park","school"] → remove the gas_station, not the park.
+    for problem in analysis["problems"]:
+        if problem["type"] == "semantic_conflict" and remove_count < MAX_REMOVES:
+            for conflict in problem["details"]:
+                if remove_count >= MAX_REMOVES:
+                    break
+                offender = conflict["offender"]
+                if offender["name"] in LANDMARK_TYPES:
+                    continue  # don't remove landmarks
+                actions.append({
+                    "type": "remove",
+                    "chunk_key": chunk_key,
+                    "node_name": offender.get("node_name", ""),
+                    "reason": f"semantic_conflict: {conflict['reason']}",
+                    "asset_name": offender["name"],
+                })
+                remove_count += 1
+
+    # 3. REPOSITION buildings that are too close (push them apart along perpendicular)
+    # DeepSeek: "Moving one of the pair 0.5m along the perpendicular axis turns
+    # 25 problems into 25 fixes in about 10 lines. Cheapest win on the board."
+    for problem in analysis["problems"]:
+        if problem["type"] == "too_close" and reposition_count < MAX_REPOSITIONS:
+            for pair in problem["details"]:
+                if reposition_count >= MAX_REPOSITIONS:
+                    break
+                a, b = pair["a"], pair["b"]
+                # Don't reposition landmarks (they're placed intentionally)
+                if a["name"] in LANDMARK_TYPES or b["name"] in LANDMARK_TYPES:
+                    continue
+                # Compute perpendicular axis (push B away from A)
+                ax, az = a["pos"][0], a["pos"][2]
+                bx, bz = b["pos"][0], b["pos"][2]
+                dx, dz = bx - ax, bz - az
+                dist = (dx*dx + dz*dz) ** 0.5
+                if dist < 0.01:
+                    continue  # buildings at same position — can't compute perpendicular
+                # Perpendicular = (-dz, dx) normalized
+                perp_x = -dz / dist
+                perp_z = dx / dist
+                # Move B 0.5m along perpendicular (push it away from A)
+                new_bx = bx + perp_x * 0.5
+                new_bz = bz + perp_z * 0.5
+                # Keep building's existing rotation
+                new_rot_y = b.get("rot", [0, 0, 0])[1]
+                actions.append({
+                    "type": "reposition",
+                    "chunk_key": chunk_key,
+                    "node_name": b.get("node_name", ""),
+                    "new_pos": [new_bx, b["pos"][1], new_bz],
+                    "new_rot_y": new_rot_y,
+                    "reason": f"too_close (dist={pair['dist']:.2f}m, pushed 0.5m)",
+                    "asset_name": b["name"],
+                })
+                reposition_count += 1
+
+    # 4. FILL — from opportunities
     for opp in analysis["opportunities"]:
         if fill_count >= MAX_FILLS:
             break
@@ -401,7 +539,20 @@ def main():
                       f"{len(analysis['opportunities'])} | {len(chunk_actions)} |\n")
     
     REPORT_PATH.write_text("".join(report))
-    
+
+    # Write metrics JSON for multi-pass loop comparison
+    metrics = {
+        "iteration": 0,  # set by multi-pass wrapper
+        "total_problems": total_problems,
+        "total_opportunities": total_opportunities,
+        "total_actions": len(all_actions),
+        "problem_type_counts": dict(problem_type_counts),
+        "opportunity_type_counts": dict(opp_type_counts),
+        "action_type_counts": dict(action_type_counts),
+        "fill_type_counts": dict(fill_type_counts),
+    }
+    METRICS_PATH.write_text(json.dumps(metrics, indent=2))
+
     print(f"=== ANALYSIS COMPLETE ===")
     print(f"  Problems detected: {total_problems}")
     for ptype, count in sorted(problem_type_counts.items(), key=lambda x: x[1], reverse=True):

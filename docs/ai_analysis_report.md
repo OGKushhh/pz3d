@@ -1,8 +1,8 @@
 # AI Middleware Analysis Report
 > Generated from 25 chunk states.
-> Total problems detected: **71**
-> Total opportunities found: **48**
-> Total actions generated: **98**
+> Total problems detected: **78**
+> Total opportunities found: **60**
+> Total actions generated: **135**
 
 ## Problem Types Detected
 
@@ -10,7 +10,8 @@
 |---|---|---|
 | asset_repetition | 25 | Same asset appearing >5 times in one chunk |
 | too_close | 25 | Buildings within 3m of each other (spacing violation) |
-| overlaps | 21 | Buildings with intersecting AABBs (3D overlap) |
+| overlaps | 23 | Buildings with intersecting AABBs (3D overlap) |
+| min_spacing_violation | 5 |  |
 
 ## Opportunities Found
 
@@ -18,14 +19,16 @@
 |---|---|---|
 | biome_border | 25 | Chunk borders a different biome (transition zone) |
 | missing_halo_buildings | 14 | Landmark halo didn't attract its boost buildings |
-| high_density_gap | 9 | Chunk >80% empty gaps |
+| missing_pair | 13 |  |
+| high_density_gap | 8 | Chunk >80% empty gaps |
 
 ## Generated Actions
 
 | Action Type | Count |
 |---|---|
 | remove | 50 |
-| fill | 48 |
+| fill | 47 |
+| reposition | 38 |
 
 ### Fill Type Distribution
 
@@ -33,34 +36,34 @@
 |---|---|
 | green_space | 24 |
 | backyard | 14 |
-| tree_cluster | 10 |
+| tree_cluster | 9 |
 
 ## Per-Chunk Analysis (sorted by gap_pct descending)
 
 | Chunk | Biome | Buildings | Gap % | Problems | Opportunities | Actions |
 |---|---|---|---|---|---|---|
-| 10,5 | COASTAL_BEACH | 270 | 97% | 3 | 3 | 5 |
-| 11,6 | COASTAL_BEACH | 331 | 97% | 3 | 2 | 4 |
-| 10,6 | COASTAL_BEACH | 391 | 96% | 3 | 3 | 5 |
-| 11,5 | COASTAL_BEACH | 528 | 93% | 3 | 3 | 5 |
-| 11,7 | COASTAL_BEACH | 419 | 93% | 3 | 2 | 4 |
-| 7,7 | PARKS | 915 | 91% | 3 | 2 | 4 |
-| 10,7 | COASTAL_BEACH | 241 | 86% | 2 | 2 | 4 |
-| 7,4 | PARKS | 1377 | 82% | 3 | 2 | 4 |
-| 10,8 | COASTAL_BEACH | 388 | 81% | 3 | 3 | 5 |
-| 7,5 | PARKS | 1925 | 79% | 3 | 2 | 4 |
-| 11,4 | COASTAL_BEACH | 879 | 77% | 3 | 2 | 4 |
-| 8,4 | FARMLAND | 229 | 75% | 3 | 2 | 4 |
-| 9,5 | FARMLAND | 501 | 75% | 3 | 2 | 4 |
-| 10,4 | COASTAL_BEACH | 284 | 73% | 2 | 2 | 4 |
-| 11,8 | COASTAL_BEACH | 332 | 73% | 3 | 2 | 4 |
-| 8,5 | FARMLAND | 139 | 70% | 2 | 2 | 4 |
-| 7,6 | PARKS | 182 | 68% | 2 | 1 | 3 |
-| 9,4 | FARMLAND | 1519 | 53% | 3 | 2 | 4 |
-| 7,8 | COMMERCIAL | 981 | 47% | 3 | 1 | 3 |
-| 9,7 | COMMERCIAL | 1473 | 44% | 3 | 1 | 3 |
-| 9,6 | COMMERCIAL | 1376 | 37% | 3 | 2 | 4 |
-| 8,8 | COMMERCIAL | 912 | 33% | 3 | 1 | 3 |
-| 9,8 | COMMERCIAL | 1035 | 32% | 3 | 1 | 3 |
-| 8,7 | COMMERCIAL | 1200 | 29% | 3 | 1 | 3 |
-| 8,6 | COMMERCIAL | 695 | 26% | 3 | 2 | 4 |
+| 11,6 | COASTAL_BEACH | 373 | 95% | 3 | 3 | 6 |
+| 10,5 | COASTAL_BEACH | 346 | 94% | 3 | 3 | 7 |
+| 10,6 | COASTAL_BEACH | 461 | 93% | 3 | 3 | 7 |
+| 7,7 | PARKS | 911 | 92% | 3 | 2 | 6 |
+| 11,7 | COASTAL_BEACH | 462 | 91% | 3 | 2 | 6 |
+| 11,5 | COASTAL_BEACH | 611 | 90% | 3 | 4 | 7 |
+| 10,7 | COASTAL_BEACH | 296 | 84% | 2 | 2 | 6 |
+| 7,4 | PARKS | 1364 | 83% | 3 | 3 | 6 |
+| 7,5 | PARKS | 1921 | 80% | 3 | 3 | 4 |
+| 10,8 | COASTAL_BEACH | 462 | 78% | 3 | 3 | 6 |
+| 11,4 | COASTAL_BEACH | 937 | 75% | 3 | 2 | 6 |
+| 8,4 | FARMLAND | 290 | 73% | 3 | 2 | 6 |
+| 10,4 | COASTAL_BEACH | 312 | 73% | 3 | 3 | 6 |
+| 9,5 | FARMLAND | 559 | 72% | 3 | 2 | 4 |
+| 11,8 | COASTAL_BEACH | 380 | 72% | 3 | 2 | 6 |
+| 7,6 | PARKS | 156 | 70% | 2 | 1 | 3 |
+| 8,5 | FARMLAND | 194 | 68% | 3 | 2 | 4 |
+| 9,4 | FARMLAND | 1571 | 50% | 3 | 2 | 6 |
+| 7,8 | COMMERCIAL | 924 | 50% | 4 | 2 | 5 |
+| 9,7 | COMMERCIAL | 1355 | 46% | 4 | 2 | 5 |
+| 9,6 | COMMERCIAL | 1351 | 38% | 4 | 3 | 4 |
+| 8,8 | COMMERCIAL | 856 | 35% | 3 | 2 | 5 |
+| 9,8 | COMMERCIAL | 976 | 34% | 4 | 2 | 5 |
+| 8,7 | COMMERCIAL | 1141 | 31% | 4 | 2 | 5 |
+| 8,6 | COMMERCIAL | 667 | 27% | 3 | 3 | 4 |

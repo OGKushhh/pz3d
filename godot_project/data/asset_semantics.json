@@ -1,0 +1,306 @@
+{
+  "_meta": {
+    "description": "Semantic tags for assets — enables AI reasoning about effects, conflicts, pairings. Loaded by scripts/ai_fill_planner.py to detect conflicts (e.g. gas_station near park) and suggest pairings (e.g. gas_station + convenience_store).",
+    "version": 1,
+    "fields": {
+      "category": "primary category (commercial/residential/industrial/civic/landmark/prop/foliage/character)",
+      "subcategory": "specific type (fuel/food/medical/etc.)",
+      "traffic": "1-5, how much vehicle traffic this attracts",
+      "walkability": "-2 to +2, effect on pedestrian walkability",
+      "noise": "1-5, noise pollution level",
+      "pairs_with": "asset names that complement this one",
+      "conflicts_with": "asset names that shouldn't be near this",
+      "min_spacing": "meters — minimum distance between two of this asset"
+    }
+  },
+  "gas_station": {
+    "category": "commercial",
+    "subcategory": "fuel",
+    "traffic": 5,
+    "walkability": -2,
+    "noise": 3,
+    "pairs_with": ["convenience_store", "corner_store", "parking_lot"],
+    "conflicts_with": ["park", "school_elementary", "hospital", "church_small"],
+    "min_spacing": 500
+  },
+  "corner_store": {
+    "category": "commercial",
+    "subcategory": "retail",
+    "traffic": 3,
+    "walkability": 2,
+    "noise": 2,
+    "pairs_with": ["parking_lot", "parking_meter", "trash_can", "planter_box"],
+    "conflicts_with": [],
+    "min_spacing": 200
+  },
+  "diner": {
+    "category": "commercial",
+    "subcategory": "food",
+    "traffic": 4,
+    "walkability": 2,
+    "noise": 3,
+    "pairs_with": ["parking_lot", "parking_meter", "trash_can"],
+    "conflicts_with": [],
+    "min_spacing": 300
+  },
+  "store_pharmacy": {
+    "category": "commercial",
+    "subcategory": "medical",
+    "traffic": 3,
+    "walkability": 2,
+    "noise": 1,
+    "pairs_with": ["parking_lot", "hospital"],
+    "conflicts_with": [],
+    "min_spacing": 300
+  },
+  "store_gun": {
+    "category": "commercial",
+    "subcategory": "retail",
+    "traffic": 2,
+    "walkability": 0,
+    "noise": 1,
+    "pairs_with": ["police_station"],
+    "conflicts_with": ["school_elementary", "church_small", "park"],
+    "min_spacing": 400
+  },
+  "store_supermarket": {
+    "category": "commercial",
+    "subcategory": "retail",
+    "traffic": 4,
+    "walkability": 2,
+    "noise": 2,
+    "pairs_with": ["parking_lot", "shopping_cart", "parking_meter"],
+    "conflicts_with": [],
+    "min_spacing": 400
+  },
+  "grocery_store": {
+    "category": "commercial",
+    "subcategory": "retail",
+    "traffic": 4,
+    "walkability": 2,
+    "noise": 2,
+    "pairs_with": ["parking_lot", "shopping_cart", "parking_meter"],
+    "conflicts_with": [],
+    "min_spacing": 400
+  },
+  "motel": {
+    "category": "commercial",
+    "subcategory": "lodging",
+    "traffic": 3,
+    "walkability": 1,
+    "noise": 2,
+    "pairs_with": ["parking_lot", "diner", "gas_station"],
+    "conflicts_with": ["school_elementary"],
+    "min_spacing": 300
+  },
+  "bank_branch": {
+    "category": "commercial",
+    "subcategory": "financial",
+    "traffic": 3,
+    "walkability": 2,
+    "noise": 1,
+    "pairs_with": ["parking_lot", "parking_meter", "police_station"],
+    "conflicts_with": [],
+    "min_spacing": 400
+  },
+  "barber_shop": {
+    "category": "commercial",
+    "subcategory": "service",
+    "traffic": 2,
+    "walkability": 2,
+    "noise": 1,
+    "pairs_with": ["salon", "parking_meter"],
+    "conflicts_with": [],
+    "min_spacing": 200
+  },
+  "salon": {
+    "category": "commercial",
+    "subcategory": "service",
+    "traffic": 2,
+    "walkability": 2,
+    "noise": 1,
+    "pairs_with": ["barber_shop", "parking_meter"],
+    "conflicts_with": [],
+    "min_spacing": 200
+  },
+  "hospital": {
+    "category": "civic",
+    "subcategory": "medical",
+    "traffic": 5,
+    "walkability": 1,
+    "noise": 4,
+    "pairs_with": ["store_pharmacy", "parking_garage", "parking_lot", "police_station"],
+    "conflicts_with": ["gas_station", "factory_small", "warehouse"],
+    "min_spacing": 800
+  },
+  "police_station": {
+    "category": "civic",
+    "subcategory": "security",
+    "traffic": 3,
+    "walkability": 1,
+    "noise": 2,
+    "pairs_with": ["parking_lot", "bank_branch", "government_palace"],
+    "conflicts_with": [],
+    "min_spacing": 600
+  },
+  "school_elementary": {
+    "category": "civic",
+    "subcategory": "education",
+    "traffic": 3,
+    "walkability": 2,
+    "noise": 3,
+    "pairs_with": ["park", "playground_slide", "swing_set"],
+    "conflicts_with": ["gas_station", "bar", "factory_small", "warehouse_large"],
+    "min_spacing": 500
+  },
+  "church_small": {
+    "category": "civic",
+    "subcategory": "religious",
+    "traffic": 2,
+    "walkability": 2,
+    "noise": 1,
+    "pairs_with": ["park", "planter_box"],
+    "conflicts_with": ["gas_station", "bar", "factory_small"],
+    "min_spacing": 400
+  },
+  "government_palace": {
+    "category": "landmark",
+    "subcategory": "civic",
+    "traffic": 4,
+    "walkability": 1,
+    "noise": 2,
+    "pairs_with": ["highrise_office", "bank_branch", "police_station", "plaza"],
+    "conflicts_with": ["factory_small", "warehouse_large"],
+    "min_spacing": 1000
+  },
+  "stadium": {
+    "category": "landmark",
+    "subcategory": "entertainment",
+    "traffic": 5,
+    "walkability": -1,
+    "noise": 5,
+    "pairs_with": ["parking_garage", "parking_lot", "bank_branch", "diner"],
+    "conflicts_with": ["hospital", "school_elementary", "church_small"],
+    "min_spacing": 1500
+  },
+  "fort_sarran": {
+    "category": "landmark",
+    "subcategory": "military",
+    "traffic": 4,
+    "walkability": -2,
+    "noise": 3,
+    "pairs_with": ["military_checkpoint", "watchtower", "bunker_entrance", "field_hospital_tent"],
+    "conflicts_with": ["school_elementary", "church_small", "park"],
+    "min_spacing": 2000
+  },
+  "lighthouse": {
+    "category": "landmark",
+    "subcategory": "navigation",
+    "traffic": 2,
+    "walkability": 1,
+    "noise": 1,
+    "pairs_with": ["fishing_hut", "pier_dock", "houseboat"],
+    "conflicts_with": [],
+    "min_spacing": 1000
+  },
+  "broadcast_tower": {
+    "category": "landmark",
+    "subcategory": "communications",
+    "traffic": 3,
+    "walkability": -1,
+    "noise": 2,
+    "pairs_with": ["highrise_office", "apartment_tower_high", "police_station"],
+    "conflicts_with": ["hospital"],
+    "min_spacing": 800
+  },
+  "railway_station": {
+    "category": "landmark",
+    "subcategory": "transit",
+    "traffic": 5,
+    "walkability": 1,
+    "noise": 4,
+    "pairs_with": ["parking_garage", "corner_store", "diner", "bank_branch"],
+    "conflicts_with": ["hospital", "school_elementary", "church_small"],
+    "min_spacing": 1000
+  },
+  "warehouse": {
+    "category": "industrial",
+    "subcategory": "storage",
+    "traffic": 4,
+    "walkability": -2,
+    "noise": 3,
+    "pairs_with": ["loading_dock", "shipping_container", "dumpster"],
+    "conflicts_with": ["park", "school_elementary", "church_small"],
+    "min_spacing": 400
+  },
+  "warehouse_large": {
+    "category": "industrial",
+    "subcategory": "storage",
+    "traffic": 4,
+    "walkability": -2,
+    "noise": 3,
+    "pairs_with": ["loading_dock", "shipping_container", "dumpster"],
+    "conflicts_with": ["park", "school_elementary", "church_small"],
+    "min_spacing": 500
+  },
+  "factory_small": {
+    "category": "industrial",
+    "subcategory": "manufacturing",
+    "traffic": 4,
+    "walkability": -2,
+    "noise": 4,
+    "pairs_with": ["warehouse", "loading_dock", "utility_shed_metal", "storage_tank"],
+    "conflicts_with": ["park", "school_elementary", "church_small", "hospital"],
+    "min_spacing": 600
+  },
+  "park": {
+    "category": "prop",
+    "subcategory": "recreation",
+    "traffic": 1,
+    "walkability": 2,
+    "noise": 1,
+    "pairs_with": ["bench_park", "playground_slide", "swing_set", "water_fountain"],
+    "conflicts_with": ["gas_station", "factory_small", "warehouse"],
+    "min_spacing": 0
+  },
+  "oak_tree": {
+    "category": "foliage",
+    "subcategory": "tree",
+    "traffic": 0,
+    "walkability": 1,
+    "noise": 0,
+    "pairs_with": ["bench_park", "planter_box", "garden_gnome"],
+    "conflicts_with": [],
+    "min_spacing": 8
+  },
+  "pine_tree": {
+    "category": "foliage",
+    "subcategory": "tree",
+    "traffic": 0,
+    "walkability": 1,
+    "noise": 0,
+    "pairs_with": ["bench_park", "fern"],
+    "conflicts_with": [],
+    "min_spacing": 6
+  },
+  "parking_lot": {
+    "category": "prop",
+    "subcategory": "infrastructure",
+    "traffic": 3,
+    "walkability": -1,
+    "noise": 2,
+    "pairs_with": ["corner_store", "diner", "grocery_store", "bank_branch"],
+    "conflicts_with": ["park", "school_elementary"],
+    "min_spacing": 100
+  },
+  "parking_garage": {
+    "category": "building",
+    "subcategory": "infrastructure",
+    "traffic": 4,
+    "walkability": -1,
+    "noise": 2,
+    "pairs_with": ["hospital", "stadium", "railway_station", "highrise_office"],
+    "conflicts_with": ["park", "school_elementary"],
+    "min_spacing": 300
+  }
+}
