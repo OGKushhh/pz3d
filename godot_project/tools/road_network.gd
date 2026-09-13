@@ -132,6 +132,52 @@ func distance_to_nearest_road(pos: Vector3) -> float:
             best = d
     return best
 
+# Phase B.7.1: Returns full info about the nearest road segment to pos.
+# Unlike distance_to_nearest_road (which returns only the distance), this
+# returns the nearest point ON the road centerline, the road segment's
+# direction, and the segment itself. Used by Parcel to derive road_edge_pos
+# + front_dir from actual road geometry (not chunk-grid assumptions).
+#
+# Returns Dictionary:
+#   { distance: float,      # distance from pos to nearest point on road
+#     point: Vector3,       # nearest point on road centerline (world space)
+#     direction: Vector3,   # normalized direction of the road segment
+#     segment: Dictionary,  # the road segment dict {start, end, width, kind, ...}
+#     found: bool }         # false if no roads (empty network)
+func nearest_road_info(pos: Vector3) -> Dictionary:
+    var best_d: float = INF
+    var best_point: Vector3 = pos
+    var best_dir: Vector3 = Vector3(0, 0, 1)
+    var best_seg: Dictionary = {}
+    for s in segments:
+        var a: Vector3 = s["start"]
+        var b: Vector3 = s["end"]
+        var ab: Vector3 = b - a
+        var t: float = 0.0
+        if ab.length_squared() < 0.001:
+            var d: float = pos.distance_to(a)
+            if d < best_d:
+                best_d = d
+                best_point = a
+                best_dir = Vector3(0, 0, 1)
+                best_seg = s
+        else:
+            t = clamp((pos - a).dot(ab) / ab.length_squared(), 0.0, 1.0)
+            var proj: Vector3 = a + ab * t
+            var d2: float = pos.distance_to(proj)
+            if d2 < best_d:
+                best_d = d2
+                best_point = proj
+                best_dir = ab.normalized()
+                best_seg = s
+    return {
+        "distance": best_d,
+        "point": best_point,
+        "direction": best_dir,
+        "segment": best_seg,
+        "found": best_d < INF,
+    }
+
 func mark_roads_in_index(index, cell_size: float) -> void:
     for s in segments:
         var a: Vector3 = s["start"]

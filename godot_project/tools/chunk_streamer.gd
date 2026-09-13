@@ -592,6 +592,26 @@ func _build_chunk(key: Vector2i) -> void:
         var layout_type: String = BlockLayout.layout_for_biome(biome)
         var parcels: Array = BlockLayout.generate_parcels(layout_type, origin, CityConfig.CHUNK_SIZE_M)
         
+        # Phase B.7.3: Query road_network for each parcel's ACTUAL nearest road.
+        # This replaces the chunk-grid "N/S/E/W" assumption with real road geometry.
+        # Sets parcel.road_edge_pos (nearest point on road centerline) + road_distance
+        # + road_dir. Also re-derives parcel.front_dir to point from building toward
+        # the actual road (not the assumed edge direction).
+        # LotStamper uses road_edge_pos as the start point for sidewalk + driveway.
+        for parcel in parcels:
+                var info: Dictionary = roads.nearest_road_info(parcel.building_pos)
+                if info.get("found", false):
+                        parcel.road_edge_pos = info["point"]
+                        parcel.road_distance = info["distance"]
+                        parcel.road_dir = info["direction"]
+                        # Re-derive front_dir: point from building toward the road edge.
+                        # The building FACES the road, so front_dir = direction to road.
+                        var to_road: Vector3 = (info["point"] - parcel.building_pos)
+                        if to_road.length() > 0.1:
+                                parcel.front_dir = to_road.normalized()
+                        # If front_dir is near zero (building ON road), keep the
+                        # chunk-grid-assumed front_dir from Parcel._init as fallback.
+        
         # Phase B.4: MESO — filter building pools by what this chunk should have
         var meso_allowed: Array = _get_meso_allowed_types(key)
         var buildings_pool: Array = profile.get("buildings", [])
@@ -1149,6 +1169,15 @@ func _is_near_highway(pos: Vector3) -> bool:
                 if d < HIGHWAY_CLEARANCE_M:
                         return true
         return false
+
+# Phase B.7.4: Returns the nearest road edge point (on road centerline) to pos.
+# Used by LotStamper to compute driveway start points from the garage's actual
+# nearest road (not the house's). Delegates to road_network.nearest_road_info.
+func _get_road_edge_near(pos: Vector3) -> Vector3:
+        var info: Dictionary = roads.nearest_road_info(pos)
+        if info.get("found", false):
+                return info["point"]
+        return pos  # fallback: no road found, return the query position itself
 
 func _unload_chunk(key: Vector2i) -> void:
         var inst: Node3D = _loaded[key]

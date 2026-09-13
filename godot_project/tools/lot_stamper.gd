@@ -93,13 +93,50 @@ func stamp_lot(
                         comp_inst.set_meta("lot_name", lot_name)
                         placed_count += 1
 
-        # 3. Draw sidewalk strip (from road edge to building door)
+        # 3. Draw sidewalk strip (from ACTUAL road edge to building front door)
+        # Phase B.7.4: use parcel.road_edge_pos (queried from road_network) instead of
+        # the recipe's hardcoded [0, 0, 6.0] offset. The door is at lot-local [0, 0, 3.5]
+        # (porch_slab offset from suburban_house_v2.mog).
         if lot.has("sidewalk") and not primary.is_empty():
-                _draw_strip(lot["sidewalk"], anchor, cos_y, sin_y, chunk_root, streamer, "Sidewalk")
+                var sidewalk: Dictionary = lot["sidewalk"]
+                # Door position in lot-local: 3.5m forward of building origin (porch slab)
+                var door_local := Vector3(0, 0, 3.5)
+                var door_world := _local_to_world(door_local, anchor, cos_y, sin_y)
+                # Road edge: use parcel.road_edge_pos (actual nearest road point)
+                var road_edge: Vector3
+                if parcel.road_distance > 0.1:
+                        road_edge = parcel.road_edge_pos
+                else:
+                        road_edge = _local_to_world(Vector3(0, 0, 6.0), anchor, cos_y, sin_y)
+                _draw_strip_world(sidewalk, road_edge, door_world, chunk_root, streamer, "Sidewalk")
 
-        # 4. Draw driveway strip (from road edge to garage door)
+        # 4. Draw driveway strip (from ACTUAL road edge nearest garage to garage door)
+        # Phase B.7.4: query road_network for the garage's nearest road point (not the
+        # house's). The garage door is at lot-local [garage_offset.x, 0, garage_offset.z + 2.0]
+        # (garage_detached.mog has door at Z=-2.0; with rot_y=180 the door faces +Z = forward).
         if lot.has("driveway"):
-                _draw_strip(lot["driveway"], anchor, cos_y, sin_y, chunk_root, streamer, "Driveway")
+                var driveway: Dictionary = lot["driveway"]
+                # Find the garage companion to get its position
+                var garage_offset: Vector3 = Vector3(10, 0, 2)  # default from suburb recipes
+                for companion in lot.get("companions", []):
+                        if companion.get("role", "") == "garage":
+                                var off_arr: Array = companion.get("offset", [10, 0, 2])
+                                garage_offset = Vector3(float(off_arr[0]), float(off_arr[1]), float(off_arr[2]))
+                                break
+                # Garage door is 2m forward of garage origin (garage_detached.mog door at Z=-2.0, rot_y=180 flips to +Z)
+                var garage_door_local := Vector3(garage_offset.x, 0, garage_offset.z + 2.0)
+                var garage_door_world := _local_to_world(garage_door_local, anchor, cos_y, sin_y)
+                # Garage world position (to query road_network for nearest road to garage)
+                var garage_world := _local_to_world(garage_offset, anchor, cos_y, sin_y)
+                # Query road_network for garage's nearest road edge (via streamer.roads)
+                var garage_road_edge: Vector3 = parcel.road_edge_pos  # fallback to house road edge
+                if streamer.has_method("_get_road_edge_near"):
+                        garage_road_edge = streamer._get_road_edge_near(garage_world)
+                elif parcel.road_distance > 0.1:
+                        garage_road_edge = parcel.road_edge_pos
+                else:
+                        garage_road_edge = _local_to_world(Vector3(garage_offset.x, 0, 6.0), anchor, cos_y, sin_y)
+                _draw_strip_world(driveway, garage_road_edge, garage_door_world, chunk_root, streamer, "Driveway")
 
         return placed_count
 
@@ -148,6 +185,30 @@ func _stamp_building_slot(
         streamer._attach_building_collision(inst)
         return inst
 
+# Helper: draw a strip (sidewalk or driveway) from start to end in WORLD space.
+# Phase B.7.4: replaced the old lot-local _draw_strip with this world-space version.
+# The start/end points are computed from parcel.road_edge_pos + building geometry,
+# NOT from hardcoded recipe offsets. This is THE fix for "paths don't connect to roads".
+func _draw_strip_world(
+                strip: Dictionary,
+                start_world: Vector3,
+                end_world: Vector3,
+                chunk_root: Node3D,
+                streamer,
+                strip_type: String
+) -> void:
+        var center := (start_world + end_world) * 0.5
+        # Y is slightly above 0 to avoid z-fighting with the ground mesh.
+        center.y = 0.02
+        var length := start_world.distance_to(end_world)
+        if length < 0.5:
+                return  # too short to bother drawing (road is very close to door)
+        var width: float = float(strip.get("width", 1.5))
+        var color: Color = strip.get("color", Color(0.5, 0.5, 0.5, 1))
+        var yaw: float = atan2(end_world.x - start_world.x, end_world.z - start_world.z)
+        # Delegate to chunk_streamer's plane mesh helper (keeps material + naming consistent)
+        streamer._create_plane_mesh_rotated(chunk_root, strip_type, center, Vector2(width, length), color, yaw)
+
 # Helper: draw a strip (sidewalk or driveway) from start to end in lot-local space.
 # Mirrors the existing _create_plane_mesh_rotated call pattern in chunk_streamer.gd:678
 # (used for interior paths).
@@ -165,17 +226,7 @@ func _draw_strip(
         var end_local := Vector3(float(end_arr[0]), float(end_arr[1]), float(end_arr[2]))
         var start_world := _local_to_world(start_local, anchor, cos_y, sin_y)
         var end_world := _local_to_world(end_local, anchor, cos_y, sin_y)
-        var center := (start_world + end_world) * 0.5
-        # Y is slightly above 0 to avoid z-fighting with the ground mesh.
-        center.y = 0.02
-        var length := start_world.distance_to(end_world)
-        if length < 0.1:
-                return  # too short to bother drawing
-        var width: float = float(strip.get("width", 1.5))
-        var color: Color = strip.get("color", Color(0.5, 0.5, 0.5, 1))
-        var yaw: float = atan2(end_world.x - start_world.x, end_world.z - start_world.z)
-        # Delegate to chunk_streamer's plane mesh helper (keeps material + naming consistent)
-        streamer._create_plane_mesh_rotated(chunk_root, strip_type, center, Vector2(width, length), color, yaw)
+        _draw_strip_world(strip, start_world, end_world, chunk_root, streamer, strip_type)
 
 # Transform lot-local position to world.
 # Same formula as district_stamper.gd:153 (kept in sync deliberately).
