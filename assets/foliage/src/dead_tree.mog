@@ -18,7 +18,7 @@ material "bark_brown" (color=[0.35, 0.25, 0.18], roughness=0.90, uv_mode="tile",
 scene {
   // === PROCEDURAL BRANCH TREE (no leaves) ===
   // form="decurrent" = broadleaf habit (oak/maple-like silhouette)
-  // depth=4 = 4 levels of branching (trunk → main branches → sub-branches → twigs)
+  // depth=3 = 4 levels of branching (trunk → main branches → sub-branches → twigs)
   // splits=2 = 2 children per branch at each split
   // leaves=0 = no leaf clusters (bare winter tree)
   // tropism=0.3 = slight upward growth bias
@@ -27,8 +27,7 @@ scene {
   branch "trunk" (
     form="decurrent",
     length=3.5,
-    radius=0.20,
-    depth=5,
+    depth=3,
     splits=2,
     length_falloff=0.65,
     radius_falloff=0.60,

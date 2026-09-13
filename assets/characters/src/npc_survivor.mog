@@ -11,9 +11,9 @@ material "eyes_white" (color=[0.95,0.95,0.95], roughness=0.30, emissive=[0.10,0.
 material "strap_black" (color=[0.10,0.10,0.12], roughness=0.80)
 scene {
   // Body — upright alert pose
-  rounded_box "pelvis_mesh" (size=[0.32, 0.20, 0.22], radius=0.04, mat="pants_jeans", pos=[0, 0.95, 0], tags="floating")
-  rounded_box "torso_mesh" (size=[0.45, 0.55, 0.28], radius=0.05, mat="jacket_green", pos=[0, 1.30, 0], tags="floating")
-  rounded_box "head_mesh" (size=[0.22, 0.26, 0.22], radius=0.04, mat="skin", pos=[0, 1.65, 0], tags="floating")
+  box "pelvis_mesh" (size=[0.32, 0.20, 0.22], mat="pants_jeans", pos=[0, 0.95, 0], tags="floating")
+  box "torso_mesh" (size=[0.45, 0.55, 0.28], mat="jacket_green", pos=[0, 1.30, 0], tags="floating")
+  box "head_mesh" (size=[0.22, 0.26, 0.22], mat="skin", pos=[0, 1.65, 0], tags="floating")
   // Hair — short
   box "hair_mesh" (size=[0.24, 0.08, 0.24], mat="hair_brown", pos=[0, 1.78, 0], tags="floating")
   // Eyes — looking forward, alert
@@ -22,25 +22,25 @@ scene {
   // Mouth — closed, neutral
   box "mouth" (size=[0.08, 0.015, 0.02], mat="strap_black", pos=[0, 1.56, 0.115], tags="floating")
   // Arms — right arm raised holding bat
-  rounded_box "upper_arm_l" (size=[0.14, 0.25, 0.14], radius=0.04, mat="jacket_green", pos=[-0.28, 1.25, 0], tags="floating")
-  rounded_box "forearm_l" (size=[0.12, 0.25, 0.12], radius=0.04, mat="skin", pos=[-0.28, 0.95, 0], tags="floating")
-  rounded_box "hand_l" (size=[0.10, 0.10, 0.06], radius=0.03, mat="skin", pos=[-0.28, 0.80, 0], tags="floating")
+  box "upper_arm_l" (size=[0.14, 0.25, 0.14], mat="jacket_green", pos=[-0.28, 1.25, 0], tags="floating")
+  box "forearm_l" (size=[0.12, 0.25, 0.12], mat="skin", pos=[-0.28, 0.95, 0], tags="floating")
+  box "hand_l" (size=[0.10, 0.10, 0.06], mat="skin", pos=[-0.28, 0.80, 0], tags="floating")
   // Right arm — raised, holding bat
-  rounded_box "upper_arm_r" (size=[0.14, 0.25, 0.14], radius=0.04, mat="jacket_green", pos=[0.30, 1.55, 0], rot=[0,0,-60], tags="floating")
-  rounded_box "forearm_r" (size=[0.12, 0.25, 0.12], radius=0.04, mat="skin", pos=[0.55, 1.50, 0], tags="floating")
-  rounded_box "hand_r" (size=[0.10, 0.10, 0.06], radius=0.03, mat="skin", pos=[0.65, 1.30, 0], tags="floating")
+  box "upper_arm_r" (size=[0.14, 0.25, 0.14], mat="jacket_green", pos=[0.30, 1.55, 0], rot=[0,0,-60], tags="floating")
+  box "forearm_r" (size=[0.12, 0.25, 0.12], mat="skin", pos=[0.55, 1.50, 0], tags="floating")
+  box "hand_r" (size=[0.10, 0.10, 0.06], mat="skin", pos=[0.65, 1.30, 0], tags="floating")
   // Baseball bat (in right hand, pointing up)
   cylinder "bat" (radius=0.04, height=0.85, mat="bat_wood", pos=[0.70, 1.30, 0], rot=[0,0,0], tags="floating")
   cylinder "bat_handle" (radius=0.03, height=0.20, mat="strap_black", pos=[0.70, 0.95, 0], tags="floating")
   // Legs — standing
-  rounded_box "thigh_l" (size=[0.16, 0.45, 0.16], radius=0.05, mat="pants_jeans", pos=[-0.12, 0.65, 0], tags="floating")
-  rounded_box "shin_l" (size=[0.14, 0.40, 0.14], radius=0.04, mat="pants_jeans", pos=[-0.12, 0.20, 0], tags="floating")
-  rounded_box "foot_l" (size=[0.16, 0.10, 0.30], radius=0.03, mat="boots_brown", pos=[-0.12, 0.00, 0.10], tags="floating")
-  rounded_box "thigh_r" (size=[0.16, 0.45, 0.16], radius=0.05, mat="pants_jeans", pos=[0.12, 0.65, 0], tags="floating")
-  rounded_box "shin_r" (size=[0.14, 0.40, 0.14], radius=0.04, mat="pants_jeans", pos=[0.12, 0.20, 0], tags="floating")
-  rounded_box "foot_r" (size=[0.16, 0.10, 0.30], radius=0.03, mat="boots_brown", pos=[0.12, 0.00, 0.10], tags="floating")
+  box "thigh_l" (size=[0.16, 0.45, 0.16], mat="pants_jeans", pos=[-0.12, 0.65, 0], tags="floating")
+  box "shin_l" (size=[0.14, 0.40, 0.14], mat="pants_jeans", pos=[-0.12, 0.20, 0], tags="floating")
+  box "foot_l" (size=[0.16, 0.10, 0.30], mat="boots_brown", pos=[-0.12, 0.00, 0.10], tags="floating")
+  box "thigh_r" (size=[0.16, 0.45, 0.16], mat="pants_jeans", pos=[0.12, 0.65, 0], tags="floating")
+  box "shin_r" (size=[0.14, 0.40, 0.14], mat="pants_jeans", pos=[0.12, 0.20, 0], tags="floating")
+  box "foot_r" (size=[0.16, 0.10, 0.30], mat="boots_brown", pos=[0.12, 0.00, 0.10], tags="floating")
   // Backpack — on back
-  rounded_box "backpack_body" (size=[0.30, 0.45, 0.18], radius=0.06, mat="backpack_dark", pos=[0, 1.25, -0.20], tags="floating")
+  box "backpack_body" (size=[0.30, 0.45, 0.18], mat="backpack_dark", pos=[0, 1.25, -0.20], tags="floating")
   // Backpack straps (over shoulders)
   box "strap_l" (size=[0.05, 0.50, 0.03], mat="strap_black", pos=[-0.15, 1.30, -0.10], tags="floating")
   box "strap_r" (size=[0.05, 0.50, 0.03], mat="strap_black", pos=[0.15, 1.30, -0.10], tags="floating")
@@ -48,9 +48,4 @@ scene {
   cylinder "bedroll" (radius=0.08, height=0.35, mat="jacket_green", pos=[0, 1.55, -0.20], rot=[0,90,0], tags="floating")
   // Canteen on hip (left side)
   cylinder "canteen" (radius=0.06, height=0.15, mat="jacket_green", pos=[-0.20, 0.95, 0.10], rot=[90,0,0], tags="floating")
-  box "marker_shoulder_l" (size=[0.02, 0.02, 0.02], mat="jacket_green", pos=[-0.30, 1.40, 0], tags="floating")
-  box "marker_shoulder_r" (size=[0.02, 0.02, 0.02], mat="jacket_green", pos=[0.30, 1.40, 0], tags="floating")
-  box "marker_forearm_l" (size=[0.02, 0.02, 0.02], mat="skin", pos=[-0.28, 1.05, 0], tags="floating")
-  box "marker_forearm_r" (size=[0.02, 0.02, 0.02], mat="skin", pos=[0.55, 1.40, 0], tags="floating")
-  box "marker_neck" (size=[0.02, 0.02, 0.02], mat="skin", pos=[0, 1.65, 0], tags="floating")
 }
