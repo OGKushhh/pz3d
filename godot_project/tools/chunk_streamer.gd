@@ -452,7 +452,7 @@ func _build_chunk(key: Vector2i) -> void:
         # Get road segments that pass through this chunk
         var chunk_roads: Array = _get_roads_in_chunk(origin, CityConfig.CHUNK_SIZE_M)
         var placed := 0
-        var target: int = int(fill * 60)  # Phase A.8: was 40, now 60
+        var target: int = int(fill * 80)  # Phase B.2: was 60, now 80  # Phase A.8: was 40, now 60
 
         for seg in chunk_roads:
                 if placed >= target:
@@ -534,7 +534,7 @@ func _build_chunk(key: Vector2i) -> void:
                                         # 50% chance to still place a smaller prop here
                                         # (backyard shed, planter, etc.) instead of leaving
                                         # the lot completely bare.
-                                        if crng.randf() < 0.5:
+                                        if crng.randf() < 0.7:  # Phase B.2: was 0.5, now 0.7 (more backyard fills)
                                                 _place_backyard_fill(lot_pos, perp, side, chunk_root, crng, profile)
                                         continue  # Skip the main building placement
 
@@ -624,7 +624,7 @@ func _build_chunk(key: Vector2i) -> void:
                 if manifest.has(gf):
                         valid_fillers.append(gf)
 
-        var gap_count := int(fill * 25)  # Phase A.8: was 15, now 25
+        var gap_count := int(fill * 35)  # Phase B.2: was 25, now 35  # Phase A.8: was 15, now 25
         for i in range(gap_count):
                 var pos := Vector3(
                         origin.x + crng.randf_range(15.0, CityConfig.CHUNK_SIZE_M - 15.0),
@@ -655,7 +655,7 @@ func _build_chunk(key: Vector2i) -> void:
         # Addresses "map mostly empty" + "no land foliage" feedback.
         var foliage: Array = profile.get("foliage", [])
         if not foliage.is_empty():
-                var green_count := int(fill * 40)  # Phase A.8: was 25, now 40
+                var green_count := int(fill * 50)  # Phase B.2: was 40, now 50  # Phase A.8: was 25, now 40
                 for i in range(green_count):
                         var pos := Vector3(
                                 origin.x + crng.randf_range(5.0, CityConfig.CHUNK_SIZE_M - 5.0),
