@@ -485,3 +485,40 @@ Stage Summary:
 - Files: docs/district_templates.md (NEW), data/district_templates.gd (NEW, 3 templates), tools/district_stamper.gd (NEW), tools/chunk_streamer.gd (+DistrictStamper preload + integration in _build_chunk), scripts/register_all_glbs.py (NEW, one-time fix script), data/city_manifest.json (+134 entries), tests/test_district_templates.gd (NEW, 17 tests).
 - Coverage: ~30% (major biomes only — Commercial + Downtown get templates). Suburbia / Parks / Forest / Farmland / Wetlands / Coastal stay procedural. Expand in Phase A.10+ if procedural gaps feel jarring.
 - Next: Phase A.8 — zoning logic + block variation + alleys/parking/backyards/setbacks. With templates + procedural both running, can now add zoning rules (e.g., commercial corridors bias building picks toward storefronts, residential toward houses) + block-scale variation (alleys between commercial buildings, backyards in residential, parking lots, setback variation).
+
+---
+Task ID: phase-A7-followup-assessment-scene-and-issue-log
+Agent: main (Super Z)
+Task: Phase A.7 followup — create a scene with all 3 hand-authored templates stamped side-by-side for user assessment. Document the issues the user reported: (1) FPS drop to ~28 fps with 2270 draws, (2) doors appear to extend down to ground (origin bug), (3) bridge is just a flat road not an elevated structure, (4) crossroads look wrong, (5) map mostly empty.
+
+Work Log:
+- Viewed user's screenshots (image.png, image2.png, image3.png, image4.png) via z-ai vision CLI. image2.png was a seesaw test scene (unrelated). image.png showed "brown ring-shaped objects densely clustered at ground level" = street lamps with wrong origin (sinking into ground). image3.png showed doors floating slightly above ground + debug red line. image4.png showed doors flush + red debug line. Bridge appears as flat road (no elevation).
+- Door origin bug analysis: read door_front.mog source. The comment says "Origin: center of door frame, at floor level (Y=0 = bottom of door)" but the actual geometry has chamfered_box "frame" (size=[1.10, 2.20, 0.06]) with NO pos specified — meaning the frame is CENTERED at origin (extends y=-1.10 to y=+1.10). The comment is wrong. When placed at y=1.25 (bungalow_components.json), door extends y=0.15 to y=2.35 — but the wall hole extends y=0.20 to y=2.30, so the door pokes 5cm below the hole bottom. FIX NEEDED: either (a) change .mog to set pos=[0, 1.10, 0] so origin is at bottom, OR (b) update bungalow_components.json to place door at y=1.30 (matches hole bottom). Deferred to next commit — need user to confirm approach.
+- Street lamp origin bug: similar issue likely. The street_light.glb may have origin at center, not at bottom. When placed at y=0, the lamp extends y=-h/2 to y=+h/2, so the bottom half is underground. FIX NEEDED: inspect street_light.glb origin, fix .mog or adjust placement y. Deferred.
+- Bridge visual issue: terrain_baker.gd places bridge_section.glb at y=0 (flat ground). The bridge has no elevation — looks like a wider road segment. FIX NEEDED: elevate bridge deck to y=+2m, add pier visuals, make visually distinct from regular roads. Phase A.11 (bridge visuals) scope.
+- Crossroads visual issue: roads are rendered as flat plane meshes that overlap at intersections. No intersection-specific geometry (no stop lines, no crosswalks, no merge). The "lmao" reaction is fair — intersections look like overlapping rectangles. FIX NEEDED: add intersection-aware rendering (Phase A.10 intersection variation scope).
+- Red debug line: appears in screenshots. Likely from a DebugDraw3D or RayCast visualization left active. Could be from TerrainDebugViz (autoload). Need to check and disable or hide in non-debug builds.
+- Map emptiness: user noted "map mostly empty". Current fill is ~30-40 buildings per chunk in major biomes (Suburbia/Commercial/Downtown), 0-5 in minor biomes (Parks/Forest/Wetlands). The visual density is low because: (a) lot spacing is 20m (LOT_W), (b) many lots are skipped by the fill probabilistic check (crng.randf() > fill), (c) no back-lot infill (no alley buildings, no parking lots, no backyards). Phase A.8 (zoning + block variation) will address this.
+- godot_project/scripts/template_assessment.gd (NEW, 130 lines): assessment scene script. Stamps all 3 templates (suburb_block, commercial_strip, downtown_block) at fixed positions (-300, 0, 0) / (0, 0, 0) / (300, 0, 0) with no rotation. Player spawns at (0, 5, -250) looking south — 250m north of commercial_strip, can walk between all 3 templates. F1 = print positions to console, F2 = re-stamp with new random seed, F3 = toggle visibility. Fixed seed 42 for deterministic assessment. Each template gets a 160×160m brown ground plane underneath to show footprint. Loads city_manifest.json (226 assets), uses stamper's same _get_asset + _attach_building_collision API as chunk_streamer.
+- godot_project/scenes/template_assessment.tscn (NEW): minimal scene with WorldEnvironment (no fog, no atmospheric perspective — clear view), Sun (DirectionalLight3D), FlatGround (2000×2000m brown plane + collider), TemplateAssessor (Node3D with script), Player (CharacterBody3D at (0, 5, -250) with Cam + Col). No ChunkStreamer, no TerrainBaker, no river — just the templates.
+- Verified headless: scene loads, all 3 templates stamp successfully. suburb_block: 13 nodes, commercial_strip: 16 nodes, downtown_block: 13 nodes. No errors. FPS=1 in headless (no rendering in --headless mode).
+
+FPS ANALYSIS (from user's HUD output):
+- fps=28, draws=2270, prims=41212, texmem=105757KB
+- 2270 draw calls is HIGH for a game (typical target: 500-1000). Bottleneck is CPU-side draw call submission, not GPU triangle rendering (41212 tris is low).
+- Per-chunk breakdown: ~50 children per chunk × 25 visible chunks = 1250 base nodes. Each building GLB has ~3-5 meshes = ~3000 mesh instances. Plus 200+ zombies × 3 meshes each = 600. Plus 120 road plane meshes. Total ~3700 mesh instances, but Godot batches some = 2270 draws.
+- Trimesh collision creates 1 StaticBody3D per mesh per building = ~3000 physics bodies. Physics thread is also bottlenecked.
+- OPTIMIZATION PLAN (Phase A.8+):
+  1. MultiMesh batching for trees, zombies, props (combine all instances of same mesh into 1 draw call — could reduce 1000+ draws to ~50)
+  2. Merge road meshes per chunk into 1 combined mesh (reduce 120 road draws to 25 per chunk)
+  3. Reduce zombie count from 10-15 per chunk to 5 per chunk (still visible density)
+  4. Disable shadows on small props (trash_can, mailbox, etc.) — shadow rendering is expensive
+  5. Use box colliders instead of trimesh for buildings without doorways (non-shell buildings — most of the 226 assets)
+  6. LOD for distant chunks — use lower-poly meshes beyond 100m
+
+Stage Summary:
+- Phase A.7 followup complete: assessment scene created (scenes/template_assessment.tscn + scripts/template_assessment.gd). User can open in Godot, F5 to play, walk between all 3 templates at (-300, 0, 0), (0, 0, 0), (300, 0, 0). F1/F2/F3 controls.
+- Issues documented: door origin bug (.mog comment wrong, actual origin at center), street lamp origin bug, bridge is flat (no elevation), crossroads are overlapping rectangles, red debug line in sky, map fill is sparse (~30-40 buildings per major chunk).
+- FPS bottleneck diagnosed: 2270 draw calls (CPU-bound) + 3000+ physics bodies (trimesh collision per building). Optimization plan documented for Phase A.8+.
+- Files: scripts/template_assessment.gd (NEW), scenes/template_assessment.tscn (NEW). No changes to existing code — this is a pure assessment tool.
+- Next: user opens template_assessment.tscn in Godot locally, walks between templates, gives feedback on layouts. Based on feedback, either (a) fix template slot positions/variants, OR (b) proceed to Phase A.8 (zoning + block variation) to address map emptiness. Door/bridge/crossroad fixes can be batched into Phase A.8 too.

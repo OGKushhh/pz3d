@@ -1,0 +1,83 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/template_assessment.gd" id="1_assessor"]
+[ext_resource type="Script" path="res://scripts/player_main.gd" id="2_player"]
+
+[sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
+sky_top_color = Color(0.15, 0.35, 0.70, 1)
+sky_horizon_color = Color(0.70, 0.78, 0.88, 1)
+ground_bottom_color = Color(0.25, 0.22, 0.18, 1)
+ground_horizon_color = Color(0.50, 0.48, 0.42, 1)
+sun_angle_max = 30.0
+sun_curve = 0.12
+use_debanding = true
+
+[sub_resource type="Sky" id="sky"]
+sky_material = SubResource("sky_mat")
+
+[sub_resource type="Environment" id="env"]
+background_mode = 2
+sky = SubResource("sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.60, 0.65, 1)
+ambient_light_energy = 0.6
+fog_enabled = false
+tonemap_mode = 2
+tonemap_white = 1.0
+ssao_enabled = true
+ssao_radius = 1.0
+ssao_intensity = 1.2
+
+[sub_resource type="BoxShape3D" id="ground_col"]
+size = Vector3(2000, 1, 2000)
+
+[sub_resource type="PlaneMesh" id="ground_mesh"]
+size = Vector2(2000, 2000)
+
+[sub_resource type="StandardMaterial3D" id="ground_mat"]
+albedo_color = Color(0.30, 0.28, 0.24, 1)
+roughness = 0.95
+
+[sub_resource type="CapsuleShape3D" id="player_col"]
+radius = 0.4
+height = 1.8
+
+[node name="Main" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.7, -0.5, 0.5, 0, 0.7, 0.7, -0.7, -0.5, 0.5, -100, 120, -100)
+light_color = Color(1, 0.95, 0.82, 1)
+light_energy = 2.0
+shadow_enabled = true
+directional_shadow_max_distance = 200.0
+directional_shadow_size = 2048
+
+[node name="FlatGround" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="FlatGroundMesh" type="MeshInstance3D" parent="FlatGround"]
+mesh = SubResource("ground_mesh")
+material_override = SubResource("ground_mat")
+
+[node name="FlatGroundCollider" type="CollisionShape3D" parent="FlatGround"]
+shape = SubResource("ground_col")
+
+[node name="TemplateAssessor" type="Node3D" parent="."]
+script = ExtResource("1_assessor")
+
+[node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -250)
+script = ExtResource("2_player")
+
+[node name="Cam" type="Camera3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
+fov = 75.0
+near = 0.05
+far = 500.0
+
+[node name="Col" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("player_col")
