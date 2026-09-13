@@ -27,36 +27,48 @@ Root cause: the system has `Parcel` (1 primary building + yard position) but no 
 
 ---
 
-## Next: Phase B.7 — Constraint Validator (HIGHEST PRIORITY)
+## Next: Phase B.7 — Generator Fixes + Constraint Validator (HIGHEST PRIORITY)
 
-> **Updated 2026-09-14.** Phase B.6 (Lot System) is DONE — 8 recipes + LotStamper + chunk_streamer integration committed. User walked the scene, reported: "more organized now but not production level — props and trees stand in middle of paths, buildings vary in setback distance, paths don't connect to roads." Diagnosis: we have the **propose** half (Lot recipes) but not the **validate** half (localConstraints). This phase adds the validator.
+> **Updated 2026-09-14 per DeepSeek review.** Two tracks: generator fixes (primary) + validator (safety net). Path connectivity + setbacks are GENERATOR fixes — the validator can't fix what isn't a rule violation. Middleware revert logic stays (two jobs: per-action filter + global accept/reject).
 
-Synthesized from Parish & Müller 2001 (`localConstraints`), Barrett's propose-validate-accept loop (per SE), and uliwitness's desirability-penalty system (per SE). See GDD §4.7.5 for full spec.
+### Track 1 — Generator fixes (primary, do first)
 
 | # | Task | File | Effort |
 |---|---|---|---|
-| B.7.1 | `path_query.gd` — `is_on_path(pos, margin)`, `nearest_path(pos)`, `nearest_road_segment(pos)`. Queries `block_layout.get_interior_paths()` + `road_network.gd` | `tools/path_query.gd` (NEW, ~80 lines) | 2h |
-| B.7.2 | `placement_validator.gd` — `validate(pos, asset_name, biome) -> {ok, nudge, reject}` with penalty scoring (on_path=-100, on_road=-100, setback_violation=-50, neighbor_incompatible=-40, repeat>5=-20, overlap=-100) | `tools/placement_validator.gd` (NEW, ~150 lines) | 4h |
-| B.7.3 | Patch `lot_stamper.gd` — call validator before stamping primary + each companion; nudge + retry on soft reject (max 3 retries); skip lot on hard reject | `tools/lot_stamper.gd` (EDIT) | 2h |
-| B.7.4 | Patch `chunk_streamer.gd` gap filler + foliage loops — replace `spatial.is_free()` with `validator.validate()` | `tools/chunk_streamer.gd` (EDIT) | 1h |
-| B.7.5 | Patch `block_layout.gd` `get_interior_paths` — emit per-lot sidewalk + driveway segments (road-edge → door), not chunk-center cross-stripes | `tools/block_layout.gd` (EDIT) | 2h |
-| B.7.6 | Fix `ai_multi_pass.py` revert logic — trust per-action validation; don't revert just because global problem count didn't drop (current logic reverts valid removes) | `scripts/ai_multi_pass.py` (EDIT) | 30min |
+| B.7.1 | Add `nearest_road_info(pos) -> {distance, point, direction, segment}` to road_network | `tools/road_network.gd` (EDIT) | 1h |
+| B.7.2 | Add `road_edge_pos` + `road_distance` + `road_dir` fields to Parcel class | `tools/block_layout.gd` (EDIT) | 1h |
+| B.7.3 | After `generate_parcels()`, query road_network per parcel; set `road_edge_pos` + re-derive `front_dir` from actual road direction | `tools/chunk_streamer.gd` (EDIT) | 2h |
+| B.7.4 | LotStamper: use `parcel.road_edge_pos` for sidewalk + driveway start points (not hardcoded recipe offsets). Compute driveway road-edge from garage position, not house position. | `tools/lot_stamper.gd` (EDIT) | 2h |
+| B.7.5 | `path_query.gd` — collects all drawn path segments; `is_on_path(pos, margin)`, `nearest_path(pos)` | `tools/path_query.gd` (NEW, ~80 lines) | 2h |
+| B.7.6 | Gap filler + foliage loops: add `path_query.is_on_path()` check before placing | `tools/chunk_streamer.gd` (EDIT) | 1h |
 
-Total: ~2-3 days. Visual contract: no props on paths, consistent setbacks, sidewalks reach actual roads, driveways reach actual roads, no incompatible clusters.
+### Track 2 — Validator (safety net, do after Track 1)
+
+| # | Task | File | Effort |
+|---|---|---|---|
+| B.7.7 | `placement_validator.gd` — `validate(pos, asset_name, biome) -> Dictionary` with penalty scoring (on_path=-100, on_road=-100, setback_violation=-50, neighbor_incompatible=-40, repeat>5=-20, overlap=-100) | `tools/placement_validator.gd` (NEW, ~150 lines) | 4h |
+| B.7.8 | Patch `lot_stamper.gd` — call validator before stamping primary + each companion; nudge + retry on soft reject (max 3); skip lot on hard reject | `tools/lot_stamper.gd` (EDIT) | 2h |
+
+Total: ~2-3 days.
+
+### Removed (per DeepSeek correction #2)
+
+- ~~B.7.6 (old): Fix ai_multi_pass.py revert logic~~ — middleware revert-on-regression is the accept/reject signal. Per-action validation is the filter. Two jobs, both needed. Keep the revert.
 
 ---
 
 ## Next: Phase B.8 — Persistent Map Baker (after B.7)
 
-> **Added 2026-09-14 per user clarification.** The shipping map is PERSISTENT (baked), not runtime-generated. The runtime gen is a testing scaffold (GDD §4.7.4). This phase bakes the validated layout to `.tscn` chunks the player loads.
+> **Updated 2026-09-14 per DeepSeek corrections #3 + #4.**
 
 | # | Task | File | Effort |
 |---|---|---|---|
-| B.8.1 | `map_baker.gd` — runs full chunk_streamer pipeline offline → saves each chunk as `res://baked_chunks/chunk_X_Y.tscn` with buildings + paths + companions frozen | `tools/map_baker.gd` (NEW, ~200 lines) | 4h |
+| B.8.1 | `map_baker.gd` — runs full pipeline offline (gen → validate → middleware multi-pass → save). Middleware runs HERE, not at runtime. | `tools/map_baker.gd` (NEW, ~200 lines) | 4h |
 | B.8.2 | `persistent_placements.json` — per-chunk index of placed lot recipes + world positions (for save/load + future editor) | `data/persistent_placements.json` (NEW) | 1h |
-| B.8.3 | Patch `scenes/main.tscn` + `chunk_streamer.gd` — load baked chunks at runtime; add `bake_mode: bool` flag to chunk_streamer | `scenes/main.tscn` + `tools/chunk_streamer.gd` (EDIT) | 3h |
+| B.8.3 | Bake version stamp — hash of generator files + manifest + seed. Stored in `baked_chunks/meta.json`. On load, compare; if mismatch, warn + force re-bake. | `tools/bake_version.gd` (NEW) + patch `chunk_streamer.gd` | 2h |
+| B.8.4 | Patch `scenes/main.tscn` + `chunk_streamer.gd` — load baked chunks at runtime; `bake_mode: bool` flag; remove middleware from runtime path | `scenes/main.tscn` + `tools/chunk_streamer.gd` (EDIT) | 3h |
 
-Total: ~1-2 days. After this, the player never runs the procedural gen — they load the baked persistent map.
+Total: ~1-2 days. After this, the player never runs the procedural gen — they load the baked persistent map. Middleware retires from runtime, moves to bake step.
 
 ---
 

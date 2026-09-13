@@ -485,31 +485,26 @@ The National City of Mazar ships as a **persistent map** — a fixed, hand-curat
 
 **The right scope for hand-authoring is recipes** (district templates + lot recipes), validated by a constraint pass, then baked. Recipes are small, testable, and stamp deterministically — they get the curatorial intent of hand-authored + the validation benefit of procedural. The baker freezes the recipe-driven output into the persistent map.
 
-### 4.7.5 The Constraint Validator (Phase B.7 — after Lot System)
+### 4.7.5 The Constraint Validator + Generator Fixes (Phase B.7)
 
-> **Added 2026-09-14.** Synthesizes the placement-validation architecture from Parish & Müller 2001 (`localConstraints`), Barrett's simplified propose-validate-accept loop (per SE), and uliwitness's desirability-penalty system (per SE). This is the "brain" the 2026-09-14 screenshot review identified as missing.
+> **Added 2026-09-14. Updated per DeepSeek review.** Synthesizes the placement-validation architecture from Parish & Müller 2001 (`localConstraints`), Barrett's simplified propose-validate-accept loop (per SE), and uliwitness's desirability-penalty system (per SE).
+>
+> **DeepSeek correction (2026-09-14):** Path connectivity and setbacks are GENERATOR fixes, not validator fixes. The validator can reject a bad placement, but it can't fix "paths don't connect to roads" — no rule is being violated, the generator just isn't proposing good paths. The generator must query `road_network` for actual road geometry and derive sidewalk + driveway + setback from it. The validator is a SAFETY NET for cases the generator misses, not the primary fix.
 
-The Lot System (§4.7.3) provides the **propose** half: Lot recipes propose primary + companion + sidewalk + driveway placements. The Constraint Validator provides the **validate** half — the missing `localConstraints` function that every procedural-city algorithm converges on.
+**Two tracks in Phase B.7:**
 
-**Architecture (propose → validate → commit):**
+**Track 1 — Generator fixes (primary, do first):**
 
-```
-LotStamper.stamp_lot()
-  ├── propose: primary building at parcel.building_pos
-  ├── validate: PlacementValidator.validate(pos, asset, biome)
-  │     ├── is_on_path(pos, margin=2m)?        → reject or nudge
-  │     ├── nearest_road_distance(pos)         → reject if outside [min, max] setback
-  │     ├── is_on_road(pos)?                   → reject
-  │     ├── neighbor_compatibility(pos, asset) → reject if incompatible (e.g. shed next to gas_station)
-  │     └── return {ok: bool, nudge: Vector3?}
-  ├── if ok:     stamp + insert into spatial index
-  ├── if nudge:  retry at pos + nudge (max 3 retries)
-  └── if reject: skip this lot, fall through to procedural fallback
-```
+The generator must propose good placements by default. This means:
+- `block_layout.gd:Parcel._init` currently derives `front_dir` + `building_pos` from chunk-grid assumptions ("N/S/E/W" edges). It does NOT query `road_network.gd` at all. This is the root cause of "paths don't connect to roads" + "inconsistent setbacks".
+- Fix: after `generate_parcels()`, query `road_network.nearest_road_info(parcel.building_pos)` for each parcel. Store `road_edge_pos` + `road_distance` + `road_dir` on the Parcel. Re-derive `front_dir` to point from building toward the actual nearest road point.
+- Fix: `block_layout.gd:get_interior_paths` currently emits chunk-center cross-stripes. Replace with per-lot sidewalk + driveway segments that start at `parcel.road_edge_pos` and end at building/garage doors. For biomes WITHOUT lot recipes, keep the cross-stripes as fallback.
+- Fix: LotStamper sidewalk + driveway strips currently use hardcoded offsets (`[0, 0, 6.0]`) from the lot recipe. Replace with `parcel.road_edge_pos` as the start point — the strip goes from the actual road edge to the door.
+- Fix: gap filler + foliage loops in `chunk_streamer.gd` skip positions on paths. Currently they only check `spatial.is_free()` + `spatial.is_on_road()`. Add `path_query.is_on_path(pos, margin)` check.
 
-**Penalty scoring (per uliwitness's approach):**
+**Track 2 — Validator (safety net, do after Track 1):**
 
-Each candidate position gets a desirability score per purpose. Penalties subtract from the base score:
+The validator catches cases the generator's proposal logic misses. It does NOT replace good proposals — it catches bad ones that slip through.
 
 | Condition | Penalty |
 |---|---|
@@ -522,18 +517,22 @@ Each candidate position gets a desirability score per purpose. Penalties subtrac
 | Asset repeats >5 times in this chunk | -20 |
 | Position is within 2m of another asset | -100 (hard reject, overlap) |
 
-Place at the highest-scoring position. If no position scores above the accept threshold, skip the placement (vacant lot).
+**Middleware (per DeepSeek correction #2):**
+
+The middleware `ai_multi_pass.py` revert-on-regression is the accept/reject signal at the LOOP level. Per-action validation is the FILTER for what to try. Two jobs, both needed. Keep the revert. Do NOT remove it (B.7.6 removed from plan).
 
 **Files (Phase B.7):**
 
-| File | What |
-|---|---|
-| `tools/path_query.gd` (NEW, ~80 lines) | `is_on_path(pos, margin)`, `nearest_path(pos)`, `nearest_road_segment(pos)` |
-| `tools/placement_validator.gd` (NEW, ~150 lines) | `validate(pos, asset_name, biome) -> Dictionary` with penalty scoring |
-| Patch `lot_stamper.gd` | Call validator before stamping; nudge + retry on soft reject |
-| Patch `chunk_streamer.gd` gap filler + foliage loops | Replace `spatial.is_free()` with `validator.validate()` |
-| Patch `block_layout.gd` `get_interior_paths` | Emit per-lot sidewalk + driveway (road-edge → door), not chunk-center cross-stripes |
-| Patch `ai_multi_pass.py` | Trust per-action validation; don't revert just because global problem count didn't drop |
+| File | Track | What |
+|---|---|---|
+| `tools/road_network.gd` (EDIT) | Generator | Add `nearest_road_info(pos) -> {distance, point, direction, segment}` |
+| `tools/block_layout.gd` (EDIT) | Generator | Add `road_edge_pos` + `road_distance` + `road_dir` to Parcel class |
+| `tools/chunk_streamer.gd` (EDIT) | Generator | After generate_parcels(), query road_network per parcel; set road_edge_pos + re-derive front_dir |
+| `tools/lot_stamper.gd` (EDIT) | Generator | Use `parcel.road_edge_pos` for sidewalk + driveway start points (not hardcoded recipe offsets) |
+| `tools/path_query.gd` (NEW, ~80 lines) | Generator support | `is_on_path(pos, margin)`, `nearest_path(pos)` — collects all drawn path segments + queries |
+| `tools/chunk_streamer.gd` gap filler + foliage (EDIT) | Generator | Add `path_query.is_on_path()` check before placing props/trees |
+| `tools/placement_validator.gd` (NEW, ~150 lines) | Validator | `validate(pos, asset_name, biome) -> Dictionary` with penalty scoring |
+| `tools/lot_stamper.gd` (EDIT) | Validator | Call validator before stamping; nudge + retry on soft reject (max 3) |
 
 **Visual contract after Phase B.7:**
 
@@ -543,6 +542,14 @@ Place at the highest-scoring position. If no position scores above the accept th
 - Every garage has a driveway that reaches the actual road
 - Incompatible assets don't cluster (no shed next to gas station)
 - Asset repetition is capped (no 6 identical houses in one chunk)
+
+### 4.7.6 The Persistent Map Baker (Phase B.8)
+
+> **Added 2026-09-14 per DeepSeek corrections #3 + #4.**
+
+**Middleware retirement decision (per DeepSeek #3):** After baking, the middleware moves to the BAKE STEP, not runtime. `map_baker.gd` runs the full pipeline: gen → validate → middleware multi-pass → bake. The runtime game loads baked chunks and does NOT run middleware. `chunk_states_auto.json` + `fill_plan.json` become bake-time artifacts, removed from the runtime path.
+
+**Bake version stamp (per DeepSeek #4):** Same pattern as `CityMeta`. Hash of: generator file contents (`chunk_streamer.gd` + `lot.gd` + `lot_stamper.gd` + `district_stamper.gd` + `district_templates.gd` + `city_config.gd` + `block_layout.gd` + `placement_validator.gd` + `path_query.gd`) + manifest hash + seed. Stored in `baked_chunks/meta.json`. On load, compare. If mismatch, warn + force re-bake (or refuse to load stale chunks).
 
 ## 4.5 Alpha Build Order 🔒
 
