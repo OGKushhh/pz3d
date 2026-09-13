@@ -34,12 +34,21 @@ REPORT_PATH = Path("/home/z/my-project/pz3d/docs/ai_analysis_report.md")
 METRICS_PATH = Path("/home/z/my-project/pz3d/godot_project/ai_metrics.json")
 SEMANTICS_PATH = Path("/home/z/my-project/pz3d/godot_project/data/asset_semantics.json")
 
-# Load semantic tags (Tier 2 — enables conflict + pairing reasoning)
-SEMANTICS = {}
-if SEMANTICS_PATH.exists():
-    SEMANTICS = json.loads(SEMANTICS_PATH.read_text())
-    # Strip the _meta key
-    SEMANTICS.pop("_meta", None)
+# Import the spatial query API (DeepSeek Tier 3 — portability)
+sys.path.insert(0, str(Path(__file__).parent))
+from spatial_query import SpatialIndex, SEMANTICS, LANDMARK_TYPES
+
+# Global spatial index (built once from the dump)
+_SPATIAL_INDEX = None
+
+def get_spatial_index() -> SpatialIndex:
+    """Lazily build + cache the spatial index from the dump."""
+    global _SPATIAL_INDEX
+    if _SPATIAL_INDEX is None:
+        if not DUMP_PATH.exists():
+            raise FileNotFoundError(f"chunk_states_auto.json not found at {DUMP_PATH}")
+        _SPATIAL_INDEX = SpatialIndex(str(DUMP_PATH))
+    return _SPATIAL_INDEX
 
 # Biome constants (must match city_config.gd)
 BIOME_NAMES = {
@@ -48,7 +57,7 @@ BIOME_NAMES = {
     9: "COASTAL_BEACH", 10: "WATER", 11: "EMPTY", 12: "WETLANDS",
 }
 
-# Asset categories for analysis
+# Asset categories for analysis (LANDMARK_TYPES imported from spatial_query)
 COMMERCIAL_TYPES = {"corner_store", "diner", "gas_station", "store_pharmacy", "store_gun",
     "store_supermarket", "motel", "strip_mall", "auto_repair_shop", "laundromat",
     "barber_shop", "salon", "grocery_store", "bank_branch"}
@@ -57,9 +66,6 @@ RESIDENTIAL_TYPES = {"suburban_house_v2", "two_story_colonial", "bungalow", "hou
     "house_cottage_stone", "apartment_small", "cottage", "farmhouse", "shed", "garage_detached"}
 INDUSTRIAL_TYPES = {"warehouse", "warehouse_large", "factory_small", "utility_shed_metal",
     "shipping_container", "storage_tank", "loading_dock"}
-LANDMARK_TYPES = {"government_palace", "stadium", "old_royal_palace", "fort_sarran",
-    "lighthouse", "broadcast_tower", "grain_silo", "windmill", "railway_station",
-    "hospital", "police_station", "school_elementary", "church_small"}
 
 
 def aabb_overlaps(a: dict, b: dict) -> bool:
@@ -266,10 +272,18 @@ FILL_AABBS = {
 
 
 def count_local_problems(buildings: list, center_pos: list, radius: float = 30.0) -> int:
-    """Count problems (overlaps + too_close + semantic_conflict + min_spacing)
-    that involve any building within `radius` meters of center_pos.
-    This is a subset of the full chunk analysis, filtered to a local area."""
-    # Filter buildings to those within radius of center_pos
+    """Count problems within `radius` of `center_pos`.
+    
+    DeepSeek: 'Spatial query forces detectors to say what's near this position
+    instead of scan the whole dump.'
+    
+    IMPORTANT: always uses the provided `buildings` list (which may be a
+    SIMULATED copy with actions applied). The spatial index reflects the
+    ORIGINAL dump state only — it cannot be used for AFTER counts because
+    it doesn't know about simulated actions. The spatial index IS used
+    elsewhere (query_nearby, find_isolated_gaps, analyze_chunk cross-chunk
+    queries) where the original state is what we want.
+    """
     nearby = []
     cx, cz = center_pos[0], center_pos[2]
     for b in buildings:
@@ -281,23 +295,19 @@ def count_local_problems(buildings: list, center_pos: list, radius: float = 30.0
         for j, b2 in enumerate(nearby):
             if j <= i:
                 continue
-            # Overlaps
             if "aabb" in b1 and "aabb" in b2:
                 if aabb_overlaps(b1["aabb"], b2["aabb"]):
                     count += 1
-            # too_close
             dist = ((b1["pos"][0] - b2["pos"][0]) ** 2 +
                     (b1["pos"][2] - b2["pos"][2]) ** 2) ** 0.5
             if dist < 3.0:
                 count += 1
-            # semantic_conflict (both directions)
             sem1 = SEMANTICS.get(b1["name"], {})
             if b2["name"] in sem1.get("conflicts_with", []):
                 count += 1
             sem2 = SEMANTICS.get(b2["name"], {})
             if b1["name"] in sem2.get("conflicts_with", []):
                 count += 1
-            # min_spacing (same asset only)
             min_s = sem1.get("min_spacing", 0)
             if min_s > 0 and b1["name"] == b2["name"] and dist < min_s:
                 count += 1

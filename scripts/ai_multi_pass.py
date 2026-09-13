@@ -36,6 +36,11 @@ DUMP_PATH = GODOT_PROJECT / "chunk_states_auto.json"
 PLAN_PATH = GODOT_PROJECT / "fill_plan.json"
 METRICS_PATH = GODOT_PROJECT / "ai_metrics.json"
 BACKUP_PATH = GODOT_PROJECT / "fill_plan.backup.json"
+REPORT_PATH = REPO / "docs" / "ai_analysis_report.md"
+
+# Versioned runs (DeepSeek: "timestamp and hash every run into runs/run_NNN/")
+sys.path.insert(0, str(REPO / "scripts"))
+from versioned_runs import RunManager
 
 def run_godot_headless():
     """Run godot --headless to dump chunk states (applies current fill_plan if exists)."""
@@ -76,43 +81,58 @@ def main():
     max_iterations = int(sys.argv[1]) if len(sys.argv) > 1 else 5
     print(f"=== AI MULTI-PASS LOOP (max {max_iterations} iterations) ===\n")
 
+    # Initialize versioned run manager
+    rm = RunManager()
+    run_dir = rm.start_run()
+    print(f"  Run directory: {run_dir.relative_to(REPO)}\n")
+
     # === ITERATION 0: BASELINE (no plan applied) ===
     print("[iter 0] BASELINE — running godot with no fill_plan...")
     if PLAN_PATH.exists():
-        PLAN_PATH.unlink()  # ensure no plan for baseline
+        PLAN_PATH.unlink()
     run_godot_headless()
     if not DUMP_PATH.exists():
         print("ERROR: baseline dump failed")
         sys.exit(1)
+    # Save baseline dump to run directory
+    rm.copy_to_run(run_dir, "chunk_states_baseline.json", DUMP_PATH)
+
     run_planner()
     baseline_metrics = read_metrics()
     if not baseline_metrics:
         print("ERROR: baseline metrics failed")
         sys.exit(1)
+    # Save baseline plan + metrics + report to run directory
+    rm.copy_to_run(run_dir, "fill_plan_iter0.json", PLAN_PATH)
+    rm.copy_to_run(run_dir, "metrics_iter0.json", METRICS_PATH)
+    if REPORT_PATH.exists():
+        rm.copy_to_run(run_dir, "report_iter0.md", REPORT_PATH)
+
     baseline_problems = baseline_metrics["total_problems"]
     print(f"  baseline problems: {baseline_problems}")
     print(f"  baseline actions generated: {baseline_metrics['total_actions']}\n")
 
     # === ITERATION LOOP ===
     best_problems = baseline_problems
-    best_plan_backup = None
     no_improvement_streak = 0
 
     for iteration in range(1, max_iterations + 1):
         print(f"[iter {iteration}] applying plan + re-dumping...")
 
-        # Backup current plan before applying (so we can restore if worse)
         backup_plan()
-
-        # Run godot — applies current fill_plan + dumps new state
         run_godot_headless()
-
-        # Run planner — analyzes new state + generates NEW plan for next iteration
         run_planner()
         new_metrics = read_metrics()
         if not new_metrics:
             print("  ERROR: metrics failed, stopping")
             break
+
+        # Save iteration artifacts to run directory
+        rm.copy_to_run(run_dir, f"chunk_states_iter{iteration}.json", DUMP_PATH)
+        rm.copy_to_run(run_dir, f"fill_plan_iter{iteration}.json", PLAN_PATH)
+        rm.copy_to_run(run_dir, f"metrics_iter{iteration}.json", METRICS_PATH)
+        if REPORT_PATH.exists():
+            rm.copy_to_run(run_dir, f"report_iter{iteration}.md", REPORT_PATH)
 
         current_problems = new_metrics["total_problems"]
         improvement = best_problems - current_problems
@@ -123,12 +143,10 @@ def main():
               f"fills: {new_metrics['action_type_counts'].get('fill', 0)})")
 
         if current_problems < best_problems:
-            # Improved — keep this plan, update best
             best_problems = current_problems
             no_improvement_streak = 0
             print(f"  ✓ IMPROVED — keeping plan (best={best_problems})\n")
         else:
-            # Not improved — restore previous + increment streak
             no_improvement_streak += 1
             print(f"  ✗ NO IMPROVEMENT (streak={no_improvement_streak}/2)")
             if no_improvement_streak >= 2:
@@ -137,17 +155,24 @@ def main():
             print("  reverting to previous plan\n")
             restore_plan()
 
+    # === FINALIZE RUN ===
+    improvement = baseline_problems - best_problems
+    pct = (improvement / baseline_problems * 100) if baseline_problems > 0 else 0
+    action_breakdown = baseline_metrics.get("action_type_counts", {})
+    rm.finalize_run(run_dir, baseline=baseline_problems, final=best_problems,
+                    actions=baseline_metrics["total_actions"],
+                    action_breakdown=action_breakdown)
+
     # === SUMMARY ===
     print("=== MULTI-PASS COMPLETE ===")
     print(f"  Baseline problems:  {baseline_problems}")
     print(f"  Final problems:     {best_problems}")
-    improvement = baseline_problems - best_problems
-    pct = (improvement / baseline_problems * 100) if baseline_problems > 0 else 0
     print(f"  Improvement:         {improvement} problems ({pct:.1f}% reduction)")
     print(f"  Iterations run:     {iteration}")
-    print(f"\n  Best fill_plan saved at: {PLAN_PATH}")
-    print(f"  Metrics at:          {METRICS_PATH}")
-    print(f"  Report at:           {REPO}/docs/ai_analysis_report.md")
+    print(f"\n  Run directory:       {run_dir.relative_to(REPO)}")
+    print(f"  (all artifacts saved: dumps, plans, metrics, reports per iteration)")
+    print(f"\n  List all runs:       python3 scripts/versioned_runs.py")
+    print(f"  Compare runs:        python3 -c \"from versioned_runs import RunManager; print(RunManager().compare_runs(0, 1))\"")
 
 if __name__ == "__main__":
     main()
