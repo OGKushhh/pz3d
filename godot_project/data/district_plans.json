@@ -1,0 +1,114 @@
+{
+  "_meta": {
+    "description": "Per-district chunk allocations. The meso pass reads city_plan.json (macro) and produces this file. Each district gets a budget split across its chunks + landmark assignment + edge rules. The micro pass (_build_chunk) reads this to know exactly what to place.",
+    "version": 1,
+    "generated_by": "AI meso pass — I distributed the macro budget across districts"
+  },
+
+  "districts": {
+    "Commercial": {
+      "chunks": [[4,7],[4,8],[5,5],[5,6],[5,7],[5,8],[5,9],[6,5],[6,6],[6,7],[6,8],[6,9],[7,5],[7,6],[7,7],[7,8],[7,9],[8,5],[8,6],[8,7],[8,8],[8,9],[9,5],[9,6],[9,7],[9,8],[9,9]],
+      "total_budget": 200,
+      "type_allocation": {
+        "corner_store": {"total": 8, "chunks": [[4,7],[5,8],[6,9],[7,7],[8,9],[9,7]]},
+        "diner": {"total": 5, "chunks": [[4,8],[5,9],[7,8],[8,7],[9,9]]},
+        "gas_station": {"total": 2, "chunks": [[4,7],[7,9]]},
+        "store_pharmacy": {"total": 3, "chunks": [[5,8],[7,9],[9,8]]},
+        "store_gun": {"total": 2, "chunks": [[6,7],[8,9]]},
+        "store_supermarket": {"total": 2, "chunks": [[5,9],[7,7]]},
+        "grocery_store": {"total": 2, "chunks": [[6,8],[9,7]]},
+        "motel": {"total": 2, "chunks": [[5,8],[8,8]]},
+        "strip_mall": {"total": 2, "chunks": [[4,8],[6,7]]},
+        "auto_repair_shop": {"total": 2, "chunks": [[7,8],[7,9]]},
+        "laundromat": {"total": 1, "chunks": [[9,6]]},
+        "barber_shop": {"total": 2, "chunks": [[6,9],[9,9]]},
+        "salon": {"total": 2, "chunks": [[5,7],[8,7]]},
+        "bank_branch": {"total": 2, "chunks": [[7,7],[9,8]]}
+      },
+      "landmark_chunk": null,
+      "edge_rules": {
+        "north_border": "soften_with_residential",
+        "south_border": "soften_with_residential",
+        "east_border": "hard_edge",
+        "west_border": "soften_with_residential"
+      }
+    },
+
+    "Suburbia": {
+      "chunks": [[0,2],[1,2],[0,3],[1,3],[0,4],[1,4],[1,5],[0,5]],
+      "total_budget": 150,
+      "type_allocation": {
+        "suburban_house_v2": {"total": 6, "chunks": [[0,2],[1,2],[0,3],[1,3],[0,4],[1,4]]},
+        "bungalow": {"total": 6, "chunks": [[0,3],[1,3],[0,4],[1,4],[1,5],[0,5]]},
+        "two_story_colonial": {"total": 5, "chunks": [[0,2],[1,2],[0,5],[1,4],[0,3]]},
+        "house_modern": {"total": 4, "chunks": [[1,2],[0,4],[1,5],[0,5]]},
+        "house_victorian": {"total": 4, "chunks": [[0,2],[1,3],[0,4],[1,5]]},
+        "house_ranch": {"total": 4, "chunks": [[1,2],[0,3],[1,4],[0,5]]},
+        "house_cape_cod": {"total": 3, "chunks": [[0,2],[1,3],[1,4]]},
+        "house_tudor": {"total": 3, "chunks": [[0,3],[1,4],[1,5]]},
+        "house_split_level": {"total": 3, "chunks": [[1,2],[0,4],[0,5]]},
+        "house_cottage_stone": {"total": 3, "chunks": [[0,2],[1,3],[0,5]]},
+        "treehouse": {"total": 2, "chunks": [[0,4],[1,5]]},
+        "corner_store": {"total": 2, "chunks": [[0,2],[1,4]]}
+      },
+      "landmark_chunk": null,
+      "edge_rules": {
+        "all_borders": "soften_with_commercial"
+      }
+    },
+
+    "Downtown": {
+      "chunks": [[12,4],[12,5],[12,6],[12,7]],
+      "total_budget": 120,
+      "type_allocation": {
+        "apartment_tower_high": {"total": 4, "chunks": [[12,5],[12,6],[12,6],[12,7]]},
+        "highrise_office": {"total": 4, "chunks": [[12,4],[12,5],[12,7],[12,7]]},
+        "hospital": {"total": 1, "chunks": [[12,5]]},
+        "police_station": {"total": 1, "chunks": [[12,6]]},
+        "broadcast_tower": {"total": 1, "chunks": [[12,7]]},
+        "railway_station": {"total": 1, "chunks": [[12,4]]},
+        "parking_garage": {"total": 2, "chunks": [[12,5],[12,6]]}
+      },
+      "landmark_chunk": [12,6],
+      "edge_rules": {
+        "all_borders": "hard_edge"
+      }
+    },
+
+    "Industrial": {
+      "chunks": [[0,0],[1,0],[6,0],[7,0],[0,1],[7,1]],
+      "total_budget": 80,
+      "type_allocation": {
+        "warehouse": {"total": 4, "chunks": [[0,0],[7,0],[0,1],[7,1]]},
+        "warehouse_large": {"total": 3, "chunks": [[1,0],[6,0],[7,0]]},
+        "factory_small": {"total": 3, "chunks": [[0,1],[6,0],[1,0]]},
+        "utility_shed_metal": {"total": 2, "chunks": [[7,0],[0,0]]},
+        "shipping_container": {"total": 4, "chunks": [[0,0],[1,0],[6,0],[7,1]]},
+        "storage_tank": {"total": 2, "chunks": [[7,0],[0,1]]},
+        "loading_dock": {"total": 2, "chunks": [[1,0],[7,0]]}
+      },
+      "landmark_chunk": null,
+      "edge_rules": {
+        "all_borders": "soften_with_commercial"
+      }
+    },
+
+    "Forest": {
+      "chunks": [[0,0],[1,0],[0,1]],
+      "total_budget": 40,
+      "type_allocation": {
+        "hunting_cabin": {"total": 3, "chunks": [[0,0],[1,0],[0,1]]},
+        "ranger_station": {"total": 1, "chunks": [[0,0]]},
+        "camping_tent": {"total": 3, "chunks": [[1,0],[0,1],[0,0]]},
+        "deer_stand": {"total": 1, "chunks": [[1,0]]},
+        "cave_entrance": {"total": 1, "chunks": [[0,1]]},
+        "logging_camp_shed": {"total": 1, "chunks": [[0,0]]},
+        "ranger_lean_to": {"total": 1, "chunks": [[0,1]]}
+      },
+      "landmark_chunk": null,
+      "edge_rules": {
+        "all_borders": "soften_with_farm"
+      }
+    }
+  }
+}

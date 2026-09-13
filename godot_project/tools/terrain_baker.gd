@@ -31,13 +31,13 @@ func _ready() -> void:
         _build_terrain()
 
 func _build_terrain() -> void:
-        # Phase B.4: generate per-biome colored ground mesh (flat at Y=0).
-        # No elevation — just per-vertex colors based on biome + noise.
-        # Replaces the flat green PlaneMesh with a colored mesh that shows
-        # district boundaries from above.
-        _generate_biome_ground_mesh()
+        # Phase B.4: biome ground mesh DISABLED — vertex colors not rendering.
+        # Replaced with per-chunk colored ground planes in chunk_streamer.gd
+        # (simple, reliable: one colored plane per chunk).
+        # _generate_biome_ground_mesh()
         _place_bridges()
         _place_water()
+        print("[TerrainBaker] biome ground mesh disabled — per-chunk ground in chunk_streamer")
 
 # Phase B.4: Generate a flat ground mesh with per-vertex colors based on biome.
 # Each vertex gets the biome's ground color + per-vertex noise (±5% per channel)

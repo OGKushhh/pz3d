@@ -46,7 +46,9 @@ var terrain: TerrainHeight
 var river: RiverNetwork
 var _stamper: DistrictStamper  # Phase A.7: hand-authored district templates
 var _city_plan: Dictionary = {}  # Phase B.4: macro plan (density gradient + district budgets)
+var _district_plans: Dictionary = {}  # Phase B.4: meso plan (per-chunk type allocations)
 var _district_type_counts: Dictionary = {}  # Phase B.4: tracks per-district per-type building counts
+var _meso_allowed_types: Dictionary = {}  # Phase B.4: cached per-chunk allowed types from meso plan
 var _loaded: Dictionary = {}
 var _build_queue: Array = []
 var _builds_this_frame: int = 0
@@ -294,6 +296,7 @@ func _ready() -> void:
         terrain = TerrainHeight.new(1337, river)
         _stamper = DistrictStamper.new()
         _load_city_plan()
+        _load_district_plans()
 
         print("[ChunkStreamer] ready, player at %s" % player.global_position)
 
@@ -342,6 +345,43 @@ func _get_district_type_count(biome: int, asset_name: String) -> int:
 func _increment_district_type_count(biome: int, asset_name: String) -> void:
         var key: String = "%d_%s" % [biome, asset_name]
         _district_type_counts[key] = _get_district_type_count(biome, asset_name) + 1
+
+# Phase B.4: MESO PASS — load district_plans.json
+func _load_district_plans() -> void:
+        var f := FileAccess.open("res://data/district_plans.json", FileAccess.READ)
+        if f:
+                _district_plans = JSON.parse_string(f.get_as_text())
+                if not _district_plans.is_empty():
+                        print("[ChunkStreamer] district_plans loaded: %d districts" % _district_plans.get("districts", {}).size())
+                else:
+                        print("[ChunkStreamer] district_plans.json empty")
+        else:
+                print("[ChunkStreamer] district_plans.json not found — meso disabled")
+
+# Phase B.4: MESO — get the list of allowed building types for a specific chunk.
+# Returns empty array if no meso plan for this chunk (falls back to micro-only).
+func _get_meso_allowed_types(key: Vector2i) -> Array:
+        var cache_key: String = "%d_%d" % [key.x, key.y]
+        if _meso_allowed_types.has(cache_key):
+                return _meso_allowed_types[cache_key]
+        # Compute from district_plans.json
+        var result: Array = []
+        if not _district_plans.is_empty():
+                var districts: Dictionary = _district_plans.get("districts", {})
+                for district_name in districts:
+                        var district: Dictionary = districts[district_name]
+                        var type_alloc: Dictionary = district.get("type_allocation", {})
+                        for type_name in type_alloc:
+                                var alloc: Dictionary = type_alloc[type_name]
+                                var chunks: Array = alloc.get("chunks", [])
+                                for chunk in chunks:
+                                        if int(chunk[0]) == key.x and int(chunk[1]) == key.y:
+                                                result.append(type_name)
+                                                break
+        _meso_allowed_types[cache_key] = result
+        if not result.is_empty():
+                print("[ChunkStreamer] meso: chunk %d_%d allowed types: %s" % [key.x, key.y, result])
+        return result
 
 func _load_map_data():
         var f := FileAccess.open("res://data/map_data.json", FileAccess.READ)
@@ -452,6 +492,23 @@ func _build_chunk(key: Vector2i) -> void:
         # === VISIBLE ROADS ===
         _build_visible_roads(chunk_root, origin, CityConfig.CHUNK_SIZE_M)
 
+        # Phase B.4: per-chunk ground plane with biome color.
+        # Replaces the broken vertex-color biome ground mesh. Simple + reliable:
+        # one colored plane per chunk, colored by the chunk's biome.
+        var ground_color: Color = CityConfig.ground_color_for(biome)
+        # Add slight per-chunk variation so adjacent chunks don't look identical
+        var color_var: float = crng.randf_range(-0.03, 0.03)
+        ground_color = Color(
+                clamp(ground_color.r + color_var, 0.0, 1.0),
+                clamp(ground_color.g + color_var, 0.0, 1.0),
+                clamp(ground_color.b + color_var, 0.0, 1.0),
+                1.0
+        )
+        _create_plane_mesh_rotated(chunk_root, "ChunkGround",
+                origin + Vector3(CityConfig.CHUNK_SIZE_M * 0.5, 0, CityConfig.CHUNK_SIZE_M * 0.5),
+                Vector2(CityConfig.CHUNK_SIZE_M, CityConfig.CHUNK_SIZE_M),
+                ground_color, 0.0)
+
         # === POI PLACEMENT ===
         var poi_exclusions: Array = []
         var pois := _get_pois_for_chunk(origin, CityConfig.CHUNK_SIZE_M)
@@ -509,6 +566,27 @@ func _build_chunk(key: Vector2i) -> void:
         # === BUILDINGS ALONG ROAD SEGMENTS ===
         var buildings: Array = profile.get("buildings", [])
         var commercial_buildings: Array = profile.get("commercial_buildings", ["corner_store", "diner", "gas_station", "corner_store"])
+
+        # Phase B.4: MESO PASS — filter building pools by what the meso plan
+        # says this chunk should have. If the meso plan says "this chunk gets
+        # corner_store + diner", only those types are available.
+        # Falls back to full biome profile if no meso plan for this chunk.
+        var meso_allowed: Array = _get_meso_allowed_types(key)
+        if not meso_allowed.is_empty():
+                # Filter: only keep buildings that are in the meso allocation
+                var filtered_buildings: Array = []
+                for b in buildings:
+                        if meso_allowed.has(b):
+                                filtered_buildings.append(b)
+                if not filtered_buildings.is_empty():
+                        buildings = filtered_buildings
+                # Filter commercial too
+                var filtered_commercial: Array = []
+                for c in commercial_buildings:
+                        if meso_allowed.has(c):
+                                filtered_commercial.append(c)
+                if not filtered_commercial.is_empty():
+                        commercial_buildings = filtered_commercial
         # v8.2 Phase A.8: increased fill from 0.5 base to higher density.
         # Was int(fill * 40) = 20 buildings per chunk at 0.5 fill. Now
         # int(fill * 60) = 30 buildings per chunk — 50% more buildings.

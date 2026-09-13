@@ -1,16 +1,16 @@
 # AI Middleware Analysis Report
 > Generated from 25 chunk states.
-> Total problems detected: **26**
+> Total problems detected: **27**
 > Total opportunities found: **56**
-> Total actions generated: **11**
+> Total actions generated: **2**
 
 ## Problem Types Detected
 
 | Problem Type | Count | Description |
 |---|---|---|
-| min_spacing_violation | 13 |  |
-| overlaps | 7 | Buildings with intersecting AABBs (3D overlap) |
-| asset_repetition | 6 | Same asset appearing >5 times in one chunk |
+| asset_repetition | 14 | Same asset appearing >5 times in one chunk |
+| min_spacing_violation | 12 |  |
+| overlaps | 1 | Buildings with intersecting AABBs (3D overlap) |
 
 ## Opportunities Found
 
@@ -25,7 +25,7 @@
 
 | Action Type | Count |
 |---|---|
-| remove | 11 |
+| remove | 2 |
 
 ### Fill Type Distribution
 
@@ -36,28 +36,28 @@
 
 | Chunk | Biome | Buildings | Gap % | Problems | Opportunities | Actions |
 |---|---|---|---|---|---|---|
-| 7,7 | PARKS | 1 | 86% | 0 | 4 | 0 |
-| 8,11 | WETLANDS | 3 | 78% | 0 | 1 | 0 |
-| 6,11 | WETLANDS | 14 | 73% | 1 | 2 | 0 |
-| 8,10 | WETLANDS | 5 | 71% | 0 | 1 | 0 |
+| 7,7 | PARKS | 1 | 87% | 0 | 4 | 0 |
+| 8,11 | WETLANDS | 4 | 77% | 0 | 1 | 0 |
 | 6,7 | PARKS | 1 | 70% | 0 | 1 | 0 |
-| 6,10 | WETLANDS | 6 | 69% | 0 | 1 | 0 |
-| 5,9 | PARKS | 8 | 66% | 2 | 2 | 0 |
-| 7,10 | WETLANDS | 24 | 63% | 1 | 2 | 0 |
-| 7,11 | WETLANDS | 34 | 61% | 2 | 2 | 0 |
-| 5,7 | PARKS | 16 | 60% | 1 | 1 | 0 |
-| 9,11 | WETLANDS | 4 | 60% | 0 | 1 | 0 |
-| 9,10 | WETLANDS | 2 | 55% | 0 | 1 | 0 |
-| 6,8 | COMMERCIAL | 3 | 46% | 0 | 3 | 0 |
-| 7,8 | COMMERCIAL | 17 | 46% | 2 | 3 | 1 |
-| 6,9 | COMMERCIAL | 11 | 41% | 2 | 3 | 1 |
-| 5,10 | SUBURBIA | 12 | 40% | 1 | 2 | 0 |
-| 5,11 | SUBURBIA | 23 | 40% | 0 | 2 | 0 |
-| 5,8 | COMMERCIAL | 11 | 39% | 2 | 3 | 2 |
-| 7,9 | COMMERCIAL | 19 | 39% | 2 | 3 | 2 |
-| 9,8 | COMMERCIAL | 8 | 36% | 1 | 3 | 0 |
-| 8,9 | COMMERCIAL | 14 | 36% | 2 | 3 | 1 |
-| 9,7 | COMMERCIAL | 18 | 34% | 2 | 3 | 2 |
-| 8,8 | COMMERCIAL | 11 | 30% | 1 | 3 | 0 |
-| 9,9 | COMMERCIAL | 12 | 30% | 1 | 3 | 0 |
-| 8,7 | COMMERCIAL | 20 | 29% | 3 | 3 | 2 |
+| 6,10 | WETLANDS | 8 | 70% | 0 | 1 | 0 |
+| 8,10 | WETLANDS | 5 | 70% | 0 | 1 | 0 |
+| 6,11 | WETLANDS | 16 | 69% | 1 | 2 | 0 |
+| 5,9 | PARKS | 8 | 65% | 1 | 1 | 0 |
+| 7,11 | WETLANDS | 32 | 65% | 2 | 2 | 0 |
+| 9,11 | WETLANDS | 3 | 64% | 0 | 1 | 0 |
+| 7,10 | WETLANDS | 23 | 61% | 1 | 2 | 0 |
+| 5,7 | PARKS | 18 | 60% | 1 | 2 | 0 |
+| 9,10 | WETLANDS | 3 | 54% | 0 | 1 | 0 |
+| 6,8 | COMMERCIAL | 4 | 47% | 0 | 3 | 0 |
+| 5,11 | SUBURBIA | 18 | 44% | 0 | 2 | 0 |
+| 6,9 | COMMERCIAL | 13 | 41% | 2 | 3 | 0 |
+| 7,8 | COMMERCIAL | 21 | 40% | 2 | 3 | 0 |
+| 7,9 | COMMERCIAL | 18 | 39% | 2 | 3 | 0 |
+| 5,10 | SUBURBIA | 9 | 39% | 1 | 2 | 0 |
+| 9,7 | COMMERCIAL | 19 | 37% | 2 | 3 | 0 |
+| 5,8 | COMMERCIAL | 12 | 36% | 1 | 3 | 0 |
+| 9,8 | COMMERCIAL | 11 | 34% | 2 | 3 | 0 |
+| 8,9 | COMMERCIAL | 21 | 33% | 2 | 3 | 0 |
+| 8,7 | COMMERCIAL | 23 | 30% | 2 | 3 | 0 |
+| 8,8 | COMMERCIAL | 14 | 30% | 3 | 3 | 2 |
+| 9,9 | COMMERCIAL | 20 | 27% | 2 | 3 | 0 |
