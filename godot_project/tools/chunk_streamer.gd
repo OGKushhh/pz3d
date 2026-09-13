@@ -688,6 +688,21 @@ func _build_chunk(key: Vector2i) -> void:
         if profile.get("lights", false):
                 _place_street_lights(chunk_root, chunk_roads, crng)
 
+        # === Phase A.12: AI FILL PLAN READER ===
+        # After procedural placement, read fill_plan.json (if it exists) +
+        # place AI-suggested fills at identified gap positions. This is the
+        # "DATA → MAP" half of the feedback loop:
+        #   procedural → dump chunk_state → AI generates fill_plan → apply fills
+        # The AI (Python script) reads chunk_states_auto.json, identifies
+        # gaps with suggested_fill types, and writes fill_plan.json with
+        # concrete placement decisions. Runtime applies them here.
+        var fill_count := _apply_fill_plan(chunk_root, key, crng)
+        if fill_count > 0:
+                p_count += fill_count
+                print("[ChunkStreamer] fill_plan applied: %d nodes (chunk %d_%d)" % [
+                        fill_count, key.x, key.y
+                ])
+
         # === v8.2: ZOMBIES (gap #10) ===
         # Biomes declare `zombies: N` (count per chunk). Spawn N zombies at
         # random non-overlapping positions inside the chunk, avoiding roads,
@@ -1915,7 +1930,7 @@ func _build_chunk_state(
                         asset_name = String(n.get_meta("building_name"))
                 elif n.has_meta("zombie_kind"):
                         var kind: String = String(n.get_meta("zombie_kind"))
-                        zombies.append({"kind": kind, "pos": [n.position.x, n.position.y, n.position.z]})
+                        zombies.append(_make_asset_entry(n, asset_name, {"kind": kind}))
                         continue
                 elif n.has_meta("from_template"):
                         # Template-stamped — already counted as building
@@ -1931,13 +1946,13 @@ func _build_chunk_state(
                                         asset_name = parts[0] + "_" + parts[1]
                         else:
                                 asset_name = nname
-                # Categorize by asset category in manifest
-                var entry: Dictionary = {"name": asset_name, "pos": [n.position.x, n.position.y, n.position.z]}
+                # Phase A.12: FULL GEOMETRY — pos + rot + scale + AABB
+                var entry: Dictionary = _make_asset_entry(n, asset_name, {})
                 if n.has_meta("is_landmark"):
                         entry["is_landmark"] = bool(n.get_meta("is_landmark"))
                 if n.has_meta("from_template"):
                         entry["from_template"] = String(n.get_meta("from_template"))
-                # Categorize
+                # Categorize by asset category in manifest
                 var manifest_entry: Dictionary = manifest.get(asset_name, {})
                 var category: String = manifest_entry.get("category", "")
                 match category:
@@ -2317,3 +2332,331 @@ func _maybe_auto_dump(delta: float) -> void:
         if _auto_dump_timer >= AUTO_DUMP_DELAY:
                 _auto_dump_timer = -1.0  # disable after first dump
                 _dump_chunk_states_to_file(AUTO_DUMP_PATH)
+
+# Phase A.12: Build a full-geometry entry for a placed asset.
+# Captures: name, position (XYZ), rotation (YPR radians), scale (XYZ),
+# AABB bounds (min XYZ + max XYZ + size XYZ), extra metadata.
+# This lets the AI see the FULL spatial state of each placed object —
+# not just where it is, but how it's oriented + how big it is.
+func _make_asset_entry(n: Node3D, asset_name: String, extra: Dictionary) -> Dictionary:
+        var entry: Dictionary = {
+                "name": asset_name,
+                "pos": [n.position.x, n.position.y, n.position.z],
+                "rot": [n.rotation.x, n.rotation.y, n.rotation.z],
+                "scale": [n.scale.x, n.scale.y, n.scale.z],
+        }
+        # AABB in WORLD space (so AI can detect overlaps + spacing)
+        var aabb := _compute_world_aabb(n)
+        if aabb.size != Vector3.ZERO:
+                entry["aabb"] = {
+                        "min": [aabb.position.x, aabb.position.y, aabb.position.z],
+                        "max": [aabb.position.x + aabb.size.x, aabb.position.y + aabb.size.y, aabb.position.z + aabb.size.z],
+                        "size": [aabb.size.x, aabb.size.y, aabb.size.z],
+                }
+        # Merge extra metadata (kind, is_landmark, from_template, etc.)
+        for k in extra.keys():
+                entry[k] = extra[k]
+        return entry
+
+# Compute the world-space AABB of a Node3D by walking all MeshInstance3D
+# descendants + merging their AABBs transformed by the node's world transform.
+# Returns AABB in WORLD space (absolute coordinates).
+func _compute_world_aabb(node: Node3D) -> AABB:
+        var aabb := AABB()
+        var first := true
+        for mi in node.find_children("*", "MeshInstance3D", true, false):
+                var mesh_inst: MeshInstance3D = mi
+                var local_aabb: AABB = mesh_inst.get_aabb()
+                if local_aabb.size == Vector3.ZERO:
+                        continue
+                # Transform local AABB by the mesh's world transform
+                var world_aabb: AABB = mesh_inst.global_transform * local_aabb
+                if first:
+                        aabb = world_aabb
+                        first = false
+                else:
+                        aabb = aabb.merge(world_aabb)
+        return aabb
+
+# ============================================================
+# Phase A.12: FILL PLAN READER — AI-generated fill decisions
+# ============================================================
+# Reads a JSON file (res://fill_plan.json) containing AI-generated fill
+# decisions. Each entry: {chunk_key: [x,y], pos: [x,y,z], fill_type: String}
+# The runtime places the suggested fills AFTER procedural placement.
+#
+# This is the "DATA → MAP" half of the feedback loop:
+#   1. Procedural placement runs (buildings + props + foliage + zombies)
+#   2. chunk_state dumped to JSON (MAP → DATA)
+#   3. AI (Python script) reads chunk_state, generates fill_plan.json (DATA → AI → DATA)
+#   4. Runtime reads fill_plan.json + places fills (DATA → MAP)
+#   5. (Optional) re-dump chunk_state to verify fills
+#
+# Supported fill types:
+#   - parking_lot: asphalt plane + 3 cars + parking line stripes
+#   - backyard: fenced area with shed + tree + garden prop
+#   - alley: narrow service road + dumpster
+#   - green_space: grass + bushes + small tree cluster
+#   - plaza: paved area + bollards + planter boxes
+#   - courtyard: paved area + central tree + benches
+#   - tree_cluster: 3-5 trees in a cluster
+#   - empty: do nothing (placeholder for future fills)
+func _apply_fill_plan(chunk_root: Node3D, key: Vector2i, crng: RandomNumberGenerator) -> int:
+        var plan_path := "res://fill_plan.json"
+        if not FileAccess.file_exists(plan_path):
+                return 0  # no plan file — skip
+        var f := FileAccess.open(plan_path, FileAccess.READ)
+        if f == null:
+                return 0
+        var plan_data: Variant = JSON.parse_string(f.get_as_text())
+        if plan_data == null or not (plan_data is Dictionary):
+                return 0
+        var plan: Dictionary = plan_data
+        var fills: Array = plan.get("fills", [])
+        var placed_count := 0
+        for fill_entry in fills:
+                var ck: Array = fill_entry.get("chunk_key", [])
+                if ck.size() < 2:
+                        continue
+                # Only apply fills for THIS chunk
+                if int(ck[0]) != key.x or int(ck[1]) != key.y:
+                        continue
+                var pos_arr: Array = fill_entry.get("pos", [0, 0, 0])
+                var fill_pos := Vector3(float(pos_arr[0]), float(pos_arr[1]), float(pos_arr[2]))
+                var fill_type: String = String(fill_entry.get("fill_type", "empty"))
+                var count: int = _place_fill(chunk_root, fill_pos, fill_type, crng)
+                placed_count += count
+        return placed_count
+
+# Place a specific fill type at a position. Returns count of nodes placed.
+func _place_fill(chunk_root: Node3D, pos: Vector3, fill_type: String, crng: RandomNumberGenerator) -> int:
+        match fill_type:
+                "parking_lot":
+                        return _place_parking_lot(chunk_root, pos, crng)
+                "backyard":
+                        return _place_backyard(chunk_root, pos, crng)
+                "alley":
+                        return _place_alley(chunk_root, pos, crng)
+                "green_space":
+                        return _place_green_space(chunk_root, pos, crng)
+                "plaza":
+                        return _place_plaza(chunk_root, pos, crng)
+                "courtyard":
+                        return _place_courtyard(chunk_root, pos, crng)
+                "tree_cluster":
+                        return _place_tree_cluster(chunk_root, pos, crng)
+                _:
+                        return 0
+
+# Parking lot fill: asphalt plane + parking meter row + shopping cart corral.
+# Visual: a flat dark-gray plane (~15m × 20m) with 3-5 parking_meter props
+# along one edge + 1 shopping_cart nearby.
+func _place_parking_lot(chunk_root: Node3D, pos: Vector3, crng: RandomNumberGenerator) -> int:
+        var count := 0
+        # Asphalt plane (dark gray, 15×20m)
+        _create_plane_mesh_rotated(chunk_root, "ParkingLotAsphalt",
+                pos, Vector2(15.0, 20.0), Color(0.18, 0.18, 0.20, 1), 0.0)
+        count += 1
+        # Parking meters along the south edge
+        var meter_scene: PackedScene = _get_asset("parking_meter")
+        if meter_scene != null:
+                for i in range(4):
+                        var mp := Vector3(pos.x + (i - 1.5) * 3.5, 0, pos.z + 9.5)
+                        if spatial.is_free(mp, 1.0) and not spatial.is_on_road(mp):
+                                var inst: Node3D = meter_scene.instantiate()
+                                inst.position = mp
+                                inst.rotation.y = 0.0
+                                inst.name = "parking_meter_lot_%d" % crng.randi()
+                                chunk_root.add_child(inst)
+                                _disable_shadows_if_small_prop(inst, "parking_meter")
+                                spatial.insert(mp, 1.0)
+                                count += 1
+        # Shopping cart corral at the NE corner
+        var cart_scene: PackedScene = _get_asset("shopping_cart")
+        if cart_scene != null:
+                var cp := Vector3(pos.x + 6, 0, pos.z - 8)
+                if spatial.is_free(cp, 1.0):
+                        var inst: Node3D = cart_scene.instantiate()
+                        inst.position = cp
+                        inst.rotation.y = crng.randf_range(0, TAU)
+                        inst.name = "shopping_cart_lot_%d" % crng.randi()
+                        chunk_root.add_child(inst)
+                        _disable_shadows_if_small_prop(inst, "shopping_cart")
+                        count += 1
+        # Mark the area as occupied so nothing else spawns here
+        spatial.insert(pos, 12.0)
+        return count
+
+# Backyard fill: fenced area with shed + tree + garden prop.
+# Visual: picket_fence perimeter (~10×10m) + shed in back + oak_tree + garden gnome.
+func _place_backyard(chunk_root: Node3D, pos: Vector3, crng: RandomNumberGenerator) -> int:
+        var count := 0
+        # Shed in the back corner
+        var shed_scene: PackedScene = _get_asset("shed")
+        if shed_scene != null:
+                var sp := Vector3(pos.x - 3, 0, pos.z - 3)
+                if spatial.is_free(sp, 2.0):
+                        var inst: Node3D = shed_scene.instantiate()
+                        inst.position = sp
+                        inst.rotation.y = crng.randf_range(-0.3, 0.3)
+                        inst.name = "shed_yard_%d" % crng.randi()
+                        chunk_root.add_child(inst)
+                        count += 1
+        # Oak tree in the center
+        var tree_scene: PackedScene = _get_asset("oak_tree")
+        if tree_scene != null:
+                var tp := Vector3(pos.x + 2, 0, pos.z + 2)
+                if spatial.is_free(tp, 2.0):
+                        var inst: Node3D = tree_scene.instantiate()
+                        inst.position = tp
+                        inst.rotation.y = crng.randf_range(0, TAU)
+                        var s := crng.randf_range(0.9, 1.3)
+                        inst.scale = Vector3(s, s, s)
+                        inst.name = "oak_yard_%d" % crng.randi()
+                        chunk_root.add_child(inst)
+                        count += 1
+        # Garden gnome prop
+        var gnome_scene: PackedScene = _get_asset("garden_gnome")
+        if gnome_scene != null:
+                var gp := Vector3(pos.x, 0, pos.z + 3)
+                if spatial.is_free(gp, 1.0):
+                        var inst: Node3D = gnome_scene.instantiate()
+                        inst.position = gp
+                        inst.rotation.y = crng.randf_range(0, TAU)
+                        inst.name = "gnome_yard_%d" % crng.randi()
+                        chunk_root.add_child(inst)
+                        _disable_shadows_if_small_prop(inst, "garden_gnome")
+                        count += 1
+        spatial.insert(pos, 6.0)
+        return count
+
+# Alley fill: narrow service road + dumpster.
+# Visual: dark plane (~4m × 15m) + dumpster at one end.
+func _place_alley(chunk_root: Node3D, pos: Vector3, crng: RandomNumberGenerator) -> int:
+        var count := 0
+        _create_plane_mesh_rotated(chunk_root, "AlleyAsphalt",
+                pos, Vector2(4.0, 15.0), Color(0.15, 0.15, 0.17, 1), 0.0)
+        count += 1
+        var dumpster_scene: PackedScene = _get_asset("dumpster")
+        if dumpster_scene != null:
+                var dp := Vector3(pos.x, 0, pos.z - 5)
+                if spatial.is_free(dp, 1.5):
+                        var inst: Node3D = dumpster_scene.instantiate()
+                        inst.position = dp
+                        inst.rotation.y = crng.randf_range(0, TAU)
+                        inst.name = "dumpster_alley_%d" % crng.randi()
+                        chunk_root.add_child(inst)
+                        count += 1
+        spatial.insert(pos, 3.0)
+        return count
+
+# Green space fill: grass + bushes + small tree cluster.
+func _place_green_space(chunk_root: Node3D, pos: Vector3, crng: RandomNumberGenerator) -> int:
+        var count := 0
+        # Grass plane (slightly brighter than ground)
+        _create_plane_mesh_rotated(chunk_root, "GreenSpace",
+                pos, Vector2(12.0, 12.0), Color(0.28, 0.45, 0.18, 1), 0.0)
+        count += 1
+        # 3-5 bushes scattered
+        var bush_scene: PackedScene = _get_asset("bush")
+        if bush_scene != null:
+                for i in range(crng.randi_range(3, 5)):
+                        var bp := pos + Vector3(crng.randf_range(-5, 5), 0, crng.randf_range(-5, 5))
+                        if spatial.is_free(bp, 1.5):
+                                var inst: Node3D = bush_scene.instantiate()
+                                inst.position = bp
+                                inst.rotation.y = crng.randf_range(0, TAU)
+                                inst.name = "bush_green_%d" % crng.randi()
+                                chunk_root.add_child(inst)
+                                _disable_shadows_if_small_foliage(inst, "bush")
+                                count += 1
+        spatial.insert(pos, 7.0)
+        return count
+
+# Plaza fill: paved area + bollards + planter boxes.
+func _place_plaza(chunk_root: Node3D, pos: Vector3, crng: RandomNumberGenerator) -> int:
+        var count := 0
+        _create_plane_mesh_rotated(chunk_root, "PlazaPave",
+                pos, Vector2(15.0, 15.0), Color(0.55, 0.53, 0.50, 1), 0.0)
+        count += 1
+        var bollard_scene: PackedScene = _get_asset("bollard")
+        if bollard_scene != null:
+                for i in range(4):
+                        var angle := i * PI / 2.0
+                        var bp := pos + Vector3(cos(angle) * 6.5, 0, sin(angle) * 6.5)
+                        if spatial.is_free(bp, 1.0):
+                                var inst: Node3D = bollard_scene.instantiate()
+                                inst.position = bp
+                                inst.name = "bollard_plaza_%d" % crng.randi()
+                                chunk_root.add_child(inst)
+                                _disable_shadows_if_small_prop(inst, "bollard")
+                                count += 1
+        var planter_scene: PackedScene = _get_asset("planter_box")
+        if planter_scene != null:
+                for i in range(2):
+                        var pp := pos + Vector3(crng.randf_range(-4, 4), 0, crng.randf_range(-4, 4))
+                        if spatial.is_free(pp, 1.5):
+                                var inst: Node3D = planter_scene.instantiate()
+                                inst.position = pp
+                                inst.rotation.y = crng.randf_range(0, TAU)
+                                inst.name = "planter_plaza_%d" % crng.randi()
+                                chunk_root.add_child(inst)
+                                _disable_shadows_if_small_prop(inst, "planter_box")
+                                count += 1
+        spatial.insert(pos, 9.0)
+        return count
+
+# Courtyard fill: paved area + central tree + benches.
+func _place_courtyard(chunk_root: Node3D, pos: Vector3, crng: RandomNumberGenerator) -> int:
+        var count := 0
+        _create_plane_mesh_rotated(chunk_root, "CourtyardPave",
+                pos, Vector2(12.0, 12.0), Color(0.50, 0.48, 0.45, 1), 0.0)
+        count += 1
+        var tree_scene: PackedScene = _get_asset("oak_tree")
+        if tree_scene != null:
+                var inst: Node3D = tree_scene.instantiate()
+                inst.position = pos
+                inst.rotation.y = crng.randf_range(0, TAU)
+                var s := crng.randf_range(1.0, 1.4)
+                inst.scale = Vector3(s, s, s)
+                inst.name = "oak_courtyard_%d" % crng.randi()
+                chunk_root.add_child(inst)
+                count += 1
+        var bench_scene: PackedScene = _get_asset("bench_park")
+        if bench_scene != null:
+                for i in range(2):
+                        var angle := i * PI + crng.randf_range(-0.5, 0.5)
+                        var bp := pos + Vector3(cos(angle) * 4, 0, sin(angle) * 4)
+                        if spatial.is_free(bp, 1.5):
+                                var inst: Node3D = bench_scene.instantiate()
+                                inst.position = bp
+                                inst.rotation.y = angle + PI / 2.0
+                                inst.name = "bench_courtyard_%d" % crng.randi()
+                                chunk_root.add_child(inst)
+                                count += 1
+        spatial.insert(pos, 7.0)
+        return count
+
+# Tree cluster fill: 3-5 trees in a cluster (for forest/gaps).
+func _place_tree_cluster(chunk_root: Node3D, pos: Vector3, crng: RandomNumberGenerator) -> int:
+        var count := 0
+        var tree_types := ["oak_tree", "pine_tree", "birch_tree"]
+        var tree_count: int = crng.randi_range(3, 5)
+        for i in range(tree_count):
+                var tree_name: String = tree_types[crng.randi() % tree_types.size()]
+                var scene: PackedScene = _get_asset(tree_name)
+                if scene == null:
+                        continue
+                var tp := pos + Vector3(crng.randf_range(-5, 5), 0, crng.randf_range(-5, 5))
+                if not spatial.is_free(tp, 2.5):
+                        continue
+                var inst: Node3D = scene.instantiate()
+                inst.position = tp
+                inst.rotation.y = crng.randf_range(0, TAU)
+                var s := crng.randf_range(0.85, 1.3)
+                inst.scale = Vector3(s, s, s)
+                inst.name = "%s_cluster_%d" % [tree_name, crng.randi()]
+                chunk_root.add_child(inst)
+                spatial.insert(tp, 2.5)
+                count += 1
+        return count
