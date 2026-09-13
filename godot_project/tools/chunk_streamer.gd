@@ -31,6 +31,7 @@ const RoadNetwork = preload("res://tools/road_network.gd")
 const PlanGrid = preload("res://tools/plan_grid.gd")
 const TerrainHeight = preload("res://tools/terrain_height.gd")
 const RiverNetwork = preload("res://tools/river_network.gd")
+const DistrictStamper = preload("res://tools/district_stamper.gd")
 
 var player: Node3D
 var stream_radius: int = 2
@@ -42,6 +43,7 @@ var rng: RandomNumberGenerator
 var plan_grid: PlanGrid
 var terrain: TerrainHeight
 var river: RiverNetwork
+var _stamper: DistrictStamper  # Phase A.7: hand-authored district templates
 var _loaded: Dictionary = {}
 var _build_queue: Array = []
 var _builds_this_frame: int = 0
@@ -203,6 +205,7 @@ func _ready() -> void:
 
         river = RiverNetwork.new()
         terrain = TerrainHeight.new(1337, river)
+        _stamper = DistrictStamper.new()
 
         print("[ChunkStreamer] ready, player at %s" % player.global_position)
 
@@ -337,6 +340,35 @@ func _build_chunk(key: Vector2i) -> void:
         # buildings or fail the is_free() check and silently get skipped.
         var lm_count := _place_landmark(chunk_root, profile, origin, key, crng, poi_exclusions)
         l_count += lm_count
+
+        # === Phase A.7: HAND-AUTHORED DISTRICT TEMPLATE STAMPING ===
+        # If this biome has a template defined (see data/district_templates.gd
+        # BIOME_TEMPLATES map), stamp it at the chunk's anchor (cell center).
+        # The template includes buildings + foliage + props at hand-authored
+        # positions with per-run variant pick + rotation jitter.
+        # After stamping, mark the anchor's footprint (75m radius) as occupied
+        # in the spatial index so procedural placement skips that area.
+        # Per docs/district_templates.md: coverage is ~30% (major biomes only).
+        var template_name := _stamper.pick_template_for_biome(biome, crng)
+        var template_placed := 0
+        if template_name != "":
+                var anchor_pos := origin + Vector3(
+                        CityConfig.CHUNK_SIZE_M * 0.5, 0,
+                        CityConfig.CHUNK_SIZE_M * 0.5
+                )
+                var template_rot := crng.randf_range(0, TAU)
+                template_placed = _stamper.stamp_template(
+                        template_name, anchor_pos, template_rot, chunk_root, crng, self
+                )
+                if template_placed > 0:
+                        # Mark the template's footprint so procedural placement
+                        # skips the area. Template is 150×150m → 75m radius.
+                        spatial.insert(anchor_pos, 75.0)
+                        poi_exclusions.append({"center": anchor_pos, "radius": 75.0})
+                        b_count += template_placed
+                        print("[ChunkStreamer] template '%s' stamped at %s (chunk %d_%d): %d nodes" % [
+                                template_name, anchor_pos, key.x, key.y, template_placed
+                        ])
 
         # === BUILDINGS ALONG ROAD SEGMENTS ===
         var buildings: Array = profile.get("buildings", [])
