@@ -429,6 +429,11 @@ func _build_chunk(key: Vector2i) -> void:
         var fill: float = profile.get("fill", 0.5)
         var building_radius: float = max(LOT_W, LOT_D) * 0.4
 
+        # v8.2 Phase A.9: DISTRICT HALO — find landmarks near this chunk
+        # and collect their halo buildings. These get boosted spawn probability.
+        # _halo_buildings is a Dictionary[asset_name → boost_multiplier].
+        var _halo_buildings: Dictionary = _collect_halo_buildings(origin, CityConfig.CHUNK_SIZE_M)
+
         # Get road segments that pass through this chunk
         var chunk_roads: Array = _get_roads_in_chunk(origin, CityConfig.CHUNK_SIZE_M)
         var placed := 0
@@ -525,6 +530,11 @@ func _build_chunk(key: Vector2i) -> void:
                                 #   - residential zone: 85% residential, 15% commercial (corner store)
                                 #   - industrial zone: 100% industrial (from biome.buildings)
                                 #   - mixed zone: 50/50 commercial/residential
+                                #
+                                # v8.2 Phase A.9: DISTRICT HALO — if a halo building
+                                # is in the pick list, boost its probability by the halo
+                                # multiplier (e.g. stadium nearby → 2x chance of
+                                # parking_garage, bank_branch, etc.).
                                 var bname: String
                                 var commercial_prob: float = 0.0
                                 match zone_type:
@@ -536,7 +546,28 @@ func _build_chunk(key: Vector2i) -> void:
                                                 commercial_prob = 0.0
                                         "mixed":
                                                 commercial_prob = 0.5
-                                if crng.randf() < commercial_prob and not commercial_buildings.is_empty():
+                                # Phase A.9: check if any halo building is in the pool.
+                                # If so, weighted-pick favoring halo buildings.
+                                var has_halo: bool = false
+                                for hb in _halo_buildings.keys():
+                                        if commercial_buildings.has(hb) or buildings.has(hb):
+                                                has_halo = true
+                                                break
+                                if has_halo and crng.randf() < 0.4:  # 40% chance to pick a halo building
+                                        # Weighted pick: halo buildings get their boost_mult as weight
+                                        var weighted_pool: Array = []
+                                        for hb in _halo_buildings.keys():
+                                                if commercial_buildings.has(hb) or buildings.has(hb):
+                                                        var mult: float = float(_halo_buildings[hb])
+                                                        for _w in range(int(mult * 10)):  # scale to int weights
+                                                                weighted_pool.append(hb)
+                                        if not weighted_pool.is_empty():
+                                                bname = weighted_pool[crng.randi() % weighted_pool.size()]
+                                        elif crng.randf() < commercial_prob and not commercial_buildings.is_empty():
+                                                bname = commercial_buildings[crng.randi() % commercial_buildings.size()]
+                                        else:
+                                                bname = buildings[crng.randi() % buildings.size()]
+                                elif crng.randf() < commercial_prob and not commercial_buildings.is_empty():
                                         bname = commercial_buildings[crng.randi() % commercial_buildings.size()]
                                 else:
                                         bname = buildings[crng.randi() % buildings.size()]
@@ -1636,6 +1667,37 @@ func _place_zombies(
                 spatial.insert(pos, ZOMBIE_RADIUS)
                 count += 1
         return count
+
+# v8.2 Phase A.9: DISTRICT HALO — collect halo buildings from landmarks
+# near the given chunk. Returns Dictionary[asset_name → boost_multiplier].
+# A stadium nearby → parking_garage, bank_branch, etc. get 2x boost.
+# A hospital nearby → store_pharmacy, bank_branch, etc. get 2.5x boost.
+# Used by building placement to weighted-pick halo buildings 40% of the time.
+#
+# Walks _asset_positions (the anti-cluster tracker) to find landmarks
+# within HALO_RADIUS_M of the chunk center. For each, looks up its halo
+# profile in CityConfig.LANDMARK_HALOS and merges into the result dict.
+# If multiple landmarks are near, their boosts multiply (e.g. stadium +
+# hospital both near → parking_garage gets 2x × 2.5x = 5x boost).
+func _collect_halo_buildings(origin: Vector3, chunk_size: float) -> Dictionary:
+        var result: Dictionary = {}
+        var chunk_center := origin + Vector3(chunk_size * 0.5, 0, chunk_size * 0.5)
+        for bname in _asset_positions.keys():
+                var halo: Dictionary = CityConfig.halo_for(bname)
+                if halo.is_empty():
+                        continue
+                var positions: Array = _asset_positions[bname]
+                for pos in positions:
+                        if pos.distance_to(chunk_center) <= CityConfig.HALO_RADIUS_M:
+                                var halo_buildings: Array = halo.get("halo_buildings", [])
+                                var mult: float = float(halo.get("halo_prob_mult", 1.5))
+                                for hb in halo_buildings:
+                                        if result.has(hb):
+                                                result[hb] = float(result[hb]) * mult
+                                        else:
+                                                result[hb] = mult
+                                break  # one instance of this landmark is enough
+        return result
 
 # ============================================================
 # v8.2 Phase A.8: BACKYARD FILL — fill empty lots with small props

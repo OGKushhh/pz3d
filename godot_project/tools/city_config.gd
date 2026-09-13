@@ -77,6 +77,175 @@ const COLOR_SIDEWALK       := Color(0.70, 0.68, 0.64, 1)
 const COLOR_GRASS_STRIP    := Color(0.30, 0.50, 0.22, 1)
 const COLOR_GROUND         := Color(0.22, 0.40, 0.16, 1)
 
+# ── DISTRICT IDENTITY (Phase A.9, 2026-09-13) ──────────────
+# Per-biome color grade + fog tint + ambient bias (GTA SA style).
+# Each biome has a distinct visual identity:
+#   - sky_tint: overrides sky horizon color when player is in this biome
+#   - fog_tint: fog color shifts to match biome mood
+#   - ambient_tint: ambient light color shift
+#   - sun_energy_mult: brightness multiplier (Military = darker, Parks = brighter)
+# All values are TINTS (multiplied with base colors), not absolute colors.
+# The runtime applies these via WorldEnvironment when the player enters a biome.
+#
+# Design intent per biome:
+#   Suburbia: warm, nostalgic autumn light (orange tint)
+#   Parks: bright, breezy morning (slight green tint)
+#   Forest: dark, foggy, mysterious (heavy blue-gray fog)
+#   Farmland: golden hour, dusty (warm yellow)
+#   Commercial: overcast, neutral (slight gray)
+#   Industrial: smoggy, acid rain (sickly green-gray)
+#   Wetlands: misty, heavy fog (thick gray-white)
+#   Downtown: neon night, rain (dark blue + purple)
+#   Military: toxic fog, ashfall (sickly yellow-gray, very dark)
+#   Coastal Beach: bright, sea spray (sandy warm + blue sky)
+#   Water/Empty: defaults (no override)
+const DISTRICT_IDENTITY := {
+    Biome.SUBURBIA: {
+        "sky_tint": Color(1.10, 1.05, 0.95),  # warm autumn
+        "fog_tint": Color(0.85, 0.80, 0.70),   # warm beige fog
+        "ambient_tint": Color(1.05, 1.00, 0.95),
+        "sun_energy_mult": 1.1,
+        "fog_density_mult": 1.0,
+    },
+    Biome.PARKS: {
+        "sky_tint": Color(0.95, 1.00, 1.05),  # bright + slight green
+        "fog_tint": Color(0.80, 0.85, 0.80),
+        "ambient_tint": Color(1.00, 1.05, 1.00),
+        "sun_energy_mult": 1.2,  # brighter (sunny park)
+        "fog_density_mult": 0.7,  # less fog (clear day)
+    },
+    Biome.FOREST: {
+        "sky_tint": Color(0.70, 0.75, 0.80),  # dark, cool
+        "fog_tint": Color(0.55, 0.60, 0.65),  # heavy blue-gray
+        "ambient_tint": Color(0.85, 0.90, 0.95),
+        "sun_energy_mult": 0.7,  # darker (forest canopy)
+        "fog_density_mult": 1.8,  # thick fog (mysterious)
+    },
+    Biome.FARMLAND: {
+        "sky_tint": Color(1.15, 1.05, 0.85),  # golden hour
+        "fog_tint": Color(0.90, 0.80, 0.60),  # dusty warm
+        "ambient_tint": Color(1.10, 1.00, 0.90),
+        "sun_energy_mult": 1.15,
+        "fog_density_mult": 0.9,
+    },
+    Biome.COMMERCIAL: {
+        "sky_tint": Color(0.90, 0.90, 0.95),  # overcast neutral
+        "fog_tint": Color(0.70, 0.70, 0.75),
+        "ambient_tint": Color(0.95, 0.95, 1.00),
+        "sun_energy_mult": 0.95,
+        "fog_density_mult": 1.2,  # slightly foggy (urban haze)
+    },
+    Biome.INDUSTRIAL: {
+        "sky_tint": Color(0.80, 0.85, 0.75),  # smoggy green-gray
+        "fog_tint": Color(0.55, 0.60, 0.50),  # sickly green-gray
+        "ambient_tint": Color(0.90, 0.95, 0.85),
+        "sun_energy_mult": 0.8,  # darker (industrial smog)
+        "fog_density_mult": 1.6,  # thicker fog (smog)
+    },
+    Biome.WETLANDS: {
+        "sky_tint": Color(0.85, 0.88, 0.92),
+        "fog_tint": Color(0.75, 0.78, 0.82),  # misty gray-white
+        "ambient_tint": Color(0.95, 0.98, 1.00),
+        "sun_energy_mult": 0.85,
+        "fog_density_mult": 2.0,  # thickest fog (marsh mist)
+    },
+    Biome.DOWNTOWN: {
+        "sky_tint": Color(0.55, 0.50, 0.75),  # dark blue + purple (neon night)
+        "fog_tint": Color(0.45, 0.40, 0.60),  # purple-blue rain fog
+        "ambient_tint": Color(0.75, 0.70, 0.95),
+        "sun_energy_mult": 0.6,  # darkest (night-ish)
+        "fog_density_mult": 1.4,
+    },
+    Biome.MILITARY: {
+        "sky_tint": Color(0.65, 0.70, 0.55),  # toxic yellow-gray
+        "fog_tint": Color(0.50, 0.55, 0.40),  # sickly yellow-gray ash
+        "ambient_tint": Color(0.85, 0.90, 0.75),
+        "sun_energy_mult": 0.5,  # very dark (unnatural silence)
+        "fog_density_mult": 2.2,  # thickest (toxic fog + ashfall)
+    },
+    Biome.COASTAL_BEACH: {
+        "sky_tint": Color(1.05, 1.00, 0.95),  # sandy warm + bright
+        "fog_tint": Color(0.85, 0.82, 0.78),
+        "ambient_tint": Color(1.05, 1.00, 0.95),
+        "sun_energy_mult": 1.25,  # brightest (beach sun)
+        "fog_density_mult": 0.5,  # least fog (sea breeze clears it)
+    },
+}
+
+# Returns the district identity Dictionary for a biome, or empty if none.
+static func district_identity_for(biome: int) -> Dictionary:
+    return DISTRICT_IDENTITY.get(biome, {})
+
+# ── DISTRICT HALO (Phase A.9) ─────────────────────────────
+# Landmarks bias neighboring chunks' building picks. A stadium's nearby
+# chunks get sports bars, parking garages, hotels. A hospital's nearby
+# chunks get pharmacies, medical offices. A government_palace's nearby
+# chunks get office buildings, security checkpoints.
+#
+# Each landmark declares a HALO_PROFILE — a list of "halo buildings" that
+# get boosted spawn probability in chunks within HALO_RADIUS_M of the
+# landmark. The boost is a multiplier on the normal pick probability.
+#
+# Halo radius: 500m (covers ~2 chunks around the landmark).
+const HALO_RADIUS_M := 500.0
+
+const LANDMARK_HALOS := {
+    "stadium": {
+        "halo_buildings": ["barber_shop", "salon", "bank_branch", "parking_garage", "apartment_small"],
+        "halo_prob_mult": 2.0,  # 2x normal probability for these buildings
+        "halo_props": ["parking_meter", "traffic_light", "bollard"],
+    },
+    "hospital": {
+        "halo_buildings": ["store_pharmacy", "bank_branch", "parking_garage", "highrise_office"],
+        "halo_prob_mult": 2.5,
+        "halo_props": ["parking_meter", "bollard", "planter_box"],
+    },
+    "government_palace": {
+        "halo_buildings": ["highrise_office", "bank_branch", "apartment_tower_high", "police_station"],
+        "halo_prob_mult": 2.0,
+        "halo_props": ["bollard", "planter_box", "traffic_camera"],
+    },
+    "old_royal_palace": {
+        "halo_buildings": ["church_small", "apartment_small", "highrise_office"],
+        "halo_prob_mult": 1.5,
+        "halo_props": ["planter_box", "bollard"],
+    },
+    "fort_sarran": {
+        "halo_buildings": ["military_checkpoint", "watchtower", "bunker_entrance", "field_hospital_tent"],
+        "halo_prob_mult": 3.0,  # heavy military presence near the fort
+        "halo_props": ["barbed_wire_fence", "sandbag", "traffic_cone"],
+    },
+    "lighthouse": {
+        "halo_buildings": ["fishing_hut", "pier_dock", "houseboat"],
+        "halo_prob_mult": 2.0,
+        "halo_props": ["planter_box"],
+    },
+    "grain_silo": {
+        "halo_buildings": ["barn", "shed", "tractor_shed", "grain_storage_shed"],
+        "halo_prob_mult": 2.0,
+        "halo_props": [],
+    },
+    "windmill": {
+        "halo_buildings": ["farmhouse", "barn", "cottage"],
+        "halo_prob_mult": 1.5,
+        "halo_props": [],
+    },
+    "broadcast_tower": {
+        "halo_buildings": ["highrise_office", "apartment_tower_high", "police_station"],
+        "halo_prob_mult": 2.0,
+        "halo_props": ["traffic_camera", "bollard"],
+    },
+    "railway_station": {
+        "halo_buildings": ["parking_garage", "corner_store", "diner", "bank_branch"],
+        "halo_prob_mult": 2.0,
+        "halo_props": ["parking_meter", "traffic_light", "bollard"],
+    },
+}
+
+# Returns the halo profile for a landmark, or empty if no halo defined.
+static func halo_for(landmark: String) -> Dictionary:
+    return LANDMARK_HALOS.get(landmark, {})
+
 # ── LIGHTING + FOG (v3 extraction — tuned for Low preset) ──
 const SKY_TOP_COLOR        := Color(0.15, 0.35, 0.70, 1)
 const SKY_HORIZON_COLOR    := Color(0.70, 0.78, 0.88, 1)
