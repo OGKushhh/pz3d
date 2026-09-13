@@ -2335,12 +2335,15 @@ func _maybe_auto_dump(delta: float) -> void:
 
 # Phase A.12: Build a full-geometry entry for a placed asset.
 # Captures: name, position (XYZ), rotation (YPR radians), scale (XYZ),
-# AABB bounds (min XYZ + max XYZ + size XYZ), extra metadata.
+# AABB bounds (min XYZ + max XYZ + size XYZ), node_name (for remove/reposition
+# actions), extra metadata.
 # This lets the AI see the FULL spatial state of each placed object —
-# not just where it is, but how it's oriented + how big it is.
+# not just where it is, but how it's oriented + how big it is + which
+# node to target for removal/repositioning.
 func _make_asset_entry(n: Node3D, asset_name: String, extra: Dictionary) -> Dictionary:
         var entry: Dictionary = {
                 "name": asset_name,
+                "node_name": n.name,
                 "pos": [n.position.x, n.position.y, n.position.z],
                 "rot": [n.rotation.x, n.rotation.y, n.rotation.z],
                 "scale": [n.scale.x, n.scale.y, n.scale.z],
@@ -2412,21 +2415,65 @@ func _apply_fill_plan(chunk_root: Node3D, key: Vector2i, crng: RandomNumberGener
         if plan_data == null or not (plan_data is Dictionary):
                 return 0
         var plan: Dictionary = plan_data
-        var fills: Array = plan.get("fills", [])
+        # Phase A.12 v2: support multiple action types via "actions" array
+        # (was: only "fills" array with fill type only)
+        var actions: Array = plan.get("actions", plan.get("fills", []))
         var placed_count := 0
-        for fill_entry in fills:
-                var ck: Array = fill_entry.get("chunk_key", [])
+        for action in actions:
+                var ck: Array = action.get("chunk_key", [])
                 if ck.size() < 2:
                         continue
-                # Only apply fills for THIS chunk
+                # Only apply actions for THIS chunk
                 if int(ck[0]) != key.x or int(ck[1]) != key.y:
                         continue
-                var pos_arr: Array = fill_entry.get("pos", [0, 0, 0])
-                var fill_pos := Vector3(float(pos_arr[0]), float(pos_arr[1]), float(pos_arr[2]))
-                var fill_type: String = String(fill_entry.get("fill_type", "empty"))
-                var count: int = _place_fill(chunk_root, fill_pos, fill_type, crng)
-                placed_count += count
+                var action_type: String = String(action.get("type", "fill"))
+                match action_type:
+                        "fill":
+                                var pos_arr: Array = action.get("pos", [0, 0, 0])
+                                var fill_pos := Vector3(float(pos_arr[0]), float(pos_arr[1]), float(pos_arr[2]))
+                                var fill_type: String = String(action.get("fill_type", "empty"))
+                                placed_count += _place_fill(chunk_root, fill_pos, fill_type, crng)
+                        "remove":
+                                var node_name: String = String(action.get("node_name", ""))
+                                if node_name != "":
+                                        placed_count += _remove_node_by_name(chunk_root, node_name)
+                        "reposition":
+                                var node_name2: String = String(action.get("node_name", ""))
+                                var new_pos_arr: Array = action.get("new_pos", [0, 0, 0])
+                                var new_rot_y: float = float(action.get("new_rot_y", 0.0))
+                                if node_name2 != "":
+                                        placed_count += _reposition_node(chunk_root, node_name2, new_pos_arr, new_rot_y)
         return placed_count
+
+# Phase A.12 v2: remove a node by name (for overlap resolution).
+# Returns 1 if removed, 0 if not found.
+func _remove_node_by_name(chunk_root: Node3D, node_name: String) -> int:
+        var node: Node = chunk_root.get_node_or_null(NodePath(node_name))
+        if node == null:
+                # Try find_children as fallback
+                for child in chunk_root.find_children(node_name, "", true, false):
+                        child.queue_free()
+                        return 1
+                return 0
+        node.queue_free()
+        return 1
+
+# Phase A.12 v2: reposition a node (move + rotate).
+# Returns 1 if repositioned, 0 if not found.
+func _reposition_node(chunk_root: Node3D, node_name: String, new_pos: Array, new_rot_y: float) -> int:
+        var node: Node = chunk_root.get_node_or_null(NodePath(node_name))
+        if node == null:
+                for child in chunk_root.find_children(node_name, "", true, false):
+                        if child is Node3D:
+                                (child as Node3D).position = Vector3(float(new_pos[0]), float(new_pos[1]), float(new_pos[2]))
+                                (child as Node3D).rotation.y = new_rot_y
+                                return 1
+                return 0
+        if node is Node3D:
+                (node as Node3D).position = Vector3(float(new_pos[0]), float(new_pos[1]), float(new_pos[2]))
+                (node as Node3D).rotation.y = new_rot_y
+                return 1
+        return 0
 
 # Place a specific fill type at a position. Returns count of nodes placed.
 func _place_fill(chunk_root: Node3D, pos: Vector3, fill_type: String, crng: RandomNumberGenerator) -> int:
