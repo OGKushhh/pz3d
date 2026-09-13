@@ -421,12 +421,57 @@ Per-district fixed loot table. Within the table, rarity is random:
 
 ## 4.4 Procedural Interiors 🧪
 
-> **Status: under testing.** The hybrid split below is the design intent. Current code (`chunk_builder.gd` + `chunk_streamer.gd`) places buildings PROCEDURALLY per-chunk at runtime — exterior shells are NOT yet hand-authored. POI/landmark overlay system (§12.6) is the architectural fix.
+> **Status: under testing.** The hybrid split below is the design intent. The runtime `chunk_streamer.gd` generator that exists today is a **TESTING SCAFFOLD for validating the asset pipeline** — it is not the shipping map. The shipping map is hand-authored (see §4.7). Interior furniture/loot/zombies remain procedural per-run.
 
-- **Fixed (when fully implemented):** building exterior shell, room layout (walls), doors, windows, structural props (kitchen counters, bathroom fixtures, built-in shelving).
+- **Fixed (when shipping):** building exterior shell, room layout (walls), doors, windows, structural props (kitchen counters, bathroom fixtures, built-in shelving), **lot composition** (which buildings sit on a lot, their relative offsets, sidewalks, driveways).
 - **Procedural:** small furniture placement (chairs, tables, lamps, decoration props), loot container positions, prop scatter (books, debris, blood decals), zombie patrol routes.
 - **Modular kitchen:** assembled from 4 modular pieces (sink_unit, stove_unit, empty_counter, wall_cabinet) placed side-by-side. Layout is procedural — different kitchens have different arrangements.
-- **Current implementation gap:** exterior shell placement is procedural, not hand-authored. Acceptable for alpha (chunks look varied enough) but breaks Pillar 1's intent. Fix is the POI overlay system (§12.6 Phase F).
+- **Current implementation gap:** the runtime generator places buildings at parcel fronts but has **no Lot concept** that owns companion structures (garage, shed) + sidewalk + driveway as a unit. Result: garages scatter at random positions with random rotation, paths don't connect to road sidewalks. Fix is the **Lot System** (§4.7 Phase B.6) — hand-authored Lot recipes that stamp at parcel positions, mirroring how `district_templates.gd` stamps at chunk anchors.
+
+## 4.7 Authoring Approach 🔒
+
+> **Locked 2026-09-14.** Clarifies Pillar 1 in concrete terms so future chat sessions don't misread the project as "infinite streaming procedural".
+
+### 4.7.1 The map is FIXED, not streaming
+
+The National City of Mazar is a **fixed 4 km × 3 km hand-authored map**. It is NOT a streaming/infinite world. Pillar 1 ("authored skeleton, procedural flesh") means:
+
+- **Skeleton (hand-authored, fixed):** roads, landmarks, POIs, building exteriors, **lot compositions** (which buildings sit together on one lot, their relative offsets, the sidewalk + driveway that connects them to the road).
+- **Flesh (procedural, per-run):** interior furniture placement, loot contents, zombie spawns, locked door states, ambient scatter (blood, debris).
+
+### 4.7.2 What the runtime generator is for
+
+`tools/chunk_streamer.gd` currently generates the map procedurally at runtime. **This is a testing scaffold**, not the shipping map. Its purpose is to:
+
+1. Validate the asset pipeline (does every GLB in `city_manifest.json` load + place + collide correctly?)
+2. Validate biome profiles + district templates + parcel layout math
+3. Give the player something to walk around in while interiors + gameplay are built
+
+When the asset pipeline is stable and the **Lot System** (§4.7.3) is implemented, the runtime generator is **frozen** and the canonical map is baked to `.tscn` files via `tools/city_builder.gd` + `tools/terrain_baker.gd`. The runtime generator stays in the repo as a debug tool / regen path, but the shipping build loads baked scenes.
+
+### 4.7.3 The Lot System (Phase B.6 — next priority)
+
+A **Lot** is the smallest authored unit of the map. Each Lot owns:
+
+1. **1 primary building** (house / store / warehouse / etc.)
+2. **0..N companion structures** with relative offsets to the primary — e.g. `{asset: "garage_detached", offset: [8, 0, 3], rot_y: 0, face_primary: true}`. Companions always sit at a fixed offset from their primary and face the same direction (or a fixed relative angle).
+3. **1 sidewalk polyline** from road-edge to building front door (1.5m wide grey strip)
+4. **1 driveway polyline** from road-edge to garage door (3m wide darker strip) — only if a garage companion exists
+5. **A setback** = distance from road to building front (varies per zoning: 0m commercial, 4m residential, 8m suburban)
+
+This replaces the current ad-hoc placement in `chunk_streamer.gd:617-690` (parcel-by-parcel loop) and `chunk_streamer.gd:711` (gap-filler loop that scatters garages/sheds at random positions with random rotation — the literal source of the "garage facing a different side" bug).
+
+Hand-authored **Lot recipes** live in `tools/lot.gd` (or `data/lot_recipes.gd` — TBD). ~20-30 recipes cover the 10 biomes. Recipes stamp at parcel positions via a `LotStamper` (mirroring how `DistrictStamper` stamps district templates at chunk anchors). This is the same architecture pattern as district templates, scaled down one level: templates = block scale, lots = parcel scale.
+
+### 4.7.4 Why not hand-author the entire map as one scene?
+
+Rejected alternative: scrap procedural placement entirely, hand-author the entire 12 km² map as one big `tscn`.
+
+- Kills Pillar 1's "procedural flesh" — interior furniture placement is per-run; a fully hand-authored map would force interiors to also be fixed (loses PZ-style replayability).
+- Maintenance: a 12 km² hand-authored scene is one of the largest Godot scenes ever built. Any asset re-export breaks the whole scene.
+- The runtime generator already does the asset validation job. Hand-authoring replaces it with months of manual placement work for the same validation payoff.
+
+The right scope for hand-authoring is **recipes** (district templates + lot recipes), not the full map. Recipes are small, testable, and stamp at runtime — they get the asset validation benefit of procedural + the curatorial intent of hand-authored.
 
 ## 4.5 Alpha Build Order 🔒
 

@@ -522,3 +522,39 @@ Stage Summary:
 - FPS bottleneck diagnosed: 2270 draw calls (CPU-bound) + 3000+ physics bodies (trimesh collision per building). Optimization plan documented for Phase A.8+.
 - Files: scripts/template_assessment.gd (NEW), scenes/template_assessment.tscn (NEW). No changes to existing code — this is a pure assessment tool.
 - Next: user opens template_assessment.tscn in Godot locally, walks between templates, gives feedback on layouts. Based on feedback, either (a) fix template slot positions/variants, OR (b) proceed to Phase A.8 (zoning + block variation) to address map emptiness. Door/bridge/crossroad fixes can be batched into Phase A.8 too.
+
+---
+Task ID: phase-b6-lot-system-diagnosis-and-fixed-map-pivot
+Agent: main (Super Z)
+Task: This session was a diagnostic + authoring-pivot conversation, not a code commit. The user pulled 5 fresh screenshots of the runtime-generated city (`pz3d/screenshots/image.png` through `image5.png`), reported three pain points (paths don't connect to roads; space between roads is unorganized; houses + garages + random props face random directions with no companionship/grouping rule), and asked: "what do we do? want try your luck doing hand authored full map in another scene?"
+
+Work Log:
+- VLM analysis of all 5 screenshots via z-ai vision CLI. Confirmed user's observations 1:1:
+  * Building orientation: mostly random, no consistent "front door faces street" rule beyond the parcel front_dir
+  * Garages placed at random positions with random rotation — no link to which house they belong to
+  * Zero visible walkways/driveways connecting buildings to roads; structures sit on "isolated islands"
+  * Poor clustering — outbuildings placed far from parent house
+  * "AI noise" artifacts: floating lots, stilt logic failures, random utility poles in middle of fields
+- Read current parcel system: `tools/block_layout.gd` defines Parcel (bounds_min, bounds_max, front_dir, building_pos, yard_pos, parcel_id, road_edge). `tools/chunk_streamer.gd:617-690` places 1 primary building per parcel at `parcel.building_pos`, faces `parcel.front_dir`. Backyard fill at `parcel.yard_pos` picks ONE prop from a candidates list with 60% chance. Gap filler loop at line 711 scatters `garage_detached`, `shed`, `picket_fence`, `planter_box`, `garden_gnome`, `trash_can`, `mailbox` at random positions in the chunk with `crng.randf_range(0, TAU)` rotation — this is the LITERAL SOURCE of the "garage facing a different side" observation.
+- Read `tools/district_stamper.gd` + `data/district_templates.gd` for comparison — these already do hand-authored layouts at BLOCK scale (150x150m templates stamp at chunk anchors with per-run variant pick + rotation jitter). Pattern is proven.
+- Diagnosed root cause: the system has `Parcel` (1 primary building + yard position) but no `Lot` concept that owns companion structures + sidewalk + driveway as a unit. This matches the user's instinct that "we are lacking the brain".
+- Initial recommendation (now corrected): recommended NOT hand-authoring the full map, citing "infinite streaming replayability" as the reason. User corrected this: the runtime generator is a TESTING SCAFFOLD for the asset pipeline, not the shipping map. The actual goal is a FIXED, HAND-AUTHORED map per GDD Pillar 1 ("authored skeleton, procedural flesh"). The "don't hand-author" recommendation was based on a wrong assumption about the project's goal.
+- Corrected recommendation: implement a Lot System (Phase B.6) — hand-authored Lot recipes that stamp at parcel positions, mirroring how DistrictStamper stamps district templates at chunk anchors. This is the right scope for hand-authoring: recipes, not one giant scene. Hand-authoring the entire 12 km² as one .tscn was considered and rejected (GDD §4.7.4).
+- User asked for handoff to a new chat session (this chat is running out of context). User noted sadness at AI losing memory between sessions — emphasized the fixed-map goal must be unambiguous in the docs so the next chat doesn't repeat the same wrong assumption.
+- Created `/home/z/my-project/pz3d/HANDOFF.md` (NEW, top-level pointer file) — short doc the next chat reads FIRST. Lists read-order, the single most important fact (fixed map, runtime gen is testing scaffold), current state, what's next (Lot System), file map.
+- Updated `docs/GDD.md`:
+  * §4.4 Procedural Interiors — rewrote "Status" blockquote + "Current implementation gap" bullet to clarify runtime gen is testing scaffold, fixed-when-shipping includes "lot composition", gap is "no Lot concept" not "exterior shell placement".
+  * §4.7 Authoring Approach (NEW section, locked 2026-09-14) — 4 subsections: §4.7.1 the map is FIXED not streaming; §4.7.2 what the runtime generator is for; §4.7.3 the Lot System (Phase B.6 next priority) — full spec of what a Lot owns (primary + companions + sidewalk + driveway + setback); §4.7.4 why not hand-author the entire map as one scene (rejected alternative with rationale).
+- Updated `roadmap.md`:
+  * New top section: AUTHORING PIVOT (2026-09-14) — context for any new chat session, restates the testing-scaffold vs shipping-map distinction, points to GDD §4.7.
+  * New Phase B.6 — Lot System (HIGHEST PRIORITY) — 3 tasks: B.6.1 Lot data structure + recipes (NEW `tools/lot.gd`), B.6.2 LotStamper (NEW `tools/lot_stamper.gd`), B.6.3 patch `chunk_streamer.gd:617-690` + `block_layout.gd:get_interior_paths`. Visual contract after B.6: house + garage on same lot, sidewalk road→door, driveway road→garage, no random garages in fields.
+  * New Phase B.7-alt — Visual contract scene (optional, parallel to B.6) — the cheaper version of the user's "hand-authored full map in another scene" idea: hand-author ONE hero block as a visual benchmark, NOT a substitute for B.6.
+  * Renamed Phase B.5 Polish → Phase B.7 Polish (deferred, post-Lot-System). Removed #16 "Clustered lots + shared driveways" (folded into Lot recipes in B.6). Updated bug list reference for crossroads from "Phase B.5 #15" to "Phase B.7 #15".
+  * Closed Phase B.5 (parcel system) — DONE 2026-09-14, with note that its limitations (paths don't connect to road, no companion grouping) are the explicit motivation for B.6.
+
+Stage Summary:
+- No code committed this session. Three docs updated + one new top-level pointer file.
+- The Lot System plan is locked in GDD §4.7.3 + roadmap Phase B.6. Next chat can pick up cold by reading HANDOFF.md → GDD §4.7 → roadmap top section → bottom of this worklog.
+- The single most important fact (runtime gen is testing scaffold, shipping map is fixed + hand-authored via recipes) is now stated in 4 places: HANDOFF.md, GDD §4.4 + §4.7, roadmap top-of-file. Future chat sessions should not misread this.
+- Files: HANDOFF.md (NEW), docs/GDD.md (§4.4 rewritten + §4.7 added), roadmap.md (top section + Phase B.6 + Phase B.7-alt + Phase B.5 closed + Phase B.7 polish renamed), worklog.md (this entry).
+- Next chat decision point: user picks between (a) implement Phase B.6 Lot System (3 files, ~1 day), OR (b) implement Phase B.7-alt visual contract scene (1 hero block hand-authored, ~1 day, useful as benchmark but doesn't fix the generator), OR (c) both in parallel. User indicated (c) is plausible: "want try your luck doing hand authored full map in another scene?" was framed as a question, not a directive.
