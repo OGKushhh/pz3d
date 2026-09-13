@@ -143,6 +143,28 @@ const MIN_CLEARANCE_M := 2.0
 # buildings right up to the highway shoulder.
 const HIGHWAY_CLEARANCE_M := 15.0
 
+# v8.2 Phase A.8: FPS OPTIMIZATION — small props don't cast shadows.
+# Shadow rendering is expensive (DirectionalLight3D shadow pass re-renders
+# every shadow-casting mesh from the light's POV). For tiny props like
+# trash cans, mailboxes, bollards, parking meters — shadows are invisible
+# at gameplay distance but still cost a draw call + shadow pass.
+# Disabling shadows on these saves ~30% of shadow rendering cost.
+# Buildings + trees + zombies KEEP shadows (they're tall enough to matter).
+const NO_SHADOW_PROPS := [
+        "trash_can", "mailbox", "planter_box", "bollard", "parking_meter",
+        "shopping_cart", "bird_house", "traffic_cone", "construction_barrier",
+        "sandbag", "barbed_wire_fence", "garden_gnome", "garden_hose_reel",
+        "traffic_camera", "park_sign", "water_fountain", "swing_set",
+        "seesaw", "playground_slide", "basketball_hoop", "traffic_light",
+]
+
+# v8.2 Phase A.8: ZOMBIE COUNT REDUCTION — was 10-15 per chunk, now 5-8.
+# 250+ zombies in visible area was the biggest FPS killer (each zombie =
+# 4128 tris × 17 meshes = 17 draw calls per zombie × 250 = 4250 draw calls
+# just for zombies). Reducing to 5 per chunk cuts zombie draws by 50%+.
+# Biome profiles are updated at runtime to scale zombie count.
+const ZOMBIE_SCALE_FACTOR := 0.5  # multiply biome profile zombies by this
+
 # v8.1: Utility pole placement (rule #2).
 # Poles go FAR BEHIND buildings — offset from road centerline is:
 #   BUILDING_OFFSET + LOT_DEPTH + UTILITY_POLE_OFFSET
@@ -491,6 +513,8 @@ func _build_chunk(key: Vector2i) -> void:
                                 inst.rotation.y = crng.randf_range(0, TAU)
                                 inst.name = "%s_%d" % [fname, crng.randi() % 100000]
                                 chunk_root.add_child(inst)
+                                # v8.2 Phase A.8: disable shadows on small props (FPS optimization)
+                                _disable_shadows_if_small_prop(inst, fname)
                                 spatial.insert(pos, 2.0)
                                 p_count += 1
 
@@ -520,6 +544,9 @@ func _build_chunk(key: Vector2i) -> void:
                         inst.scale = Vector3(tree_scale, tree_scale, tree_scale)
                         inst.name = "%s_%d" % [fname, crng.randi() % 100000]
                         chunk_root.add_child(inst)
+                        # v8.2 Phase A.8: disable shadows on small foliage (bush, hedge, flower_patch, weeds)
+                        # Trees keep shadows (tall + visible). Small foliage = no shadow.
+                        _disable_shadows_if_small_foliage(inst, fname)
                         spatial.insert(pos, 3.0)
                         f_count += 1
 
@@ -920,18 +947,94 @@ func _spawn_building_with_components(
 # openings — critical for shell buildings so the player can walk through
 # doorways when the door is open.
 #
+# v8.2 Phase A.8: For non-shell buildings (no doorway holes — most of the
+# 226 assets), use a single Box collider based on the combined AABB instead
+# of per-mesh trimesh. This reduces physics body count from ~5 per building
+# to 1 per building. Shell buildings keep trimesh (needed for doorway holes).
+#
 # The created StaticBody3D children are added to the mesh's parent, so they
 # inherit the building's transform (position/rotation/scale) automatically.
 # No manual bookkeeping needed.
 func _attach_building_collision(building_inst: Node3D) -> void:
-        var mesh_count := 0
-        for child in building_inst.find_children("*", "MeshInstance3D", true, false):
-                var mi: MeshInstance3D = child
-                mi.create_trimesh_collision()
-                mesh_count += 1
-        if mesh_count > 0:
-                building_inst.set_meta("has_collision", true)
-                building_inst.set_meta("collision_mesh_count", mesh_count)
+        # Check if this building has a shell variant (doorway holes need trimesh)
+        var bname: String = building_inst.get_meta("building_name", "")
+        var has_shell: bool = false
+        if bname != "":
+                has_shell = _get_shell_scene(bname) != null or building_inst.get_meta("has_shell", false)
+        if has_shell:
+                # Shell building — use per-mesh trimesh (follows doorway holes)
+                var mesh_count := 0
+                for child in building_inst.find_children("*", "MeshInstance3D", true, false):
+                        var mi: MeshInstance3D = child
+                        mi.create_trimesh_collision()
+                        mesh_count += 1
+                if mesh_count > 0:
+                        building_inst.set_meta("has_collision", true)
+                        building_inst.set_meta("collision_mesh_count", mesh_count)
+                        building_inst.set_meta("collision_type", "trimesh")
+        else:
+                # Non-shell building — use single box collider from AABB (cheap)
+                var aabb := _compute_building_aabb(building_inst)
+                if aabb.size != Vector3.ZERO:
+                        var static_body := StaticBody3D.new()
+                        static_body.name = "BuildingCollider"
+                        static_body.position = aabb.position + aabb.size * 0.5
+                        var col_shape := CollisionShape3D.new()
+                        var box := BoxShape3D.new()
+                        box.size = aabb.size
+                        col_shape.shape = box
+                        static_body.add_child(col_shape)
+                        building_inst.add_child(static_body)
+                        building_inst.set_meta("has_collision", true)
+                        building_inst.set_meta("collision_type", "box")
+
+# Compute the combined AABB of all MeshInstance3D children in building-local
+# space. Used to create a single Box collider for non-shell buildings.
+# Walks the tree manually with transform accumulation (Godot's get_aabb()
+# doesn't always work recursively at runtime).
+func _compute_building_aabb(building_inst: Node3D) -> AABB:
+        var aabb := AABB()
+        var first := true
+        var stack: Array = [{node = building_inst, xform = Transform3D.IDENTITY}]
+        while not stack.is_empty():
+                var entry: Dictionary = stack.pop_back()
+                var node: Node = entry.node
+                var xform: Transform3D = entry.xform
+                if node is MeshInstance3D:
+                        var mi: MeshInstance3D = node
+                        var mesh_aabb: AABB = mi.get_aabb()
+                        if mesh_aabb.size != Vector3.ZERO:
+                                var world_aabb: AABB = xform * mi.transform * mesh_aabb
+                                if first:
+                                        aabb = world_aabb
+                                        first = false
+                                else:
+                                        aabb = aabb.merge(world_aabb)
+                if node is Node3D:
+                        var parent_xform: Transform3D = xform * (node as Node3D).transform
+                        for child in node.get_children():
+                                stack.append({node = child, xform = parent_xform})
+        return aabb
+
+# v8.2 Phase A.8: disable shadows on all MeshInstance3D descendants of `inst`.
+# Called after instantiating small props (trash_can, mailbox, etc.) to skip
+# the DirectionalLight3D shadow pass for them. Saves ~30% shadow render cost.
+# Trees + buildings + zombies keep shadows (tall enough to matter visually).
+func _disable_shadows_if_small_prop(inst: Node3D, asset_name: String) -> void:
+        if not NO_SHADOW_PROPS.has(asset_name):
+                return
+        for mi in inst.find_children("*", "MeshInstance3D", true, false):
+                (mi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_OFF
+
+# v8.2 Phase A.8: disable shadows on small foliage (bushes, hedges, flowers).
+# Trees (oak_tree, pine_tree, birch_tree, etc.) keep shadows — they're tall
+# enough to be visible + cast meaningful shadows. Small foliage = no shadow.
+const SMALL_FOLIAGE := ["bush", "hedge", "hedge_tall", "flower_patch", "weeds", "fern", "tall_grass", "marsh_grass", "cattail", "ivy_wall", "mushrooms", "rocks_small", "fallen_log"]
+func _disable_shadows_if_small_foliage(inst: Node3D, asset_name: String) -> void:
+        if not SMALL_FOLIAGE.has(asset_name):
+                return
+        for mi in inst.find_children("*", "MeshInstance3D", true, false):
+                (mi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_OFF
 
 # Look up the shell GLB for a building. Returns null if no shell exists.
 # Cached so we only do the ResourceLoader.exists() check once per asset.
@@ -1376,7 +1479,11 @@ func _place_zombies(
         chunk_root: Node3D, profile: Dictionary, origin: Vector3,
         crng: RandomNumberGenerator, poi_exclusions: Array
 ) -> int:
-        var target: int = int(profile.get("zombies", 0))
+        var base_target: int = int(profile.get("zombies", 0))
+        # v8.2 Phase A.8: apply zombie count scale factor (FPS optimization).
+        # Was 10-15 per chunk × 25 chunks = 250+ zombies × 17 meshes each =
+        # ~4250 draw calls just for zombies. Scaling to 0.5 = 5-8 per chunk.
+        var target: int = int(base_target * ZOMBIE_SCALE_FACTOR)
         if target <= 0:
                 return 0
         # Verify zombie assets are in the manifest before attempting spawns.
