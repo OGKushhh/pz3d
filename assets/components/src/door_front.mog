@@ -2,10 +2,17 @@
 // This GLB is loaded as a child node of the building at runtime.
 // Can be animated (open/close), locked, or broken during gameplay.
 //
-// Dimensions: 1.0m wide × 2.10m tall × 0.06m deep (frame)
+// Dimensions: 1.10m wide × 2.20m tall × 0.06m deep (frame)
 // Door panel: 0.95m × 2.05m, recessed 8cm behind frame face
-// Origin: center of door frame, at floor level (Y=0 = bottom of door)
+// Origin: BOTTOM of door frame (Y=0 = floor level, door extends upward)
 // Hinge: left side (X=-0.475), rotates around Y axis
+//
+// Phase B.1 fix (2026-09-13): was origin at CENTER (Y=0 = middle of frame).
+// This caused the collider (positioned at size.y/2 above origin, assuming
+// bottom origin) to be shifted 1.10m too high. Doors appeared to "extend
+// down" because the mesh's bottom half was below the origin. Fixed by
+// adding 1.10 to all Y positions — now origin is at bottom, mesh extends
+// upward from Y=0 to Y=2.20, collider at Y=1.10 is correctly centered.
 
 meta (name="door_front", description="Standalone front door — animatable, lockable, breakable", tags=["component","door","interactive"], mogen_version="0.1.12")
 material "trim_white" (color=[0.92, 0.91, 0.86], roughness=0.60)
@@ -14,15 +21,15 @@ material "brass" (color=[0.95, 0.70, 0.25], metallic=0.85, roughness=0.25)
 material "dark_metal" (color=[0.15, 0.16, 0.18], metallic=0.70, roughness=0.35)
 
 scene {
-  // Frame (outer trim around door cavity)
-  chamfered_box "frame" (size=[1.10, 2.20, 0.06], radius=0.02, mat="trim_white")
-  // Door panel (recessed 8cm behind frame)
-  chamfered_box "panel" (size=[0.95, 2.05, 0.05], radius=0.015, mat="door_red", pos=[0, 0, -0.08])
-  // Doorknob (brass sphere on right side of panel)
-  sphere "knob" (radius=0.04, mat="brass", pos=[0.32, -0.10, -0.13])
+  // Frame (outer trim around door cavity) — pos Y=1.10 (half of 2.20 height)
+  chamfered_box "frame" (size=[1.10, 2.20, 0.06], radius=0.02, mat="trim_white", pos=[0, 1.10, 0])
+  // Door panel (recessed 8cm behind frame) — Y=1.025 (half of 2.05)
+  chamfered_box "panel" (size=[0.95, 2.05, 0.05], radius=0.015, mat="door_red", pos=[0, 1.025, -0.08])
+  // Doorknob (brass sphere on right side of panel) — Y=1.00 (was -0.10 + 1.10)
+  sphere "knob" (radius=0.04, mat="brass", pos=[0.32, 1.00, -0.13])
   // Hinge pins (2 small cylinders on left edge — visual only)
-  cylinder "hinge_top" (radius=0.02, height=0.08, mat="dark_metal", pos=[-0.45, 0.80, -0.04], rot=[0, 0, 90])
-  cylinder "hinge_bot" (radius=0.02, height=0.08, mat="dark_metal", pos=[-0.45, -0.80, -0.04], rot=[0, 0, 90])
-  // Door lock plate (small metal rectangle below knob)
-  box "lock_plate" (size=[0.08, 0.15, 0.02], mat="dark_metal", pos=[0.30, -0.30, -0.10])
+  cylinder "hinge_top" (radius=0.02, height=0.08, mat="dark_metal", pos=[-0.45, 1.90, -0.04], rot=[0, 0, 90])
+  cylinder "hinge_bot" (radius=0.02, height=0.08, mat="dark_metal", pos=[-0.45, 0.30, -0.04], rot=[0, 0, 90])
+  // Door lock plate (small metal rectangle below knob) — Y=0.80 (was -0.30 + 1.10)
+  box "lock_plate" (size=[0.08, 0.15, 0.02], mat="dark_metal", pos=[0.30, 0.80, -0.10])
 }

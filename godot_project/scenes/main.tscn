@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://tools/chunk_streamer.gd" id="1_streamer"]
 [ext_resource type="Script" path="res://tools/terrain_baker.gd" id="2_terrain"]
 [ext_resource type="Script" path="res://scripts/player_main.gd" id="3_player"]
+[ext_resource type="Script" path="res://tools/district_environment.gd" id="4_district_env"]
 
 [sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
 sky_top_color = Color(0.15, 0.35, 0.70, 1)
@@ -102,3 +103,6 @@ shape = SubResource("player_col")
 
 [node name="ChunkStreamer" type="Node3D" parent="."]
 script = ExtResource("1_streamer")
+
+[node name="DistrictEnvironment" type="Node3D" parent="."]
+script = ExtResource("4_district_env")
