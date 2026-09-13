@@ -227,12 +227,16 @@ func _draw_strip_world(
                 strip_type: String
 ) -> void:
         var center := (start_world + end_world) * 0.5
-        # Y is raised above ground to avoid z-fighting. Layer cake (per chunk_builder
-        # placement rules): road=0.02, lane=0.025, grass=0.03, sidewalk=0.05, park=0.04.
-        # Phase B.7.4 fix: was 0.02 (caused visible clipping flicker with ground mesh).
-        # Now 0.05 for sidewalks, 0.06 for driveways (slightly above sidewalk so they
-        # visually stack when they cross).
-        center.y = 0.05 if strip_type == "Sidewalk" else 0.06
+        # Phase B.7.13: Layer cake per physical reality (DeepSeek correction):
+        # 0.010 paths, 0.015 driveways, 0.020 roads, 0.050 sidewalks (curb height).
+        # Sidewalks are raised curbs (0.050). Driveways are asphalt connecting
+        # to road, slightly BELOW road (0.015 < 0.020) so road wins on overlap.
+        if strip_type == "Sidewalk":
+                center.y = 0.050
+        elif strip_type == "Driveway":
+                center.y = 0.015
+        else:
+                center.y = 0.010  # generic path
         var length := start_world.distance_to(end_world)
         if length < 0.5:
                 return  # too short to bother drawing (road is very close to door)

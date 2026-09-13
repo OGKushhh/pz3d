@@ -129,12 +129,28 @@ const NON_LOT_ROAD_KINDS := ["highway", "bridge"]
 # Phase A.6: _create_plane_mesh_rotated takes Y via pos.y (PlaneMesh.size
 # is Vector2 so Y must be in position, not size). Layer cake prevents
 # z-fighting between road/lane/grass/sidewalk surfaces.
-const Y_GROUND := 0.00
-const Y_ROAD := 0.02
-const Y_LANE := 0.025    # lane line sits 5mm above road surface
-const Y_GRASS := 0.03
-const Y_SIDEWALK := 0.05
-const Y_PARK := 0.04
+# Layer cake per physical reality (DeepSeek correction 2026-09-14):
+# 0.000  terrain (ground mesh)
+# 0.005  grass/dirt patches
+# 0.010  paths (dirt, gravel, park walkways) — BELOW roads
+# 0.015  driveways (asphalt connecting to road, slightly below road so road wins)
+# 0.020  roads (asphalt — heavily constructed)
+# 0.025  lane lines (sit on top of road)
+# 0.030  parking lots / plazas
+# 0.050  sidewalks (raised curb height)
+# 0.060  building slabs (structural)
+# Rule: higher Y = more constructed surface. Paths are lightly constructed.
+# If a path crosses a road, the road wins (visually correct).
+const Y_GROUND := 0.000
+const Y_GRASS := 0.005      # grass/dirt patches
+const Y_PATH := 0.010      # paths (interior walkways, dirt trails)
+const Y_DRIVEWAY := 0.015  # driveways (asphalt, below road)
+const Y_ROAD := 0.020      # roads (asphalt)
+const Y_LANE := 0.025      # lane lines sit on top of road
+const Y_PARKING := 0.030   # parking lots / plazas
+const Y_SIDEWALK := 0.050  # sidewalks (raised curb)
+const Y_BUILDING_SLAB := 0.060  # building foundation slabs
+const Y_PARK := 0.005      # park ground (grass level, below paths)
 
 # v8.1: Spacing rule #7 — minimum 2m clearance between ALL objects.
 # Was inconsistent: street lights used 0.5m (below minimum). Now everything
@@ -674,7 +690,7 @@ func _build_chunk(key: Vector2i) -> void:
         var paths: Array = BlockLayout.get_interior_paths(layout_type, origin, CityConfig.CHUNK_SIZE_M)
         for path in paths:
                 _create_plane_mesh_rotated(chunk_root, "Path",
-                        Vector3((path["start"].x + path["end"].x) * 0.5, 0.03, (path["start"].z + path["end"].z) * 0.5),
+                        Vector3((path["start"].x + path["end"].x) * 0.5, Y_PATH, (path["start"].z + path["end"].z) * 0.5),
                         Vector2(path["width"], path["start"].distance_to(path["end"])),
                         Color(0.25, 0.25, 0.27, 1),  # grey path
                         atan2(path["end"].x - path["start"].x, path["end"].z - path["start"].z))
@@ -905,6 +921,9 @@ func _build_chunk(key: Vector2i) -> void:
                         var tree_scale: float = crng.randf_range(0.8, 1.3)
                         inst.scale = Vector3(tree_scale, tree_scale, tree_scale)
                         inst.name = "%s_%d" % [fname, crng.randi() % 100000]
+                        # Phase B.7.13: set building_name meta so the chunk_states dumper
+                        # captures foliage (was missing — middleware couldn't see trees/bushes).
+                        inst.set_meta("building_name", fname)
                         chunk_root.add_child(inst)
                         # v8.2 Phase A.8: disable shadows on small foliage (bush, hedge, flower_patch, weeds)
                         # Trees keep shadows (tall + visible). Small foliage = no shadow.
