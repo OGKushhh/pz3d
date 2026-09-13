@@ -734,6 +734,20 @@ func _build_chunk(key: Vector2i) -> void:
                 var park_center := origin + Vector3(CityConfig.CHUNK_SIZE_M * 0.5, 0, CityConfig.CHUNK_SIZE_M * 0.5)
                 _place_park(chunk_root, park_center, crng)
 
+        # === Phase B.3: BLOCK INTERIOR FILL ===
+        # DeepSeek: "Block interiors are hollow. Even with good roads, a 100m
+        # block interior has nothing in it. Real cities fill that with garages,
+        # sheds, back fences, dumpsters, courtyards — smaller back-of-house
+        # structures that don't front a street. A second placement pass that
+        # fills block interiors would kill the 'empty' feel."
+        #
+        # Places 3-5 biome-appropriate interior fills at the chunk center +
+        # offset positions. Each fill is a cluster (parking_lot, backyard,
+        # courtyard, alley, or tree_cluster depending on biome). Only places
+        # in empty space (spatial.is_free check) — doesn't overlap existing
+        # road-adjacent buildings.
+        p_count += _fill_block_interiors(chunk_root, profile, origin, biome, crng, poi_exclusions)
+
         # === STREET LIGHTS ===
         if profile.get("lights", false):
                 _place_street_lights(chunk_root, chunk_roads, crng)
@@ -2542,6 +2556,122 @@ func _reposition_node(chunk_root: Node3D, node_name: String, new_pos: Array, new
         return 0
 
 # Place a specific fill type at a position. Returns count of nodes placed.
+# ============================================================
+# Phase B.3: BLOCK INTERIOR FILL — fill empty block centers
+# ============================================================
+# DeepSeek: "Block interiors are hollow. Real cities fill that with garages,
+# sheds, dumpsters, courtyards — smaller back-of-house structures that don't
+# front a street."
+#
+# Places 3-5 biome-appropriate fills at the chunk center + offset positions.
+# Each fill is a cluster (parking_lot, backyard, courtyard, alley, tree_cluster)
+# placed ONLY in empty space — doesn't overlap road-adjacent buildings.
+#
+# Biome → interior fill type mapping:
+#   Suburbia → backyard (shed + tree + gnome)
+#   Commercial → parking_lot (asphalt + meters + cart)
+#   Industrial → alley (narrow road + dumpster)
+#   Downtown → courtyard (paved + tree + benches)
+#   Farmland → backyard (shed + tree)
+#   Forest → tree_cluster (3-5 trees)
+#   Parks → green_space (grass + bushes)
+#   Wetlands → green_space (marsh vegetation)
+#   Military → alley (checkpoint props)
+#   Coastal → green_space
+func _fill_block_interiors(
+        chunk_root: Node3D, profile: Dictionary, origin: Vector3,
+        biome: int, crng: RandomNumberGenerator, poi_exclusions: Array
+) -> int:
+        # Determine fill type per biome
+        var fill_type: String = "green_space"  # default
+        match biome:
+                CityConfig.Biome.SUBURBIA:
+                        fill_type = "backyard"
+                CityConfig.Biome.COMMERCIAL:
+                        fill_type = "parking_lot"
+                CityConfig.Biome.INDUSTRIAL:
+                        fill_type = "alley"
+                CityConfig.Biome.DOWNTOWN:
+                        fill_type = "courtyard"
+                CityConfig.Biome.FARMLAND:
+                        fill_type = "backyard"
+                CityConfig.Biome.FOREST:
+                        fill_type = "tree_cluster"
+                CityConfig.Biome.PARKS:
+                        fill_type = "green_space"
+                CityConfig.Biome.WETLANDS:
+                        fill_type = "green_space"
+                CityConfig.Biome.MILITARY:
+                        fill_type = "alley"
+                CityConfig.Biome.COASTAL_BEACH:
+                        fill_type = "green_space"
+                _:
+                        fill_type = "green_space"
+        # Place fills at center + offset positions
+        var chunk_center := origin + Vector3(
+                CityConfig.CHUNK_SIZE_M * 0.5, 0,
+                CityConfig.CHUNK_SIZE_M * 0.5
+        )
+        # Try 5 positions: center + 4 offsets (±60m in X and Z)
+        var positions: Array = [
+                chunk_center,
+                chunk_center + Vector3(-60, 0, -60),
+                chunk_center + Vector3(60, 0, -60),
+                chunk_center + Vector3(-60, 0, 60),
+                chunk_center + Vector3(60, 0, 60),
+        ]
+        # Also try mixed fill types for variety — alternate between the
+        # biome's primary fill + a secondary fill
+        var secondary_fill: String = "tree_cluster"
+        match biome:
+                CityConfig.Biome.SUBURBIA:
+                        secondary_fill = "tree_cluster"
+                CityConfig.Biome.COMMERCIAL:
+                        secondary_fill = "backyard"  # some backyards behind stores
+                CityConfig.Biome.INDUSTRIAL:
+                        secondary_fill = "green_space"  # sparse weeds between warehouses
+                CityConfig.Biome.DOWNTOWN:
+                        secondary_fill = "plaza"  # some plazas between towers
+                CityConfig.Biome.FARMLAND:
+                        secondary_fill = "tree_cluster"
+                _:
+                        secondary_fill = "tree_cluster"
+        var placed_fills := 0
+        var total_count := 0
+        var max_fills := 4  # cap at 4 interior fills per chunk
+        for i in range(positions.size()):
+                if placed_fills >= max_fills:
+                        break
+                var pos: Vector3 = positions[i]
+                # Check the position is empty (not on a road, not occupied, not in POI exclusion)
+                var check_radius: float = 12.0  # parking_lot needs ~12m, backyard ~6m
+                if fill_type == "parking_lot":
+                        check_radius = 15.0
+                elif fill_type == "backyard":
+                        check_radius = 8.0
+                elif fill_type == "alley":
+                        check_radius = 5.0
+                elif fill_type == "tree_cluster":
+                        check_radius = 8.0
+                if not spatial.is_free(pos, check_radius):
+                        continue
+                if spatial.is_on_road(pos):
+                        continue
+                if _is_in_poi_exclusion(pos, poi_exclusions):
+                        continue
+                if _is_near_highway(pos):
+                        continue
+                # Alternate between primary + secondary fill for variety
+                var use_fill: String = fill_type
+                if i > 0 and crng.randf() < 0.4:  # 40% chance for secondary
+                        use_fill = secondary_fill
+                # Place the fill (reuses existing _place_fill function)
+                var count: int = _place_fill(chunk_root, _terrain_pos(pos), use_fill, crng)
+                if count > 0:
+                        placed_fills += 1
+                        total_count += count
+        return total_count
+
 func _place_fill(chunk_root: Node3D, pos: Vector3, fill_type: String, crng: RandomNumberGenerator) -> int:
         match fill_type:
                 "parking_lot":
