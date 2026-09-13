@@ -558,3 +558,36 @@ Stage Summary:
 - The single most important fact (runtime gen is testing scaffold, shipping map is fixed + hand-authored via recipes) is now stated in 4 places: HANDOFF.md, GDD §4.4 + §4.7, roadmap top-of-file. Future chat sessions should not misread this.
 - Files: HANDOFF.md (NEW), docs/GDD.md (§4.4 rewritten + §4.7 added), roadmap.md (top section + Phase B.6 + Phase B.7-alt + Phase B.5 closed + Phase B.7 polish renamed), worklog.md (this entry).
 - Next chat decision point: user picks between (a) implement Phase B.6 Lot System (3 files, ~1 day), OR (b) implement Phase B.7-alt visual contract scene (1 hero block hand-authored, ~1 day, useful as benchmark but doesn't fix the generator), OR (c) both in parallel. User indicated (c) is plausible: "want try your luck doing hand authored full map in another scene?" was framed as a question, not a directive.
+
+---
+Task ID: phase-b6-pickup-environment-verification
+Agent: main (Super Z)
+Task: Fresh chat session. User asked to fetch (sequentially) the pz3d repo, install MoGen, download Godot 4.7.2, then focus on map/city gen until they feel it's complete. User noted the previous chat "ran out of context and imagined things" so I must double-check actual file state before claiming anything. User provided a GitHub token for committing/pushing — repo is the primary communication channel.
+
+Work Log:
+- Sequential fetch #1 (repo): cloned https://github.com/OGKushhh/pz3d.git to /home/z/my-project/pz3d. Latest commit `191fc51 Phase B.6 prep: handoff docs + Lot System spec + authoring pivot`. Working tree clean.
+- Sequential fetch #2 (MoGen): downloaded install.sh from krazyjakee/MoGen master branch, previewed it (curl pipe-to-bash is a security risk — verified it pulls from krazyjakee/model-gen releases with SHA256SUMS verification before running). Installed v0.1.12 to ~/.local/bin — both `mogen` (CLI) and `mogen-studio` (GUI; GUI fails headless as expected — needs WAYLAND_DISPLAY or DISPLAY). `mogen --help` confirmed: it's a procedural 3D model generator with DSL (.mog) → GLB pipeline, plus LLM-driven generation (`generate`/`modify`/`animate`/`repair`) and an MCP server mode. Will be useful later for generating more building/prop variants via DSL recipes.
+- Sequential fetch #3 (Godot): user's link was to the downloads portal, not a direct zip. Resolved actual release URL: `https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip`. Downloaded to /home/z/my-project/tools/, extracted. `--version` reports `4.7.2.stable.official.ed1daf0bf`. Symlinked to `godot` for convenience.
+- Token handling: configured git remote with token embedded in URL (`https://x-access-token:***@github.com/OGKushhh/pz3d.git`). Token is stored in local git config (visible to `git push`), NOT committed to any file, NOT in worklog, NOT in any committed source. Verified by listing git ls-files.
+- Verification of HANDOFF.md claims (user explicitly asked to double-check files):
+  * HANDOFF.md says `tools/lot.gd` does NOT exist yet → confirmed: `ls godot_project/tools/lot.gd` → No such file ✓
+  * HANDOFF.md says `tools/lot_stamper.gd` does NOT exist yet → confirmed ✓
+  * HANDOFF.md says `scenes/authored_reference.tscn` does NOT exist yet → confirmed ✓
+  * HANDOFF.md says city_manifest.json has 226 GLBs → confirmed: `python3 -c "json.load(...)"` → 226 entries ✓
+  * HANDOFF.md says 3 district templates → actually 4 templates exist in `data/district_templates.gd` (suburb_block, commercial_strip, downtown_block, industrial_block). HANDOFF was slightly off; not material.
+  * HANDOFF.md says `chunk_streamer.gd:617-690` is the parcel-by-parcel loop → confirmed: lines 617-672 are the parcel loop, 675-690 are the interior paths and backyard fill. The gap filler at line 711 scatters garage_detached / shed / etc. with `crng.randf_range(0, TAU)` rotation → confirmed this is the LITERAL SOURCE of the "garage facing a different side" observation ✓
+  * HANDOFF.md says Parcel (in `block_layout.gd`) has bounds_min/max + front_dir + building_pos + yard_pos + parcel_id + road_edge → confirmed at lines 61-93 ✓
+  * HANDOFF.md says `district_stamper.gd` is the pattern to mirror → confirmed. The stamp_template function at line 35 walks building_slots/foliage_slots/prop_slots, picks a variant per slot via crng, applies rotation jitter, calls `streamer._get_asset(name)` + `streamer._attach_building_collision(inst)`, uses `_local_to_world(local_pos, anchor, cos_y, sin_y)` for transform ✓
+- Integration points confirmed (all in chunk_streamer.gd):
+  * `_get_asset(p_name: String) -> PackedScene` (line 1138)
+  * `_attach_building_collision(building_inst: Node3D)` (line 1226)
+  * `_spawn_building_with_components(bname, lot_pos, perp, side, crng, chunk_root)` (line 1166) — for primary buildings (handles shell + components + collision)
+  * `_place_backyard_fill(lot_pos, perp, side, chunk_root, crng, profile)` (line 1863) — current backyard filler (to be replaced by lot companions)
+  * `_create_plane_mesh_rotated(parent, name, pos, size, color, yaw)` (line 930) — for sidewalk + driveway strips
+
+Stage Summary:
+- Environment ready: repo cloned (working tree clean), MoGen 0.1.12 installed, Godot 4.7.2 verified, git push configured with token.
+- HANDOFF.md claims verified 1:1 against actual file state (one minor discrepancy: 4 district templates, not 3). The "previous chat imagined things" concern is resolved — the docs accurately describe the code.
+- Phase B.6 (Lot System) is the locked-in next step. Three sub-tasks: B.6.1 create `tools/lot.gd` (Lot data structure + recipes), B.6.2 create `tools/lot_stamper.gd` (stamps Lot at parcel position, draws sidewalk + driveway), B.6.3 patch `chunk_streamer.gd:617-690` + gap filler.
+- Next action: implement B.6.1 — `tools/lot.gd`. Will follow DistrictTemplates pattern exactly (class_name + const LOTS dict + helpers). Starting with 6-10 recipes covering the major biomes (SUBURBIA, COMMERCIAL, INDUSTRIAL, DOWNTOWN, FARMLAND, MILITARY). Commit + push after each sub-task so user can review via the repo.
+- No code committed this session yet — just environment setup + verification + this worklog entry.
