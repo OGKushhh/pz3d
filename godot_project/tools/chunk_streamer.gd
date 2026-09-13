@@ -33,6 +33,7 @@ const TerrainHeight = preload("res://tools/terrain_height.gd")
 const RiverNetwork = preload("res://tools/river_network.gd")
 const DistrictStamper = preload("res://tools/district_stamper.gd")
 const AnchorPoints = preload("res://tools/anchor_points.gd")
+const BlockLayout = preload("res://tools/block_layout.gd")
 
 var player: Node3D
 var stream_radius: int = 2
@@ -563,235 +564,118 @@ func _build_chunk(key: Vector2i) -> void:
                                 template_name, anchor_pos, key.x, key.y, template_placed
                         ])
 
-        # === BUILDINGS ALONG ROAD SEGMENTS ===
-        var buildings: Array = profile.get("buildings", [])
-        var commercial_buildings: Array = profile.get("commercial_buildings", ["corner_store", "diner", "gas_station", "corner_store"])
-
-        # Phase B.4: MESO PASS — filter building pools by what the meso plan
-        # says this chunk should have. If the meso plan says "this chunk gets
-        # corner_store + diner", only those types are available.
-        # Falls back to full biome profile if no meso plan for this chunk.
-        var meso_allowed: Array = _get_meso_allowed_types(key)
-        if not meso_allowed.is_empty():
-                # Filter: only keep buildings that are in the meso allocation
-                var filtered_buildings: Array = []
-                for b in buildings:
-                        if meso_allowed.has(b):
-                                filtered_buildings.append(b)
-                if not filtered_buildings.is_empty():
-                        buildings = filtered_buildings
-                # Filter commercial too
-                var filtered_commercial: Array = []
-                for c in commercial_buildings:
-                        if meso_allowed.has(c):
-                                filtered_commercial.append(c)
-                if not filtered_commercial.is_empty():
-                        commercial_buildings = filtered_commercial
-        # v8.2 Phase A.8: increased fill from 0.5 base to higher density.
-        # Was int(fill * 40) = 20 buildings per chunk at 0.5 fill. Now
-        # int(fill * 60) = 30 buildings per chunk — 50% more buildings.
-        # Addresses "map mostly empty" feedback. Plus reduced empty-lot
-        # probability (was 1-fill, now (1-fill)*0.5 — half as many empty lots).
-        # v8.2 Phase A.8: increased fill from 0.5 base to higher density.
-        # Was int(fill * 40) = 20 buildings per chunk at 0.5 fill. Now
-        # int(fill * 60) = 30 buildings per chunk — 50% more buildings.
-        # Addresses "map mostly empty" feedback. Plus reduced empty-lot
-        # probability (was 1-fill, now (1-fill)*0.5 — half as many empty lots).
+        # === Phase B.5: PARCEL-BASED BUILDING PLACEMENT ===
+        # Replaces the old road-adjacent loop. Instead of walking along road
+        # segments and placing buildings perpendicular, we subdivide the block
+        # into parcels. Each parcel has a front (faces nearest road) + building
+        # slot + yard slot. Buildings are placed at the FRONT of parcels.
         #
-        # Phase B.4: MACRO PASS — use city_plan density gradient per cell
-        # instead of biome profile default. Downtown=0.95, Suburbia=0.70, etc.
-        # Falls back to profile fill if no city_plan.
+        # Interior paths (NOT roads) connect parallel roads through block
+        # centers. Paths are visual-only: no is_on_road, no street lights.
+        var layout_type: String = BlockLayout.layout_for_biome(biome)
+        var parcels: Array = BlockLayout.generate_parcels(layout_type, origin, CityConfig.CHUNK_SIZE_M)
+        
+        # Phase B.4: MESO — filter building pools by what this chunk should have
+        var meso_allowed: Array = _get_meso_allowed_types(key)
+        var buildings_pool: Array = profile.get("buildings", [])
+        var commercial_pool: Array = profile.get("commercial_buildings", ["corner_store", "diner", "gas_station"])
+        if not meso_allowed.is_empty():
+                var fb: Array = []
+                for b in buildings_pool:
+                        if meso_allowed.has(b):
+                                fb.append(b)
+                if not fb.is_empty():
+                        buildings_pool = fb
+                var fc: Array = []
+                for c in commercial_pool:
+                        if meso_allowed.has(c):
+                                fc.append(c)
+                if not fc.is_empty():
+                        commercial_pool = fc
+        
         var fill: float = _get_density_for_cell(col, row, profile)
         var building_radius: float = max(LOT_W, LOT_D) * 0.4
-
-        # v8.2 Phase A.9: DISTRICT HALO — find landmarks near this chunk
-        # and collect their halo buildings. These get boosted spawn probability.
-        # _halo_buildings is a Dictionary[asset_name → boost_multiplier].
-        var _halo_buildings: Dictionary = _collect_halo_buildings(origin, CityConfig.CHUNK_SIZE_M)
-
-        # Get road segments that pass through this chunk
         var chunk_roads: Array = _get_roads_in_chunk(origin, CityConfig.CHUNK_SIZE_M)
+        var _halo_buildings: Dictionary = _collect_halo_buildings(origin, CityConfig.CHUNK_SIZE_M)
         var placed := 0
-        var target: int = int(fill * 80)  # Phase B.2: was 60, now 80  # Phase A.8: was 40, now 60
-
-        for seg in chunk_roads:
+        var target: int = int(fill * 80)
+        
+        # Phase B.5: place buildings at parcel fronts
+        for parcel in parcels:
                 if placed >= target:
                         break
-                # v8: ROAD KIND FILTER — skip highways & bridges (still rendered,
-                # but no buildings spawn on them).
-                var seg_kind: String = seg.get("kind", "street")
-                if NON_LOT_ROAD_KINDS.has(seg_kind):
+                var lot_pos: Vector3 = parcel.building_pos
+                # Bounds check
+                if lot_pos.x < origin.x or lot_pos.x >= origin.x + CityConfig.CHUNK_SIZE_M:
                         continue
-                var a: Vector3 = seg["start"]
-                var b: Vector3 = seg["end"]
-                var length: float = a.distance_to(b)
-                if length < 1.0:
+                if lot_pos.z < origin.z or lot_pos.z >= origin.z + CityConfig.CHUNK_SIZE_M:
                         continue
-                var dir: Vector3 = (b - a).normalized()
-                var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
-                var road_half_w: float = float(seg.get("width", 8.0)) * 0.5
-
-                # Walk along segment at LOT_W intervals
-                var d: float = LOT_W * 0.5
-                while d < length and placed < target:
-                        var t: float = d / length
-                        var base_pos: Vector3 = a.lerp(b, t)
-
-                        # Check if near intersection (within 15m of a crossing road)
-                        var near_intersection := _is_near_intersection(base_pos, 15.0)
-
-                        # v8.2 Phase A.8: ZONING — determine zone for this lot.
-                        # At intersections + on wide roads → commercial zone.
-                        # Mid-block on side streets → residential zone.
-                        # Industrial biome → always industrial zone.
-                        var is_arterial: bool = float(seg.get("width", 8.0)) >= 10.0
-                        var zone_type: String = "residential"
-                        if biome == CityConfig.Biome.INDUSTRIAL:
-                                zone_type = "industrial"
-                        elif biome == CityConfig.Biome.DOWNTOWN:
-                                zone_type = "mixed"
-                        elif near_intersection or is_arterial:
-                                zone_type = "commercial"
-                        # Compute setback based on zone
-                        var setback: float = SETBACK_RESIDENTIAL
-                        match zone_type:
-                                "commercial":
-                                        setback = SETBACK_COMMERCIAL
-                                "industrial":
-                                        setback = SETBACK_INDUSTRIAL
-                                "residential":
-                                        setback = SETBACK_RESIDENTIAL
-                                _:
-                                        setback = SETBACK_RESIDENTIAL
-                        # Building offset = road/2 + sidewalk + grass strip + setback
-                        var building_offset_dyn: float = BUILDING_OFFSET_BASE + setback
-
-                        for side in [-1, 1]:
-                                if placed >= target:
-                                        break
-                                var lot_pos: Vector3 = base_pos + perp * float(side) * building_offset_dyn
-                                # Check bounds
-                                if lot_pos.x < origin.x or lot_pos.x >= origin.x + CityConfig.CHUNK_SIZE_M:
-                                        continue
-                                if lot_pos.z < origin.z or lot_pos.z >= origin.z + CityConfig.CHUNK_SIZE_M:
-                                        continue
-                                if not spatial.is_free(lot_pos, building_radius) or spatial.is_on_road(lot_pos):
-                                        continue
-                                if _is_in_poi_exclusion(lot_pos, poi_exclusions):
-                                        continue
-                                # v8.2 Phase A.6: HIGHWAY CLEARANCE — skip if within
-                                # HIGHWAY_CLEARANCE_M of any highway-segment centerline.
-                                # Prevents buildings spawning on the highway shoulder.
-                                if _is_near_highway(lot_pos):
-                                        continue
-                                # v8.2 Phase A.8: reduced empty-lot probability.
-                                # Was: crng.randf() > fill → skip (empty lot).
-                                # Now: crng.randf() > fill OR crng.randf() < 0.3 → skip.
-                                # Effectively halves the number of empty lots. The gap
-                                # filler still runs for some empty space (parking lots,
-                                # backyards) but less of the chunk is bare.
-                                if crng.randf() > fill:
-                                        # 50% chance to still place a smaller prop here
-                                        # (backyard shed, planter, etc.) instead of leaving
-                                        # the lot completely bare.
-                                        if crng.randf() < 0.7:  # Phase B.2: was 0.5, now 0.7 (more backyard fills)
-                                                _place_backyard_fill(lot_pos, perp, side, chunk_root, crng, profile)
-                                        continue  # Skip the main building placement
-
-                                # v8.2 Phase A.8: pick building based on zone type.
-                                # Was: 50% commercial at intersections, else residential.
-                                # Now: zone_type determines pick probability.
-                                #   - commercial zone: 70% commercial, 30% residential
-                                #   - residential zone: 85% residential, 15% commercial (corner store)
-                                #   - industrial zone: 100% industrial (from biome.buildings)
-                                #   - mixed zone: 50/50 commercial/residential
-                                #
-                                # v8.2 Phase A.9: DISTRICT HALO — if a halo building
-                                # is in the pick list, boost its probability by the halo
-                                # multiplier (e.g. stadium nearby → 2x chance of
-                                # parking_garage, bank_branch, etc.).
-                                #
-                                # Phase B.3: HEIGHT CLASS — roll the height dice for this
-                                # lot. Filters the pick pool to SHORT/MID/TALL buildings
-                                # only. Makes districts read as designed (Downtown = TALL,
-                                # Suburbia = SHORT). Falls back to full pool if no buildings
-                                # of the rolled class exist.
-                                var height_class: String = _roll_height_class(profile, crng)
-                                var bname: String
-                                var commercial_prob: float = 0.0
-                                match zone_type:
-                                        "commercial":
-                                                commercial_prob = ZONE_COMMERCIAL_PROB
-                                        "residential":
-                                                commercial_prob = 1.0 - ZONE_RESIDENTIAL_PROB
-                                        "industrial":
-                                                commercial_prob = 0.0
-                                        "mixed":
-                                                commercial_prob = 0.5
-                                # Phase A.9: check if any halo building is in the pool.
-                                # If so, weighted-pick favoring halo buildings.
-                                var has_halo: bool = false
-                                for hb in _halo_buildings.keys():
-                                        if commercial_buildings.has(hb) or buildings.has(hb):
-                                                has_halo = true
-                                                break
-                                if has_halo and crng.randf() < 0.4:
-                                        var weighted_pool: Array = []
-                                        for hb in _halo_buildings.keys():
-                                                if commercial_buildings.has(hb) or buildings.has(hb):
-                                                        var mult: float = float(_halo_buildings[hb])
-                                                        for _w in range(int(mult * 10)):
-                                                                weighted_pool.append(hb)
-                                        if not weighted_pool.is_empty():
-                                                bname = weighted_pool[crng.randi() % weighted_pool.size()]
-                                        elif crng.randf() < commercial_prob and not commercial_buildings.is_empty():
-                                                var c_pool := _filter_by_height_class(commercial_buildings, height_class)
-                                                var pick_pool: Array = c_pool if not c_pool.is_empty() else commercial_buildings
-                                                bname = pick_pool[crng.randi() % pick_pool.size()]
-                                        else:
-                                                var r_pool := _filter_by_height_class(buildings, height_class)
-                                                var pick_pool2: Array = r_pool if not r_pool.is_empty() else buildings
-                                                bname = pick_pool2[crng.randi() % pick_pool2.size()]
-                                elif crng.randf() < commercial_prob and not commercial_buildings.is_empty():
-                                        var c_pool := _filter_by_height_class(commercial_buildings, height_class)
-                                        var pick_pool: Array = c_pool if not c_pool.is_empty() else commercial_buildings
-                                        bname = pick_pool[crng.randi() % pick_pool.size()]
-                                else:
-                                        var r_pool := _filter_by_height_class(buildings, height_class)
-                                        var pick_pool: Array = r_pool if not r_pool.is_empty() else buildings
-                                        bname = pick_pool[crng.randi() % pick_pool.size()]
-
-                                # v8: ANTI-CLUSTERING — skip if too close to another
-                                # instance of the same asset (e.g. two gas stations within 500m).
-                                if not _anti_cluster_ok(bname, lot_pos):
-                                        continue
-
-                                # Phase B.4: MACRO BUDGET — check district max_per_type.
-                                # If the district already has enough of this asset, skip.
-                                # E.g. max 3 corner_stores per Commercial district →
-                                # 4th corner_store gets skipped, preventing 8-in-one-chunk.
-                                var max_for_type: int = _get_max_per_type(biome, bname)
-                                if max_for_type >= 0:
-                                        var current_count: int = _get_district_type_count(biome, bname)
-                                        if current_count >= max_for_type:
-                                                continue
-
-                                var inst: Node3D = _spawn_building_with_components(bname, lot_pos, perp, side, crng, chunk_root)
-                                if inst == null:
-                                        continue
-                                spatial.insert(lot_pos, building_radius)
-                                _register_asset_position(bname, lot_pos)
-                                _increment_district_type_count(biome, bname)  # Phase B.4: track district budget
-                                placed += 1
-                                b_count += 1
-
-                        d += LOT_W
-
-        # === v8.1: UTILITY POLES (rule #2 — behind buildings) ===
-        # Poles run along the back of lots (27.5m from road centerline),
-        # spaced 35m apart. Alternates sides per pole so both sides of the
-        # street get service. Skips if utility_pole not in manifest.
-        s_count += _place_utility_poles(chunk_root, chunk_roads, crng)
+                if not spatial.is_free(lot_pos, building_radius) or spatial.is_on_road(lot_pos):
+                        continue
+                if _is_in_poi_exclusion(lot_pos, poi_exclusions):
+                        continue
+                if _is_near_highway(lot_pos):
+                        continue
+                if crng.randf() > fill:
+                        # Empty lot — try backyard fill
+                        if crng.randf() < 0.7:
+                                _place_backyard_fill(lot_pos, parcel.front_dir, 1, chunk_root, crng, profile)
+                        continue
+                
+                # Pick building using height class + meso + halo + zoning
+                var height_class: String = _roll_height_class(profile, crng)
+                var bname: String = ""
+                # Simple pick: 50% commercial, 50% residential (within meso + height constraints)
+                if crng.randf() < 0.5 and not commercial_pool.is_empty():
+                        var c_pool := _filter_by_height_class(commercial_pool, height_class)
+                        var pick_pool: Array = c_pool if not c_pool.is_empty() else commercial_pool
+                        bname = pick_pool[crng.randi() % pick_pool.size()]
+                else:
+                        var r_pool := _filter_by_height_class(buildings_pool, height_class)
+                        var pick_pool: Array = r_pool if not r_pool.is_empty() else buildings_pool
+                        bname = pick_pool[crng.randi() % pick_pool.size()]
+                
+                # Anti-clustering + district budget
+                if not _anti_cluster_ok(bname, lot_pos):
+                        continue
+                var max_for_type: int = _get_max_per_type(biome, bname)
+                if max_for_type >= 0:
+                        var current_count: int = _get_district_type_count(biome, bname)
+                        if current_count >= max_for_type:
+                                continue
+                
+                # Face the road the parcel faces
+                var perp: Vector3 = Vector3(-parcel.front_dir.z, 0, parcel.front_dir.x)
+                var side: int = 1
+                var inst: Node3D = _spawn_building_with_components(bname, lot_pos, perp, side, crng, chunk_root)
+                if inst == null:
+                        continue
+                # Tag with parcel_id for chunk_state (flat, middleware-safe)
+                inst.set_meta("parcel_id", parcel.parcel_id)
+                spatial.insert(lot_pos, building_radius)
+                _register_asset_position(bname, lot_pos)
+                _increment_district_type_count(biome, bname)
+                placed += 1
+                b_count += 1
+        
+        # Phase B.5: draw interior paths (visual only, NOT roads)
+        var paths: Array = BlockLayout.get_interior_paths(layout_type, origin, CityConfig.CHUNK_SIZE_M)
+        for path in paths:
+                _create_plane_mesh_rotated(chunk_root, "Path",
+                        Vector3((path["start"].x + path["end"].x) * 0.5, 0.01, (path["start"].z + path["end"].z) * 0.5),
+                        Vector2(path["width"], path["start"].distance_to(path["end"])),
+                        Color(0.25, 0.25, 0.27, 1),  # grey path
+                        atan2(path["end"].x - path["start"].x, path["end"].z - path["start"].z))
+        
+        # Phase B.5: fill backyards with biome-appropriate props
+        for parcel in parcels:
+                if crng.randf() > 0.6:
+                        continue
+                var yard_pos: Vector3 = parcel.yard_pos
+                if spatial.is_free(yard_pos, 3.0) and not spatial.is_on_road(yard_pos):
+                        _place_backyard_fill(yard_pos, parcel.front_dir, 1, chunk_root, crng, profile)
+        
+        var chunk_roads_placeholder: Array = chunk_roads  # keep for street lights + hydrants below
 
         # === v8.1: FIRE HYDRANTS (rule #3 — at intersection corners) ===
         # Hydrants sit at the corner of every road intersection, 6.5m from
