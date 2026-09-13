@@ -65,38 +65,57 @@ class SpatialIndex:
         return (int(x // self.cell_size), int(z // self.cell_size))
     
     def _build_index(self, states: list):
-        """Build the spatial grid from all buildings across all chunks."""
+        """Build the spatial grid from all buildings across all chunks.
+        Defensive: handles null/missing fields gracefully."""
         for state in states:
-            ck = (state["chunk_key"][0], state["chunk_key"][1])
+            ck = tuple(state.get("chunk_key") or [0, 0])
             self.chunks[ck] = state
-            
-            for b in state.get("buildings", []):
+
+            for b in (state.get("buildings") or []):
+                if not b or "pos" not in b:
+                    continue  # skip buildings without pos
                 self.all_buildings.append(b)
-                # Index by building's position
-                cx, cz = self._cell_key(b["pos"][0], b["pos"][2])
-                self.grid[(cx, cz)].append(("building", b))
-                # Also index by AABB corners (so queries find it via overlap)
-                if "aabb" in b:
-                    aabb = b["aabb"]
-                    for corner in [aabb["min"], aabb["max"]]:
-                        cx2, cz2 = self._cell_key(corner[0], corner[2])
-                        if (cx2, cz2) != (cx, cz):
-                            self.grid[(cx2, cz2)].append(("building", b))
-            
-            for p in state.get("props", []):
+                try:
+                    cx, cz = self._cell_key(b["pos"][0], b["pos"][2])
+                    self.grid[(cx, cz)].append(("building", b))
+                    if "aabb" in b:
+                        aabb = b["aabb"]
+                        for corner in [aabb.get("min", [0,0,0]), aabb.get("max", [0,0,0])]:
+                            cx2, cz2 = self._cell_key(corner[0], corner[2])
+                            if (cx2, cz2) != (cx, cz):
+                                self.grid[(cx2, cz2)].append(("building", b))
+                except (KeyError, IndexError, TypeError):
+                    continue  # skip malformed buildings
+
+            for p in (state.get("props") or []):
+                if not p or "pos" not in p:
+                    continue
                 self.all_props.append(p)
-                cx, cz = self._cell_key(p["pos"][0], p["pos"][2])
-                self.grid[(cx, cz)].append(("prop", p))
-            
-            for f in state.get("foliage", []):
+                try:
+                    cx, cz = self._cell_key(p["pos"][0], p["pos"][2])
+                    self.grid[(cx, cz)].append(("prop", p))
+                except (KeyError, IndexError, TypeError):
+                    continue
+
+            for f in (state.get("foliage") or []):
+                if not f or "pos" not in f:
+                    continue
                 self.all_foliage.append(f)
-                cx, cz = self._cell_key(f["pos"][0], f["pos"][2])
-                self.grid[(cx, cz)].append(("foliage", f))
-            
-            for z in state.get("zombies", []):
+                try:
+                    cx, cz = self._cell_key(f["pos"][0], f["pos"][2])
+                    self.grid[(cx, cz)].append(("foliage", f))
+                except (KeyError, IndexError, TypeError):
+                    continue
+
+            for z in (state.get("zombies") or []):
+                if not z or "pos" not in z:
+                    continue
                 self.all_zombies.append(z)
-                cx, cz = self._cell_key(z["pos"][0], z["pos"][2])
-                self.grid[(cx, cz)].append(("zombie", z))
+                try:
+                    cx, cz = self._cell_key(z["pos"][0], z["pos"][2])
+                    self.grid[(cx, cz)].append(("zombie", z))
+                except (KeyError, IndexError, TypeError):
+                    continue
     
     def query_nearby(self, pos: list, radius: float = 30.0) -> list:
         """Return all buildings within `radius` meters of `pos`.

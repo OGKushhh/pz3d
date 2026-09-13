@@ -85,13 +85,13 @@ def aabb_volume(a: dict) -> float:
 
 def analyze_chunk(state: dict) -> dict:
     """Analyze a single chunk state for problems + opportunities."""
-    buildings = state.get("buildings", [])
+    buildings = state.get("buildings") or []
     biome = state.get("biome", 0)
-    stats = state.get("stats", {})
-    halo = state.get("halo", {})
-    neighbors = state.get("neighbors", {})
-    gap_count = state.get("gap_count", 0)
-    
+    stats = state.get("stats") or {}
+    halo = state.get("halo") or {}
+    neighbors = state.get("neighbors") or {}
+    gap_count = state.get("gap_count", 0) or 0
+
     problems = []
     opportunities = []
     
@@ -388,7 +388,7 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
     actions = []
     chunk_key = analysis["chunk_key"]
     rng = random.Random(random_seed)
-    buildings = state.get("buildings", [])
+    buildings = state.get("buildings") or []
 
     # Stats tracking (DeepSeek: "Track per-action-type deltas")
     stats = {"reposition": {"candidates": 0, "validated": 0},
@@ -543,7 +543,7 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
     for opp in analysis["opportunities"]:
         if fill_count >= MAX_FILLS:
             break
-        gaps = state.get("gaps", [])
+        gaps = state.get("gaps") or []
         if not gaps:
             continue
         # DeepSeek fix: only fill in ISOLATED gaps (no building within 15m)
@@ -609,7 +609,7 @@ def main():
     print(f"=== AI MIDDLEWARE v2 — analyzing {len(states)} chunk states ===\n")
     
     # Sort chunks by gap_pct descending (fill emptiest chunks first)
-    states_sorted = sorted(states, key=lambda s: s.get("stats", {}).get("gap_pct", 0), reverse=True)
+    states_sorted = sorted(states, key=lambda s: (s.get("stats") or {}).get("gap_pct", 0) or 0, reverse=True)
     
     all_actions = []
     all_analyses = []
