@@ -2404,6 +2404,28 @@ func _maybe_auto_dump(delta: float) -> void:
         if _auto_dump_timer >= AUTO_DUMP_DELAY:
                 _auto_dump_timer = -1.0  # disable after first dump
                 _dump_chunk_states_to_file(AUTO_DUMP_PATH)
+                # Phase B.3: auto-run AI middleware after dump.
+                # This closes the loop: MAP → DATA → AI → DATA → MAP
+                # The middleware reads the dump, analyzes problems, and writes
+                # fill_plan.json. On the NEXT chunk load (when player walks to
+                # a new area), the plan is applied.
+                _run_ai_middleware()
+
+# Phase B.3: Run the AI middleware (Python script) to analyze the map state
+# and generate a fill plan. Non-blocking — runs in a separate process.
+# The fill_plan.json it generates is applied on the next chunk load.
+func _run_ai_middleware() -> void:
+        var script_path := ProjectSettings.globalize_path("res://../scripts/ai_fill_planner.py")
+        if not FileAccess.file_exists(script_path):
+                # Try alternate path (when running from project root)
+                script_path = "/home/z/my-project/pz3d/scripts/ai_fill_planner.py"
+        if not FileAccess.file_exists(script_path):
+                print("[ChunkStreamer] AI middleware script not found — skipping")
+                return
+        var output: Array = []
+        print("[ChunkStreamer] running AI middleware (non-blocking)...")
+        OS.execute("python3", [script_path], output, false)  # false = non-blocking
+        print("[ChunkStreamer] AI middleware launched — fill_plan.json will be ready for next chunk load")
 
 # Phase A.12: Build a full-geometry entry for a placed asset.
 # Captures: name, position (XYZ), rotation (YPR radians), scale (XYZ),
