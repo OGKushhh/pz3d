@@ -27,27 +27,58 @@ Root cause: the system has `Parcel` (1 primary building + yard position) but no 
 
 ---
 
-## Next: Phase B.6 — Lot System (HIGHEST PRIORITY)
+## Next: Phase B.7 — Constraint Validator (HIGHEST PRIORITY)
 
-Three-step plan. Each step is one file. Total ~1 day of work.
+> **Updated 2026-09-14.** Phase B.6 (Lot System) is DONE — 8 recipes + LotStamper + chunk_streamer integration committed. User walked the scene, reported: "more organized now but not production level — props and trees stand in middle of paths, buildings vary in setback distance, paths don't connect to roads." Diagnosis: we have the **propose** half (Lot recipes) but not the **validate** half (localConstraints). This phase adds the validator.
+
+Synthesized from Parish & Müller 2001 (`localConstraints`), Barrett's propose-validate-accept loop (per SE), and uliwitness's desirability-penalty system (per SE). See GDD §4.7.5 for full spec.
 
 | # | Task | File | Effort |
 |---|---|---|---|
-| B.6.1 | Define `Lot` data structure + 20-30 hand-authored Lot recipes for 6+ biomes | `tools/lot.gd` (NEW, ~250 lines) | Medium |
-| B.6.2 | Implement `LotStamper` mirroring `district_stamper.gd` pattern. Stamps primary + companions with relative offsets, draws sidewalk + driveway polylines from road edge to building doors | `tools/lot_stamper.gd` (NEW, ~150 lines) | Medium |
-| B.6.3 | Patch `chunk_streamer.gd:617-690` to call `LotStamper` per parcel instead of parcel-by-parcel loop. Replace gap-filler's garage/shed scatter (line 711+) with lot-companion placement. Patch `block_layout.gd:get_interior_paths` to also emit per-lot sidewalk + driveway segments connecting road-edge → building-door | `tools/chunk_streamer.gd` + `tools/block_layout.gd` (EDITS) | Medium |
+| B.7.1 | `path_query.gd` — `is_on_path(pos, margin)`, `nearest_path(pos)`, `nearest_road_segment(pos)`. Queries `block_layout.get_interior_paths()` + `road_network.gd` | `tools/path_query.gd` (NEW, ~80 lines) | 2h |
+| B.7.2 | `placement_validator.gd` — `validate(pos, asset_name, biome) -> {ok, nudge, reject}` with penalty scoring (on_path=-100, on_road=-100, setback_violation=-50, neighbor_incompatible=-40, repeat>5=-20, overlap=-100) | `tools/placement_validator.gd` (NEW, ~150 lines) | 4h |
+| B.7.3 | Patch `lot_stamper.gd` — call validator before stamping primary + each companion; nudge + retry on soft reject (max 3 retries); skip lot on hard reject | `tools/lot_stamper.gd` (EDIT) | 2h |
+| B.7.4 | Patch `chunk_streamer.gd` gap filler + foliage loops — replace `spatial.is_free()` with `validator.validate()` | `tools/chunk_streamer.gd` (EDIT) | 1h |
+| B.7.5 | Patch `block_layout.gd` `get_interior_paths` — emit per-lot sidewalk + driveway segments (road-edge → door), not chunk-center cross-stripes | `tools/block_layout.gd` (EDIT) | 2h |
+| B.7.6 | Fix `ai_multi_pass.py` revert logic — trust per-action validation; don't revert just because global problem count didn't drop (current logic reverts valid removes) | `scripts/ai_multi_pass.py` (EDIT) | 30min |
 
-Visual contract after Phase B.6:
-- House + garage always sit on the same lot, garage door aligned with house front
-- Grey sidewalk (1.5m wide) from each house's front door to the nearest road
-- Darker driveway (3m wide) from each garage to the nearest road
-- No more random garages in the middle of fields
+Total: ~2-3 days. Visual contract: no props on paths, consistent setbacks, sidewalks reach actual roads, driveways reach actual roads, no incompatible clusters.
 
 ---
 
-## Phase B.7-alt — Visual contract scene (optional, parallel to B.6)
+## Next: Phase B.8 — Persistent Map Baker (after B.7)
 
-Hand-author ONE hero block (e.g. suburb_block from `district_templates.gd`) in a separate `scenes/authored_reference.tscn` scene as a **visual benchmark** for what the runtime generator should produce. ~1 day. Useful as a "this is what good looks like" target — NOT a substitute for Phase B.6.
+> **Added 2026-09-14 per user clarification.** The shipping map is PERSISTENT (baked), not runtime-generated. The runtime gen is a testing scaffold (GDD §4.7.4). This phase bakes the validated layout to `.tscn` chunks the player loads.
+
+| # | Task | File | Effort |
+|---|---|---|---|
+| B.8.1 | `map_baker.gd` — runs full chunk_streamer pipeline offline → saves each chunk as `res://baked_chunks/chunk_X_Y.tscn` with buildings + paths + companions frozen | `tools/map_baker.gd` (NEW, ~200 lines) | 4h |
+| B.8.2 | `persistent_placements.json` — per-chunk index of placed lot recipes + world positions (for save/load + future editor) | `data/persistent_placements.json` (NEW) | 1h |
+| B.8.3 | Patch `scenes/main.tscn` + `chunk_streamer.gd` — load baked chunks at runtime; add `bake_mode: bool` flag to chunk_streamer | `scenes/main.tscn` + `tools/chunk_streamer.gd` (EDIT) | 3h |
+
+Total: ~1-2 days. After this, the player never runs the procedural gen — they load the baked persistent map.
+
+---
+
+## Phase B.6 — Lot System (DONE 2026-09-14)
+
+Three-step plan, all committed:
+
+| # | Task | File | Status |
+|---|---|---|---|
+| B.6.1 | `Lot` data structure + 8 hand-authored recipes for 6 biomes (SUBURBIA×3, COMMERCIAL, INDUSTRIAL, DOWNTOWN, FARMLAND, MILITARY) | `tools/lot.gd` (NEW, 302 lines) | ✓ commit `1dcd13e` |
+| B.6.2 | `LotStamper` mirroring `district_stamper.gd` pattern — stamps primary + companions, draws sidewalk + driveway | `tools/lot_stamper.gd` (NEW, 188 lines) | ✓ commit `44aad51` |
+| B.6.3 | Patch `chunk_streamer.gd:617-690` to call LotStamper per parcel; removed `garage_detached` + `shed` from gap filler (literal source of "garage facing a different side" bug) | `tools/chunk_streamer.gd` (EDIT) | ✓ commit `ae94f27` |
+
+Verified via headless run + chunk_states analysis: 99 buildings placed by LotStamper (73 primary + 13 garage + 13 shed), 48 by DistrictStamper, 13 procedural fallback. Middleware detected 4 garage-overlap issues, generated 4 remove actions in `fill_plan.json`.
+
+User feedback after walking the scene: "more organized now but not production level" — props on paths, inconsistent setbacks, paths still don't connect to roads. This is the motivation for Phase B.7 (Constraint Validator).
+
+---
+
+## Phase B.7-alt — Visual contract scene (optional, parallel to B.7)
+
+Hand-author ONE hero block (e.g. suburb_block from `district_templates.gd`) in a separate `scenes/authored_reference.tscn` scene as a **visual benchmark** for what the runtime generator should produce. ~1 day. Useful as a "this is what good looks like" target — NOT a substitute for Phase B.7.
 
 | # | Task | File | Effort |
 |---|---|---|---|

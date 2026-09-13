@@ -463,15 +463,86 @@ This replaces the current ad-hoc placement in `chunk_streamer.gd:617-690` (parce
 
 Hand-authored **Lot recipes** live in `tools/lot.gd` (or `data/lot_recipes.gd` — TBD). ~20-30 recipes cover the 10 biomes. Recipes stamp at parcel positions via a `LotStamper` (mirroring how `DistrictStamper` stamps district templates at chunk anchors). This is the same architecture pattern as district templates, scaled down one level: templates = block scale, lots = parcel scale.
 
-### 4.7.4 Why not hand-author the entire map as one scene?
+### 4.7.4 The shipping map is PERSISTENT (baked), not runtime-generated
 
-Rejected alternative: scrap procedural placement entirely, hand-author the entire 12 km² map as one big `tscn`.
+> **Rewritten 2026-09-14.** The previous version of this section was written by an AI session without the user's explicit input and framed hand-authoring as "rejected". This rewrite reflects the user's actual intent, stated 2026-09-14: persistent map + procedural interiors + runtime gen for testing only.
 
-- Kills Pillar 1's "procedural flesh" — interior furniture placement is per-run; a fully hand-authored map would force interiors to also be fixed (loses PZ-style replayability).
-- Maintenance: a 12 km² hand-authored scene is one of the largest Godot scenes ever built. Any asset re-export breaks the whole scene.
-- The runtime generator already does the asset validation job. Hand-authoring replaces it with months of manual placement work for the same validation payoff.
+The National City of Mazar ships as a **persistent map** — a fixed, hand-curated arrangement of roads, landmarks, building exteriors, lot compositions, sidewalks, and driveways. It is **NOT** regenerated on each playthrough. The runtime procedural generator in `tools/chunk_streamer.gd` exists to **validate the asset pipeline + recipe math during development**; it is not what the player sees in the shipping build.
 
-The right scope for hand-authoring is **recipes** (district templates + lot recipes), not the full map. Recipes are small, testable, and stamp at runtime — they get the asset validation benefit of procedural + the curatorial intent of hand-authored.
+**The persistent map is produced in two phases:**
+
+1. **Design-time (offline):** The runtime generator + `LotStamper` + `DistrictStamper` produce a candidate layout. A constraint validator (§4.7.5) ensures every placement respects road distance, path conflicts, setback range, and neighbor compatibility. The validated layout is **baked** to `.tscn` chunk files via `tools/map_baker.gd` (Phase B.8). The baked chunks are the shipping map.
+
+2. **Runtime (player-facing):** The game loads the baked `.tscn` chunks directly. No procedural generation of exteriors. Interiors (furniture, loot, zombies) are generated per-run from `(map_seed + run_seed)` as the "procedural flesh" layer — this is the only procedural layer the player sees.
+
+**Why this approach (and not alternatives):**
+
+| Alternative | Why not |
+|---|---|
+| Hand-author the entire 12 km² as one `.tscn` in the Godot editor | One of the largest Godot scenes ever built; any asset re-export breaks it; months of manual placement for no validation payoff over the baker. |
+| Pure runtime procedural (no baker) | Rejects the user's stated goal of a persistent map. Player would see a different layout each playthrough, breaking Pillar 1 ("authored skeleton"). |
+| L-system road generation (Parish & Müller 2001) | Overkill — we have hand-authored roads (34 segments in `map_data.json`). The L-system is for generating road networks from scratch. We need placement validation, not road generation. |
+
+**The right scope for hand-authoring is recipes** (district templates + lot recipes), validated by a constraint pass, then baked. Recipes are small, testable, and stamp deterministically — they get the curatorial intent of hand-authored + the validation benefit of procedural. The baker freezes the recipe-driven output into the persistent map.
+
+### 4.7.5 The Constraint Validator (Phase B.7 — after Lot System)
+
+> **Added 2026-09-14.** Synthesizes the placement-validation architecture from Parish & Müller 2001 (`localConstraints`), Barrett's simplified propose-validate-accept loop (per SE), and uliwitness's desirability-penalty system (per SE). This is the "brain" the 2026-09-14 screenshot review identified as missing.
+
+The Lot System (§4.7.3) provides the **propose** half: Lot recipes propose primary + companion + sidewalk + driveway placements. The Constraint Validator provides the **validate** half — the missing `localConstraints` function that every procedural-city algorithm converges on.
+
+**Architecture (propose → validate → commit):**
+
+```
+LotStamper.stamp_lot()
+  ├── propose: primary building at parcel.building_pos
+  ├── validate: PlacementValidator.validate(pos, asset, biome)
+  │     ├── is_on_path(pos, margin=2m)?        → reject or nudge
+  │     ├── nearest_road_distance(pos)         → reject if outside [min, max] setback
+  │     ├── is_on_road(pos)?                   → reject
+  │     ├── neighbor_compatibility(pos, asset) → reject if incompatible (e.g. shed next to gas_station)
+  │     └── return {ok: bool, nudge: Vector3?}
+  ├── if ok:     stamp + insert into spatial index
+  ├── if nudge:  retry at pos + nudge (max 3 retries)
+  └── if reject: skip this lot, fall through to procedural fallback
+```
+
+**Penalty scoring (per uliwitness's approach):**
+
+Each candidate position gets a desirability score per purpose. Penalties subtract from the base score:
+
+| Condition | Penalty |
+|---|---|
+| Position is on a path | -100 (hard reject) |
+| Position is on a road | -100 (hard reject) |
+| Position is inside a POI exclusion zone | -100 (hard reject) |
+| Nearest road distance < biome.min_setback | -50 (reject for this asset type) |
+| Nearest road distance > biome.max_setback | -30 (reject for primary, allow for backyard) |
+| Asset is incompatible with nearest neighbor (e.g. shed next to gas_station) | -40 |
+| Asset repeats >5 times in this chunk | -20 |
+| Position is within 2m of another asset | -100 (hard reject, overlap) |
+
+Place at the highest-scoring position. If no position scores above the accept threshold, skip the placement (vacant lot).
+
+**Files (Phase B.7):**
+
+| File | What |
+|---|---|
+| `tools/path_query.gd` (NEW, ~80 lines) | `is_on_path(pos, margin)`, `nearest_path(pos)`, `nearest_road_segment(pos)` |
+| `tools/placement_validator.gd` (NEW, ~150 lines) | `validate(pos, asset_name, biome) -> Dictionary` with penalty scoring |
+| Patch `lot_stamper.gd` | Call validator before stamping; nudge + retry on soft reject |
+| Patch `chunk_streamer.gd` gap filler + foliage loops | Replace `spatial.is_free()` with `validator.validate()` |
+| Patch `block_layout.gd` `get_interior_paths` | Emit per-lot sidewalk + driveway (road-edge → door), not chunk-center cross-stripes |
+| Patch `ai_multi_pass.py` | Trust per-action validation; don't revert just because global problem count didn't drop |
+
+**Visual contract after Phase B.7:**
+
+- No prop, tree, or companion lands on a path
+- Every building sits at a consistent setback from its nearest road (within biome's `[min, max]` range)
+- Every house has a sidewalk that reaches the actual road (not a chunk-center cross-stripe)
+- Every garage has a driveway that reaches the actual road
+- Incompatible assets don't cluster (no shed next to gas station)
+- Asset repetition is capped (no 6 identical houses in one chunk)
 
 ## 4.5 Alpha Build Order 🔒
 
