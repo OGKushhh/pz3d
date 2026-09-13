@@ -58,6 +58,12 @@ func _input(e: InputEvent) -> void:
         _try_interact()
     if e.is_action_pressed("break"):
         _try_break()
+    # v8.2 Phase A.10: F8 dumps all loaded chunk states to JSON for analysis
+    if e is InputEventKey and e.pressed and e.keycode == KEY_F8:
+        var streamer := get_tree().current_scene.get_node_or_null("ChunkStreamer")
+        if streamer and streamer.has_method("_dump_chunk_states_to_file"):
+            streamer._dump_chunk_states_to_file("res://chunk_states_dump.json")
+            print("[Player] F8 — dumped chunk states to res://chunk_states_dump.json")
 
 func _physics_process(d: float) -> void:
     _vault_timer = max(0.0, _vault_timer - d)

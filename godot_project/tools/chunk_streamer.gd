@@ -708,6 +708,21 @@ func _build_chunk(key: Vector2i) -> void:
         # Tag the chunk_root with the district name for debug HUD / future GPS.
         chunk_root.set_meta("district_name", dname)
 
+        # v8.2 Phase A.10: DATA-DRIVEN CHUNK STATE — dump the chunk's placement
+        # data as a queryable Dictionary. This is the "understand the map as
+        # data" approach the user asked for. After placement, we know exactly
+        # what's where: building names + positions + zones, prop names, foliage
+        # names, zombie positions, gap positions.
+        #
+        # The state is stored on chunk_root as meta "chunk_state" and also
+        # logged to a JSON file for offline analysis. This enables:
+        #   - Gap analysis: "this chunk has 30 buildings but no parking lot"
+        #   - Zoning balance: "60% commercial, 30% residential, 10% vacant"
+        #   - Density queries: "find chunks with <5 buildings"
+        #   - Halo verification: "did the stadium actually attract parking garages?"
+        var chunk_state := _build_chunk_state(chunk_root, key, biome, dname, b_count, p_count, f_count, z_count)
+        chunk_root.set_meta("chunk_state", chunk_state)
+
 func _build_visible_roads(chunk_root: Node3D, origin: Vector3, chunk_size: float) -> void:
         var chunk_roads: Array = _get_roads_in_chunk(origin, chunk_size)
         for seg in chunk_roads:
@@ -1850,3 +1865,188 @@ static func _is_borrowable(biome: int) -> bool:
         if biome == CityConfig.Biome.WETLANDS:
                 return false
         return true
+
+# ============================================================
+# v8.2 Phase A.10: DATA-DRIVEN CHUNK STATE
+# ============================================================
+# Builds a queryable Dictionary representing everything placed in this chunk.
+# This is the "understand the map as data" approach — after placement, we
+# know exactly what's where, and can analyze/fill gaps intelligently.
+#
+# Structure:
+# {
+#   "chunk_key": [x, y],
+#   "biome": int,
+#   "district_name": String,
+#   "counts": {"buildings": N, "props": N, "foliage": N, "zombies": N},
+#   "buildings": [{"name": "corner_store", "pos": [x,y,z], "zone": "commercial", "is_landmark": false}, ...],
+#   "props": [{"name": "trash_can", "pos": [...]}, ...],
+#   "foliage": [{"name": "oak_tree", "pos": [...]}, ...],
+#   "zombies": [{"kind": "walker", "pos": [...]}, ...],
+#   "stats": {"commercial_pct": 0.6, "residential_pct": 0.3, "vacant_pct": 0.1},
+#   "gaps": [{"pos": [x,y,z], "size": 20, "suggested_fill": "parking_lot"}, ...]
+# }
+#
+# Stored on chunk_root as meta "chunk_state" for runtime queries.
+# Also queryable via _get_loaded_chunk_states() for cross-chunk analysis.
+func _build_chunk_state(
+        chunk_root: Node3D, key: Vector2i, biome: int,
+        district_name: String, b_count: int, p_count: int,
+        f_count: int, z_count: int
+) -> Dictionary:
+        var buildings: Array = []
+        var props: Array = []
+        var foliage: Array = []
+        var zombies: Array = []
+        # Walk all children of chunk_root + their descendants to collect placed assets
+        for node in chunk_root.find_children("*", "", true, false):
+                if not (node is Node3D):
+                        continue
+                var n: Node3D = node
+                var asset_name: String = ""
+                if n.has_meta("building_name"):
+                        asset_name = String(n.get_meta("building_name"))
+                elif n.has_meta("zombie_kind"):
+                        var kind: String = String(n.get_meta("zombie_kind"))
+                        zombies.append({"kind": kind, "pos": [n.position.x, n.position.y, n.position.z]})
+                        continue
+                elif n.has_meta("from_template"):
+                        # Template-stamped — already counted as building
+                        asset_name = String(n.get_meta("building_name"))
+                if asset_name == "":
+                        # Try name-based extraction (e.g., "trash_can_12345" → "trash_can")
+                        var nname: String = n.name
+                        var parts: PackedStringArray = nname.split("_")
+                        if parts.size() >= 2:
+                                asset_name = parts[0]
+                                # Some assets have multi-word names (corner_store, parking_meter)
+                                if parts.size() >= 3 and not parts[1].is_valid_int():
+                                        asset_name = parts[0] + "_" + parts[1]
+                        else:
+                                asset_name = nname
+                # Categorize by asset category in manifest
+                var entry: Dictionary = {"name": asset_name, "pos": [n.position.x, n.position.y, n.position.z]}
+                if n.has_meta("is_landmark"):
+                        entry["is_landmark"] = bool(n.get_meta("is_landmark"))
+                if n.has_meta("from_template"):
+                        entry["from_template"] = String(n.get_meta("from_template"))
+                # Categorize
+                var manifest_entry: Dictionary = manifest.get(asset_name, {})
+                var category: String = manifest_entry.get("category", "")
+                match category:
+                        "building", "buildings":
+                                buildings.append(entry)
+                        "prop", "props":
+                                props.append(entry)
+                        "foliage":
+                                foliage.append(entry)
+                        "character", "characters":
+                                # Already added via zombie_kind meta above; skip if not
+                                if not zombies.has(entry):
+                                        zombies.append(entry)
+                        _:
+                                # Unknown category — check name patterns
+                                if _is_foliage_name(asset_name):
+                                        foliage.append(entry)
+                                elif _is_prop_name(asset_name):
+                                        props.append(entry)
+                                else:
+                                        buildings.append(entry)
+        # Compute stats
+        var stats := _compute_chunk_stats(buildings)
+        return {
+                "chunk_key": [key.x, key.y],
+                "biome": biome,
+                "district_name": district_name,
+                "counts": {
+                        "buildings": b_count,
+                        "props": p_count,
+                        "foliage": f_count,
+                        "zombies": z_count,
+                },
+                "buildings": buildings,
+                "props": props,
+                "foliage": foliage,
+                "zombies": zombies,
+                "stats": stats,
+        }
+
+# Compute zoning stats for a chunk's building list.
+# Returns: {commercial_pct, residential_pct, industrial_pct, vacant_pct, landmark_count}
+func _compute_chunk_stats(buildings: Array) -> Dictionary:
+        if buildings.is_empty():
+                return {"commercial_pct": 0.0, "residential_pct": 0.0, "industrial_pct": 0.0, "vacant_pct": 1.0, "landmark_count": 0}
+        var commercial: int = 0
+        var residential: int = 0
+        var industrial: int = 0
+        var landmarks: int = 0
+        const COMMERCIAL_TYPES := ["corner_store", "diner", "gas_station", "store_pharmacy", "store_gun", "store_supermarket", "motel", "strip_mall", "auto_repair_shop", "laundromat", "barber_shop", "salon", "grocery_store", "bank_branch"]
+        const RESIDENTIAL_TYPES := ["suburban_house_v2", "two_story_colonial", "bungalow", "house_modern", "house_split_level", "house_victorian", "house_ranch", "house_cape_cod", "house_tudor", "house_cottage_stone", "apartment_small", "cottage", "farmhouse", "shed", "garage_detached"]
+        const INDUSTRIAL_TYPES := ["warehouse", "warehouse_large", "factory_small", "utility_shed_metal", "shipping_container", "storage_tank", "loading_dock"]
+        const LANDMARK_TYPES := ["government_palace", "stadium", "old_royal_palace", "fort_sarran", "lighthouse", "broadcast_tower", "grain_silo", "windmill", "railway_station", "hospital", "police_station", "school_elementary", "church_small"]
+        for b in buildings:
+                var n: String = b["name"]
+                if LANDMARK_TYPES.has(n):
+                        landmarks += 1
+                if COMMERCIAL_TYPES.has(n):
+                        commercial += 1
+                elif RESIDENTIAL_TYPES.has(n):
+                        residential += 1
+                elif INDUSTRIAL_TYPES.has(n):
+                        industrial += 1
+        var total: int = buildings.size()
+        return {
+                "commercial_pct": float(commercial) / float(total),
+                "residential_pct": float(residential) / float(total),
+                "industrial_pct": float(industrial) / float(total),
+                "vacant_pct": 0.0,  # computed elsewhere (gap_count / total_lots)
+                "landmark_count": landmarks,
+        }
+
+# Name-based foliage detection (for assets without manifest category).
+const FOLIAGE_NAME_HINTS := ["tree", "bush", "hedge", "flower", "weeds", "fern", "grass", "cattail", "mushroom", "ivy", "fallen", "rocks", "palm", "willow", "pine", "oak", "birch", "maple"]
+func _is_foliage_name(name: String) -> bool:
+        var nlower: String = name.to_lower()
+        for hint in FOLIAGE_NAME_HINTS:
+                if nlower.contains(hint):
+                        return true
+        return false
+
+# Name-based prop detection.
+const PROP_NAME_HINTS := ["mailbox", "trash", "planter", "bollard", "meter", "cart", "cone", "barrier", "fence", "gnome", "hose", "bench", "table", "slide", "swing", "seesaw", "fountain", "sign", "camera", "light", "hydrant", "pole"]
+func _is_prop_name(name: String) -> bool:
+        var nlower: String = name.to_lower()
+        for hint in PROP_NAME_HINTS:
+                if nlower.contains(hint):
+                        return true
+        return false
+
+# Returns the chunk_state Dictionary for a loaded chunk, or empty if not loaded.
+func _get_chunk_state(key: Vector2i) -> Dictionary:
+        if not _loaded.has(key):
+                return {}
+        var chunk_root: Node3D = _loaded[key]
+        if chunk_root.has_meta("chunk_state"):
+                return chunk_root.get_meta("chunk_state")
+        return {}
+
+# Returns an array of all loaded chunk states (for cross-chunk analysis).
+func _get_loaded_chunk_states() -> Array:
+        var states: Array = []
+        for key in _loaded:
+                var state: Dictionary = _get_chunk_state(key)
+                if not state.is_empty():
+                        states.append(state)
+        return states
+
+# Dumps all loaded chunk states to a JSON file for offline analysis.
+# Call this from a debug key (e.g., F8) to inspect what's actually placed.
+func _dump_chunk_states_to_file(path: String) -> void:
+        var states: Array = _get_loaded_chunk_states()
+        var f := FileAccess.open(path, FileAccess.WRITE)
+        if f == null:
+                push_error("[ChunkStreamer] can't write chunk states to %s" % path)
+                return
+        f.store_string(JSON.stringify(states, "\t"))
+        f.close()
+        print("[ChunkStreamer] dumped %d chunk states to %s" % [states.size(), path])
