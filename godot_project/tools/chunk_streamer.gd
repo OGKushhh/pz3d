@@ -165,6 +165,32 @@ const NO_SHADOW_PROPS := [
 # Biome profiles are updated at runtime to scale zombie count.
 const ZOMBIE_SCALE_FACTOR := 0.5  # multiply biome profile zombies by this
 
+# v8.2 Phase A.8: ZONING RULES — bias building picks by zone type.
+# Each biome has a zoning type that influences which buildings spawn:
+#   - residential: houses, small apartment buildings
+#   - commercial: storefronts, diners, gas stations, pharmacies
+#   - industrial: warehouses, factories, storage tanks
+#   - mixed: any of the above (downtown edge, transition zones)
+# At intersections, the commercial probability is boosted (PZ-style:
+# corner lots get storefronts, mid-block gets houses).
+# On arterial roads (wider roads), commercial probability is also boosted.
+const ZONE_COMMERCIAL_PROB := 0.7  # at intersections / arterials
+const ZONE_RESIDENTIAL_PROB := 0.85  # mid-block on side streets
+
+# v8.2 Phase A.8: SETBACK VARIATION — distance from road to building face.
+# Was constant 1.5m (BUILDING_SETBACK) for all buildings. Now varies by
+# zoning type:
+#   - commercial: 0m setback (storefront flush with sidewalk — downtown feel)
+#   - residential: 4m setback (porch + small front yard — suburban feel)
+#   - industrial: 2m setback (loading dock access)
+# This creates visual variety along a street — storefronts right at the
+# sidewalk, then a house set back with a yard, then a warehouse with a
+# dock. Matches real-city zoning patterns.
+const SETBACK_COMMERCIAL := 0.0
+const SETBACK_RESIDENTIAL := 4.0
+const SETBACK_INDUSTRIAL := 2.0
+const BUILDING_OFFSET_BASE := 9.5  # road/2 + sidewalk + grass strip (was constant BUILDING_OFFSET)
+
 # v8.1: Utility pole placement (rule #2).
 # Poles go FAR BEHIND buildings — offset from road centerline is:
 #   BUILDING_OFFSET + LOT_DEPTH + UTILITY_POLE_OFFSET
@@ -434,10 +460,36 @@ func _build_chunk(key: Vector2i) -> void:
                         # Check if near intersection (within 15m of a crossing road)
                         var near_intersection := _is_near_intersection(base_pos, 15.0)
 
+                        # v8.2 Phase A.8: ZONING — determine zone for this lot.
+                        # At intersections + on wide roads → commercial zone.
+                        # Mid-block on side streets → residential zone.
+                        # Industrial biome → always industrial zone.
+                        var is_arterial: bool = float(seg.get("width", 8.0)) >= 10.0
+                        var zone_type: String = "residential"
+                        if biome == CityConfig.Biome.INDUSTRIAL:
+                                zone_type = "industrial"
+                        elif biome == CityConfig.Biome.DOWNTOWN:
+                                zone_type = "mixed"
+                        elif near_intersection or is_arterial:
+                                zone_type = "commercial"
+                        # Compute setback based on zone
+                        var setback: float = SETBACK_RESIDENTIAL
+                        match zone_type:
+                                "commercial":
+                                        setback = SETBACK_COMMERCIAL
+                                "industrial":
+                                        setback = SETBACK_INDUSTRIAL
+                                "residential":
+                                        setback = SETBACK_RESIDENTIAL
+                                _:
+                                        setback = SETBACK_RESIDENTIAL
+                        # Building offset = road/2 + sidewalk + grass strip + setback
+                        var building_offset_dyn: float = BUILDING_OFFSET_BASE + setback
+
                         for side in [-1, 1]:
                                 if placed >= target:
                                         break
-                                var lot_pos: Vector3 = base_pos + perp * float(side) * BUILDING_OFFSET
+                                var lot_pos: Vector3 = base_pos + perp * float(side) * building_offset_dyn
                                 # Check bounds
                                 if lot_pos.x < origin.x or lot_pos.x >= origin.x + CityConfig.CHUNK_SIZE_M:
                                         continue
@@ -466,9 +518,25 @@ func _build_chunk(key: Vector2i) -> void:
                                                 _place_backyard_fill(lot_pos, perp, side, chunk_root, crng, profile)
                                         continue  # Skip the main building placement
 
-                                # Pick building: commercial at intersections, residential otherwise
+                                # v8.2 Phase A.8: pick building based on zone type.
+                                # Was: 50% commercial at intersections, else residential.
+                                # Now: zone_type determines pick probability.
+                                #   - commercial zone: 70% commercial, 30% residential
+                                #   - residential zone: 85% residential, 15% commercial (corner store)
+                                #   - industrial zone: 100% industrial (from biome.buildings)
+                                #   - mixed zone: 50/50 commercial/residential
                                 var bname: String
-                                if near_intersection and crng.randf() < 0.5 and not commercial_buildings.is_empty():
+                                var commercial_prob: float = 0.0
+                                match zone_type:
+                                        "commercial":
+                                                commercial_prob = ZONE_COMMERCIAL_PROB
+                                        "residential":
+                                                commercial_prob = 1.0 - ZONE_RESIDENTIAL_PROB
+                                        "industrial":
+                                                commercial_prob = 0.0
+                                        "mixed":
+                                                commercial_prob = 0.5
+                                if crng.randf() < commercial_prob and not commercial_buildings.is_empty():
                                         bname = commercial_buildings[crng.randi() % commercial_buildings.size()]
                                 else:
                                         bname = buildings[crng.randi() % buildings.size()]
