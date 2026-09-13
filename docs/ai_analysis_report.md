@@ -1,16 +1,16 @@
 # AI Middleware Analysis Report
 > Generated from 25 chunk states.
-> Total problems detected: **26**
+> Total problems detected: **23**
 > Total opportunities found: **56**
-> Total actions generated: **11**
+> Total actions generated: **6**
 
 ## Problem Types Detected
 
 | Problem Type | Count | Description |
 |---|---|---|
 | min_spacing_violation | 13 |  |
-| overlaps | 7 | Buildings with intersecting AABBs (3D overlap) |
-| asset_repetition | 6 | Same asset appearing >5 times in one chunk |
+| asset_repetition | 5 | Same asset appearing >5 times in one chunk |
+| overlaps | 5 | Buildings with intersecting AABBs (3D overlap) |
 
 ## Opportunities Found
 
@@ -25,7 +25,7 @@
 
 | Action Type | Count |
 |---|---|
-| remove | 11 |
+| remove | 6 |
 
 ### Fill Type Distribution
 
@@ -49,15 +49,15 @@
 | 9,11 | WETLANDS | 4 | 60% | 0 | 1 | 0 |
 | 9,10 | WETLANDS | 2 | 55% | 0 | 1 | 0 |
 | 6,8 | COMMERCIAL | 3 | 46% | 0 | 3 | 0 |
-| 7,8 | COMMERCIAL | 17 | 46% | 2 | 3 | 1 |
-| 6,9 | COMMERCIAL | 11 | 41% | 2 | 3 | 1 |
+| 7,8 | COMMERCIAL | 16 | 46% | 1 | 3 | 0 |
+| 6,9 | COMMERCIAL | 10 | 41% | 1 | 3 | 0 |
 | 5,10 | SUBURBIA | 12 | 40% | 1 | 2 | 0 |
 | 5,11 | SUBURBIA | 23 | 40% | 0 | 2 | 0 |
-| 5,8 | COMMERCIAL | 11 | 39% | 2 | 3 | 2 |
+| 5,8 | COMMERCIAL | 10 | 39% | 2 | 3 | 1 |
 | 7,9 | COMMERCIAL | 19 | 39% | 2 | 3 | 2 |
 | 9,8 | COMMERCIAL | 8 | 36% | 1 | 3 | 0 |
-| 8,9 | COMMERCIAL | 14 | 36% | 2 | 3 | 1 |
+| 8,9 | COMMERCIAL | 13 | 36% | 2 | 3 | 0 |
 | 9,7 | COMMERCIAL | 18 | 34% | 2 | 3 | 2 |
 | 8,8 | COMMERCIAL | 11 | 30% | 1 | 3 | 0 |
 | 9,9 | COMMERCIAL | 12 | 30% | 1 | 3 | 0 |
-| 8,7 | COMMERCIAL | 20 | 29% | 3 | 3 | 2 |
+| 8,7 | COMMERCIAL | 19 | 29% | 2 | 3 | 1 |

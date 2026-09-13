@@ -73,12 +73,13 @@ directional_shadow_size = 2048
 [node name="TerrainBaker" type="Node3D" parent="."]
 script = ExtResource("2_terrain")
 
-; FlatGround — visible + collides at Y=0. Terrain mesh disabled (was causing
-; stuck/z-fighting). This is the sole ground collider + visual.
+; FlatGround — collider only (visible=false). The biome ground mesh from
+; TerrainBaker provides the visual ground with per-biome colors.
 [node name="FlatGround" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0, 1500)
 
 [node name="FlatGroundMesh" type="MeshInstance3D" parent="FlatGround"]
+visible = false
 mesh = SubResource("flat_ground_mesh")
 material_override = SubResource("flat_ground_mat")
 

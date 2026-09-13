@@ -31,17 +31,99 @@ func _ready() -> void:
         _build_terrain()
 
 func _build_terrain() -> void:
-        # Phase B.3: terrain mesh DISABLED — was causing 3 bugs:
-        # 1. Player stuck (dual colliders: FlatGround box + terrain trimesh conflict)
-        # 2. Z-fighting (terrain at Y=0 vs road meshes at Y=0.02, 25m resolution
-        #    causes terrain bumps to poke through roads)
-        # 3. "Weird green ground" (terrain material + FlatGround material conflict)
-        # Re-enable when we have: proper LOD, single-collider approach, road Y
-        # offset that clears 25m terrain bumps.
-        # _generate_terrain_mesh()
+        # Phase B.4: generate per-biome colored ground mesh (flat at Y=0).
+        # No elevation — just per-vertex colors based on biome + noise.
+        # Replaces the flat green PlaneMesh with a colored mesh that shows
+        # district boundaries from above.
+        _generate_biome_ground_mesh()
         _place_bridges()
         _place_water()
-        print("[TerrainBaker] terrain mesh DISABLED — using FlatGround (terrain caused stuck/z-fighting)")
+
+# Phase B.4: Generate a flat ground mesh with per-vertex colors based on biome.
+# Each vertex gets the biome's ground color + per-vertex noise (±5% per channel)
+# + occasional dirt patches (5% chance of darker variant). This makes the ground
+# feel alive instead of one flat color. Uses vertex_color_use_as_albedo on the
+# material so the per-vertex colors render as the surface color.
+func _generate_biome_ground_mesh() -> void:
+        var resolution := 25.0  # meters between samples (same as terrain mesh)
+        var cols: int = int(CFG.MAP_SIZE_M.x / resolution) + 1
+        var rows: int = int(CFG.MAP_SIZE_M.y / resolution) + 1
+        var verts := PackedVector3Array()
+        var colors := PackedColorArray()
+        var uvs := PackedVector2Array()
+        var indices := PackedInt32Array()
+        var rng := RandomNumberGenerator.new()
+        rng.seed = 1337
+        # Generate vertices + per-biome colors
+        verts.resize(cols * rows)
+        colors.resize(cols * rows)
+        uvs.resize(cols * rows)
+        var grid: Array = CFG.grid_layout()
+        for rz in range(rows):
+                for rx in range(cols):
+                        var x: float = float(rx) * resolution
+                        var z: float = float(rz) * resolution
+                        var idx: int = rz * cols + rx
+                        verts[idx] = Vector3(x, 0.0, z)
+                        uvs[idx] = Vector2(float(rx) * 0.1, float(rz) * 0.1)
+                        # Get biome at this position
+                        var col: int = clamp(int(x / CFG.CELL_SIZE_M), 0, CFG.GRID_COLS - 1)
+                        var row: int = clamp(int(z / CFG.CELL_SIZE_M), 0, CFG.GRID_ROWS - 1)
+                        var biome: int = grid[row][col]
+                        var base_color: Color = CFG.ground_color_for(biome)
+                        # Per-vertex noise: ±5% per channel for organic variation
+                        var noise_r: float = rng.randf_range(-0.05, 0.05)
+                        var noise_g: float = rng.randf_range(-0.05, 0.05)
+                        var noise_b: float = rng.randf_range(-0.05, 0.05)
+                        # 5% chance of a dirt patch (darker variant)
+                        if rng.randf() < 0.05:
+                                noise_r -= 0.10
+                                noise_g -= 0.08
+                                noise_b -= 0.05
+                        # 3% chance of a worn/lighter patch
+                        elif rng.randf() < 0.03:
+                                noise_r += 0.08
+                                noise_g += 0.06
+                                noise_b += 0.04
+                        colors[idx] = Color(
+                                clamp(base_color.r + noise_r, 0.0, 1.0),
+                                clamp(base_color.g + noise_g, 0.0, 1.0),
+                                clamp(base_color.b + noise_b, 0.0, 1.0),
+                                1.0
+                        )
+        # Generate indices
+        var num_cells: int = (cols - 1) * (rows - 1)
+        indices.resize(num_cells * 6)
+        var ti: int = 0
+        for rz in range(rows - 1):
+                for rx in range(cols - 1):
+                        var i: int = rz * cols + rx
+                        indices[ti] = i; ti += 1
+                        indices[ti] = i + cols; ti += 1
+                        indices[ti] = i + 1; ti += 1
+                        indices[ti] = i + 1; ti += 1
+                        indices[ti] = i + cols + 1; ti += 1
+                        indices[ti] = i + cols; ti += 1
+        # Create ArrayMesh with per-vertex colors
+        var arrays: Array = []
+        arrays.resize(Mesh.ARRAY_MAX)
+        arrays[Mesh.ARRAY_VERTEX] = verts
+        arrays[Mesh.ARRAY_COLOR] = colors
+        arrays[Mesh.ARRAY_TEX_UV] = uvs
+        arrays[Mesh.ARRAY_INDEX] = indices
+        var ground_mesh := ArrayMesh.new()
+        ground_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+        # Material with vertex colors as albedo
+        var mat := StandardMaterial3D.new()
+        mat.vertex_color_use_as_albedo = true
+        mat.roughness = 0.95
+        ground_mesh.surface_set_material(0, mat)
+        # Create MeshInstance3D
+        var mi := MeshInstance3D.new()
+        mi.name = "BiomeGroundMesh"
+        mi.mesh = ground_mesh
+        add_child(mi)
+        print("[TerrainBaker] Biome ground mesh: %d verts, %d tris (per-biome colors + noise)" % [verts.size(), indices.size() / 3])
 
 # Phase B.1.5: Generate a heightmap mesh from TerrainHeight.height_at().
 # Samples the terrain at 25m intervals across the full map (4000×3000m),

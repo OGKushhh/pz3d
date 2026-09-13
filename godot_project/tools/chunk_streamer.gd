@@ -2787,7 +2787,7 @@ func _place_fill(chunk_root: Node3D, pos: Vector3, fill_type: String, crng: Rand
 # along one edge + 1 shopping_cart nearby.
 func _place_parking_lot(chunk_root: Node3D, pos: Vector3, crng: RandomNumberGenerator) -> int:
         var count := 0
-        # Asphalt plane (dark gray, 15×20m)
+        # Phase B.4: parking lot color = biome ground color darkened (asphalt over biome)
         _create_plane_mesh_rotated(chunk_root, "ParkingLotAsphalt",
                 pos, Vector2(15.0, 20.0), Color(0.18, 0.18, 0.20, 1), 0.0)
         count += 1

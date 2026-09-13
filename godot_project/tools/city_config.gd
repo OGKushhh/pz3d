@@ -77,6 +77,29 @@ const COLOR_SIDEWALK       := Color(0.70, 0.68, 0.64, 1)
 const COLOR_GRASS_STRIP    := Color(0.30, 0.50, 0.22, 1)
 const COLOR_GROUND         := Color(0.22, 0.40, 0.16, 1)
 
+# ── PER-BIOME GROUND COLORS (Phase B.4) ──────────────────
+# Each biome gets a distinct ground color so the map reads as designed
+# from above. Combined with per-vertex noise, the ground feels alive
+# instead of painted.
+const BIOME_GROUND_COLORS := {
+    Biome.SUBURBIA:       Color(0.35, 0.52, 0.20),  # mowed green
+    Biome.PARKS:          Color(0.40, 0.60, 0.25),  # bright green
+    Biome.FOREST:         Color(0.20, 0.35, 0.15),  # dark mossy
+    Biome.FARMLAND:       Color(0.55, 0.48, 0.22),  # dry yellow-green + dirt patches
+    Biome.COMMERCIAL:     Color(0.45, 0.43, 0.40),  # grey concrete
+    Biome.INDUSTRIAL:     Color(0.35, 0.33, 0.30),  # stained concrete
+    Biome.WETLANDS:       Color(0.30, 0.35, 0.18),  # marsh brown-green
+    Biome.DOWNTOWN:       Color(0.40, 0.38, 0.35),  # pavement grey
+    Biome.MILITARY:       Color(0.50, 0.45, 0.35),  # dusty tan
+    Biome.COASTAL_BEACH:  Color(0.72, 0.67, 0.47),  # sand
+    Biome.WATER:          Color(0.10, 0.20, 0.35),  # dark blue
+    Biome.EMPTY:          Color(0.22, 0.40, 0.16),  # default green
+}
+
+# Returns the ground color for a biome.
+static func ground_color_for(biome: int) -> Color:
+    return BIOME_GROUND_COLORS.get(biome, COLOR_GROUND)
+
 # ── DISTRICT IDENTITY (Phase A.9, 2026-09-13) ──────────────
 # Per-biome color grade + fog tint + ambient bias (GTA SA style).
 # Each biome has a distinct visual identity:
