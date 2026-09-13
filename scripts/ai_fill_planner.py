@@ -246,22 +246,195 @@ def analyze_chunk(state: dict) -> dict:
     }
 
 
+# ============================================================
+# Phase A.12 v4: VALIDATE BEFORE COMMITTING (DeepSeek Tier 1)
+# ============================================================
+# For each candidate action, simulate it, count problems within 30m before
+# and after, keep only if it reduces the local count. This is the big change
+# that makes the loop converge.
+
+# Approximate AABB dimensions per fill type (for simulating fills)
+FILL_AABBS = {
+    "parking_lot": {"size": [15.0, 0.1, 20.0]},
+    "backyard": {"size": [10.0, 2.0, 10.0]},
+    "alley": {"size": [4.0, 2.0, 15.0]},
+    "green_space": {"size": [12.0, 0.5, 12.0]},
+    "plaza": {"size": [15.0, 0.1, 15.0]},
+    "courtyard": {"size": [12.0, 3.0, 12.0]},
+    "tree_cluster": {"size": [10.0, 5.0, 10.0]},
+}
+
+
+def count_local_problems(buildings: list, center_pos: list, radius: float = 30.0) -> int:
+    """Count problems (overlaps + too_close + semantic_conflict + min_spacing)
+    that involve any building within `radius` meters of center_pos.
+    This is a subset of the full chunk analysis, filtered to a local area."""
+    # Filter buildings to those within radius of center_pos
+    nearby = []
+    cx, cz = center_pos[0], center_pos[2]
+    for b in buildings:
+        dist = ((b["pos"][0] - cx) ** 2 + (b["pos"][2] - cz) ** 2) ** 0.5
+        if dist <= radius:
+            nearby.append(b)
+    count = 0
+    for i, b1 in enumerate(nearby):
+        for j, b2 in enumerate(nearby):
+            if j <= i:
+                continue
+            # Overlaps
+            if "aabb" in b1 and "aabb" in b2:
+                if aabb_overlaps(b1["aabb"], b2["aabb"]):
+                    count += 1
+            # too_close
+            dist = ((b1["pos"][0] - b2["pos"][0]) ** 2 +
+                    (b1["pos"][2] - b2["pos"][2]) ** 2) ** 0.5
+            if dist < 3.0:
+                count += 1
+            # semantic_conflict (both directions)
+            sem1 = SEMANTICS.get(b1["name"], {})
+            if b2["name"] in sem1.get("conflicts_with", []):
+                count += 1
+            sem2 = SEMANTICS.get(b2["name"], {})
+            if b1["name"] in sem2.get("conflicts_with", []):
+                count += 1
+            # min_spacing (same asset only)
+            min_s = sem1.get("min_spacing", 0)
+            if min_s > 0 and b1["name"] == b2["name"] and dist < min_s:
+                count += 1
+    return count
+
+
+def simulate_action(action: dict, buildings: list) -> list:
+    """Return a COPY of the buildings list with the action applied.
+    For remove: drop the building with matching node_name.
+    For reposition: move the building to new_pos.
+    For fill: add a placeholder building with the fill type's AABB."""
+    simulated = [dict(b) for b in buildings]  # shallow copy each
+    if action["type"] == "remove":
+        target = action.get("node_name", "")
+        simulated = [b for b in simulated if b.get("node_name") != target]
+    elif action["type"] == "reposition":
+        target = action.get("node_name", "")
+        new_pos = action.get("new_pos", [0, 0, 0])
+        for b in simulated:
+            if b.get("node_name") == target:
+                b["pos"] = list(new_pos)
+                # Update AABB if present (move it to new position)
+                if "aabb" in b:
+                    old_min = b["aabb"]["min"]
+                    old_max = b["aabb"]["max"]
+                    dx = new_pos[0] - b.get("_orig_pos", [0, 0, 0])[0] if "_orig_pos" in b else 0
+                    dz = new_pos[2] - b.get("_orig_pos", [0, 0, 0])[2] if "_orig_pos" in b else 0
+                    b["aabb"] = {
+                        "min": [old_min[0] + dx, old_min[1], old_min[2] + dz],
+                        "max": [old_max[0] + dx, old_max[1], old_max[2] + dz],
+                        "size": b["aabb"]["size"],
+                    }
+                break
+    elif action["type"] == "fill":
+        pos = action.get("pos", [0, 0, 0])
+        fill_type = action.get("fill_type", "fill")
+        aabb_dims = FILL_AABBS.get(fill_type, {"size": [10.0, 1.0, 10.0]})
+        size = aabb_dims["size"]
+        simulated.append({
+            "name": fill_type,
+            "node_name": "fill_placeholder",
+            "pos": list(pos),
+            "rot": [0, 0, 0],
+            "scale": [1, 1, 1],
+            "aabb": {
+                "min": [pos[0] - size[0] / 2, pos[1], pos[2] - size[2] / 2],
+                "max": [pos[0] + size[0] / 2, pos[1] + size[1], pos[2] + size[2] / 2],
+                "size": size,
+            },
+        })
+    return simulated
+
+
+def validate_action(action: dict, buildings: list) -> bool:
+    """Simulate the action, count local problems within 30m before and after.
+    Returns True if the action REDUCES local problems (keep it), False otherwise.
+    DeepSeek: 'For each candidate action, simulate it, count problems within
+    30m before and after, keep only if it reduces the local count.'"""
+    action_pos = action.get("pos", action.get("new_pos", [0, 0, 0]))
+    before = count_local_problems(buildings, action_pos, 30.0)
+    simulated = simulate_action(action, buildings)
+    after = count_local_problems(simulated, action_pos, 30.0)
+    return after < before
+
+
 def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
-    """Generate concrete actions (fill/remove/reposition) from analysis.
-    Balanced: max 2 removes + 2 repositions + 3 fills per chunk (total 7 max).
+    """Generate + VALIDATE concrete actions (fill/remove/reposition).
+    Reordered per DeepSeek: reposition → remove → fill.
+    Each candidate is validated — only kept if it reduces local problems.
+    Chunks with ≤1 problem are skipped entirely.
     """
+    # DeepSeek: "Skip chunks with 1 problem. Not every problem is worth solving."
+    total_problems = len(analysis["problems"])
+    if total_problems <= 1:
+        return []
+
     actions = []
     chunk_key = analysis["chunk_key"]
     rng = random.Random(random_seed)
+    buildings = state.get("buildings", [])
 
-    MAX_REMOVES = 2       # cap removes per chunk (preserve content)
-    MAX_REPOSITIONS = 2    # cap repositions per chunk (avoid moving everything)
-    MAX_FILLS = 3          # cap fills per chunk (avoid over-crowding)
-    remove_count = 0
+    # Stats tracking (DeepSeek: "Track per-action-type deltas")
+    stats = {"reposition": {"candidates": 0, "validated": 0},
+             "remove": {"candidates": 0, "validated": 0},
+             "fill": {"candidates": 0, "validated": 0}}
+
+    MAX_REPOSITIONS = 2
+    MAX_REMOVES = 2
+    MAX_FILLS = 3
+
+    # ============================================================
+    # PHASE 1: REPOSITION (least destructive — move before delete)
+    # DeepSeek: "Moves are less destructive than removes. Fix overlaps by
+    # moving first, deleting only what you can't move."
+    # ============================================================
     reposition_count = 0
-    fill_count = 0
+    for problem in analysis["problems"]:
+        if problem["type"] == "too_close" and reposition_count < MAX_REPOSITIONS:
+            for pair in problem["details"]:
+                if reposition_count >= MAX_REPOSITIONS:
+                    break
+                a, b = pair["a"], pair["b"]
+                if a["name"] in LANDMARK_TYPES or b["name"] in LANDMARK_TYPES:
+                    continue
+                ax, az = a["pos"][0], a["pos"][2]
+                bx, bz = b["pos"][0], b["pos"][2]
+                dx, dz = bx - ax, bz - az
+                dist = (dx * dx + dz * dz) ** 0.5
+                if dist < 0.01:
+                    continue
+                perp_x = -dz / dist
+                perp_z = dx / dist
+                new_bx = bx + perp_x * 0.5
+                new_bz = bz + perp_z * 0.5
+                new_rot_y = b.get("rot", [0, 0, 0])[1]
+                candidate = {
+                    "type": "reposition",
+                    "chunk_key": chunk_key,
+                    "node_name": b.get("node_name", ""),
+                    "new_pos": [new_bx, b["pos"][1], new_bz],
+                    "new_rot_y": new_rot_y,
+                    "reason": f"too_close (dist={pair['dist']:.2f}m, pushed 0.5m)",
+                    "asset_name": b["name"],
+                }
+                stats["reposition"]["candidates"] += 1
+                # VALIDATE: simulate + check if it reduces local problems
+                if validate_action(candidate, buildings):
+                    actions.append(candidate)
+                    buildings = simulate_action(candidate, buildings)  # update for next validation
+                    reposition_count += 1
+                    stats["reposition"]["validated"] += 1
 
-    # 1. REMOVE overlapping buildings (priority — fix problems first)
+    # ============================================================
+    # PHASE 2: REMOVE (for overlaps that can't be fixed by moving)
+    # DeepSeek: "Fills go last, into spaces that survive the first two passes."
+    # ============================================================
+    remove_count = 0
     for problem in analysis["problems"]:
         if problem["type"] == "overlaps" and remove_count < MAX_REMOVES:
             for overlap in problem["details"]:
@@ -270,40 +443,46 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                 smaller = overlap["smaller"]
                 if smaller["name"] in LANDMARK_TYPES:
                     continue
-                actions.append({
+                candidate = {
                     "type": "remove",
                     "chunk_key": chunk_key,
                     "node_name": smaller.get("node_name", ""),
                     "reason": "overlap",
                     "asset_name": smaller["name"],
-                })
-                remove_count += 1
+                }
+                stats["remove"]["candidates"] += 1
+                if validate_action(candidate, buildings):
+                    actions.append(candidate)
+                    buildings = simulate_action(candidate, buildings)
+                    remove_count += 1
+                    stats["remove"]["validated"] += 1
 
-    # 2. REMOVE repetitive buildings (max 1 per chunk)
+    # Remove repetitive buildings (only if validated)
     for problem in analysis["problems"]:
         if problem["type"] == "asset_repetition" and remove_count < MAX_REMOVES:
             for name, count in problem["details"].items():
                 if remove_count >= MAX_REMOVES:
                     break
-                buildings = state.get("buildings", [])
                 for b in buildings:
                     if b["name"] == name:
-                        actions.append({
+                        candidate = {
                             "type": "remove",
                             "chunk_key": chunk_key,
                             "node_name": b.get("node_name", ""),
                             "reason": f"repetition (count={count})",
                             "asset_name": name,
-                        })
-                        remove_count += 1
+                        }
+                        stats["remove"]["candidates"] += 1
+                        if validate_action(candidate, buildings):
+                            actions.append(candidate)
+                            buildings = simulate_action(candidate, buildings)
+                            remove_count += 1
+                            stats["remove"]["validated"] += 1
                         break
                 if remove_count >= MAX_REMOVES:
                     break
 
-    # 2b. REMOVE semantic conflicts (gas_station near park, factory near school, etc.)
-    # Priority: if a conflict is detected, remove the offender (the asset that
-    # has the conflict declared in its semantics). E.g. gas_station has
-    # conflicts_with=["park","school"] → remove the gas_station, not the park.
+    # Remove semantic conflicts (only if validated)
     for problem in analysis["problems"]:
         if problem["type"] == "semantic_conflict" and remove_count < MAX_REMOVES:
             for conflict in problem["details"]:
@@ -311,129 +490,78 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                     break
                 offender = conflict["offender"]
                 if offender["name"] in LANDMARK_TYPES:
-                    continue  # don't remove landmarks
-                actions.append({
+                    continue
+                candidate = {
                     "type": "remove",
                     "chunk_key": chunk_key,
                     "node_name": offender.get("node_name", ""),
                     "reason": f"semantic_conflict: {conflict['reason']}",
                     "asset_name": offender["name"],
-                })
-                remove_count += 1
+                }
+                stats["remove"]["candidates"] += 1
+                if validate_action(candidate, buildings):
+                    actions.append(candidate)
+                    buildings = simulate_action(candidate, buildings)
+                    remove_count += 1
+                    stats["remove"]["validated"] += 1
 
-    # 3. REPOSITION buildings that are too close (push them apart along perpendicular)
-    # DeepSeek: "Moving one of the pair 0.5m along the perpendicular axis turns
-    # 25 problems into 25 fixes in about 10 lines. Cheapest win on the board."
-    for problem in analysis["problems"]:
-        if problem["type"] == "too_close" and reposition_count < MAX_REPOSITIONS:
-            for pair in problem["details"]:
-                if reposition_count >= MAX_REPOSITIONS:
-                    break
-                a, b = pair["a"], pair["b"]
-                # Don't reposition landmarks (they're placed intentionally)
-                if a["name"] in LANDMARK_TYPES or b["name"] in LANDMARK_TYPES:
-                    continue
-                # Compute perpendicular axis (push B away from A)
-                ax, az = a["pos"][0], a["pos"][2]
-                bx, bz = b["pos"][0], b["pos"][2]
-                dx, dz = bx - ax, bz - az
-                dist = (dx*dx + dz*dz) ** 0.5
-                if dist < 0.01:
-                    continue  # buildings at same position — can't compute perpendicular
-                # Perpendicular = (-dz, dx) normalized
-                perp_x = -dz / dist
-                perp_z = dx / dist
-                # Move B 0.5m along perpendicular (push it away from A)
-                new_bx = bx + perp_x * 0.5
-                new_bz = bz + perp_z * 0.5
-                # Keep building's existing rotation
-                new_rot_y = b.get("rot", [0, 0, 0])[1]
-                actions.append({
-                    "type": "reposition",
-                    "chunk_key": chunk_key,
-                    "node_name": b.get("node_name", ""),
-                    "new_pos": [new_bx, b["pos"][1], new_bz],
-                    "new_rot_y": new_rot_y,
-                    "reason": f"too_close (dist={pair['dist']:.2f}m, pushed 0.5m)",
-                    "asset_name": b["name"],
-                })
-                reposition_count += 1
-
-    # 4. FILL — from opportunities
+    # ============================================================
+    # PHASE 3: FILL (into spaces that survive the first two passes)
+    # DeepSeek: "Fills go last, into spaces that survive the first two passes."
+    # ============================================================
+    fill_count = 0
     for opp in analysis["opportunities"]:
         if fill_count >= MAX_FILLS:
             break
+        gaps = state.get("gaps", [])
+        if not gaps:
+            continue
+        gap = rng.choice(gaps)
+        fill_type = None
+        reason = ""
         if opp["type"] == "missing_parking_lot":
-            gaps = state.get("gaps", [])
-            if gaps:
-                gap = rng.choice(gaps)
-                actions.append({
-                    "type": "fill",
-                    "chunk_key": chunk_key,
-                    "pos": gap["pos"],
-                    "fill_type": "parking_lot",
-                    "reason": opp["reason"],
-                })
-                fill_count += 1
+            fill_type = "parking_lot"
+            reason = opp["reason"]
         elif opp["type"] == "missing_halo_buildings":
-            gaps = state.get("gaps", [])
-            if gaps and opp["missing"]:
-                gap = rng.choice(gaps)
-                missing = opp["missing"]
-                if any("parking" in m for m in missing):
-                    fill_type = "parking_lot"
-                else:
-                    fill_type = "backyard"
-                actions.append({
-                    "type": "fill",
-                    "chunk_key": chunk_key,
-                    "pos": gap["pos"],
-                    "fill_type": fill_type,
-                    "reason": f"halo missing: {missing}",
-                })
-                fill_count += 1
+            missing = opp["missing"]
+            fill_type = "parking_lot" if any("parking" in m for m in missing) else "backyard"
+            reason = f"halo missing: {missing}"
         elif opp["type"] == "high_density_gap":
-            gaps = state.get("gaps", [])
             biome = analysis["biome"]
-            if gaps:
-                gap = rng.choice(gaps)
-                fill_type = "tree_cluster" if biome in (1, 2, 3, 9) else "green_space"
-                if biome == 4:
-                    fill_type = "parking_lot"
-                elif biome == 0:
-                    fill_type = "backyard"
-                elif biome == 7:
-                    fill_type = "plaza"
-                actions.append({
-                    "type": "fill",
-                    "chunk_key": chunk_key,
-                    "pos": gap["pos"],
-                    "fill_type": fill_type,
-                    "reason": f"high_density_gap ({opp['gap_pct']:.0%} empty)",
-                })
-                fill_count += 1
+            fill_type = "tree_cluster" if biome in (1, 2, 3, 9) else "green_space"
+            if biome == 4: fill_type = "parking_lot"
+            elif biome == 0: fill_type = "backyard"
+            elif biome == 7: fill_type = "plaza"
+            reason = f"high_density_gap ({opp['gap_pct']:.0%} empty)"
         elif opp["type"] == "biome_border":
-            gaps = state.get("gaps", [])
-            if gaps:
-                gap = rng.choice(gaps)
-                borders = opp["borders"]
-                fill_type = "green_space"
-                for border in borders:
-                    if border["neighbor_biome"] in (1, 2):
-                        fill_type = "tree_cluster"
-                        break
-                    elif border["neighbor_biome"] == 9:
-                        fill_type = "green_space"
-                        break
-                actions.append({
-                    "type": "fill",
-                    "chunk_key": chunk_key,
-                    "pos": gap["pos"],
-                    "fill_type": fill_type,
-                    "reason": f"biome_border ({borders[0]['neighbor_name']})",
-                })
-                fill_count += 1
+            borders = opp["borders"]
+            fill_type = "green_space"
+            for border in borders:
+                if border["neighbor_biome"] in (1, 2):
+                    fill_type = "tree_cluster"
+                    break
+            reason = f"biome_border ({borders[0]['neighbor_name']})"
+        elif opp["type"] == "missing_pair":
+            fill_type = "parking_lot"  # generic fill for missing pairs
+            reason = f"missing_pair: {opp['details'][0]['reason'] if opp['details'] else ''}"
 
+        if fill_type:
+            candidate = {
+                "type": "fill",
+                "chunk_key": chunk_key,
+                "pos": gap["pos"],
+                "fill_type": fill_type,
+                "reason": reason,
+            }
+            stats["fill"]["candidates"] += 1
+            if validate_action(candidate, buildings):
+                actions.append(candidate)
+                buildings = simulate_action(candidate, buildings)
+                fill_count += 1
+                stats["fill"]["validated"] += 1
+
+    # Store validation stats on the analysis for reporting
+    analysis["validation_stats"] = stats
     return actions
 
 
@@ -563,6 +691,21 @@ def main():
     print(f"  Actions generated: {len(all_actions)}")
     for atype, count in sorted(action_type_counts.items(), key=lambda x: x[1], reverse=True):
         print(f"    {atype}: {count}")
+
+    # DeepSeek: "Track per-action-type deltas" — show validation rates
+    total_candidates = sum(s["candidates"] for s in
+        [a.get("validation_stats", {}) for a in all_analyses]
+        if isinstance(a.get("validation_stats", {}), dict))
+    total_validated = sum(s["validated"] for s in
+        [a.get("validation_stats", {}) for a in all_analyses]
+        if isinstance(a.get("validation_stats", {}), dict))
+    if total_candidates > 0:
+        print(f"\n  VALIDATION (DeepSeek Tier 1):")
+        print(f"    Total candidates: {total_candidates}")
+        print(f"    Validated (reduces local problems): {total_validated}")
+        print(f"    Rejected (wouldn't help or would worsen): {total_candidates - total_validated}")
+        print(f"    Validation rate: {total_validated/total_candidates:.0%}")
+
     print(f"\n  Plan written to: {PLAN_PATH}")
     print(f"  Report written to: {REPORT_PATH}")
     print(f"\n  Next: run godot again — runtime will read fill_plan.json + apply")

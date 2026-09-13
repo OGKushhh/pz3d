@@ -2446,16 +2446,24 @@ func _apply_fill_plan(chunk_root: Node3D, key: Vector2i, crng: RandomNumberGener
         return placed_count
 
 # Phase A.12 v2: remove a node by name (for overlap resolution).
+# Uses immediate removal (remove_child + free) instead of queue_free() so
+# the node is gone BEFORE chunk_state is dumped in the same _build_chunk call.
 # Returns 1 if removed, 0 if not found.
 func _remove_node_by_name(chunk_root: Node3D, node_name: String) -> int:
         var node: Node = chunk_root.get_node_or_null(NodePath(node_name))
         if node == null:
                 # Try find_children as fallback
                 for child in chunk_root.find_children(node_name, "", true, false):
-                        child.queue_free()
+                        var p: Node = child.get_parent()
+                        if p:
+                                p.remove_child(child)
+                        child.free()
                         return 1
                 return 0
-        node.queue_free()
+        var parent: Node = node.get_parent()
+        if parent:
+                parent.remove_child(node)
+        node.free()
         return 1
 
 # Phase A.12 v2: reposition a node (move + rotate).
