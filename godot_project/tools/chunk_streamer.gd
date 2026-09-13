@@ -619,6 +619,18 @@ func _build_chunk(key: Vector2i) -> void:
                         # If front_dir is near zero (building ON road), keep the
                         # chunk-grid-assumed front_dir from Parcel._init as fallback.
         
+        # Phase B.7.8: Draw interior paths BEFORE the parcel loop so the validator
+        # can see them when checking is_on_path() for each lot placement.
+        # This was a critical ordering bug — interior paths were drawn AFTER lot
+        # stamping, so buildings could land on paths the validator hadn't seen yet.
+        var paths: Array = BlockLayout.get_interior_paths(layout_type, origin, CityConfig.CHUNK_SIZE_M)
+        for path in paths:
+                _create_plane_mesh_rotated(chunk_root, "Path",
+                        Vector3((path["start"].x + path["end"].x) * 0.5, 0.03, (path["start"].z + path["end"].z) * 0.5),
+                        Vector2(path["width"], path["start"].distance_to(path["end"])),
+                        Color(0.25, 0.25, 0.27, 1),  # grey path
+                        atan2(path["end"].x - path["start"].x, path["end"].z - path["start"].z))
+        
         # Phase B.4: MESO — filter building pools by what this chunk should have
         var meso_allowed: Array = _get_meso_allowed_types(key)
         var buildings_pool: Array = profile.get("buildings", [])
@@ -668,7 +680,7 @@ func _build_chunk(key: Vector2i) -> void:
                 # Skip the lot attempt if this cell's fill probability doesn't fire.
                 var lot_name := _lot_stamper.pick_lot_for_biome(biome, crng)
                 if lot_name != "" and crng.randf() <= fill:
-                        var lot_placed := _lot_stamper.stamp_lot(lot_name, parcel, chunk_root, crng, self)
+                        var lot_placed := _lot_stamper.stamp_lot(lot_name, parcel, chunk_root, crng, self, biome)
                         if lot_placed > 0:
                                 # Mark the parcel's building footprint as occupied so subsequent
                                 # procedural placement skips this area. Companions are placed by
@@ -725,15 +737,6 @@ func _build_chunk(key: Vector2i) -> void:
                 _increment_district_type_count(biome, bname)
                 placed += 1
                 b_count += 1
-        
-        # Phase B.5: draw interior paths (visual only, NOT roads)
-        var paths: Array = BlockLayout.get_interior_paths(layout_type, origin, CityConfig.CHUNK_SIZE_M)
-        for path in paths:
-                _create_plane_mesh_rotated(chunk_root, "Path",
-                        Vector3((path["start"].x + path["end"].x) * 0.5, 0.01, (path["start"].z + path["end"].z) * 0.5),
-                        Vector2(path["width"], path["start"].distance_to(path["end"])),
-                        Color(0.25, 0.25, 0.27, 1),  # grey path
-                        atan2(path["end"].x - path["start"].x, path["end"].z - path["start"].z))
         
         # Phase B.5: fill backyards with biome-appropriate props
         for parcel in parcels:

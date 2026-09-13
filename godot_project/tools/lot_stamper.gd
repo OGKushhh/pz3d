@@ -18,6 +18,10 @@ extends RefCounted
 
 const LotRecipes := preload("res://tools/lot.gd")
 const CityConfig := preload("res://tools/city_config.gd")
+const PlacementValidator := preload("res://tools/placement_validator.gd")  # Phase B.7.7
+
+# Phase B.7.8: shared validator instance (stateless — safe to reuse across lots)
+var _validator: PlacementValidator = PlacementValidator.new()
 
 # Rotation jitter applied to each building (±3 degrees, less than DistrictStamper's
 # ±5 because Lots are smaller and tighter — too much jitter breaks the garage-door-
@@ -38,6 +42,7 @@ const VACANT_LOT_PROB := 0.05
 #   crng: per-chunk RNG for deterministic variation
 #   streamer: the chunk_streamer instance (for _get_asset / _attach_building_collision
 #             / _create_plane_mesh_rotated access)
+#   biome: the biome enum value (for setback range lookup in validator)
 #
 # Returns the count of buildings placed (primary + companions). Sidewalk and
 # driveway planes are not counted (they're visual, not gameplay objects).
@@ -46,7 +51,8 @@ func stamp_lot(
                 parcel,
                 chunk_root: Node3D,
                 crng: RandomNumberGenerator,
-                streamer
+                streamer,
+                biome: int
 ) -> int:
         var lot: Dictionary = LotRecipes.get_lot(lot_name)
         if lot.is_empty():
@@ -63,10 +69,20 @@ func stamp_lot(
 
         var anchor: Vector3 = parcel.building_pos
         var placed_count := 0
+        var primary_placed: bool = false
 
-        # 1. Stamp primary building (with vacant-lot probability)
+        # 1. Stamp primary building (with vacant-lot probability + B.7.8 validator)
         var primary: Dictionary = lot.get("primary", {})
         if not primary.is_empty() and crng.randf() >= VACANT_LOT_PROB:
+                var primary_variants: Array = primary.get("variants", [])
+                var primary_asset: String = primary_variants[crng.randi() % primary_variants.size()] if not primary_variants.is_empty() else ""
+                # Phase B.7.8: validate primary placement before stamping
+                var primary_result: Dictionary = _validator.validate(anchor, primary_asset, biome, streamer, true)
+                if not primary_result.ok:
+                        # Primary rejected — skip the entire lot (no sidewalk, no driveway, no companions)
+                        # This is the fix for "buildings in middle of paths" — if the building would land
+                        # on a path, the lot is skipped entirely.
+                        return 0
                 var inst: Node3D = _stamp_building_slot(
                         primary, anchor, lot_yaw, cos_y, sin_y,
                         chunk_root, crng, streamer, lot_name + "_primary"
@@ -76,11 +92,23 @@ func stamp_lot(
                         inst.set_meta("lot_role", "primary")
                         inst.set_meta("lot_name", lot_name)
                         placed_count += 1
+                        primary_placed = true
 
-        # 2. Stamp companions (each with its own chance gate)
+        # 2. Stamp companions (each with its own chance gate + B.7.8 validator)
         for companion in lot.get("companions", []):
                 var chance: float = float(companion.get("chance", 1.0))
                 if crng.randf() > chance:
+                        continue
+                # Compute companion world position for validation
+                var comp_offset_arr: Array = companion.get("offset", [0, 0, 0])
+                var comp_offset: Vector3 = Vector3(float(comp_offset_arr[0]), float(comp_offset_arr[1]), float(comp_offset_arr[2]))
+                var comp_world: Vector3 = _local_to_world(comp_offset, anchor, cos_y, sin_y)
+                var comp_variants: Array = companion.get("variants", [])
+                var comp_asset: String = comp_variants[crng.randi() % comp_variants.size()] if not comp_variants.is_empty() else ""
+                # Phase B.7.8: validate companion placement (is_primary=false for companions)
+                var comp_result: Dictionary = _validator.validate(comp_world, comp_asset, biome, streamer, false)
+                if not comp_result.ok:
+                        # Companion rejected — skip it but keep the primary + other companions
                         continue
                 var comp_inst: Node3D = _stamp_building_slot(
                         companion, anchor, lot_yaw, cos_y, sin_y,
@@ -97,7 +125,8 @@ func stamp_lot(
         # Phase B.7.4: use parcel.road_edge_pos (queried from road_network) instead of
         # the recipe's hardcoded [0, 0, 6.0] offset. The door is at lot-local [0, 0, 3.5]
         # (porch_slab offset from suburban_house_v2.mog).
-        if lot.has("sidewalk") and not primary.is_empty():
+        # Phase B.7.8: only draw if primary was actually placed (not rejected by validator)
+        if lot.has("sidewalk") and primary_placed:
                 var sidewalk: Dictionary = lot["sidewalk"]
                 # Door position in lot-local: 3.5m forward of building origin (porch slab)
                 var door_local := Vector3(0, 0, 3.5)
@@ -198,8 +227,12 @@ func _draw_strip_world(
                 strip_type: String
 ) -> void:
         var center := (start_world + end_world) * 0.5
-        # Y is slightly above 0 to avoid z-fighting with the ground mesh.
-        center.y = 0.02
+        # Y is raised above ground to avoid z-fighting. Layer cake (per chunk_builder
+        # placement rules): road=0.02, lane=0.025, grass=0.03, sidewalk=0.05, park=0.04.
+        # Phase B.7.4 fix: was 0.02 (caused visible clipping flicker with ground mesh).
+        # Now 0.05 for sidewalks, 0.06 for driveways (slightly above sidewalk so they
+        # visually stack when they cross).
+        center.y = 0.05 if strip_type == "Sidewalk" else 0.06
         var length := start_world.distance_to(end_world)
         if length < 0.5:
                 return  # too short to bother drawing (road is very close to door)
