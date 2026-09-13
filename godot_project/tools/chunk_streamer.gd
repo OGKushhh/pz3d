@@ -330,6 +330,30 @@ func _get_density_for_cell(col: int, row: int, profile: Dictionary) -> float:
                 return float(grid[row][col])
         return float(profile.get("fill", 0.5))
 
+# Phase B.7.10: Per-biome density multiplier.
+# Replaces the flat fill * 80 that gave every biome the same building count.
+# Now Forest (fill=0.95) gets 0.95 * 5 = ~5 buildings instead of 0.95 * 80 = 76.
+# Downtown (fill=0.95) gets 0.95 * 120 = ~110 buildings (denser than before).
+# Biome enum: 0=SUBURBIA, 1=PARKS, 2=FOREST, 3=FARMLAND, 4=COMMERCIAL,
+# 5=INDUSTRIAL, 6=WETLANDS, 7=DOWNTOWN, 8=MILITARY, 9=COASTAL_BEACH
+const BIOME_DENSITY_MULT := {
+        0: 50,    # SUBURBIA — ~38 buildings/chunk
+        1: 5,     # PARKS — ~1 building/chunk (gazebos, ranger stations)
+        2: 5,     # FOREST — ~5 buildings/chunk (cabins, hunting stands)
+        3: 10,    # FARMLAND — ~3 buildings/chunk (farmhouses, barns)
+        4: 100,   # COMMERCIAL — ~90 buildings/chunk
+        5: 60,    # INDUSTRIAL — ~36 buildings/chunk
+        6: 3,     # WETLANDS — ~1 building/chunk (fishing huts, marsh piers)
+        7: 120,   # DOWNTOWN — ~110 buildings/chunk
+        8: 30,    # MILITARY — ~12 buildings/chunk
+        9: 8,     # COASTAL_BEACH — ~2 buildings/chunk (beach huts, piers)
+        10: 0,    # WATER — no buildings
+        11: 0,    # EMPTY — no buildings
+}
+
+func _get_biome_density_mult(biome: int) -> int:
+        return int(BIOME_DENSITY_MULT.get(biome, 50))
+
 # Phase B.4: Get max-per-type for a district from the macro plan.
 # Returns -1 (unlimited) if no plan or no limit for this type.
 func _get_max_per_type(biome: int, asset_name: String) -> int:
@@ -654,7 +678,13 @@ func _build_chunk(key: Vector2i) -> void:
         var chunk_roads: Array = _get_roads_in_chunk(origin, CityConfig.CHUNK_SIZE_M)
         var _halo_buildings: Dictionary = _collect_halo_buildings(origin, CityConfig.CHUNK_SIZE_M)
         var placed := 0
-        var target: int = int(fill * 80)
+        # Phase B.7.10: Per-biome density multiplier (was fill * 80 for all biomes).
+        # Forest was getting 76 buildings (fill=0.95 * 80) — should be 3-5.
+        # Now each biome has its own multiplier reflecting real-world density.
+        # Downtown: 120, Commercial: 100, Industrial: 60, Suburbia: 50,
+        # Parks: 5, Farmland: 10, Forest: 5, Wetlands: 3, Beach: 8, Military: 30
+        var biome_mult: int = _get_biome_density_mult(biome)
+        var target: int = int(fill * biome_mult)
         
         # Phase B.6: place buildings via Lot recipes first (suburbs, commercial,
         # industrial, downtown, farmland, military). Falls back to procedural
@@ -747,6 +777,17 @@ func _build_chunk(key: Vector2i) -> void:
                         _place_backyard_fill(yard_pos, parcel.front_dir, 1, chunk_root, crng, profile)
         
         var chunk_roads_placeholder: Array = chunk_roads  # keep for street lights + hydrants below
+
+        # === Phase B.7.11: ROADSIDE PLACEMENT PASS ===
+        # PZ's empty roads aren't boring because roads have content: abandoned cars,
+        # deer stands, roadside gas stations, rest stops, dead zombies, signs.
+        # This pass walks each road segment in the chunk and places:
+        #   - 1 abandoned car every 100m (sedan / pickup_truck)
+        #   - 1 roadside prop every 200m (road_sign, deer_stand, mailbox, utility_pole)
+        #   - 1 small building every 500m (gas_station, ticket_booth, shed, rest stop)
+        # Turns a 2km empty road into "a road with things on it" without touching
+        # the wilderness biomes. Cars are placed at the road edge (perpendicular offset).
+        s_count += _place_roadside_content(chunk_root, chunk_roads, crng)
 
         # === v8.1: FIRE HYDRANTS (rule #3 — at intersection corners) ===
         # Hydrants sit at the corner of every road intersection, 6.5m from
@@ -1700,6 +1741,129 @@ func _place_landmark(
                 ])
                 return 1
         return 0
+
+# ============================================================
+# Phase B.7.11: ROADSIDE CONTENT PLACEMENT
+# ============================================================
+# PZ's empty roads aren't boring because roads have content: abandoned cars,
+# deer stands, roadside gas stations, rest stops, signs, dead zombies.
+# This pass walks each road segment in the chunk and places:
+#   - 1 abandoned car every 100m (sedan / pickup_truck) — at road edge
+#   - 1 roadside prop every 200m (road_sign, deer_stand, mailbox) — at 5m offset
+#   - 1 small building every 500m (gas_station, ticket_booth, shed) — at 12m offset
+#
+# Placements skip if:
+#   - Asset not in manifest
+#   - Position already occupied (spatial.is_free returns false)
+#   - Position is on another road (spatial.is_on_road)
+#   - Position is on a path (path_query.is_on_path)
+#   - Position is inside a POI exclusion zone
+#
+# Returns the count of roadside items placed (added to s_count by caller).
+const ROADSIDE_CAR_INTERVAL := 100.0    # meters between abandoned cars
+const ROADSIDE_PROP_INTERVAL := 200.0   # meters between roadside props
+const ROADSIDE_BUILDING_INTERVAL := 500.0  # meters between small roadside buildings
+# Phase B.7.11: Offsets must clear the spatial index's road-mark zone.
+# mark_road marks a 3x3 cell grid (cell_size=8m) → 24m wide marked zone for
+# an 8m road. Actual road edge is at 4m, but marked zone extends to 12m.
+# Use 15m offset for cars/props (just past sidewalk) and 20m for buildings.
+const ROADSIDE_CAR_OFFSET := 15.0       # meters from road centerline
+const ROADSIDE_PROP_OFFSET := 15.0      # meters from road centerline
+const ROADSIDE_BUILDING_OFFSET := 20.0   # meters from road centerline (small setback)
+func _place_roadside_content(chunk_root: Node3D, chunk_roads: Array, crng: RandomNumberGenerator) -> int:
+        var placed := 0
+        var attempted := 0
+        # Define asset pools (filtered to what's in the manifest)
+        var car_pool: Array = []
+        for c in ["sedan", "pickup_truck", "school_bus"]:
+                if manifest.has(c):
+                        car_pool.append(c)
+        var prop_pool: Array = []
+        for p in ["road_sign", "deer_stand", "mailbox", "utility_pole", "traffic_cone", "barrier_concrete"]:
+                if manifest.has(p):
+                        prop_pool.append(p)
+        var building_pool: Array = []
+        for b in ["gas_station", "ticket_booth", "shed", "garden_shed_wood", "utility_shed_metal", "diner", "auto_repair_shop"]:
+                if manifest.has(b):
+                        building_pool.append(b)
+        # Walk each road segment
+        for seg in chunk_roads:
+                var a: Vector3 = seg.get("start", Vector3.ZERO)
+                var b: Vector3 = seg.get("end", Vector3.ZERO)
+                var length: float = a.distance_to(b)
+                if length < 1.0:
+                        continue
+                var dir: Vector3 = (b - a).normalized()
+                var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
+                var car_t := ROADSIDE_CAR_INTERVAL * 0.5
+                var prop_t := ROADSIDE_PROP_INTERVAL * 0.5
+                var building_t := ROADSIDE_BUILDING_INTERVAL * 0.5
+                while car_t < length or prop_t < length or building_t < length:
+                        if car_t < length and not car_pool.is_empty():
+                                var pos: Vector3 = a + dir * car_t + perp * ROADSIDE_CAR_OFFSET
+                                attempted += 1
+                                if _try_place_roadside_item(pos, perp, car_pool, chunk_root, crng, "roadside_car"):
+                                        placed += 1
+                                car_t += ROADSIDE_CAR_INTERVAL
+                        if prop_t < length and not prop_pool.is_empty():
+                                var pos: Vector3 = a + dir * prop_t + perp * ROADSIDE_PROP_OFFSET
+                                attempted += 1
+                                if _try_place_roadside_item(pos, perp, prop_pool, chunk_root, crng, "roadside_prop"):
+                                        placed += 1
+                                prop_t += ROADSIDE_PROP_INTERVAL
+                        if building_t < length and not building_pool.is_empty():
+                                var pos: Vector3 = a + dir * building_t + perp * ROADSIDE_BUILDING_OFFSET
+                                attempted += 1
+                                if _try_place_roadside_item(pos, perp, building_pool, chunk_root, crng, "roadside_building"):
+                                        placed += 1
+                                building_t += ROADSIDE_BUILDING_INTERVAL
+                        if car_pool.is_empty() and prop_pool.is_empty() and building_pool.is_empty():
+                                break
+        return placed
+
+# Helper for _place_roadside_content: try to place one item at pos.
+# Returns true if placed, false if skipped (occupied, on road, on path, etc.)
+# Phase B.7.11 fix: tries BOTH sides of the road (perp and -perp) because
+# the road often runs along a chunk edge, and one side is outside the chunk.
+func _try_place_roadside_item(pos: Vector3, face_dir: Vector3, pool: Array, chunk_root: Node3D, crng: RandomNumberGenerator, tag: String) -> bool:
+        # Try the given position first
+        if _try_place_at(pos, face_dir, pool, chunk_root, crng, tag):
+                return true
+        # Try the opposite side of the road (flip the perpendicular)
+        var opposite_pos: Vector3 = pos - face_dir * 10.0  # flip to other side (2x offset)
+        var opposite_face: Vector3 = -face_dir
+        if _try_place_at(opposite_pos, opposite_face, pool, chunk_root, crng, tag):
+                return true
+        return false
+
+func _try_place_at(pos: Vector3, face_dir: Vector3, pool: Array, chunk_root: Node3D, crng: RandomNumberGenerator, tag: String) -> bool:
+        # Phase B.7.11 fix: use 1.0m clearance (was 3.0m). The road's spatial marks
+        # extend 4m from centerline (road half-width). A 3m clearance check from a
+        # position 5m from centerline would check from 2m-8m, overlapping the road's
+        # 0-4m marks. Using 1.0m clearance avoids this false collision with the road.
+        if not spatial.is_free(pos, 1.0):
+                return false
+        if spatial.is_on_road(pos):
+                return false
+        if _path_query.is_on_path(pos, 1.0):
+                return false
+        var asset_name: String = pool[crng.randi() % pool.size()]
+        var scene: PackedScene = _get_asset(asset_name)
+        if scene == null:
+                return false
+        var inst: Node3D = scene.instantiate()
+        inst.position = pos
+        # Face along the road direction (perp is right of road, so face_dir = perp means face the road)
+        var face_angle: float = atan2(face_dir.x, face_dir.z)
+        inst.rotation.y = face_angle + crng.randf_range(-0.3, 0.3)  # slight variation
+        inst.name = "%s_%s_%d" % [tag, asset_name, crng.randi() % 100000]
+        inst.set_meta("roadside", true)
+        inst.set_meta("roadside_tag", tag)
+        chunk_root.add_child(inst)
+        _disable_shadows_if_small_prop(inst, asset_name)
+        spatial.insert(pos, 3.0)
+        _register_asset_position(asset_name, pos)
+        return true
 
 # ============================================================
 # v8.1: UTILITY POLE PLACEMENT (rule #2 — behind buildings)
