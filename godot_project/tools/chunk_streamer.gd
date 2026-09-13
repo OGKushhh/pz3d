@@ -1802,12 +1802,21 @@ func _place_backyard_fill(
         lot_pos: Vector3, perp: Vector3, side: int,
         chunk_root: Node3D, crng: RandomNumberGenerator, profile: Dictionary
 ) -> void:
-        # Combine biome props + generic backyard fillers, filter to manifest
+        # Phase B.3: combine biome props + biome design language (fence + yard props)
+        # + generic backyard fillers, filter to manifest
         var candidates: Array = []
         var biome_props: Array = profile.get("props", [])
         for p in biome_props:
                 if manifest.has(p):
                         candidates.append(p)
+        # Phase B.3: add biome-specific design language props
+        var design: Dictionary = CityConfig.biome_design_for(profile.get("biome", 0))
+        for fp in design.get("fence_props", []):
+                if manifest.has(fp) and not candidates.has(fp):
+                        candidates.append(fp)
+        for yp in design.get("yard_props", []):
+                if manifest.has(yp) and not candidates.has(yp):
+                        candidates.append(yp)
         for bf in BACKYARD_FILLERS:
                 if manifest.has(bf) and not candidates.has(bf):
                         candidates.append(bf)

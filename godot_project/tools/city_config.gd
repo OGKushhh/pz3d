@@ -246,6 +246,70 @@ const LANDMARK_HALOS := {
 static func halo_for(landmark: String) -> Dictionary:
     return LANDMARK_HALOS.get(landmark, {})
 
+# ── PER-BIOME DESIGN LANGUAGE (Phase B.3) ──────────────────
+# DeepSeek: "Each biome gets setback rules, roof style, fence rules, yard
+# content. Same assets, different placement = different feel."
+#
+# Phase B.3: fence + yard content rules per biome. The chunk_streamer
+# uses these to bias prop picks — Suburbia gets picket_fence + garden_gnome,
+# Industrial gets guard_rail + dumpster, Downtown gets bollards only.
+const BIOME_DESIGN := {
+    Biome.SUBURBIA: {
+        "fence_props": ["picket_fence", "wood_fence_post"],
+        "yard_props": ["garden_gnome", "garden_hose_reel", "bird_house", "basketball_hoop"],
+        "yard_foliage": ["hedge", "hedge_tall", "flower_patch"],
+    },
+    Biome.PARKS: {
+        "fence_props": [],
+        "yard_props": ["bench_park", "picnic_table", "water_fountain", "park_sign"],
+        "yard_foliage": ["fern", "weeds", "mushrooms", "flower_patch"],
+    },
+    Biome.FOREST: {
+        "fence_props": [],
+        "yard_props": ["campfire_ring"],
+        "yard_foliage": ["pine_tree", "birch_tree", "dead_tree", "fallen_log", "rocks_small"],
+    },
+    Biome.FARMLAND: {
+        "fence_props": ["picket_fence", "wood_fence_post"],
+        "yard_props": ["garden_gnome", "garden_hose_reel"],
+        "yard_foliage": ["oak_tree", "bush", "weeds", "tall_grass"],
+    },
+    Biome.COMMERCIAL: {
+        "fence_props": ["bollard"],
+        "yard_props": ["trash_can", "planter_box", "parking_meter", "shopping_cart"],
+        "yard_foliage": ["hedge"],
+    },
+    Biome.INDUSTRIAL: {
+        "fence_props": ["guard_rail", "barbed_wire_fence"],
+        "yard_props": ["dumpster", "traffic_cone", "construction_barrier"],
+        "yard_foliage": ["weeds", "dead_tree"],
+    },
+    Biome.WETLANDS: {
+        "fence_props": [],
+        "yard_props": [],
+        "yard_foliage": ["cattail", "marsh_grass", "willow_tree", "tall_grass"],
+    },
+    Biome.DOWNTOWN: {
+        "fence_props": ["bollard"],
+        "yard_props": ["planter_box", "traffic_light", "parking_meter"],
+        "yard_foliage": ["oak_tree"],
+    },
+    Biome.MILITARY: {
+        "fence_props": ["barbed_wire_fence", "sandbag"],
+        "yard_props": ["traffic_cone", "construction_barrier"],
+        "yard_foliage": ["weeds", "dead_tree"],
+    },
+    Biome.COASTAL_BEACH: {
+        "fence_props": [],
+        "yard_props": ["boardwalk_section"],
+        "yard_foliage": ["palm_tree", "marsh_grass", "cattail"],
+    },
+}
+
+# Returns the design language Dictionary for a biome.
+static func biome_design_for(biome: int) -> Dictionary:
+    return BIOME_DESIGN.get(biome, {})
+
 # ── LIGHTING + FOG (v3 extraction — tuned for Low preset) ──
 const SKY_TOP_COLOR        := Color(0.15, 0.35, 0.70, 1)
 const SKY_HORIZON_COLOR    := Color(0.70, 0.78, 0.88, 1)

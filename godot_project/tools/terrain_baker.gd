@@ -63,8 +63,9 @@ func _generate_terrain_mesh() -> void:
                         # Phase B.1.5 fix: add UV coordinates so the material
                         # renders properly (without UVs, Godot shows a
                         # checkerboard pattern for missing texture coordinates).
-                        # UVs tile every 50m for a grass-like tiling texture feel.
-                        uvs[idx] = Vector2(float(rx) * resolution / 50.0, float(rz) * resolution / 50.0)
+                        # UVs tile every 500m (large tiling = invisible pattern
+                        # when using just albedo_color with no texture image).
+                        uvs[idx] = Vector2(float(rx) * resolution / 500.0, float(rz) * resolution / 500.0)
         # Generate indices (two triangles per grid cell)
         var num_cells: int = (cols - 1) * (rows - 1)
         indices.resize(num_cells * 6)
