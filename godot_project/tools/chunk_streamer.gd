@@ -337,22 +337,46 @@ func _get_density_for_cell(col: int, row: int, profile: Dictionary) -> float:
 # Biome enum: 0=SUBURBIA, 1=PARKS, 2=FOREST, 3=FARMLAND, 4=COMMERCIAL,
 # 5=INDUSTRIAL, 6=WETLANDS, 7=DOWNTOWN, 8=MILITARY, 9=COASTAL_BEACH
 const BIOME_DENSITY_MULT := {
-        0: 50,    # SUBURBIA — ~38 buildings/chunk
-        1: 5,     # PARKS — ~1 building/chunk (gazebos, ranger stations)
-        2: 5,     # FOREST — ~5 buildings/chunk (cabins, hunting stands)
-        3: 10,    # FARMLAND — ~3 buildings/chunk (farmhouses, barns)
-        4: 100,   # COMMERCIAL — ~90 buildings/chunk
-        5: 60,    # INDUSTRIAL — ~36 buildings/chunk
-        6: 3,     # WETLANDS — ~1 building/chunk (fishing huts, marsh piers)
-        7: 120,   # DOWNTOWN — ~110 buildings/chunk
-        8: 30,    # MILITARY — ~12 buildings/chunk
-        9: 8,     # COASTAL_BEACH — ~2 buildings/chunk (beach huts, piers)
+        0: 80,    # SUBURBIA — reverted to original (was 50)
+        1: 80,    # PARKS — reverted (was 5)
+        2: 80,    # FOREST — reverted (was 5) — buildings OK, but foliage needs boost (B.7.12)
+        3: 80,    # FARMLAND — reverted (was 10) — user: 'farmlands previous number were ok'
+        4: 100,   # COMMERCIAL — kept (was 80, user wanted denser commercial)
+        5: 80,    # INDUSTRIAL — reverted (was 60)
+        6: 80,    # WETLANDS — reverted (was 3)
+        7: 120,   # DOWNTOWN — kept (user wanted denser downtown)
+        8: 30,    # MILITARY — kept (was 40 originally)
+        9: 80,    # COASTAL_BEACH — reverted (was 8)
         10: 0,    # WATER — no buildings
         11: 0,    # EMPTY — no buildings
 }
 
 func _get_biome_density_mult(biome: int) -> int:
         return int(BIOME_DENSITY_MULT.get(biome, 50))
+
+# Phase B.7.12: Per-biome foliage multiplier.
+# Nature biomes get WAY more trees/bushes than urban biomes.
+# Forest should be "mostly trees and bushes + the buildings of course"
+# per user feedback. Urban biomes (Downtown, Commercial) get little foliage.
+# Biome enum: 0=SUBURBIA, 1=PARKS, 2=FOREST, 3=FARMLAND, 4=COMMERCIAL,
+# 5=INDUSTRIAL, 6=WETLANDS, 7=DOWNTOWN, 8=MILITARY, 9=COASTAL_BEACH
+const BIOME_FOLIAGE_MULT := {
+        0: 50,     # SUBURBIA — moderate (yards have trees)
+        1: 200,    # PARKS — very dense (parks = trees)
+        2: 300,    # FOREST — densest (forest = trees + bushes everywhere)
+        3: 80,     # FARMLAND — moderate (hedgerows, scattered trees)
+        4: 15,     # COMMERCIAL — sparse (planter boxes, street trees)
+        5: 20,     # INDUSTRIAL — sparse (weeds, dead trees)
+        6: 250,    # WETLANDS — very dense (marsh grass, cattails, bushes)
+        7: 10,     # DOWNTOWN — minimal (planters only)
+        8: 30,     # MILITARY — sparse (clear zones, some bushes)
+        9: 150,    # COASTAL_BEACH — dense (palm trees, beach grass)
+        10: 0,     # WATER — no foliage
+        11: 0,     # EMPTY — no foliage
+}
+
+func _get_biome_foliage_mult(biome: int) -> int:
+        return int(BIOME_FOLIAGE_MULT.get(biome, 50))
 
 # Phase B.4: Get max-per-type for a district from the macro plan.
 # Returns -1 (unlimited) if no plan or no limit for this type.
@@ -848,9 +872,14 @@ func _build_chunk(key: Vector2i) -> void:
         # === INTERIOR GREENERY — trees/bushes inside blocks ===
         # v8.2 Phase A.8: increased green_count from fill*25 to fill*40.
         # Addresses "map mostly empty" + "no land foliage" feedback.
+        # Phase B.7.12: per-biome foliage multiplier. Nature biomes (Forest, Parks,
+        # Wetlands, Beach) get way more foliage than urban biomes. User observation:
+        # 'forest biomes as mostly trees and bushes + the buildings of course,
+        # its missing a lot of trees and bushes'.
         var foliage: Array = profile.get("foliage", [])
         if not foliage.is_empty():
-                var green_count := int(fill * 50)  # Phase B.2: was 40, now 50  # Phase A.8: was 25, now 40
+                var foliage_mult: int = _get_biome_foliage_mult(biome)
+                var green_count := int(fill * foliage_mult)  # Phase B.7.12: was flat 50
                 for i in range(green_count):
                         var pos := Vector3(
                                 origin.x + crng.randf_range(5.0, CityConfig.CHUNK_SIZE_M - 5.0),
