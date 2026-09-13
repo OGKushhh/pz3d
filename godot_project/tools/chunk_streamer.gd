@@ -45,6 +45,8 @@ var plan_grid: PlanGrid
 var terrain: TerrainHeight
 var river: RiverNetwork
 var _stamper: DistrictStamper  # Phase A.7: hand-authored district templates
+var _city_plan: Dictionary = {}  # Phase B.4: macro plan (density gradient + district budgets)
+var _district_type_counts: Dictionary = {}  # Phase B.4: tracks per-district per-type building counts
 var _loaded: Dictionary = {}
 var _build_queue: Array = []
 var _builds_this_frame: int = 0
@@ -291,8 +293,55 @@ func _ready() -> void:
         river = RiverNetwork.new()
         terrain = TerrainHeight.new(1337, river)
         _stamper = DistrictStamper.new()
+        _load_city_plan()
 
         print("[ChunkStreamer] ready, player at %s" % player.global_position)
+
+# Phase B.4: MACRO PASS — load city_plan.json (density gradient + district budgets)
+func _load_city_plan() -> void:
+        var f := FileAccess.open("res://data/city_plan.json", FileAccess.READ)
+        if f:
+                _city_plan = JSON.parse_string(f.get_as_text())
+                if not _city_plan.is_empty():
+                        print("[ChunkStreamer] city_plan loaded: %d district budgets" % _city_plan.get("district_budgets", {}).size())
+                else:
+                        print("[ChunkStreamer] city_plan.json empty — using biome profile defaults")
+        else:
+                print("[ChunkStreamer] city_plan.json not found — using biome profile defaults")
+
+# Phase B.4: Get density target for a grid cell from the macro plan.
+# Falls back to biome profile fill if no plan.
+func _get_density_for_cell(col: int, row: int, profile: Dictionary) -> float:
+        if _city_plan.is_empty():
+                return float(profile.get("fill", 0.5))
+        var gradient: Dictionary = _city_plan.get("density_gradient", {})
+        var grid: Array = gradient.get("grid", [])
+        if row >= 0 and row < grid.size() and col >= 0 and col < grid[row].size():
+                return float(grid[row][col])
+        return float(profile.get("fill", 0.5))
+
+# Phase B.4: Get max-per-type for a district from the macro plan.
+# Returns -1 (unlimited) if no plan or no limit for this type.
+func _get_max_per_type(biome: int, asset_name: String) -> int:
+        if _city_plan.is_empty():
+                return -1
+        var district_name: String = CityConfig.district_name_for(biome)
+        var budgets: Dictionary = _city_plan.get("district_budgets", {})
+        var budget: Dictionary = budgets.get(district_name, {})
+        var max_per_type: Dictionary = budget.get("max_per_type", {})
+        if max_per_type.has(asset_name):
+                return int(max_per_type[asset_name])
+        return -1
+
+# Phase B.4: Get current count of a specific asset type in a district.
+func _get_district_type_count(biome: int, asset_name: String) -> int:
+        var key: String = "%d_%s" % [biome, asset_name]
+        return int(_district_type_counts.get(key, 0))
+
+# Phase B.4: Increment district type count after placing a building.
+func _increment_district_type_count(biome: int, asset_name: String) -> void:
+        var key: String = "%d_%s" % [biome, asset_name]
+        _district_type_counts[key] = _get_district_type_count(biome, asset_name) + 1
 
 func _load_map_data():
         var f := FileAccess.open("res://data/map_data.json", FileAccess.READ)
@@ -465,7 +514,16 @@ func _build_chunk(key: Vector2i) -> void:
         # int(fill * 60) = 30 buildings per chunk — 50% more buildings.
         # Addresses "map mostly empty" feedback. Plus reduced empty-lot
         # probability (was 1-fill, now (1-fill)*0.5 — half as many empty lots).
-        var fill: float = profile.get("fill", 0.5)
+        # v8.2 Phase A.8: increased fill from 0.5 base to higher density.
+        # Was int(fill * 40) = 20 buildings per chunk at 0.5 fill. Now
+        # int(fill * 60) = 30 buildings per chunk — 50% more buildings.
+        # Addresses "map mostly empty" feedback. Plus reduced empty-lot
+        # probability (was 1-fill, now (1-fill)*0.5 — half as many empty lots).
+        #
+        # Phase B.4: MACRO PASS — use city_plan density gradient per cell
+        # instead of biome profile default. Downtown=0.95, Suburbia=0.70, etc.
+        # Falls back to profile fill if no city_plan.
+        var fill: float = _get_density_for_cell(col, row, profile)
         var building_radius: float = max(LOT_W, LOT_D) * 0.4
 
         # v8.2 Phase A.9: DISTRICT HALO — find landmarks near this chunk
@@ -630,11 +688,22 @@ func _build_chunk(key: Vector2i) -> void:
                                 if not _anti_cluster_ok(bname, lot_pos):
                                         continue
 
+                                # Phase B.4: MACRO BUDGET — check district max_per_type.
+                                # If the district already has enough of this asset, skip.
+                                # E.g. max 3 corner_stores per Commercial district →
+                                # 4th corner_store gets skipped, preventing 8-in-one-chunk.
+                                var max_for_type: int = _get_max_per_type(biome, bname)
+                                if max_for_type >= 0:
+                                        var current_count: int = _get_district_type_count(biome, bname)
+                                        if current_count >= max_for_type:
+                                                continue
+
                                 var inst: Node3D = _spawn_building_with_components(bname, lot_pos, perp, side, crng, chunk_root)
                                 if inst == null:
                                         continue
                                 spatial.insert(lot_pos, building_radius)
                                 _register_asset_position(bname, lot_pos)
+                                _increment_district_type_count(biome, bname)  # Phase B.4: track district budget
                                 placed += 1
                                 b_count += 1
 

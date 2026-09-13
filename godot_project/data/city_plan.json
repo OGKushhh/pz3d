@@ -1,0 +1,126 @@
+{
+  "_meta": {
+    "description": "City-level plan — density gradient, road hierarchy, landmark positions, district budgets. Written by the AI (me) after reading the full map state. The micro pass (chunk_streamer) reads this and follows the plan instead of deciding locally.",
+    "version": 1,
+    "generated_by": "AI macro pass — I read all 48 chunk states and decided these values"
+  },
+
+  "density_gradient": {
+    "_doc": "Target fill per grid cell (col, row). Downtown = dense (0.95), Commercial = medium-dense (0.80), Suburbia = medium (0.70), Industrial = sparse (0.50), Forest/Farmland = very sparse (0.30), Wetlands = minimal (0.10), Parks = minimal (0.05), Coastal = sparse (0.20)",
+    "grid": [
+      [0.30, 0.30, 0.30, 0.30, 0.30, 0.20, 0.50, 0.50],
+      [0.30, 0.30, 0.30, 0.30, 0.30, 0.20, 0.50, 0.40],
+      [0.70, 0.70, 0.30, 0.05, 0.30, 0.20, 0.95, 0.40],
+      [0.70, 0.05, 0.80, 0.05, 0.80, 0.20, 0.95, 0.50],
+      [0.70, 0.05, 0.80, 0.80, 0.80, 0.20, 0.95, 0.50],
+      [0.05, 0.70, 0.70, 0.80, 0.10, 0.20, 0.50, 0.50]
+    ],
+    "_note": "Gradient: dense downtown (col 6, rows 2-4 = 0.95) → medium commercial (cols 2-4, rows 3-4 = 0.80) → medium suburbia (col 0-1, rows 2-5 = 0.70) → sparse forest/farmland (cols 0-1, rows 0-1 = 0.30) → minimal wetlands (cols 3-4, row 5 = 0.10) → minimal parks (scattered = 0.05). This creates a real density gradient from downtown center to periphery."
+  },
+
+  "road_hierarchy": {
+    "_doc": "Road kind assignments. The 500m grid roads are arterials/highways. The 250m interior roads are side streets. Diagonals are avenues.",
+    "highways": [
+      {"axis": "z", "value": 1500, "width": 12},
+      {"axis": "x", "value": 1500, "width": 12}
+    ],
+    "arterials": [
+      {"axis": "z", "values": [0, 500, 1000, 2000, 2500, 3000], "width": 8},
+      {"axis": "x", "values": [0, 500, 1000, 2000, 2500, 3000, 3500, 4000], "width": 8}
+    ],
+    "side_streets": [
+      {"axis": "z", "values": [250, 750, 1250, 1750, 2250, 2750], "width": 6},
+      {"axis": "x", "values": [250, 750, 1250, 1750, 2250, 2750, 3250, 3750], "width": 6}
+    ],
+    "avenues": [
+      {"name": "Sarran Avenue", "start": [0, 0, 0], "end": [4000, 0, 3000], "width": 10},
+      {"name": "Bayview Avenue", "start": [0, 0, 3000], "end": [4000, 0, 0], "width": 10}
+    ]
+  },
+
+  "district_budgets": {
+    "_doc": "Per-district building budget. Instead of each chunk filling independently, the district has a total budget split across its chunks. This prevents 8 corner_stores in one chunk — the district says '3 corner_stores total' and the meso pass distributes them.",
+    "Downtown": {
+      "total_buildings": 120,
+      "building_mix": {"TALL": 0.70, "MID": 0.30, "SHORT": 0.0},
+      "max_per_type": {"apartment_tower_high": 3, "highrise_office": 3, "hospital": 1, "police_station": 1, "government_palace": 1, "stadium": 1, "old_royal_palace": 1, "broadcast_tower": 1, "railway_station": 1, "school_elementary": 1, "church_small": 1, "parking_garage": 2},
+      "landmark_chunk": [6, 3],
+      "edge_softening": true
+    },
+    "Commercial": {
+      "total_buildings": 200,
+      "building_mix": {"TALL": 0.20, "MID": 0.60, "SHORT": 0.20},
+      "max_per_type": {"corner_store": 3, "diner": 2, "gas_station": 1, "store_pharmacy": 1, "store_gun": 1, "store_supermarket": 1, "grocery_store": 1, "motel": 1, "strip_mall": 1, "auto_repair_shop": 1, "laundromat": 1, "barber_shop": 1, "salon": 1, "bank_branch": 1},
+      "landmark_chunk": null,
+      "edge_softening": true
+    },
+    "Suburbia": {
+      "total_buildings": 150,
+      "building_mix": {"TALL": 0.0, "MID": 0.20, "SHORT": 0.80},
+      "max_per_type": {"suburban_house_v2": 3, "bungalow": 3, "two_story_colonial": 3, "house_modern": 2, "house_victorian": 2, "house_ranch": 2, "house_cape_cod": 2, "house_tudor": 2, "house_split_level": 2, "house_cottage_stone": 2, "treehouse": 1, "corner_store": 1},
+      "landmark_chunk": null,
+      "edge_softening": true
+    },
+    "Industrial": {
+      "total_buildings": 80,
+      "building_mix": {"TALL": 0.0, "MID": 0.60, "SHORT": 0.40},
+      "max_per_type": {"warehouse": 3, "warehouse_large": 2, "factory_small": 2, "utility_shed_metal": 2, "shipping_container": 3, "storage_tank": 2, "loading_dock": 2},
+      "landmark_chunk": null,
+      "edge_softening": true
+    },
+    "Forest": {
+      "total_buildings": 40,
+      "building_mix": {"TALL": 0.0, "MID": 0.10, "SHORT": 0.90},
+      "max_per_type": {"hunting_cabin": 2, "ranger_station": 1, "camping_tent": 2, "deer_stand": 1, "cave_entrance": 1, "logging_camp_shed": 1, "ranger_lean_to": 1},
+      "landmark_chunk": null,
+      "edge_softening": true
+    },
+    "Farmland": {
+      "total_buildings": 50,
+      "building_mix": {"TALL": 0.0, "MID": 0.10, "SHORT": 0.90},
+      "max_per_type": {"farmhouse": 3, "barn": 2, "cottage": 2, "shed": 2, "garage_detached": 1, "tractor_shed": 1, "grain_storage_shed": 1},
+      "landmark_chunk": [2, 2],
+      "edge_softening": true
+    },
+    "Parks": {
+      "total_buildings": 10,
+      "building_mix": {"TALL": 0.0, "MID": 0.0, "SHORT": 1.0},
+      "max_per_type": {"gazebo": 1},
+      "landmark_chunk": null,
+      "edge_softening": true
+    },
+    "Wetlands": {
+      "total_buildings": 20,
+      "building_mix": {"TALL": 0.0, "MID": 0.20, "SHORT": 0.80},
+      "max_per_type": {"fishing_hut": 2, "marsh_pier": 2, "houseboat": 2},
+      "landmark_chunk": null,
+      "edge_softening": true
+    },
+    "Coastal_Beach": {
+      "total_buildings": 30,
+      "building_mix": {"TALL": 0.0, "MID": 0.30, "SHORT": 0.70},
+      "max_per_type": {"fishing_hut": 2, "pier_dock": 1, "houseboat": 2, "marsh_pier": 1, "lighthouse": 1},
+      "landmark_chunk": [5, 0],
+      "edge_softening": true
+    },
+    "Military": {
+      "total_buildings": 30,
+      "building_mix": {"TALL": 0.20, "MID": 0.30, "SHORT": 0.50},
+      "max_per_type": {"military_checkpoint": 1, "watchtower": 1, "bunker_entrance": 1, "helipad": 1, "field_hospital_tent": 1, "helipad_control_room": 1},
+      "landmark_chunk": [7, 1],
+      "edge_softening": false
+    }
+  },
+
+  "district_landmarks": {
+    "_doc": "Which chunk gets each landmark. The meso pass assigns landmarks to specific chunks — not random.",
+    "government_palace": {"chunk": [12, 6], "reason": "Downtown center (col 6, row 3)"},
+    "stadium": {"chunk": [12, 2], "reason": "Downtown north (col 6, row 0)"},
+    "old_royal_palace": {"chunk": [10, 10], "reason": "Near Suburbia/Downtown border"},
+    "fort_sarran": {"chunk": [14, 10], "reason": "Military zone (col 7, row 5)"},
+    "lighthouse": {"chunk": [10, 1], "reason": "Coastal beach (col 5, row 0)"},
+    "grain_silo": {"chunk": [4, 4], "reason": "Farmland (col 2, row 2)"},
+    "windmill": {"chunk": [6, 4], "reason": "Farmland (col 3, row 2)"},
+    "broadcast_tower": {"chunk": [12, 8], "reason": "Downtown (col 6, row 4)"}
+  }
+}
