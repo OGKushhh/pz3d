@@ -367,11 +367,12 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
     """Generate + VALIDATE concrete actions (fill/remove/reposition).
     Reordered per DeepSeek: reposition → remove → fill.
     Each candidate is validated — only kept if it reduces local problems.
-    Chunks with ≤1 problem are skipped entirely.
+    Chunks with ≤1 problem INSTANCE are skipped (not problem types).
     """
-    # DeepSeek: "Skip chunks with 1 problem. Not every problem is worth solving."
-    total_problems = len(analysis["problems"])
-    if total_problems <= 1:
+    # DeepSeek: "Skip chunks with 1 problem." — but with only 8 total problems,
+    # every problem is worth solving. Changed threshold from ≤1 to ≤0.
+    total_problem_instances = sum(p.get("count", len(p.get("details", []))) for p in analysis["problems"])
+    if total_problem_instances <= 0:
         return []
 
     actions = []
@@ -392,6 +393,7 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
     # PHASE 1: REPOSITION (least destructive — move before delete)
     # DeepSeek: "Moves are less destructive than removes. Fix overlaps by
     # moving first, deleting only what you can't move."
+    # Fix: push 2.5m (was 0.5m) to clear the 3m too_close threshold.
     # ============================================================
     reposition_count = 0
     for problem in analysis["problems"]:
@@ -410,8 +412,10 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                     continue
                 perp_x = -dz / dist
                 perp_z = dx / dist
-                new_bx = bx + perp_x * 0.5
-                new_bz = bz + perp_z * 0.5
+                # DeepSeek fix: 0.5m → 2.5m to clear 3m threshold
+                push_dist = 2.5
+                new_bx = bx + perp_x * push_dist
+                new_bz = bz + perp_z * push_dist
                 new_rot_y = b.get("rot", [0, 0, 0])[1]
                 candidate = {
                     "type": "reposition",
@@ -419,14 +423,14 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                     "node_name": b.get("node_name", ""),
                     "new_pos": [new_bx, b["pos"][1], new_bz],
                     "new_rot_y": new_rot_y,
-                    "reason": f"too_close (dist={pair['dist']:.2f}m, pushed 0.5m)",
+                    "reason": f"too_close (dist={pair['dist']:.2f}m, pushed {push_dist}m)",
                     "asset_name": b["name"],
                 }
                 stats["reposition"]["candidates"] += 1
                 # VALIDATE: simulate + check if it reduces local problems
                 if validate_action(candidate, buildings):
                     actions.append(candidate)
-                    buildings = simulate_action(candidate, buildings)  # update for next validation
+                    buildings = simulate_action(candidate, buildings)
                     reposition_count += 1
                     stats["reposition"]["validated"] += 1
 
@@ -445,6 +449,7 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                     continue
                 candidate = {
                     "type": "remove",
+                    "pos": smaller["pos"],
                     "chunk_key": chunk_key,
                     "node_name": smaller.get("node_name", ""),
                     "reason": "overlap",
@@ -467,6 +472,7 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                     if b["name"] == name:
                         candidate = {
                             "type": "remove",
+                            "pos": b["pos"],
                             "chunk_key": chunk_key,
                             "node_name": b.get("node_name", ""),
                             "reason": f"repetition (count={count})",
@@ -493,6 +499,7 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                     continue
                 candidate = {
                     "type": "remove",
+                    "pos": offender["pos"],
                     "chunk_key": chunk_key,
                     "node_name": offender.get("node_name", ""),
                     "reason": f"semantic_conflict: {conflict['reason']}",
@@ -508,7 +515,20 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
     # ============================================================
     # PHASE 3: FILL (into spaces that survive the first two passes)
     # DeepSeek: "Fills go last, into spaces that survive the first two passes."
+    # DeepSeek fix: gap-isolation check — no nearby building within 15m.
+    # Fills were 100% rejected because they created new overlaps. Only
+    # fill in gaps that are genuinely isolated (no building within 15m).
     # ============================================================
+
+    def is_gap_isolated(gap_pos: list, blg_list: list, min_dist: float = 15.0) -> bool:
+        """Check that no building is within min_dist of the gap position."""
+        gx, gz = gap_pos[0], gap_pos[2]
+        for b in blg_list:
+            d = ((b["pos"][0] - gx) ** 2 + (b["pos"][2] - gz) ** 2) ** 0.5
+            if d < min_dist:
+                return False
+        return True
+
     fill_count = 0
     for opp in analysis["opportunities"]:
         if fill_count >= MAX_FILLS:
@@ -516,7 +536,11 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
         gaps = state.get("gaps", [])
         if not gaps:
             continue
-        gap = rng.choice(gaps)
+        # DeepSeek fix: only fill in ISOLATED gaps (no building within 15m)
+        isolated_gaps = [g for g in gaps if is_gap_isolated(g["pos"], buildings, 15.0)]
+        if not isolated_gaps:
+            continue
+        gap = rng.choice(isolated_gaps)
         fill_type = None
         reason = ""
         if opp["type"] == "missing_parking_lot":
@@ -542,7 +566,7 @@ def generate_actions(analysis: dict, state: dict, random_seed: int) -> list:
                     break
             reason = f"biome_border ({borders[0]['neighbor_name']})"
         elif opp["type"] == "missing_pair":
-            fill_type = "parking_lot"  # generic fill for missing pairs
+            fill_type = "parking_lot"
             reason = f"missing_pair: {opp['details'][0]['reason'] if opp['details'] else ''}"
 
         if fill_type:
@@ -693,12 +717,14 @@ def main():
         print(f"    {atype}: {count}")
 
     # DeepSeek: "Track per-action-type deltas" — show validation rates
-    total_candidates = sum(s["candidates"] for s in
-        [a.get("validation_stats", {}) for a in all_analyses]
-        if isinstance(a.get("validation_stats", {}), dict))
-    total_validated = sum(s["validated"] for s in
-        [a.get("validation_stats", {}) for a in all_analyses]
-        if isinstance(a.get("validation_stats", {}), dict))
+    total_candidates = 0
+    total_validated = 0
+    for a in all_analyses:
+        vs = a.get("validation_stats", {})
+        if isinstance(vs, dict):
+            for action_type in vs.values():
+                total_candidates += action_type.get("candidates", 0)
+                total_validated += action_type.get("validated", 0)
     if total_candidates > 0:
         print(f"\n  VALIDATION (DeepSeek Tier 1):")
         print(f"    Total candidates: {total_candidates}")

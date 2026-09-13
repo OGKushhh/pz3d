@@ -1920,8 +1920,19 @@ func _build_chunk_state(
         var props: Array = []
         var foliage: Array = []
         var zombies: Array = []
-        # Walk all children of chunk_root + their descendants to collect placed assets
-        for node in chunk_root.find_children("*", "", true, false):
+        # Walk DIRECT children of chunk_root only (not all descendants).
+        # Phase A.12 v5 fix: was using find_children("*", "", true, false)
+        # which picked up ALL descendants including road meshes ("Road_9389"),
+        # sidewalks ("SW1_459"), grass strips ("GS1_4547"), and component
+        # doors ("door_group"). These aren't buildings — they're mesh children.
+        # The fill_plan was targeting these non-building node_names which don't
+        # exist as top-level nodes, causing 0 removes to actually fire.
+        #
+        # Fix: only include nodes that have the building_name or zombie_kind
+        # or from_template meta tag. These are set by _spawn_building_with_components,
+        # _place_zombies, and _stamper.stamp_template respectively. Mesh-only
+        # nodes (roads, sidewalks, grass) don't have these tags and are skipped.
+        for node in chunk_root.get_children():
                 if not (node is Node3D):
                         continue
                 var n: Node3D = node
@@ -1933,19 +1944,9 @@ func _build_chunk_state(
                         zombies.append(_make_asset_entry(n, asset_name, {"kind": kind}))
                         continue
                 elif n.has_meta("from_template"):
-                        # Template-stamped — already counted as building
                         asset_name = String(n.get_meta("building_name"))
                 if asset_name == "":
-                        # Try name-based extraction (e.g., "trash_can_12345" → "trash_can")
-                        var nname: String = n.name
-                        var parts: PackedStringArray = nname.split("_")
-                        if parts.size() >= 2:
-                                asset_name = parts[0]
-                                # Some assets have multi-word names (corner_store, parking_meter)
-                                if parts.size() >= 3 and not parts[1].is_valid_int():
-                                        asset_name = parts[0] + "_" + parts[1]
-                        else:
-                                asset_name = nname
+                        continue  # Skip nodes without meta tags (road meshes, etc.)
                 # Phase A.12: FULL GEOMETRY — pos + rot + scale + AABB
                 var entry: Dictionary = _make_asset_entry(n, asset_name, {})
                 if n.has_meta("is_landmark"):
@@ -1963,11 +1964,9 @@ func _build_chunk_state(
                         "foliage":
                                 foliage.append(entry)
                         "character", "characters":
-                                # Already added via zombie_kind meta above; skip if not
                                 if not zombies.has(entry):
                                         zombies.append(entry)
                         _:
-                                # Unknown category — check name patterns
                                 if _is_foliage_name(asset_name):
                                         foliage.append(entry)
                                 elif _is_prop_name(asset_name):
