@@ -73,11 +73,12 @@ directional_shadow_size = 2048
 [node name="TerrainBaker" type="Node3D" parent="."]
 script = ExtResource("2_terrain")
 
-; Phase B.1.5: FlatGround HIDDEN — terrain mesh from TerrainBaker replaces it.
-; Keep the node (visible=false) as a safety net in case terrain trimesh has gaps.
-; The terrain mesh provides visual ground + trimesh collision.
+; Phase B.1.5: FlatGround HIDDEN (visible=false) but COLLIDER STAYS AT Y=0
+; as a safety net. The terrain mesh's trimesh collision is the primary
+; collider, but FlatGround's flat box collider catches the player if the
+; terrain trimesh has gaps (e.g. at steep river banks).
 [node name="FlatGround" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, -10, 1500)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0, 1500)
 
 [node name="FlatGroundMesh" type="MeshInstance3D" parent="FlatGround"]
 visible = false
@@ -87,10 +88,11 @@ material_override = SubResource("flat_ground_mat")
 [node name="FlatGroundCollider" type="CollisionShape3D" parent="FlatGround"]
 shape = SubResource("flat_ground_col")
 
-; Phase B.2: Player spawns at (1250, 5, 2250) — safe Suburbia location on
-; land (was at river test spawn 2250,5,1500 which fell into the river valley).
+; Phase B.3: Player spawns at (1750, 5, 2250) — guaranteed-dense Commercial
+; cell (col 3, row 4 = CO). District noise can only borrow CO from neighbors
+; (both east + west are CO), so this chunk is always Commercial (fill=0.90).
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1250, 5, 2250)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1750, 5, 2250)
 script = ExtResource("3_player")
 
 [node name="Cam" type="Camera3D" parent="Player"]

@@ -46,10 +46,12 @@ func _generate_terrain_mesh() -> void:
         var rows: int = int(CFG.MAP_SIZE_M.y / resolution) + 1
         var verts := PackedVector3Array()
         var norms := PackedVector3Array()
+        var uvs := PackedVector2Array()
         var indices := PackedInt32Array()
-        # Generate vertices
+        # Generate vertices + UVs
         verts.resize(cols * rows)
         norms.resize(cols * rows)
+        uvs.resize(cols * rows)
         for rz in range(rows):
                 for rx in range(cols):
                         var x: float = float(rx) * resolution
@@ -57,23 +59,26 @@ func _generate_terrain_mesh() -> void:
                         var y: float = _height_fn.height_at(x, z)
                         var idx: int = rz * cols + rx
                         verts[idx] = Vector3(x, y, z)
-                        norms[idx] = Vector3.ZERO  # will be computed from triangles
-        # Generate indices (two triangles per grid cell, counter-clockwise from above)
+                        norms[idx] = Vector3.ZERO
+                        # Phase B.1.5 fix: add UV coordinates so the material
+                        # renders properly (without UVs, Godot shows a
+                        # checkerboard pattern for missing texture coordinates).
+                        # UVs tile every 50m for a grass-like tiling texture feel.
+                        uvs[idx] = Vector2(float(rx) * resolution / 50.0, float(rz) * resolution / 50.0)
+        # Generate indices (two triangles per grid cell)
         var num_cells: int = (cols - 1) * (rows - 1)
-        indices.resize(num_cells * 6)  # 2 triangles × 3 vertices per cell
+        indices.resize(num_cells * 6)
         var ti: int = 0
         for rz in range(rows - 1):
                 for rx in range(cols - 1):
                         var i: int = rz * cols + rx
-                        # Triangle 1: top-left, bottom-left, top-right (CCW from above)
                         indices[ti] = i; ti += 1
                         indices[ti] = i + cols; ti += 1
                         indices[ti] = i + 1; ti += 1
-                        # Triangle 2: top-right, bottom-right, bottom-left (CCW from above)
                         indices[ti] = i + 1; ti += 1
                         indices[ti] = i + cols + 1; ti += 1
                         indices[ti] = i + cols; ti += 1
-        # Compute normals (accumulate from each triangle's cross product)
+        # Compute normals
         for j in range(0, indices.size(), 3):
                 var v0: Vector3 = verts[indices[j]]
                 var v1: Vector3 = verts[indices[j + 1]]
@@ -82,29 +87,31 @@ func _generate_terrain_mesh() -> void:
                 norms[indices[j]] += normal
                 norms[indices[j + 1]] += normal
                 norms[indices[j + 2]] += normal
-        # Normalize accumulated normals
         for j in range(norms.size()):
                 norms[j] = norms[j].normalized()
-        # Create ArrayMesh
+        # Create ArrayMesh with UVs
         var arrays: Array = []
         arrays.resize(Mesh.ARRAY_MAX)
         arrays[Mesh.ARRAY_VERTEX] = verts
         arrays[Mesh.ARRAY_NORMAL] = norms
+        arrays[Mesh.ARRAY_TEX_UV] = uvs
         arrays[Mesh.ARRAY_INDEX] = indices
         var terrain_mesh := ArrayMesh.new()
         terrain_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-        # Create MeshInstance3D with terrain material
-        var mi := MeshInstance3D.new()
-        mi.name = "TerrainMesh"
-        mi.mesh = terrain_mesh
+        # Phase B.1.5 fix: set material ON THE SURFACE (not just material_override)
+        # This ensures the material renders even without a texture image.
         var mat := StandardMaterial3D.new()
         mat.albedo_color = Color(0.25, 0.30, 0.18, 1)  # dark green-brown
         mat.roughness = 0.95
-        mi.material_override = mat
+        terrain_mesh.surface_set_material(0, mat)
+        # Create MeshInstance3D
+        var mi := MeshInstance3D.new()
+        mi.name = "TerrainMesh"
+        mi.mesh = terrain_mesh
         add_child(mi)
         # Generate trimesh collision so the player walks on terrain
         mi.create_trimesh_collision()
-        print("[TerrainBaker] Terrain mesh: %d verts, %d tris (25m resolution, trimesh collision)" % [verts.size(), indices.size() / 3])
+        print("[TerrainBaker] Terrain mesh: %d verts, %d tris (25m resolution, UVs + trimesh collision)" % [verts.size(), indices.size() / 3])
 # Phase A.11: bridges now have ELEVATED decks (Y=+3m above water) + visible
 # support piers at each end. Was flat at Y=0 (looked like a wider road).
 # Now visually distinct from regular roads — players can see they're crossing
