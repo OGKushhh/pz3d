@@ -55,9 +55,9 @@
 | 6,9 | COMMERCIAL | 3 | 46% | 0 | 3 | 0 |
 | 9,7 | COMMERCIAL | 10 | 45% | 1 | 2 | 0 |
 | 8,9 | COMMERCIAL | 8 | 45% | 1 | 2 | 0 |
-| 5,11 | SUBURBIA | 32 | 41% | 2 | 2 | 2 |
+| 5,11 | SUBURBIA | 34 | 41% | 2 | 2 | 2 |
 | 9,8 | COMMERCIAL | 8 | 39% | 1 | 2 | 0 |
 | 9,9 | COMMERCIAL | 4 | 39% | 0 | 3 | 0 |
 | 8,8 | COMMERCIAL | 12 | 34% | 1 | 2 | 0 |
 | 8,7 | COMMERCIAL | 17 | 32% | 1 | 2 | 0 |
-| 5,10 | SUBURBIA | 26 | 31% | 2 | 2 | 2 |
+| 5,10 | SUBURBIA | 28 | 31% | 2 | 2 | 2 |
