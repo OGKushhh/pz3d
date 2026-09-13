@@ -329,7 +329,21 @@ func _get_density_for_cell(col: int, row: int, profile: Dictionary) -> float:
 func _get_max_per_type(biome: int, asset_name: String) -> int:
         if _city_plan.is_empty():
                 return -1
-        var district_name: String = CityConfig.district_name_for(biome)
+        # Phase B.5 fix: use biome NAME (e.g. "Commercial") not district_name
+        # (e.g. "Old Bazaar") — city_plan.json keys are biome names.
+        var biome_names := {
+                CityConfig.Biome.SUBURBIA: "Suburbia",
+                CityConfig.Biome.PARKS: "Parks",
+                CityConfig.Biome.FOREST: "Forest",
+                CityConfig.Biome.FARMLAND: "Farmland",
+                CityConfig.Biome.COMMERCIAL: "Commercial",
+                CityConfig.Biome.INDUSTRIAL: "Industrial",
+                CityConfig.Biome.WETLANDS: "Wetlands",
+                CityConfig.Biome.DOWNTOWN: "Downtown",
+                CityConfig.Biome.MILITARY: "Military",
+                CityConfig.Biome.COASTAL_BEACH: "Coastal_Beach",
+        }
+        var district_name: String = biome_names.get(biome, "")
         var budgets: Dictionary = _city_plan.get("district_budgets", {})
         var budget: Dictionary = budgets.get(district_name, {})
         var max_per_type: Dictionary = budget.get("max_per_type", {})
