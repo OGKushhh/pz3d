@@ -131,47 +131,61 @@ static func generate_parcels(layout_type: String, origin: Vector3, chunk_size: f
                 _:
                         return _gen_residential_grid(origin, chunk_size)
 
-# Residential grid: 6 parcels per N/S edge + 4 per E/W edge = 20 parcels.
-# Each parcel ~42m wide × ~100m deep. Building at front, yard at back.
-# Interior path runs E-W through center.
+# Residential grid: real suburban lot sizes (~20m × 30m).
+# Phase B.7.9 (2026-09-14): was 42m × 110m — way oversized. Building at 25%
+# of 110m depth = 27m front yard, which was the "empty space" the user reported.
+# Now: 20m wide × 30m deep, 2 rows per edge. E/W edges skip corners.
+# Interior path runs E-W + N-S through center.
 static func _gen_residential_grid(origin: Vector3, chunk_size: float) -> Array:
         var parcels: Array = []
-        var margin := 12.0  # margin from chunk edge to first parcel
-        var parcel_count_ns := 6  # parcels per north/south edge
-        var parcel_count_ew := 4   # parcels per east/west edge (skip corners)
+        var margin := 8.0  # margin from chunk edge to first parcel (was 12)
+        var path_half := 3.0  # half of 6m center path
+        # Target lot dimensions per user: ~20m × 30m (real suburban)
+        var parcel_w := 20.0  # width along road (was ~37m)
+        var parcel_d := 30.0  # depth from road to backyard (was ~110m)
         var usable_w := chunk_size - margin * 2
         var usable_d := chunk_size - margin * 2
-        var parcel_w := usable_w / parcel_count_ns
-        var parcel_d_ew := usable_w / parcel_count_ew
-        var parcel_d := (usable_d - 6.0) * 0.5  # half depth (path takes 6m in center)
-        # North edge parcels
-        for i in range(parcel_count_ns):
-                var x_min := origin.x + margin + i * parcel_w
-                var x_max := x_min + parcel_w
-                var z_min := origin.z + margin
-                var z_max := z_min + parcel_d
-                parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "N", origin, chunk_size))
-        # South edge parcels
-        for i in range(parcel_count_ns):
-                var x_min := origin.x + margin + i * parcel_w
-                var x_max := x_min + parcel_w
-                var z_max := origin.z + chunk_size - margin
-                var z_min := z_max - parcel_d
-                parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "S", origin, chunk_size))
-        # East edge parcels (skip corners — already have N/S)
-        for i in range(parcel_count_ew):
-                var z_min := origin.z + margin + i * parcel_d_ew
-                var z_max := z_min + parcel_d_ew
-                var x_max := origin.x + chunk_size - margin
-                var x_min := x_max - parcel_d
-                parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "E", origin, chunk_size))
-        # West edge parcels
-        for i in range(parcel_count_ew):
-                var z_min := origin.z + margin + i * parcel_d_ew
-                var z_max := z_min + parcel_d_ew
-                var x_min := origin.x + margin
-                var x_max := x_min + parcel_d
-                parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "W", origin, chunk_size))
+        var parcel_count_ns := int(usable_w / parcel_w)  # parcels per row on N/S edges
+        # Rows per side: (usable_depth/2 - path_half) / parcel_d, capped at 2
+        # 2 rows = 60m per side, leaving center for path + green space
+        var parcel_rows: int = min(2, int((usable_d * 0.5 - path_half) / parcel_d))
+        # North edge: rows from north edge toward center
+        for row in range(parcel_rows):
+                for i in range(parcel_count_ns):
+                        var x_min := origin.x + margin + i * parcel_w
+                        var x_max := x_min + parcel_w
+                        var z_min := origin.z + margin + row * parcel_d
+                        var z_max := z_min + parcel_d
+                        parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "N", origin, chunk_size))
+        # South edge: rows from south edge toward center
+        for row in range(parcel_rows):
+                for i in range(parcel_count_ns):
+                        var x_min := origin.x + margin + i * parcel_w
+                        var x_max := x_min + parcel_w
+                        var z_max := origin.z + chunk_size - margin - row * parcel_d
+                        var z_min := z_max - parcel_d
+                        parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "S", origin, chunk_size))
+        # East/West edges: skip corners (N/S parcel rows take the first parcel_d*parcel_rows meters)
+        var ew_start: float = margin + parcel_d * float(parcel_rows)
+        var ew_end: float = chunk_size - margin - parcel_d * float(parcel_rows)
+        var ew_usable: float = ew_end - ew_start
+        var parcel_count_ew: int = int(ew_usable / parcel_w)
+        # East edge
+        for row in range(parcel_rows):
+                for i in range(parcel_count_ew):
+                        var z_min: float = origin.z + ew_start + i * parcel_w
+                        var z_max: float = z_min + parcel_w
+                        var x_max: float = origin.x + chunk_size - margin - row * parcel_d
+                        var x_min: float = x_max - parcel_d
+                        parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "E", origin, chunk_size))
+        # West edge
+        for row in range(parcel_rows):
+                for i in range(parcel_count_ew):
+                        var z_min: float = origin.z + ew_start + i * parcel_w
+                        var z_max: float = z_min + parcel_w
+                        var x_min: float = origin.x + margin + row * parcel_d
+                        var x_max: float = x_min + parcel_d
+                        parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "W", origin, chunk_size))
         return parcels
 
 # Commercial perimeter: storefronts flush with road on all 4 sides.
