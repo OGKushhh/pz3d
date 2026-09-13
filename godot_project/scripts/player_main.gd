@@ -32,6 +32,7 @@ extends CharacterBody3D
 
 const WALK := 5.0
 const SPRINT := 8.0
+const FLY_SPEED := 20.0       # fly mode speed (fast — for assessment)
 const SENS := 0.002
 const INTERACT_REACH := 3.0   # meters — how far the player can reach
 const SWING_DEG := 90.0       # door open angle
@@ -43,6 +44,7 @@ const VAULT_MAX_DIST := 2.5   # max distance to window for vault
 var spd := WALK
 var look_target: Node3D = null  # current interactive node under crosshair
 var _vault_timer: float = 0.0  # cooldown timer
+var _fly_mode: bool = false    # Phase B.4: toggle fly mode for map assessment
 
 func _ready() -> void:
     Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -58,6 +60,12 @@ func _input(e: InputEvent) -> void:
         _try_interact()
     if e.is_action_pressed("break"):
         _try_break()
+    # Phase B.4: T toggles fly mode for map assessment
+    if e is InputEventKey and e.pressed and e.keycode == KEY_T:
+        _fly_mode = not _fly_mode
+        if _fly_mode:
+            velocity = Vector3.ZERO
+        print("[Player] fly mode %s" % ("ON — WASD move, Space=up, Ctrl=down, fast" if _fly_mode else "OFF — walking"))
     # v8.2 Phase A.10: F8 dumps all loaded chunk states to JSON for analysis
     if e is InputEventKey and e.pressed and e.keycode == KEY_F8:
         var streamer := get_tree().current_scene.get_node_or_null("ChunkStreamer")
@@ -67,6 +75,30 @@ func _input(e: InputEvent) -> void:
 
 func _physics_process(d: float) -> void:
     _vault_timer = max(0.0, _vault_timer - d)
+
+    if _fly_mode:
+        # Phase B.4: FLY MODE — free 3D movement for map assessment.
+        # No gravity, no collision (pass through everything), fast movement.
+        # WASD = horizontal, Space = up, Ctrl = down.
+        var fly_spd = FLY_SPEED
+        var i := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+        var dir := (transform.basis * Vector3(i.x, 0, i.y)).normalized()
+        velocity = dir * fly_spd
+        # Up/down
+        if Input.is_action_pressed("jump"):
+            velocity.y = fly_spd
+        elif Input.is_action_pressed("crouch"):
+            velocity.y = -fly_spd
+        else:
+            velocity.y = 0
+        # Sprint = even faster in fly mode
+        if Input.is_action_pressed("sprint"):
+            velocity *= 3.0
+        global_position += velocity * d  # fly = no collision, direct position update
+        _update_look_target()
+        return
+
+    # Normal walking mode
     if not is_on_floor():
         velocity.y -= 9.8 * d
     # v8.2: vault overrides jump when looking at a climbable+passable window.
