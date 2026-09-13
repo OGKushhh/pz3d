@@ -32,6 +32,7 @@ const PlanGrid = preload("res://tools/plan_grid.gd")
 const TerrainHeight = preload("res://tools/terrain_height.gd")
 const RiverNetwork = preload("res://tools/river_network.gd")
 const DistrictStamper = preload("res://tools/district_stamper.gd")
+const AnchorPoints = preload("res://tools/anchor_points.gd")
 
 var player: Node3D
 var stream_radius: int = 2
@@ -292,6 +293,8 @@ func _process(_delta: float) -> void:
                 var next_key: Vector2i = _build_queue.pop_front()
                 _build_chunk(next_key)
                 _builds_this_frame += 1
+        # v8.2 Phase A.11: auto-dump chunk states after 5s for AI analysis
+        _maybe_auto_dump(_delta)
 
 func _refresh(cx: int, cy: int) -> void:
         var unload_r: int = stream_radius + CityConfig.STREAM_UNLOAD_BUFFER
@@ -714,13 +717,17 @@ func _build_chunk(key: Vector2i) -> void:
         # what's where: building names + positions + zones, prop names, foliage
         # names, zombie positions, gap positions.
         #
-        # The state is stored on chunk_root as meta "chunk_state" and also
-        # logged to a JSON file for offline analysis. This enables:
-        #   - Gap analysis: "this chunk has 30 buildings but no parking lot"
-        #   - Zoning balance: "60% commercial, 30% residential, 10% vacant"
-        #   - Density queries: "find chunks with <5 buildings"
-        #   - Halo verification: "did the stadium actually attract parking garages?"
+        # Phase A.11: EXPANDED to include terrain heights, river geometry, road
+        # paths, neighbor biomes, halo activity, gaps, density grid. Now the AI
+        # can truly "see" the map — elevation profile, water coverage, what's
+        # at each 25m cell, what biomes are nearby, whether a landmark halo is
+        # active. This enables holistic analysis ("chunk 8_7 is 60% commercial
+        # but has no parking lot + is near the stadium → should add parking").
+        #
+        # The state is stored on chunk_root as meta "chunk_state" + dumped to
+        # JSON at scene ready for offline analysis.
         var chunk_state := _build_chunk_state(chunk_root, key, biome, dname, b_count, p_count, f_count, z_count)
+        chunk_state = _enrich_chunk_state(chunk_state, key, biome, origin, poi_exclusions, _halo_buildings)
         chunk_root.set_meta("chunk_state", chunk_state)
 
 func _build_visible_roads(chunk_root: Node3D, origin: Vector3, chunk_size: float) -> void:
@@ -2050,3 +2057,263 @@ func _dump_chunk_states_to_file(path: String) -> void:
         f.store_string(JSON.stringify(states, "\t"))
         f.close()
         print("[ChunkStreamer] dumped %d chunk states to %s" % [states.size(), path])
+
+# ============================================================
+# v8.2 Phase A.11: EXPANDED CHUNK STATE — terrain + river + roads + neighbors
+# ============================================================
+# Enriches the basic chunk_state with geographic + contextual data so the AI
+# can truly "see" the map. After this, chunk_state contains:
+#   - terrain.height_samples (5×5 grid of elevation points)
+#   - terrain.min/max/avg height + water coverage %
+#   - river.passes_through + entry/exit points + width/depth at center
+#   - roads[] with full geometry (start/end/width/kind/length)
+#   - neighbors (N/S/E/W biome ints)
+#   - halo (active landmarks nearby + boost multipliers)
+#   - gaps[] (actual empty positions with suggested fills)
+#   - density_grid (10×10 grid of cell types: B/P/F/R/E/W)
+func _enrich_chunk_state(
+        state: Dictionary, key: Vector2i, biome: int,
+        origin: Vector3, poi_exclusions: Array,
+        halo_buildings: Dictionary
+) -> Dictionary:
+        var chunk_size: float = CityConfig.CHUNK_SIZE_M
+        # === TERRAIN ===
+        var height_samples: Array = []
+        var min_h: float = INF
+        var max_h: float = -INF
+        var sum_h: float = 0.0
+        var water_cells: int = 0
+        var sample_count: int = 0
+        # Sample 5×5 grid (25 points, ~50m spacing in a 250m chunk)
+        for i in range(5):
+                for j in range(5):
+                        var sx: float = origin.x + (i + 0.5) * (chunk_size / 5.0)
+                        var sz: float = origin.z + (j + 0.5) * (chunk_size / 5.0)
+                        var h: float = terrain.height_at(sx, sz)
+                        height_samples.append([sx, sz, h])
+                        min_h = min(min_h, h)
+                        max_h = max(max_h, h)
+                        sum_h += h
+                        sample_count += 1
+                        if h < 0.0:  # below water level
+                                water_cells += 1
+        state["terrain"] = {
+                "height_samples": height_samples,
+                "min_height": min_h if min_h != INF else 0.0,
+                "max_height": max_h if max_h != -INF else 0.0,
+                "avg_height": sum_h / float(sample_count) if sample_count > 0 else 0.0,
+                "water_coverage_pct": float(water_cells) / float(sample_count) if sample_count > 0 else 0.0,
+                "has_water": water_cells > 0,
+        }
+
+        # === RIVER ===
+        var river_info: Dictionary = {"passes_through": false}
+        var chunk_center := origin + Vector3(chunk_size * 0.5, 0, chunk_size * 0.5)
+        if river != null:
+                var river_dist: float = river.distance_to(chunk_center.x, chunk_center.z)
+                if river_dist < river.get_half_width() + chunk_size * 0.5:
+                        river_info["passes_through"] = true
+                        river_info["distance_to_centerline"] = river_dist
+                        river_info["water_depth_at_center"] = river.water_depth_at(chunk_center.x, chunk_center.z)
+                        # Find entry/exit points by sampling the chunk border
+                        river_info["entry_point"] = _find_river_entry(origin, chunk_size)
+        state["river"] = river_info
+
+        # === ROADS (full geometry) ===
+        var roads_in_chunk: Array = _get_roads_in_chunk(origin, chunk_size)
+        var road_infos: Array = []
+        for seg in roads_in_chunk:
+                var a: Vector3 = seg["start"]
+                var b: Vector3 = seg["end"]
+                road_infos.append({
+                        "start": [a.x, a.y, a.z],
+                        "end": [b.x, b.y, b.z],
+                        "width": float(seg.get("width", 8.0)),
+                        "kind": String(seg.get("kind", "street")),
+                        "name": String(seg.get("name", "")),
+                        "length": a.distance_to(b),
+                })
+        state["roads"] = road_infos
+
+        # === NEIGHBORS (N/S/E/W biome ints) ===
+        var grid: Array = CityConfig.grid_layout()
+        var col: int = clamp(int(key.x * chunk_size / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_COLS - 1)
+        var row: int = clamp(int(key.y * chunk_size / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_ROWS - 1)
+        var neighbors: Dictionary = {}
+        neighbors["north"] = int(grid[row - 1][col]) if row > 0 else -1
+        neighbors["south"] = int(grid[row + 1][col]) if row < CityConfig.GRID_ROWS - 1 else -1
+        neighbors["east"] = int(grid[row][col + 1]) if col < CityConfig.GRID_COLS - 1 else -1
+        neighbors["west"] = int(grid[row][col - 1]) if col > 0 else -1
+        state["neighbors"] = neighbors
+
+        # === HALO ===
+        var halo_info: Dictionary = {"active": not halo_buildings.is_empty()}
+        if not halo_buildings.is_empty():
+                halo_info["boost_buildings"] = halo_buildings
+                # Find which landmarks are actually near
+                var landmarks_nearby: Array = []
+                for bname in _asset_positions.keys():
+                        var halo: Dictionary = CityConfig.halo_for(bname)
+                        if halo.is_empty():
+                                continue
+                        var positions: Array = _asset_positions[bname]
+                        for pos in positions:
+                                if pos.distance_to(chunk_center) <= CityConfig.HALO_RADIUS_M:
+                                        landmarks_nearby.append(bname)
+                                        break
+                halo_info["landmarks_nearby"] = landmarks_nearby
+        state["halo"] = halo_info
+
+        # === GAPS (empty positions that could be filled) ===
+        # Sample 10×10 grid, find cells with no building/prop/foliage/zombie
+        var density_grid: Array = []
+        var gap_positions: Array = []
+        var grid_resolution: int = 10
+        var cell_size: float = chunk_size / float(grid_resolution)
+        for i in range(grid_resolution):
+                var row_arr: Array = []
+                for j in range(grid_resolution):
+                        var cx: float = origin.x + (i + 0.5) * cell_size
+                        var cz: float = origin.z + (j + 0.5) * cell_size
+                        var cell_pos := Vector3(cx, 0, cz)
+                        var cell_type: String = "E"  # Empty
+                        # Check what's at this cell
+                        if spatial.is_on_road(cell_pos):
+                                cell_type = "R"  # Road
+                        elif not spatial.is_free(cell_pos, 2.0):
+                                # Something is here — check what
+                                cell_type = "O"  # Occupied (building/prop/foliage)
+                        elif river != null and river.is_over_river(cx, cz):
+                                cell_type = "W"  # Water
+                        else:
+                                # Actually empty — record as gap
+                                gap_positions.append({
+                                        "pos": [cx, 0.0, cz],
+                                        "cell": [i, j],
+                                        "suggested_fill": _suggest_fill_for_gap(cell_pos, biome, halo_buildings, state),
+                                })
+                        row_arr.append(cell_type)
+                density_grid.append(row_arr)
+        state["density_grid"] = density_grid
+        state["gaps"] = gap_positions
+        state["gap_count"] = gap_positions.size()
+
+        # === EXPANDED STATS ===
+        var stats: Dictionary = state.get("stats", {})
+        stats["gap_count"] = gap_positions.size()
+        stats["gap_pct"] = float(gap_positions.size()) / float(grid_resolution * grid_resolution)
+        stats["building_density"] = float(state["counts"]["buildings"]) / (chunk_size * chunk_size / 100.0)  # buildings per 100m²
+        stats["has_parking_lot"] = _chunk_has_asset_type(state, "parking")
+        stats["has_backyard"] = _chunk_has_asset_type(state, "shed") or _chunk_has_asset_type(state, "fence")
+        stats["road_count"] = road_infos.size()
+        stats["neighbor_biomes"] = neighbors
+        state["stats"] = stats
+
+        # === WORLD BOUNDS ===
+        state["world_bounds"] = {
+                "min": [origin.x, 0.0, origin.z],
+                "max": [origin.x + chunk_size, 0.0, origin.z + chunk_size],
+                "center": [chunk_center.x, 0.0, chunk_center.z],
+        }
+
+        # === ANCHOR INFO ===
+        var anchor_cell := Vector2i(col, row)
+        var anchor: Variant = AnchorPoints.get_anchor_at(anchor_cell)
+        if anchor != null:
+                state["anchor"] = {
+                        "cell": [anchor["cell"].x, anchor["cell"].y],
+                        "is_major": bool(anchor["is_major"]),
+                        "landmark": String(anchor["landmark"]),
+                }
+
+        return state
+
+# Find where the river enters the chunk by sampling the chunk's border.
+func _find_river_entry(origin: Vector3, chunk_size: float) -> Array:
+        if river == null:
+                return []
+        # Sample 4 edges of the chunk
+        var edges: Array = [
+                # North edge (z = origin.z)
+                {"axis": "z", "value": origin.z, "range": [origin.x, origin.x + chunk_size]},
+                # South edge (z = origin.z + chunk_size)
+                {"axis": "z", "value": origin.z + chunk_size, "range": [origin.x, origin.x + chunk_size]},
+                # West edge (x = origin.x)
+                {"axis": "x", "value": origin.x, "range": [origin.z, origin.z + chunk_size]},
+                # East edge (x = origin.x + chunk_size)
+                {"axis": "x", "value": origin.x + chunk_size, "range": [origin.z, origin.z + chunk_size]},
+        ]
+        for edge in edges:
+                var lo: float = edge["range"][0]
+                var hi: float = edge["range"][1]
+                var step: float = (hi - lo) / 20.0  # 20 samples per edge
+                for i in range(21):
+                        var t: float = lo + i * step
+                        var check_x: float = edge["value"] if edge["axis"] == "x" else t
+                        var check_z: float = edge["value"] if edge["axis"] == "z" else t
+                        if river.is_over_river(check_x, check_z):
+                                return [check_x, check_z]
+        return []
+
+# Suggest a contextually-appropriate fill for a gap position.
+# Uses the chunk's biome + halo + neighbor context to suggest:
+#   - parking_lot if near a commercial zone + no parking lots yet
+#   - backyard if in a residential zone
+#   - alley if between two commercial buildings
+#   - park if near a Parks biome neighbor
+#   - empty if no suggestion
+func _suggest_fill_for_gap(pos: Vector3, biome: int, halo_buildings: Dictionary, state: Dictionary) -> String:
+        var stats: Dictionary = state.get("stats", {})
+        # If near a landmark halo, suggest halo-appropriate fills
+        if not halo_buildings.is_empty():
+                # Check if this gap is near a parking-requiring landmark
+                if halo_buildings.has("parking_garage") or halo_buildings.has("parking_meter"):
+                        if not bool(stats.get("has_parking_lot", false)):
+                                return "parking_lot"
+        # Biome-specific suggestions
+        match biome:
+                CityConfig.Biome.SUBURBIA:
+                        return "backyard"  # shed + fence + tree
+                CityConfig.Biome.COMMERCIAL:
+                        if float(stats.get("commercial_pct", 0.0)) > 0.5:
+                                return "alley"  # delivery alley between storefronts
+                        return "parking_lot"
+                CityConfig.Biome.INDUSTRIAL:
+                        return "loading_zone"
+                CityConfig.Biome.PARKS:
+                        return "green_space"
+                CityConfig.Biome.FOREST:
+                        return "tree_cluster"
+                CityConfig.Biome.WETLANDS:
+                        return "marsh vegetation"
+                CityConfig.Biome.DOWNTOWN:
+                        if float(stats.get("commercial_pct", 0.0)) > 0.5:
+                                return "plaza"
+                        return "courtyard"
+                _:
+                        return "empty"
+
+# Check if a chunk has any asset whose name contains the given keyword.
+func _chunk_has_asset_type(state: Dictionary, keyword: String) -> bool:
+        var buildings: Array = state.get("buildings", [])
+        for b in buildings:
+                if String(b.get("name", "")).contains(keyword):
+                        return true
+        var props: Array = state.get("props", [])
+        for p in props:
+                if String(p.get("name", "")).contains(keyword):
+                        return true
+        return false
+
+# Auto-dump all chunk states to JSON when the player has been in the scene
+# for ~5 seconds (gives chunks time to load). Called from _process.
+var _auto_dump_timer: float = 0.0
+const AUTO_DUMP_DELAY := 2.0
+const AUTO_DUMP_PATH := "res://chunk_states_auto.json"
+func _maybe_auto_dump(delta: float) -> void:
+        if _loaded.is_empty():
+                return
+        _auto_dump_timer += delta
+        if _auto_dump_timer >= AUTO_DUMP_DELAY:
+                _auto_dump_timer = -1.0  # disable after first dump
+                _dump_chunk_states_to_file(AUTO_DUMP_PATH)
