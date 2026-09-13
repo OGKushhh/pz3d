@@ -299,10 +299,21 @@ const CHUNK_OUTPUT_DIR   := "res://chunks/"
 # hero assets that should be placed ONE per biome — currently the
 # runtime streamer treats them like regular buildings (random pick),
 # but the field exists for future landmark-aware placement.
+#
+# Phase B.3: HEIGHT DISTRIBUTION — each biome declares the probability
+# of picking SHORT / MID / TALL buildings. The building picker filters
+# the biome's building list by height_class first, then picks randomly
+# within the class. This makes cities READ AS DESIGNED:
+#   - Downtown: 70% TALL, 30% MID, 0% SHORT (towers dominate)
+#   - Suburbia: 80% SHORT, 20% MID, 0% TALL (houses, not towers)
+#   - Commercial: 20% SHORT, 60% MID, 20% TALL (storefronts + occasional office)
+#   - Industrial: 40% SHORT (sheds), 60% MID (warehouses), 0% TALL
+#   - Forest/Farmland: 90% SHORT, 10% MID (cabins + farmhouses)
 static func biomes() -> Dictionary:
     return {
         Biome.SUBURBIA: {
             "name": "Suburbia",
+            "height_dist": {"SHORT": 0.8, "MID": 0.2, "TALL": 0.0},
             "fill": 0.75,
             "buildings": [
                 "suburban_house_v2", "two_story_colonial", "bungalow",
@@ -325,6 +336,7 @@ static func biomes() -> Dictionary:
         },
         Biome.PARKS: {
             "name": "Parks & Greenways",
+            "height_dist": {"SHORT": 1.0, "MID": 0.0, "TALL": 0.0},
             "fill": 0.05,
             "buildings": ["gazebo"],
             "landmarks": [],
@@ -342,6 +354,7 @@ static func biomes() -> Dictionary:
         },
         Biome.FOREST: {
             "name": "Forest",
+            "height_dist": {"SHORT": 0.9, "MID": 0.1, "TALL": 0.0},
             "fill": 0.95,
             "buildings": [
                 "hunting_cabin", "ranger_station", "camping_tent",
@@ -360,6 +373,7 @@ static func biomes() -> Dictionary:
         },
         Biome.FARMLAND: {
             "name": "Farmland",
+            "height_dist": {"SHORT": 0.9, "MID": 0.1, "TALL": 0.0},
             "fill": 0.25,
             "buildings": [
                 "farmhouse", "barn", "cottage", "shed",
@@ -376,6 +390,7 @@ static func biomes() -> Dictionary:
         },
         Biome.COMMERCIAL: {
             "name": "Commercial Strip",
+            "height_dist": {"SHORT": 0.2, "MID": 0.6, "TALL": 0.2},
             "fill": 0.90,
             "buildings": [
                 "corner_store", "diner", "gas_station", "store_pharmacy",
@@ -394,6 +409,7 @@ static func biomes() -> Dictionary:
         },
         Biome.INDUSTRIAL: {
             "name": "Industrial Park",
+            "height_dist": {"SHORT": 0.4, "MID": 0.6, "TALL": 0.0},
             "fill": 0.60,
             "buildings": [
                 "warehouse", "warehouse_large", "factory_small",
@@ -411,6 +427,7 @@ static func biomes() -> Dictionary:
         },
         Biome.WETLANDS: {
             "name": "Wetlands & Marshes",
+            "height_dist": {"SHORT": 0.8, "MID": 0.2, "TALL": 0.0},
             "fill": 0.10,
             "buildings": [
                 "fishing_hut", "marsh_pier", "houseboat"
@@ -426,6 +443,7 @@ static func biomes() -> Dictionary:
         },
         Biome.COASTAL_BEACH: {
             "name": "Coastal Beach",
+            "height_dist": {"SHORT": 0.7, "MID": 0.3, "TALL": 0.0},
             "fill": 0.20,
             "buildings": [
                 "fishing_hut", "pier_dock", "houseboat", "marsh_pier",
@@ -441,6 +459,7 @@ static func biomes() -> Dictionary:
         },
         Biome.DOWNTOWN: {
             "name": "Downtown",
+            "height_dist": {"SHORT": 0.0, "MID": 0.3, "TALL": 0.7},
             "fill": 0.95,
             "buildings": [
                 "apartment_small", "apartment_tower_high", "highrise_office",
@@ -461,6 +480,7 @@ static func biomes() -> Dictionary:
         },
         Biome.MILITARY: {
             "name": "Military Zone",
+            "height_dist": {"SHORT": 0.5, "MID": 0.3, "TALL": 0.2},
             "fill": 0.40,
             "buildings": [
                 "military_checkpoint", "watchtower", "bunker_entrance",

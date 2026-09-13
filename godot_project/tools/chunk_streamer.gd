@@ -230,6 +230,30 @@ func _terrain_y(x: float, z: float) -> float:
 func _terrain_pos(flat_pos: Vector3) -> Vector3:
         return Vector3(flat_pos.x, _terrain_y(flat_pos.x, flat_pos.z), flat_pos.z)
 
+# Phase B.3: Roll the height class dice for a building slot.
+# Uses the biome's height_dist (SHORT/MID/TALL probabilities).
+# Returns "SHORT", "MID", or "TALL".
+func _roll_height_class(profile: Dictionary, crng: RandomNumberGenerator) -> String:
+        var dist: Dictionary = profile.get("height_dist", {"SHORT": 0.5, "MID": 0.4, "TALL": 0.1})
+        var roll: float = crng.randf()
+        var cumulative: float = 0.0
+        for hc in ["SHORT", "MID", "TALL"]:
+                cumulative += float(dist.get(hc, 0.0))
+                if roll < cumulative:
+                        return hc
+        return "MID"  # fallback if all probabilities are 0
+
+# Phase B.3: Filter a building name list by height class.
+# Returns only buildings whose manifest entry has the matching height_class.
+# Falls back to the full list if no buildings match (prevents empty picks).
+func _filter_by_height_class(asset_names: Array, height_class: String) -> Array:
+        var filtered: Array = []
+        for name in asset_names:
+                var entry: Dictionary = manifest.get(name, {})
+                if entry.get("height_class", "") == height_class:
+                        filtered.append(name)
+        return filtered
+
 func _ready() -> void:
         await get_tree().process_frame
         var root := get_tree().current_scene
@@ -550,6 +574,13 @@ func _build_chunk(key: Vector2i) -> void:
                                 # is in the pick list, boost its probability by the halo
                                 # multiplier (e.g. stadium nearby → 2x chance of
                                 # parking_garage, bank_branch, etc.).
+                                #
+                                # Phase B.3: HEIGHT CLASS — roll the height dice for this
+                                # lot. Filters the pick pool to SHORT/MID/TALL buildings
+                                # only. Makes districts read as designed (Downtown = TALL,
+                                # Suburbia = SHORT). Falls back to full pool if no buildings
+                                # of the rolled class exist.
+                                var height_class: String = _roll_height_class(profile, crng)
                                 var bname: String
                                 var commercial_prob: float = 0.0
                                 match zone_type:
@@ -568,24 +599,31 @@ func _build_chunk(key: Vector2i) -> void:
                                         if commercial_buildings.has(hb) or buildings.has(hb):
                                                 has_halo = true
                                                 break
-                                if has_halo and crng.randf() < 0.4:  # 40% chance to pick a halo building
-                                        # Weighted pick: halo buildings get their boost_mult as weight
+                                if has_halo and crng.randf() < 0.4:
                                         var weighted_pool: Array = []
                                         for hb in _halo_buildings.keys():
                                                 if commercial_buildings.has(hb) or buildings.has(hb):
                                                         var mult: float = float(_halo_buildings[hb])
-                                                        for _w in range(int(mult * 10)):  # scale to int weights
+                                                        for _w in range(int(mult * 10)):
                                                                 weighted_pool.append(hb)
                                         if not weighted_pool.is_empty():
                                                 bname = weighted_pool[crng.randi() % weighted_pool.size()]
                                         elif crng.randf() < commercial_prob and not commercial_buildings.is_empty():
-                                                bname = commercial_buildings[crng.randi() % commercial_buildings.size()]
+                                                var c_pool := _filter_by_height_class(commercial_buildings, height_class)
+                                                var pick_pool: Array = c_pool if not c_pool.is_empty() else commercial_buildings
+                                                bname = pick_pool[crng.randi() % pick_pool.size()]
                                         else:
-                                                bname = buildings[crng.randi() % buildings.size()]
+                                                var r_pool := _filter_by_height_class(buildings, height_class)
+                                                var pick_pool2: Array = r_pool if not r_pool.is_empty() else buildings
+                                                bname = pick_pool2[crng.randi() % pick_pool2.size()]
                                 elif crng.randf() < commercial_prob and not commercial_buildings.is_empty():
-                                        bname = commercial_buildings[crng.randi() % commercial_buildings.size()]
+                                        var c_pool := _filter_by_height_class(commercial_buildings, height_class)
+                                        var pick_pool: Array = c_pool if not c_pool.is_empty() else commercial_buildings
+                                        bname = pick_pool[crng.randi() % pick_pool.size()]
                                 else:
-                                        bname = buildings[crng.randi() % buildings.size()]
+                                        var r_pool := _filter_by_height_class(buildings, height_class)
+                                        var pick_pool: Array = r_pool if not r_pool.is_empty() else buildings
+                                        bname = pick_pool[crng.randi() % pick_pool.size()]
 
                                 # v8: ANTI-CLUSTERING — skip if too close to another
                                 # instance of the same asset (e.g. two gas stations within 500m).
