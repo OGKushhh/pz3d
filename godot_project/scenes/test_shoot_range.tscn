@@ -1,0 +1,59 @@
+[gd_scene load_steps=5 format=3 uid="uid://testshootrange01"]
+
+[ext_resource type="Script" path="res://scripts/test_shoot_player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/shoot_target.gd" id="2_target"]
+
+[sub_resource type="BoxMesh" id="ground_mesh"]
+size = Vector3(100, 0.1, 100)
+
+[sub_resource type="BoxShape3D" id="ground_shape"]
+size = Vector3(100, 0.1, 100)
+
+[sub_resource type="StandardMaterial3D" id="ground_mat"]
+albedo_color = Color(0.15, 0.18, 0.12, 1)
+
+[node name="TestShootRange" type="Node3D"]
+
+[node name="Ground" type="StaticBody3D" parent="."]
+
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("ground_mesh")
+material_override = SubResource("ground_mat")
+
+[node name="GroundShape" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("ground_shape")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707, -0.707, 0, 0.5, 0.5, -0.707, -0.5, -0.5, -0.707, 0, 30, 0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 20)
+script = ExtResource("1_player")
+
+[node name="Camera3D" type="Camera3D" parent="Player"]
+fov = 75.0
+far = 500.0
+
+[node name="Targets" type="Node3D" parent="."]
+
+[node name="Target1" type="StaticBody3D" parent="Targets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -20)
+script = ExtResource("2_target")
+
+[node name="Target2" type="StaticBody3D" parent="Targets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1, -30)
+script = ExtResource("2_target")
+
+[node name="Target3" type="StaticBody3D" parent="Targets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1, -30)
+script = ExtResource("2_target")
+
+[node name="Target4" type="StaticBody3D" parent="Targets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1, -40)
+script = ExtResource("2_target")
+
+[node name="Target5" type="StaticBody3D" parent="Targets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 1, -40)
+script = ExtResource("2_target")
