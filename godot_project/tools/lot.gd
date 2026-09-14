@@ -253,6 +253,74 @@ const LOTS := {
                 },
                 "setback_m": 10.0,
         },
+
+        # ── Phase C.3: ATTACHED BUILDINGS — Row Houses ───────────────
+        # 3 houses side by side at 7m spacing — attached, shared walls.
+        # Replaces standalone house lots in dense suburban areas (core zone).
+        "suburb_row_houses": {
+                "name": "Suburb Row Houses (3 attached)",
+                "primary": {
+                        "variants": ["suburban_house_v2", "bungalow", "house_cape_cod"],
+                        "offset": [-7, 0, 0],
+                        "rot_y": 180.0,
+                },
+                "companions": [
+                        # Middle house
+                        {"variants": ["suburban_house_v2", "bungalow", "house_modern"], "offset": [0, 0, 0], "rot_y": 180.0, "role": "attached"},
+                        # Right house
+                        {"variants": ["house_ranch", "house_cape_cod", "bungalow"], "offset": [7, 0, 0], "rot_y": 180.0, "role": "attached"},
+                ],
+                "sidewalk": {
+                        "start": [0, 0, 6.0],
+                        "end":   [0, 0, 3.5],
+                        "width": 1.5,
+                        "color": Color(0.55, 0.55, 0.58, 1),
+                },
+                "setback_m": 6.0,
+        },
+
+        # ── Phase C.3: ATTACHED BUILDINGS — Strip Mall ────────────────
+        # 3 storefronts side by side at 10m spacing — one long commercial building.
+        "commercial_strip_mall_attached": {
+                "name": "Commercial Strip Mall (3 attached storefronts)",
+                "primary": {
+                        "variants": ["corner_store", "diner"],
+                        "offset": [-10, 0, 0],
+                        "rot_y": 180.0,
+                },
+                "companions": [
+                        {"variants": ["store_pharmacy", "salon", "barber_shop"], "offset": [0, 0, 0], "rot_y": 180.0, "role": "attached"},
+                        {"variants": ["grocery_store", "laundromat", "auto_repair_shop"], "offset": [10, 0, 0], "rot_y": 180.0, "role": "attached"},
+                ],
+                "sidewalk": {
+                        "start": [0, 0, 5.0],
+                        "end":   [0, 0, 0.0],
+                        "width": 2.0,
+                        "color": Color(0.55, 0.55, 0.58, 1),
+                },
+                "setback_m": 5.0,
+        },
+
+        # ── Phase C.3: ATTACHED BUILDINGS — Downtown Attached ─────────
+        # 2 highrises flush together (zero gap between them).
+        "downtown_attached_highrises": {
+                "name": "Downtown Attached Highrises (2 buildings, zero gap)",
+                "primary": {
+                        "variants": ["highrise_office", "apartment_tower_high"],
+                        "offset": [-8, 0, 0],
+                        "rot_y": 180.0,
+                },
+                "companions": [
+                        {"variants": ["highrise_office", "apartment_tower_high"], "offset": [8, 0, 0], "rot_y": 180.0, "role": "attached"},
+                ],
+                "sidewalk": {
+                        "start": [0, 0, 4.0],
+                        "end":   [0, 0, 0.0],
+                        "width": 3.0,
+                        "color": Color(0.50, 0.50, 0.53, 1),
+                },
+                "setback_m": 4.0,
+        },
 }
 
 # ── BIOME → LOT MAPPING ───────────────────────────────────
@@ -267,11 +335,11 @@ const LOTS := {
 #   0=SUBURBIA, 1=PARKS, 2=FOREST, 3=FARMLAND, 4=COMMERCIAL,
 #   5=INDUSTRIAL, 6=WETLANDS, 7=DOWNTOWN, 8=MILITARY, 9=COASTAL_BEACH
 const BIOME_LOTS := {
-        0: ["suburb_house_east_garage", "suburb_house_west_garage", "suburb_house_only"],  # SUBURBIA
+        0: ["suburb_house_east_garage", "suburb_house_west_garage", "suburb_house_only", "suburb_row_houses"],  # SUBURBIA + C.3 row houses
         3: ["farm_house_barn"],  # FARMLAND
-        4: ["commercial_storefront"],  # COMMERCIAL
+        4: ["commercial_storefront", "commercial_strip_mall_attached"],  # COMMERCIAL + C.3 strip mall
         5: ["industrial_warehouse"],  # INDUSTRIAL
-        7: ["downtown_highrise"],  # DOWNTOWN
+        7: ["downtown_highrise", "downtown_attached_highrises"],  # DOWNTOWN + C.3 attached
         8: ["military_checkpoint"],  # MILITARY
         # 1=PARKS, 2=FOREST, 6=WETLANDS, 9=COASTAL_BEACH: no lots yet — keep procedural
 }
