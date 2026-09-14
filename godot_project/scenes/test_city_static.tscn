@@ -80,13 +80,36 @@
 [ext_resource type="PackedScene" path="res://assets/buildings/pier_dock.glb" id="78"]
 [ext_resource type="PackedScene" path="res://assets/foliage/palm_tree.glb" id="79"]
 
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
+sky_top_color = Color(0.15, 0.35, 0.7, 1)
+sky_horizon_color = Color(0.7, 0.78, 0.88, 1)
+ground_bottom_color = Color(0.25, 0.22, 0.18, 1)
+ground_horizon_color = Color(0.5, 0.48, 0.42, 1)
+sun_curve = 0.12
+
 [sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMat")
 
 [sub_resource type="Environment" id="Env"]
-background_mode = 1
+background_mode = 2
 sky = SubResource("Sky")
-ambient_light_color = Color(0.6, 0.65, 0.75, 1)
-ambient_light_energy = 0.5
+ambient_light_source = 3
+ambient_light_color = Color(0.55, 0.6, 0.65, 1)
+ambient_light_energy = 0.6
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.5, 0.55, 0.6, 1)
+fog_density = 0.005
+
+[sub_resource type="BoxShape3D" id="GroundCol"]
+size = Vector3(650.0, 1, 110.0)
+
+[sub_resource type="CapsuleShape3D" id="PlayerCol"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="GDScript" id="PlayerScript"]
+script/source = "extends CharacterBody3D\nconst WALK = 5.0\nconst SPRINT = 8.0\nconst SENS = 0.002\nconst FLY = 15.0\nvar spd = WALK\nvar fly_mode = false\nfunc _ready():\n    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED\nfunc _input(e):\n    if e is InputEventMouseMotion:\n        rotate_y(-e.relative.x * SENS)\n        $Camera3D.rotate_x(-e.relative.y * SENS)\n        $Camera3D.rotation.x = clamp($Camera3D.rotation.x, -1.5, 1.5)\n    if e.is_action_pressed(\"ui_cancel\"):\n        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE\n    if e.is_action_pressed(\"fly_toggle\"):\n        fly_mode = !fly_mode\n        $Col.disabled = fly_mode\nfunc _physics_process(d):\n    if fly_mode:\n        var i = Input.get_vector(\"move_left\", \"move_right\", \"move_forward\", \"move_back\")\n        var dir = (transform.basis * Vector3(i.x, 0, i.y)).normalized()\n        if dir: velocity = dir * FLY\n        else: velocity = velocity.move_toward(Vector3.ZERO, FLY * d * 5)\n        if Input.is_action_pressed(\"jump\"): velocity.y = FLY\n        if Input.is_action_pressed(\"crouch\"): velocity.y = -FLY\n        move_and_slide()\n        return\n    if not is_on_floor(): velocity.y -= 9.8 * d\n    if Input.is_action_just_pressed(\"jump\") and is_on_floor(): velocity.y = 4.5\n    spd = SPRINT if Input.is_action_pressed(\"sprint\") else WALK\n    var i = Input.get_vector(\"move_left\", \"move_right\", \"move_forward\", \"move_back\")\n    var dir = (transform.basis * Vector3(i.x, 0, i.y)).normalized()\n    if dir: velocity.x = dir.x * spd; velocity.z = dir.z * spd\n    else: velocity.x = move_toward(velocity.x, 0, spd*d*10); velocity.z = move_toward(velocity.z, 0, spd*d*10)\n    move_and_slide()"
 
 [sub_resource type="StandardMaterial3D" id="Mat_ground"]
 albedo_color = Color(0.35, 0.52, 0.2, 1)
@@ -244,17 +267,35 @@ material = SubResource("Mat_water_plane")
 
 [node name="TestCityStatic" type="Node3D"]
 
-[node name="SunLight" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.7, 0.5, 0.5, -0.5, 0.85, -0.15, -0.5, -0.15, 0.85, 200, 80, 200)
-light_energy = 1.2
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.7071, 0, 0.7071, -0.3536, 0.866, 0.3536, -0.6124, -0.5, 0.6124, 300.0, 150, 30.0)
+light_color = Color(1, 0.95, 0.8, 1)
+light_energy = 2.0
 shadow_enabled = true
+directional_shadow_max_distance = 200.0
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300.0, 0, 30.0)
+
+[node name="GroundCol" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("GroundCol")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Env")
 
-[node name="PreviewCamera" type="Camera3D" parent="."]
-transform = Transform3D(1,0,0, 0,0,1, 0,-1,0, 300, 100, 30)
-fov = 60.0
+[node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300.0, 2, 30.0)
+script = SubResource("PlayerScript")
+
+[node name="Camera3D" type="Camera3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
+fov = 75.0
+near = 0.05
+far = 300.0
+
+[node name="Col" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("PlayerCol")
 
 [node name="Suburbia" type="Node3D" parent="."]
 

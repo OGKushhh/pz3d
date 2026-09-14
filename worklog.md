@@ -1143,3 +1143,53 @@ Stage Summary:
 - Scene loads cleanly in godot 4.7.2 headless. User can open it directly in Godot editor: scenes/test_city_static.tscn
 - PreviewCamera at (300, 100, 30) looking down shows all 10 chunks in a row.
 - This is Option C proof-of-concept. If user likes the look, scale up to more chunks (each is 60×60m, full 12km² needs ~3300 chunks but most can be sparse). If user wants different style per chunk, iterate.
+
+---
+Task ID: session-13-playable-test-cities-v2
+Agent: main (Super Z)
+Task: User: "its pitch black and i cant drop in and fly. also i like the organization of test city that is non static, but its small and subarbia only, give me more examples inside both static and non static test maps". Then: "not test_suburbia, test_city".
+
+Work Log:
+- Inspected test_city.tscn structure: 270 nodes, built by scripts/build_test_city.gd (GDScript).
+  * Has: WorldEnvironment (ProceduralSkyMaterial + Sun + ambient + fog + tonemap)
+  * Has: StaticBody3D Ground with BoxShape3D collision (player can walk, not fall through)
+  * Has: CharacterBody3D Player with embedded GDScript (WASD + mouse + jump + sprint)
+  * Has: 3x3 road grid (H+V at z=0,80,160 and x=0,80,160) with road+lane+sidewalk+grass_strip planes
+  * Has: Buildings on both sides of every road (9 lots × 5 house variants cycled)
+  * Has: Streetlights every 25m, fire_hydrants at intersections, mailboxes at intervals, central park
+- Identified why my previous static was pitch black: I used background_mode=1 (Color) instead of background_mode=2 (Sky), no ProceduralSkyMaterial, no ambient_light_source, no tonemap. Sun was at wrong angle (basically overhead, no shadow distance).
+- Identified why user couldn't drop in: I had no StaticBody3D Ground (no collision → player falls through), no CharacterBody3D Player (no WASD/mouse script).
+- Wrote scripts/build_test_city_v2.gd — extends build_test_city.gd pattern to multi-biome:
+  * 5x5 grid of blocks (400m × 400m total, was 3x3 = 240×240)
+  * Biome layout per block:
+    - NW 2x2 = Forest (hunting_cabin + ranger_station + 20 trees + cave + deer_stand + tent)
+    - NE 2x2 = Downtown (highrise + apartment_tower + bank + parking_garage + bollards + traffic_light)
+    - SW 2x2 = Farmland (farmhouse + barn + grain_silo + windmill + crops + hay_bales)
+    - SE 2x2 = Industrial (warehouse + factory + storage_tanks + shipping_containers + chain_link_fence)
+    - Center col = Park (gazebo + benches + picnic + playground + trees in circle)
+    - Row 4 (south edge) = Beach + Wetland (lighthouse + palms + fishing_hut + marsh + willows)
+    - Rest = Suburbia (4 houses + 4 garages + mailboxes + streetlights per block)
+  * Total placements: 756 objects
+  * File: godot_project/scenes/test_city_v2.tscn (173KB)
+- Added fly_toggle action (V key, physical_keycode 86) to project.godot
+- Upgraded build_test_city_v2.gd's player script: V toggles fly mode (disables collision, jump=up, crouch=down, FLY=15m/s)
+- Fixed build_test_city_static.py:
+  * Changed background_mode 1→2 (sky instead of color)
+  * Added ProceduralSkyMaterial with proper sky/ground colors
+  * Added ambient_light_source=3 (sky-based ambient)
+  * Added tonemap_mode=2 (filmic)
+  * Added fog (density 0.005, matches test_city)
+  * Added Sun at proper angle (45° yaw, -30° pitch, light_energy=2.0, shadow_max_distance=200)
+  * Added StaticBody3D Ground with BoxShape3D collision (size 650×1×110, centered on strip)
+  * Added CharacterBody3D Player at center with full movement script (WASD + mouse + jump + sprint + V fly)
+  * Removed PreviewCamera (player + camera replaces it)
+- Verified both scenes load cleanly in godot headless:
+  * test_city_v2.tscn: PASS, 759 children (756 placements + player + camera + col)
+  * test_city_static.tscn: PASS, 232 nodes (now with proper sky/sun/ground/player)
+
+Stage Summary:
+- Two playable test scenes, both NOT pitch black, both drop-in playable:
+  1. test_city_v2.tscn (173KB, 756 placements) — multi-biome 5x5 grid, same organization as test_city.tscn but with Forest/Downtown/Farm/Industrial/Park/Beach/Wetland/Suburbia
+  2. test_city_static.tscn (49KB, 232 placements) — 10 hand-placed biome chunks in a strip, now with proper sky + sun + ground + player
+- Both have: WASD movement, mouse look, Space=jump, Shift=sprint, V=fly toggle (in fly mode: Space=up, C=down), Esc=release mouse
+- User can pull and run either scene in Godot editor (Play button) to drop in and explore.
