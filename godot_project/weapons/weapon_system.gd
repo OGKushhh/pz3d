@@ -73,6 +73,18 @@ func _ready() -> void:
         _cooldown_timer.one_shot = false
         _cooldown_timer.wait_time = 0.2  # default; updated on equip()
         add_child(_cooldown_timer)
+        # Phase #3: connect to SignalBus so tests can fire without Input
+        var sb := get_node_or_null("/root/SignalBus")
+        if sb:
+                sb.fire_input.connect(_on_fire_input)
+                sb.weapon_switch.connect(_on_weapon_switch)
+
+# Phase #3: SignalBus handlers — allow headless tests to trigger fire/switch
+func _on_fire_input() -> void:
+        fire()
+
+func _on_weapon_switch(weapon_class: String) -> void:
+        equip(weapon_class)
 
 # Try to fire. Returns true if a shot was fired, false if rate-limited or no data.
 # Phase #2: uses Timer (one_shot=false, but stopped/started on fire) for rate limiting.
@@ -95,6 +107,10 @@ func fire() -> bool:
                 float(_weapon_data.get("recoil_yaw_deg", 0.0)),
                 float(_weapon_data.get("recovery_rate_deg", 8.0))
         )
+        # Phase #3: emit shot_fired so tests can count shots
+        var sb := get_node_or_null("/root/SignalBus")
+        if sb:
+                sb.shot_fired.emit(_weapon_class)
         return true
 
 func _fire_single_pellet(pellet_index: int) -> void:
