@@ -666,3 +666,33 @@ Stage Summary:
 - Map size locked at 12 km² (4km × 3km, 8×6 grid of 500m cells)
 - All expansion plans deleted from code + docs
 - Principle documented: density over area. If city gen fails, shrink the map, don't grow it.
+
+---
+Task ID: doc-consolidation + roadmap-cleanup
+Agent: main (Super Z)
+Task: User asked to organize scattered docs, unify small docs, clean up roadmap dev-hell phases.
+
+Work Log:
+- Merged asset_count.md + asset_review_strategy.md → docs/assets.md (72 lines)
+  - Part 1: Asset Count (current status: 234 assets, gap analysis)
+  - Part 2: Asset Review Strategy (tiered review: anchor/variant/filler)
+- Merged shells_needed.md + furniture_decision.md + district_templates.md → docs/buildings.md (132 lines)
+  - Part 1: Shells Needed (which buildings need shell variants)
+  - Part 2: Furniture Decision (static vs dynamic, hybrid solution)
+  - Part 3: District Templates (hand-authored block layouts, Lot System)
+- Deleted 6 old docs: asset_count, asset_review_strategy, furniture_decision, shells_needed, district_templates, ai_analysis_report (auto-generated, not canonical)
+- Updated STATUS.md: new canonical docs table, removed references to deleted docs
+- Updated GDD §13.1 file tree + §14 paths table: references now point to assets.md + buildings.md
+- Reorganized roadmap.md:
+  - Removed duplicate B.7 entries (was at line 30 AND line 221)
+  - Removed struck-through B.4 (map expansion, already deleted)
+  - Consolidated all completed phases (A, B.5-B.8, C, Gun System, v1 Flat) into "Completed" section
+  - Next priorities: Phase D (Gameplay Systems) + Phase E (Polish)
+  - Removed "development hell" phases that were deferred indefinitely
+  - Kept middleware section (FROZEN) + bug list at bottom
+
+Stage Summary:
+- docs/ now has 5 canonical docs: GDD, lore, poly_budget, assets, buildings (+ retired_v3_extraction as historical reference)
+- Down from 10 scattered docs to 5 — easier to find things
+- roadmap.md is now linear: Completed → Next Priorities → Bug list
+- No more duplicate phase entries or dev-hell deferred phases

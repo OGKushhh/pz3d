@@ -1,20 +1,25 @@
 # STATUS — what's current vs deprecated
 
-> **Last updated:** 2026-09-12 (repo restructure)
+> **Last updated:** 2026-09-14 (doc consolidation)
 
-## Canonical (current truth)
+## Canonical docs (current truth)
+
+| What | Where | Notes |
+|---|---|---|
+| GDD | `docs/GDD.md` | Master design doc (1376 lines) |
+| Lore | `docs/lore.md` | World lore (253 lines) |
+| Poly budget | `docs/poly_budget.md` | Polygon budgets per asset type |
+| Assets | `docs/assets.md` | Merged: asset_count + asset_review_strategy |
+| Buildings | `docs/buildings.md` | Merged: shells_needed + furniture_decision + district_templates |
+| Retired v3 extraction | `docs/retired_city_builder_v3_extraction.md` | Historical reference |
+| Roadmap | `roadmap.md` | Phase tracker + priorities |
+| Worklog | `worklog.md` | Append-only multi-session log |
+| README | `README.md` | Project overview |
+
+## Code locations
 
 | What | Where |
 |---|---|
-| GDD | `docs/GDD.md` (was `GDD_v1.8_unified.md`) |
-| Lore | `docs/lore.md` (was `lore_mazar_v1.2.md`) |
-| Poly budget | `docs/poly_budget.md` (was `download/poly_budget_v3_path_b.md`) |
-| Furniture decision | `docs/furniture_decision.md` (was `download/furniture_merging_decision.md`) |
-| Asset count | `docs/asset_count.md` |
-| Asset review strategy | `docs/asset_review_strategy.md` |
-| Shells needed audit | `docs/shells_needed.md` (Phase A.4 — which buildings need shells for gameplay) |
-| Retired v3 extraction | `docs/retired_city_builder_v3_extraction.md` (Phase B reference) |
-| Worklog | `worklog.md` (root, append-only) |
 | Godot project | `godot_project/` |
 | Source assets | `assets/{category}/{src,out,renders}/` |
 | Build scripts | `scripts/` (batch_001-012 + helpers) |

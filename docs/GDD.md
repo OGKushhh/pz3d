@@ -913,9 +913,8 @@ This is the right tradeoff. PZ itself does roughly this — tile-based static fi
 │   ├── GDD.md                    # THIS document
 │   ├── lore.md                   # lore (v1.2, semi-locked)
 │   ├── poly_budget.md            # poly budget (v3 Path B, locked)
-│   ├── furniture_decision.md     # furniture merging decision (locked)
-│   ├── asset_count.md            # asset count tracking
-│   ├── asset_review_strategy.md  # review strategy
+│   ├── assets.md                 # asset count + review strategy (merged)
+│   ├── buildings.md              # shells + furniture + district templates (merged)
 │   └── retired_city_builder_v3_extraction.md  # Phase B reference
 │
 ├── assets/                       # the curated asset library
@@ -1364,9 +1363,8 @@ timeout 18 "$GODOT" --headless --path . res://scenes/main.tscn --quit-after 1500
 | `/home/z/my-project/docs/GDD.md` | **this document** (canonical) |
 | `/home/z/my-project/docs/lore.md` | lore (v1.2, semi-locked) |
 | `/home/z/my-project/docs/poly_budget.md` | poly budget (v3 Path B, locked) |
-| `/home/z/my-project/docs/furniture_decision.md` | furniture merging decision (locked) |
-| `/home/z/my-project/docs/asset_count.md` | asset count tracking |
-| `/home/z/my-project/docs/asset_review_strategy.md` | review strategy |
+| `/home/z/my-project/docs/assets.md` | asset count + review strategy (merged) |
+| `/home/z/my-project/docs/buildings.md` | shells + furniture + district templates (merged) |
 | `/home/z/my-project/worklog.md` | main worklog (append-only) |
 | `/home/z/my-project/asset-pipeline/worklog/worklog.md` | asset pipeline worklog |
 | `/home/z/my-project/mogen-docs/compiled.md` | **compiled MoGen DSL reference** |
