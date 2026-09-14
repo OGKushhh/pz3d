@@ -401,6 +401,39 @@ const BIOME_FOLIAGE_MULT := {
 func _get_biome_foliage_mult(biome: int) -> int:
         return int(BIOME_FOLIAGE_MULT.get(biome, 50))
 
+# Phase C.2: Zoned districts — core / ring / edge overlay based on distance from city center.
+# Replaces flat biome density with a gradient. The city center (around 2000, 1500)
+# is the "core" (densest), surrounded by "ring" (medium), then "edge" (sparse, rural).
+# This is the CityCrafter3D pattern: commercial core → residential ring → industrial edge.
+#
+# Zone is computed from the chunk's world position, not the biome cell. A SUBURBIA
+# chunk near the center gets core density; a SUBURBIA chunk at the map edge gets
+# edge density. This creates the "city center vs outskirts" feel that was missing.
+#
+# Returns "core", "ring", or "edge".
+const CITY_CENTER := Vector2(2000.0, 1500.0)  # center of 4000x3000 map
+const ZONE_CORE_RADIUS := 1200.0  # within 1200m of center = core
+const ZONE_RING_RADIUS := 2200.0  # 1200-2200m = ring, beyond = edge
+func _get_zone_for_chunk(origin: Vector3) -> String:
+        var chunk_center := Vector2(origin.x + CityConfig.CHUNK_SIZE_M * 0.5, origin.z + CityConfig.CHUNK_SIZE_M * 0.5)
+        var dist: float = chunk_center.distance_to(CITY_CENTER)
+        if dist < ZONE_CORE_RADIUS:
+                return "core"
+        elif dist < ZONE_RING_RADIUS:
+                return "ring"
+        else:
+                return "edge"
+
+# Phase C.2: Zone density multiplier. Applied on top of BIOME_DENSITY_MULT.
+# Core = 1.3x (denser city center), Ring = 1.0x (normal), Edge = 0.5x (sparse outskirts).
+const ZONE_DENSITY_MULT := {
+        "core": 1.3,
+        "ring": 1.0,
+        "edge": 0.5,
+}
+func _get_zone_density_mult(zone: String) -> float:
+        return float(ZONE_DENSITY_MULT.get(zone, 1.0))
+
 # Phase B.4: Get max-per-type for a district from the macro plan.
 # Returns -1 (unlimited) if no plan or no limit for this type.
 func _get_max_per_type(biome: int, asset_name: String) -> int:
@@ -775,7 +808,10 @@ func _build_chunk(key: Vector2i) -> void:
         # Downtown: 120, Commercial: 100, Industrial: 60, Suburbia: 50,
         # Parks: 5, Farmland: 10, Forest: 5, Wetlands: 3, Beach: 8, Military: 30
         var biome_mult: int = _get_biome_density_mult(biome)
-        var target: int = int(fill * biome_mult)
+        # Phase C.2: apply zone density multiplier (core/ring/edge)
+        var zone: String = _get_zone_for_chunk(origin)
+        var zone_mult: float = _get_zone_density_mult(zone)
+        var target: int = int(fill * biome_mult * zone_mult)
         
         # Phase B.6: place buildings via Lot recipes first (suburbs, commercial,
         # industrial, downtown, farmland, military). Falls back to procedural
