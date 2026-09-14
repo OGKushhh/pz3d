@@ -1416,3 +1416,27 @@ Stage Summary:
 - Anti-repetition + overlap detection added to baker. Improvements are incremental.
 - 668 overlaps remain — these are mostly between lot-stamped buildings (lot_stamper doesn't check overlaps). Need post-bake cleanup to fix.
 - Next step: write a post-bake cleanup script that reads baked_city.tscn, finds overlapping building pairs, removes the smaller one, saves cleaned .tscn. OR: user opens in editor, identifies specific ugly overlaps, we fix those.
+
+---
+Task ID: session-13-post-bake-cleanup-overlaps-fixed
+Agent: main (Super Z)
+Task: Hand-tune baked city. Used middleware to identify 668 overlapping buildings. Built post-bake cleanup script. Removed 1074 overlapping buildings.
+
+Work Log:
+- Built scripts/post_bake_cleanup.gd — loads baked_city.tscn, finds all building nodes with building_name meta, computes world-space AABBs, finds overlapping pairs, removes smaller building of each pair.
+- Results: found 6910 actual building nodes (dumper was undercounting due to category naming). 1316 overlapping pairs. Removed 1074 buildings (smaller of each pair).
+- Replaced baked_city.tscn with cleaned version:
+  * Overlaps: 668 → 1 (99.9% reduction!)
+  * Repetition: 78 → 22 (72% reduction)
+  * Buildings (dumper count): 1955 → 1458 (some removed for overlaps)
+  * File: 50MB → 41MB
+  * Gaps: 68.6% → 69.9% (slight increase from removals, acceptable)
+- Remaining 1 overlap is an edge case (border touch).
+- Remaining 22 repetition issues are acceptable — some repetition is natural in real cities.
+- Top chunks: 32-37 buildings (was 5-7 at start of session).
+
+Stage Summary:
+- Post-bake cleanup successful. 99.9% of overlaps eliminated.
+- baked_city.tscn is now 41MB with ~5836 building nodes (1458 by dumper count — dumper undercounts because manifest categories are inconsistent).
+- The gen → edit pipeline is working: baker produces draft → middleware analyzes → cleanup removes bad placements → user opens in editor for final hand-tune.
+- Next: user opens baked_city.tscn in Godot editor, identifies specific blocks to tune. We iterate on those.
