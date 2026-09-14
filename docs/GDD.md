@@ -386,11 +386,13 @@ Per-district fixed loot table. Within the table, rarity is random:
 
 ## 4.1 Map Dimensions 🔒
 
-**4.0 km × 3.0 km = 12 km² of playable area** (~40% of GTA San Andreas total map).
+> **LOCKED 2026-09-14.** Map size is fixed at 12 km² for v1. The 30 km² beta + 100 km² v1 plans are DELETED. If city gen keeps struggling, we LOWER below 12 km² (density over area), not expand.
 
-- GTA SA full map ≈ 5.5 km × 5.5 km ≈ 30 km²
-- Los Santos + Red County + Flint County ≈ 42% of total ≈ 12.7 km²
-- Rounded to 4 × 3 km
+**4.0 km × 3.0 km = 12 km² of playable area** (locked for v1).
+
+- Reference: GTA San Andreas ≈ 30 km² (we're ~40% of that)
+- Los Santos + Red County + Flint County ≈ 42% of GTA SA ≈ 12.7 km²
+- Rounded to 4 × 3 km = 12 km²
 
 **Grid:** 8 × 6 cells of 500m × 500m. Each cell = 0.25 km². Total 48 cells.
 

@@ -199,12 +199,12 @@ Hand-author ONE hero block (e.g. suburb_block from `district_templates.gd`) in a
 | 11 | NPC AI — zombies wander toward noise, attack on contact | Large | High (gameplay) |
 | 12 | Save/load — persist player modifications across runs | Large | Medium |
 
-### Phase B.4 — Map expansion (deferred)
+### ~~Phase B.4 — Map expansion~~ (DELETED 2026-09-14)
 
-| # | Task | Effort | Impact |
-|---|---|---|---|
-| 13 | Expand 12km² → 30km² (update MAP_SIZE_M + GRID_COLS/ROWS + grid_layout) | Low (mechanical) | Medium |
-| 14 | Expand 30km² → 100km² (GDD §4.1 v1 target) | Medium | Low (alpha) |
+User decision: "lock down 12km2 and delete the 30km2 plan, if i keep
+failing at city gen i might lower it more than 12." Map is fixed at 12 km²
+for v1. If city gen struggles, we LOWER below 12 km² (density over area),
+not expand. The 30 km² beta + 100 km² v1 plans are deleted from city_config.gd.
 
 ### Phase B.5 — Parcel system (DONE 2026-09-14)
 

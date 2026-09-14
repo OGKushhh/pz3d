@@ -653,22 +653,16 @@ User mentioned "fetch and see the weapons assets i gave you" but no URL was
 provided in the message. Need to ask user for the weapon asset URL/zip path.
 
 ---
-Task ID: v1-flat-terrain
+Task ID: lock-12km2-delete-30km2-plan
 Agent: main (Super Z)
-Task: User decided to go flat for v1 while keeping the subway. Implement flat terrain, update GDD + worklog.
+Task: User decided to lock map at 12km² + delete the 30km²/100km² expansion plans. If city gen keeps struggling, may lower below 12km² (density over area), not expand.
 
 Work Log:
-- Investigated terrain system: terrain_height.gd (height function), terrain_baker.gd (mesh gen), terrain_debug_viz.gd (debug viz), chunk_streamer._terrain_y() (placement queries)
-- Found that heightmap mesh generation was ALREADY disabled in Phase B.4 (terrain_baker._build_terrain only places bridges + water)
-- Found that _terrain_pos/_terrain_y in chunk_streamer were defined but never called — buildings already placed at Y=0
-- The only active terrain height usage was _terrain_y() being available for future use + TerrainDebugViz (already disabled as autoload)
-- Implementation: added FLAT_TERRAIN_V1 := true constant in chunk_streamer.gd. _terrain_y() now returns 0.0 when enabled. terrain_height.gd kept intact for future re-enable.
-- Bridges remain elevated +3m (structural — they cross the river)
-- Subway system (subway_network.gd) unaffected — it operates underground with its own Y coordinate, never depended on surface terrain
-- Updated GDD §12: added §12.0 "v1 Flat Terrain" section documenting the decision, what's flat, what's not, why, how it's implemented, and how to re-enable post-v1. Renumbered existing §12.1 to "Core principle (design — for post-v1 reference)"
+- city_config.gd: deleted 30km² beta + 100km² v1 dimension comments. Added v1-locked note documenting the decision. MAP_SIZE_M stays Vector2(4000, 3000) = 12 km².
+- roadmap.md: deleted Phase B.4 "Map expansion" tasks #13 (12→30km²) + #14 (30→100km²). Replaced with strikethrough + decision note.
+- GDD §4.1: added LOCKED 2026-09-14 callout. Removed "expand" framing. Added "density over area" principle — if city gen struggles, we LOWER, not expand.
 
 Stage Summary:
-- v1 terrain is flat — all surface placement at Y=0
-- terrain_height.gd preserved for future re-enable (5-step re-enable process documented in GDD §12.0)
-- Subway system intact and unaffected
-- GDD updated with §12.0 flat terrain section
+- Map size locked at 12 km² (4km × 3km, 8×6 grid of 500m cells)
+- All expansion plans deleted from code + docs
+- Principle documented: density over area. If city gen fails, shrink the map, don't grow it.

@@ -33,9 +33,13 @@ enum Biome {
 # channel — to be wired in a later phase).
 
 # ── MAP DIMENSIONS ────────────────────────────────────────
-# 12 km² alpha  →  Vector2(4000, 3000), GRID 8×6
-# 30 km² beta   →  Vector2(6000, 5000), GRID 12×10
-# 100 km² v1    →  Vector2(10000, 10000), GRID 20×20
+# Phase v1-locked (2026-09-14): MAP IS FIXED AT 12 km².
+# User decision: "lock down 12km2 and delete the 30km2 plan, if i keep
+# failing at city gen i might lower it more than 12."
+#
+# 12 km² alpha  →  Vector2(4000, 3000), GRID 8×6  ← LOCKED FOR v1
+# (30 km² beta + 100 km² v1 plans DELETED — if city gen keeps struggling,
+#  we may LOWER below 12 km², not expand. Density over area.)
 const MAP_SIZE_M   := Vector2(4000.0, 3000.0)
 const GRID_COLS    := 8
 const GRID_ROWS    := 6
