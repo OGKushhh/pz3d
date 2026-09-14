@@ -150,6 +150,9 @@ func _fire_single_pellet(pellet_index: int) -> void:
         # get_rid(). Only exclude CollisionObject3D ancestors (player CharacterBody3D).
         var space_state := _camera.get_world_3d().direct_space_state
         var query := PhysicsRayQueryParameters3D.create(origin, end_pos)
+        # Phase #5: collision mask — hit world (1) + targets (4) = 5
+        # Player is on layer 2 (excluded via mask, not just RID exclude)
+        query.collision_mask = 5  # world + target
         # Build exclude list from CollisionObject3D ancestors of the camera
         var exclude_rids: Array[RID] = []
         var node: Node = _camera

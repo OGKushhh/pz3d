@@ -14,6 +14,9 @@ var _weapon_system: Node
 func _ready() -> void:
         _camera = $Camera3D
         Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+        # Phase #5: set player collision_layer to "player" (layer 2 = bit 1, value 2)
+        collision_layer = 2  # player layer
+        collision_mask = 1   # collide with world only
         # Setup weapon system
         _weapon_system = preload("res://weapons/weapon_system.gd").new()
         _weapon_system.name = "WeaponSystem"
