@@ -9,7 +9,7 @@
 class_name Tracer
 extends MeshInstance3D
 
-const FADE_TIME := 0.1
+const FADE_TIME := 0.15  # was 0.1 — slightly longer so tracer is more visible
 
 var _elapsed: float = 0.0
 var _material: StandardMaterial3D

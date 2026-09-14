@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://testshootrange01"]
+[gd_scene load_steps=10 format=3 uid="uid://testshootrange01"]
 
 [ext_resource type="Script" path="res://scripts/test_shoot_player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/shoot_target.gd" id="2_target"]
@@ -10,9 +10,40 @@ size = Vector3(100, 0.1, 100)
 size = Vector3(100, 0.1, 100)
 
 [sub_resource type="StandardMaterial3D" id="ground_mat"]
-albedo_color = Color(0.15, 0.18, 0.12, 1)
+albedo_color = Color(0.25, 0.30, 0.20, 1)
+roughness = 0.9
+
+[sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
+sky_top_color = Color(0.3, 0.5, 0.8, 1)
+sky_horizon_color = Color(0.6, 0.7, 0.9, 1)
+ground_bottom_color = Color(0.2, 0.2, 0.25, 1)
+ground_horizon_color = Color(0.4, 0.4, 0.4, 1)
+sun_angle_max = 80.0
+sun_curve = 0.2
+
+[sub_resource type="Sky" id="sky"]
+sky_material = SubResource("sky_mat")
+
+[sub_resource type="Environment" id="env"]
+background_mode = 2
+sky = SubResource("sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.55, 0.6, 1)
+ambient_light_energy = 0.6
+fog_enabled = true
+fog_light_color = Color(0.7, 0.75, 0.8, 1)
+fog_density = 0.005
+glow_enabled = true
+glow_intensity = 0.8
+glow_blend_mode = 1
+
+[sub_resource type="BoxShape3D" id="target_shape"]
+size = Vector3(2, 2, 0.3)
 
 [node name="TestShootRange" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
 
 [node name="Ground" type="StaticBody3D" parent="."]
 
@@ -25,8 +56,9 @@ shape = SubResource("ground_shape")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.707, -0.707, 0, 0.5, 0.5, -0.707, -0.5, -0.5, -0.707, 0, 30, 0)
-light_energy = 1.2
+light_energy = 1.5
 shadow_enabled = true
+shadow_blur = 2.0
 
 [node name="Player" type="CharacterBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 20)
@@ -57,3 +89,13 @@ script = ExtResource("2_target")
 [node name="Target5" type="StaticBody3D" parent="Targets"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 1, -40)
 script = ExtResource("2_target")
+
+[node name="BackWall" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -50)
+
+[node name="BackWallMesh" type="MeshInstance3D" parent="BackWall"]
+mesh = SubResource("ground_mesh")
+material_override = SubResource("ground_mat")
+
+[node name="BackWallShape" type="CollisionShape3D" parent="BackWall"]
+shape = SubResource("ground_shape")
