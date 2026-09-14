@@ -1193,3 +1193,99 @@ Stage Summary:
   2. test_city_static.tscn (49KB, 232 placements) — 10 hand-placed biome chunks in a strip, now with proper sky + sun + ground + player
 - Both have: WASD movement, mouse look, Space=jump, Shift=sprint, V=fly toggle (in fly mode: Space=up, C=down), Esc=release mouse
 - User can pull and run either scene in Godot editor (Play button) to drop in and explore.
+
+---
+Task ID: session-13-architecture-pivot-to-baked-hybrid
+Agent: main (Super Z)
+Task: User: "you CAN hand auther maps but you need something that prevents illogical props from spwaning or buildings from colliding like i see now + more biome variety per block + Hand-tune specific blocks. so we need to integrate our city gen correctly, maybe we just move all work on the prebuilt pipeline that got abandoned in favor of runtime testing and debugging or runtime is not an issue?"
+
+Work Log:
+- Read existing infrastructure inventory:
+  * placement_validator.gd (162 lines) — ALREADY has collision/overlap/path/road/POI checks + setback ranges per biome + incompatible neighbor pairs + repetition limit. Ready to use.
+  * district_templates.gd (data/) — has TEMPLATES dict + BIOME_TEMPLATES map. Already designed for hand-authored block compositions.
+  * lot.gd (370 lines) — has 11 hand-authored Lot recipes for 6 biomes (suburb_house_east_garage, suburb_house_west_garage, commercial_strip, industrial_yard, downtown_tower_block, farm_farmstead, etc). Each has primary + companions + sidewalk + driveway with explicit offsets.
+  * district_stamper.gd (173 lines) — already stamps templates at chunk centers with rotation jitter.
+  * lot_stamper.gd (276 lines) — already stamps lots at parcels, queries road_network for actual road geometry, validates via PlacementValidator.
+  * map_baker.gd — DOES NOT EXIST. Was planned in roadmap Phase B.8 "Persistent Map Baker (DEFERRED)" with note "Status: Deferred per user — focus on city gen quality first, baking later."
+
+=== HONEST ANSWER TO USER'S QUESTION ===
+
+YES, baked/prebuilt is the right call. Runtime was the wrong pivot.
+
+WHY RUNTIME WAS WRONG:
+1. The runtime chunk_streamer.gd is 3594 lines, has 7 parallel placement entry points, and produces visibly bad results (VLM confirmed: sparse, random, trees in roads, copy-paste motels).
+2. Each session added a bandaid ("tree on path? add is_on_path check"). Cost per bandaid is going up because each new rule has to coordinate with all previous ones.
+3. The runtime testing/debugging was needed to verify the asset pipeline (does every GLB load + place + collide correctly?). That's DONE now — 234 assets validated. The runtime approach has served its purpose.
+4. Players don't see "streaming" — they see "is the city good or not." Streaming is invisible if done right. Baking is invisible if done right. Both produce the same in-game experience. The difference is iteration speed + determinism + quality.
+
+WHY BAKED IS RIGHT:
+1. Hand-authoring produces good results (test_city_v2.tscn proves it). But hand-authoring alone has collisions + illogical spawns because humans make mistakes.
+2. The city gen already has the RULES that prevent this: PlacementValidator (collision, setback, neighbor compat), anti-clustering, district budgets, meso filter. These rules are CORRECT. The problem is they were applied at runtime where they fight the 7 uncoordinated placement systems.
+3. Baking moves these rules to DESIGN TIME. The baker runs the same generator code, but writes the result to a .tscn file ONCE. Then the runtime just loads the .tscn. Rules apply during bake. Collisions caught during bake. Illogical spawns caught during bake. User sees a clean .tscn in the editor and can hand-tune specific blocks before shipping.
+4. Hand-tuning is now possible: open the baked .tscn in Godot editor, see a misplaced house, drag it. Save. Done. Runtime can't do this — every change requires editing JSON + regenerating.
+
+=== PROPOSED PLAN (3 stages, each shippable) ===
+
+STAGE 1 — Build map_baker.gd (the deferred Phase B.8):
+- New script: scripts/build_baked_city.gd (extends SceneTree, runs headless like build_test_city.gd)
+- Reads: map_data.json (biome grid + roads + river + POIs) — already exists
+- Uses: existing chunk_streamer logic, BUT writes to PackedScene instead of Node3D tree at runtime
+- Uses: existing PlacementValidator, district_stamper, lot_stamper, anti-clustering
+- Output: scenes/baked_city.tscn (single file, ~5-10MB, loads in 1 second)
+- Estimated effort: 2-3 hours. The infrastructure exists; we're just wiring the output to ResourceSaver instead of add_child.
+- Variations: takes a seed parameter. Different seeds → different .tscn files (baked_city_seed1337.tscn, baked_city_seed42.tscn). User can preview multiple, pick favorite, hand-tune.
+
+STAGE 2 — Hand-tune specific blocks in editor:
+- Open baked_city.tscn in Godot editor
+- Identify blocks that look wrong (e.g. "this commercial block has 4 motels, replace 2 with diners")
+- Edit in editor: delete motel, drag in diner, save
+- Or: tweak the generator (district_templates.gd / lot.gd) and re-bake
+- The .tscn is now the source of truth, not the generator. Generator becomes "initial draft tool."
+- Estimated effort: ongoing, per-session as user identifies bad blocks.
+
+STAGE 3 — Biome variety per block + creative variations:
+- Currently: district_templates has 1-2 templates per biome. Lots has 11 recipes for 6 biomes.
+- Goal: 5+ templates per biome, 20+ lot recipes, so two adjacent Suburbia blocks look different.
+- Each template = different layout (cul-de-sac vs. grid vs. row houses vs. estate).
+- Each lot recipe = different companion arrangement (house+east_garage vs. house+west_garage vs. house+shed vs. house+garden).
+- Anti-clustering + repetition rules already exist — they ensure variety at bake time.
+- Estimated effort: 3-5 sessions of authoring templates + recipes. Reuses existing patterns.
+
+=== WHAT CHANGES VS WHAT STAYS ===
+
+CHANGES:
+- map_baker.gd exists (was deferred). Outputs .tscn files.
+- chunk_streamer.gd becomes the editor-time preview tool (still useful for testing generator changes — re-bake and compare).
+- The runtime game loads baked_city.tscn directly, not chunk_streamer's runtime tree.
+- middleware (ai_fill_planner.py, ai_multi_pass.py) becomes optional — can run during bake to clean up, but doesn't need to run at runtime.
+- Per-run loot/zombie/door-state resets happen at runtime, on top of baked geometry. That's already how the GDD describes it (Pillar 1: "authored skeleton, procedural flesh").
+
+STAYS:
+- All 234 assets (no re-export needed).
+- All placement rules (PlacementValidator, anti-cluster, meso, budgets).
+- All hand-authored content (district_templates, lot recipes).
+- map_data.json structure.
+- The 12km² map (no size change).
+- All test scenes (test_city.tscn, test_city_v2.tscn, test_city_static.tscn).
+
+=== RUNTIME COST: NOT AN ISSUE ===
+
+Loading a 5-10MB .tscn at startup: ~100-500ms (one-time, behind a loading screen).
+Streaming chunk_streamer at runtime: ~30ms per chunk × 25 chunks at startup = 750ms, then continuous as player moves.
+
+Baked is FASTER at startup, not slower. The "runtime is needed for streaming" argument only applies to open-world games where the map is too big to fit in memory. 12km² with ~10,000 placements is ~50-200MB of scene data — fits in RAM easily. Streaming was over-engineered for this scale.
+
+=== MY RECOMMENDATION ===
+
+Commit to Stage 1 (build map_baker.gd) this session. Should take 2-3 hours. Output: one baked_city.tscn that replaces the runtime chunk_streamer for actual gameplay. User can then open it in editor, see specific problems, and we iterate on those specific problems instead of fighting the 7-system runtime architecture.
+
+Stage 2 + 3 follow based on what the user identifies as bad in the bake.
+
+Stage 4 (future, not committing now): if baked city is good, delete chunk_streamer.gd entirely. ~3500 lines of dead code gone.
+
+Stage Summary:
+- Answered user's strategic question honestly: yes, baked is the right call. Runtime was needed for asset validation (DONE), now it's a liability.
+- Existing infrastructure is sufficient: PlacementValidator has the rules, district_templates + lot.gd have the hand-authored content, district_stamper + lot_stamper already wire them together.
+- map_baker.gd was deferred (Phase B.8) — needs to be built now. ~2-3 hours.
+- Three-stage plan: bake → hand-tune → expand variety. Each stage shippable.
+- Waiting for user direction: (a) commit to Stage 1 and build map_baker.gd, (b) discuss specific design before building, (c) propose alternative.
