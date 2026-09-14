@@ -125,6 +125,55 @@ The shipping map is **fixed + hand-authored** per Pillar 1 of the GDD. The right
 
 ---
 
+## Milestones (moved from GDD)
+
+| # | Milestone | Exit criteria | Status |
+|---|---|---|---|
+| 0 | Pre-production | All open questions answered | ⏳ in progress |
+| 1 | Vertical slice — Suburbia | 5 buildings enterable, 1 weapon, 5 loot items, basic Walker AI, day/night | Next |
+| 2 | Alpha — full map | All 10 biomes present, all systems functional | — |
+| 3 | Alpha+ — content polish | All buildings enterable, all loot tables populated, meta-progression balanced | — |
+| 4 | Story mode | Day-1 sim, missions, NPCs, lore fragments, endings | — |
+| 5 | Co-op technical pass | Online architecture validated | — |
+| 6 | v1 release | Hybrid characters, full visual polish, comic shader, all known issues fixed | — |
+
+---
+
+## Asset production status (moved from GDD)
+
+Current: 234 active assets (226 buildings/props/foliage + 8 weapons)
+
+| Category | Count | Notes |
+|---|---:|---|
+| Buildings | 88 | 13 with shells done, ~20 TODO |
+| Props (dynamic) | 16 | chairs, tables, lamps, beds, fridges |
+| Props (static fixtures) | 11 | kitchen modules, toilet, bathtub |
+| Foliage | 19 | trees, bushes, hedges, flowers |
+| Environment | 40+ | roads, lights, fences, signs |
+| Characters | 5 | player + 4 zombies |
+| Weapons | 8 | 4 ranged + 4 melee |
+| Vehicles | 8 | M.A.V.S addon |
+
+Known asset issues: see `docs/buildings.md` Part 1 (shells needed) + bug list above.
+
+---
+
+## Terrain phases (moved from GDD — for post-v1 re-enable)
+
+Validation rule: FPS must not drop >20% from baseline (145 FPS headless, threshold 116 FPS).
+
+| Phase | What | Status |
+|---|---|---|
+| A — Prep | River redesign, biome enum cleanup, subway-as-layer | ✓ DONE |
+| B — Terrain core | terrain_height.gd, river_network.gd, debug viz | ✓ DONE |
+| C — Terrain mesh | Terrain3D plugin, heightmap bake, splatmap | ⏳ deferred (v1 flat) |
+| D — Water + bridge | Water surface, bridge POIs, water_depth query | ✓ Partial (bridges done, water surface done, depth query pending) |
+| E — NavMesh | NavigationRegion3D per chunk, zombie pathfinding | ⏳ pending |
+| F — POI system | pois.json, landmark placement, visibility check | ⏳ pending |
+| G — Independent perf | Spatial grid roads, MultiMesh batching, AABB insert | ⏳ pending |
+
+---
+
 ## Middleware (FROZEN — no commits except real bugs)
 
 - 10 detectors (7 geometric + 3 semantic)

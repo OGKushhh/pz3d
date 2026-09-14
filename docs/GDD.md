@@ -41,7 +41,7 @@ No place is safe.
 
 ## 1.2 Pillars
 
-1. **Authored skeleton, procedural flesh.** Landmarks, roads, and POIs are hand-placed. Buildings and props fill the authored skeleton procedurally. Procedural interiors provide replayability; the exterior shell is fixed. 🧪 *(under testing — see §12.1 + §12.6)*
+1. **Authored skeleton, procedural flesh.** Landmarks, roads, and POIs are hand-placed. Buildings and props fill the authored skeleton procedurally. Procedural interiors provide replayability; the exterior shell is fixed. 🧪 *(under testing — see §10.1 + §10.6)*
 2. **Sound is gameplay.** Zombies hear you. Gunshots draw them. Stealth matters. Generators hum. Footsteps echo.
 3. **Roguelite progression.** Permadeath in sandbox; meta-upgrades persist. Find your old body, loot your old loot.
 4. **Biome identity.** Each of the 10 biomes has loot focus, difficulty, vibe, weather, time-cycle identity.
@@ -451,7 +451,7 @@ The National City of Mazar is a **fixed 4 km × 3 km hand-authored map**. It is 
 
 When the asset pipeline is stable and the **Lot System** (§4.7.3) is implemented, the runtime generator is **frozen** and the canonical map is baked to `.tscn` files via `tools/city_builder.gd` + `tools/terrain_baker.gd`. The runtime generator stays in the repo as a debug tool / regen path, but the shipping build loads baked scenes.
 
-### 4.7.3 The Lot System (Phase B.6 — next priority)
+### 4.7.3 The Lot System
 
 A **Lot** is the smallest authored unit of the map. Each Lot owns:
 
@@ -461,13 +461,9 @@ A **Lot** is the smallest authored unit of the map. Each Lot owns:
 4. **1 driveway polyline** from road-edge to garage door (3m wide darker strip) — only if a garage companion exists
 5. **A setback** = distance from road to building front (varies per zoning: 0m commercial, 4m residential, 8m suburban)
 
-This replaces the current ad-hoc placement in `chunk_streamer.gd:617-690` (parcel-by-parcel loop) and `chunk_streamer.gd:711` (gap-filler loop that scatters garages/sheds at random positions with random rotation — the literal source of the "garage facing a different side" bug).
-
-Hand-authored **Lot recipes** live in `tools/lot.gd` (or `data/lot_recipes.gd` — TBD). ~20-30 recipes cover the 10 biomes. Recipes stamp at parcel positions via a `LotStamper` (mirroring how `DistrictStamper` stamps district templates at chunk anchors). This is the same architecture pattern as district templates, scaled down one level: templates = block scale, lots = parcel scale.
+Hand-authored **Lot recipes** live in `tools/lot.gd`. Recipes stamp at parcel positions via a `LotStamper` (mirroring how `DistrictStamper` stamps district templates at chunk anchors). This is the same architecture pattern as district templates, scaled down one level: templates = block scale, lots = parcel scale.
 
 ### 4.7.4 The shipping map is PERSISTENT (baked), not runtime-generated
-
-> **Rewritten 2026-09-14.** The previous version of this section was written by an AI session without the user's explicit input and framed hand-authoring as "rejected". This rewrite reflects the user's actual intent, stated 2026-09-14: persistent map + procedural interiors + runtime gen for testing only.
 
 The National City of Mazar ships as a **persistent map** — a fixed, hand-curated arrangement of roads, landmarks, building exteriors, lot compositions, sidewalks, and driveways. It is **NOT** regenerated on each playthrough. The runtime procedural generator in `tools/chunk_streamer.gd` exists to **validate the asset pipeline + recipe math during development**; it is not what the player sees in the shipping build.
 
@@ -487,26 +483,27 @@ The National City of Mazar ships as a **persistent map** — a fixed, hand-curat
 
 **The right scope for hand-authoring is recipes** (district templates + lot recipes), validated by a constraint pass, then baked. Recipes are small, testable, and stamp deterministically — they get the curatorial intent of hand-authored + the validation benefit of procedural. The baker freezes the recipe-driven output into the persistent map.
 
-### 4.7.5 The Constraint Validator + Generator Fixes (Phase B.7)
+### 4.7.5 The Constraint Validator
 
-> **Added 2026-09-14. Updated per DeepSeek review.** Synthesizes the placement-validation architecture from Parish & Müller 2001 (`localConstraints`), Barrett's simplified propose-validate-accept loop (per SE), and uliwitness's desirability-penalty system (per SE).
->
-> **DeepSeek correction (2026-09-14):** Path connectivity and setbacks are GENERATOR fixes, not validator fixes. The validator can reject a bad placement, but it can't fix "paths don't connect to roads" — no rule is being violated, the generator just isn't proposing good paths. The generator must query `road_network` for actual road geometry and derive sidewalk + driveway + setback from it. The validator is a SAFETY NET for cases the generator misses, not the primary fix.
+The Lot System (§4.7.3) provides the **propose** half: Lot recipes propose primary + companion + sidewalk + driveway placements. The Constraint Validator provides the **validate** half — the `localConstraints` function that every procedural-city algorithm converges on.
 
-**Two tracks in Phase B.7:**
+**Architecture (propose → validate → commit):**
 
-**Track 1 — Generator fixes (primary, do first):**
+```
+LotStamper.stamp_lot()
+  ├── propose: primary building at parcel.building_pos
+  ├── validate: PlacementValidator.validate(pos, asset, biome)
+  │     ├── is_on_path(pos, margin=2m)?        → reject or nudge
+  │     ├── nearest_road_distance(pos)         → reject if outside [min, max] setback
+  │     ├── is_on_road(pos)?                   → reject
+  │     ├── neighbor_compatibility(pos, asset) → reject if incompatible
+  │     └── return {ok: bool, nudge: Vector3?}
+  ├── if ok:     stamp + insert into spatial index
+  ├── if nudge:  retry at pos + nudge (max 3 retries)
+  └── if reject: skip this lot, fall through to procedural fallback
+```
 
-The generator must propose good placements by default. This means:
-- `block_layout.gd:Parcel._init` currently derives `front_dir` + `building_pos` from chunk-grid assumptions ("N/S/E/W" edges). It does NOT query `road_network.gd` at all. This is the root cause of "paths don't connect to roads" + "inconsistent setbacks".
-- Fix: after `generate_parcels()`, query `road_network.nearest_road_info(parcel.building_pos)` for each parcel. Store `road_edge_pos` + `road_distance` + `road_dir` on the Parcel. Re-derive `front_dir` to point from building toward the actual nearest road point.
-- Fix: `block_layout.gd:get_interior_paths` currently emits chunk-center cross-stripes. Replace with per-lot sidewalk + driveway segments that start at `parcel.road_edge_pos` and end at building/garage doors. For biomes WITHOUT lot recipes, keep the cross-stripes as fallback.
-- Fix: LotStamper sidewalk + driveway strips currently use hardcoded offsets (`[0, 0, 6.0]`) from the lot recipe. Replace with `parcel.road_edge_pos` as the start point — the strip goes from the actual road edge to the door.
-- Fix: gap filler + foliage loops in `chunk_streamer.gd` skip positions on paths. Currently they only check `spatial.is_free()` + `spatial.is_on_road()`. Add `path_query.is_on_path(pos, margin)` check.
-
-**Track 2 — Validator (safety net, do after Track 1):**
-
-The validator catches cases the generator's proposal logic misses. It does NOT replace good proposals — it catches bad ones that slip through.
+**Penalty scoring:**
 
 | Condition | Penalty |
 |---|---|
@@ -515,43 +512,23 @@ The validator catches cases the generator's proposal logic misses. It does NOT r
 | Position is inside a POI exclusion zone | -100 (hard reject) |
 | Nearest road distance < biome.min_setback | -50 (reject for this asset type) |
 | Nearest road distance > biome.max_setback | -30 (reject for primary, allow for backyard) |
-| Asset is incompatible with nearest neighbor (e.g. shed next to gas_station) | -40 |
+| Asset is incompatible with nearest neighbor | -40 |
 | Asset repeats >5 times in this chunk | -20 |
 | Position is within 2m of another asset | -100 (hard reject, overlap) |
 
-**Middleware (per DeepSeek correction #2):**
-
-The middleware `ai_multi_pass.py` revert-on-regression is the accept/reject signal at the LOOP level. Per-action validation is the FILTER for what to try. Two jobs, both needed. Keep the revert. Do NOT remove it (B.7.6 removed from plan).
-
-**Files (Phase B.7):**
-
-| File | Track | What |
-|---|---|---|
-| `tools/road_network.gd` (EDIT) | Generator | Add `nearest_road_info(pos) -> {distance, point, direction, segment}` |
-| `tools/block_layout.gd` (EDIT) | Generator | Add `road_edge_pos` + `road_distance` + `road_dir` to Parcel class |
-| `tools/chunk_streamer.gd` (EDIT) | Generator | After generate_parcels(), query road_network per parcel; set road_edge_pos + re-derive front_dir |
-| `tools/lot_stamper.gd` (EDIT) | Generator | Use `parcel.road_edge_pos` for sidewalk + driveway start points (not hardcoded recipe offsets) |
-| `tools/path_query.gd` (NEW, ~80 lines) | Generator support | `is_on_path(pos, margin)`, `nearest_path(pos)` — collects all drawn path segments + queries |
-| `tools/chunk_streamer.gd` gap filler + foliage (EDIT) | Generator | Add `path_query.is_on_path()` check before placing props/trees |
-| `tools/placement_validator.gd` (NEW, ~150 lines) | Validator | `validate(pos, asset_name, biome) -> Dictionary` with penalty scoring |
-| `tools/lot_stamper.gd` (EDIT) | Validator | Call validator before stamping; nudge + retry on soft reject (max 3) |
-
-**Visual contract after Phase B.7:**
-
+**Visual contract:**
 - No prop, tree, or companion lands on a path
-- Every building sits at a consistent setback from its nearest road (within biome's `[min, max]` range)
-- Every house has a sidewalk that reaches the actual road (not a chunk-center cross-stripe)
+- Every building sits at a consistent setback from its nearest road
+- Every house has a sidewalk that reaches the actual road
 - Every garage has a driveway that reaches the actual road
-- Incompatible assets don't cluster (no shed next to gas station)
-- Asset repetition is capped (no 6 identical houses in one chunk)
+- Incompatible assets don't cluster
+- Asset repetition is capped
 
-### 4.7.6 The Persistent Map Baker (Phase B.8)
+### 4.7.6 The Persistent Map Baker
 
-> **Added 2026-09-14 per DeepSeek corrections #3 + #4.**
+After baking, the middleware moves to the BAKE STEP, not runtime. `map_baker.gd` runs the full pipeline: gen → validate → middleware multi-pass → bake. The runtime game loads baked chunks and does NOT run middleware. `chunk_states_auto.json` + `fill_plan.json` become bake-time artifacts, removed from the runtime path.
 
-**Middleware retirement decision (per DeepSeek #3):** After baking, the middleware moves to the BAKE STEP, not runtime. `map_baker.gd` runs the full pipeline: gen → validate → middleware multi-pass → bake. The runtime game loads baked chunks and does NOT run middleware. `chunk_states_auto.json` + `fill_plan.json` become bake-time artifacts, removed from the runtime path.
-
-**Bake version stamp (per DeepSeek #4):** Same pattern as `CityMeta`. Hash of: generator file contents (`chunk_streamer.gd` + `lot.gd` + `lot_stamper.gd` + `district_stamper.gd` + `district_templates.gd` + `city_config.gd` + `block_layout.gd` + `placement_validator.gd` + `path_query.gd`) + manifest hash + seed. Stored in `baked_chunks/meta.json`. On load, compare. If mismatch, warn + force re-bake (or refuse to load stale chunks).
+**Bake version stamp:** Same pattern as `CityMeta`. Hash of generator file contents + manifest hash + seed. Stored in `baked_chunks/meta.json`. On load, compare. If mismatch, warn + force re-bake.
 
 ## 4.5 Alpha Build Order 🔒
 
@@ -1002,68 +979,8 @@ Final assets committed to `/home/z/my-project/assets/<category>/` and backed up 
 
 ---
 
-# PART 9: TIER 1 PRODUCTION STATUS
 
-## 9.1 Approved Assets (28 active + 1 upstream = 29 total) ✅
-
-| # | Asset | Category | Tris | Type | Status |
-|---|---|---|---|---|---|
-| 1 | suburban_house_v2 | buildings | 1,800 | static shell | ✅ approved |
-| 2 | office_chair | props | 6,500 | dynamic | ✅ approved |
-| 3 | dining_table | props | 460 | dynamic | ✅ approved |
-| 4 | oak_tree | foliage | 2,400 | hero tree | ✅ approved |
-| 5 | bush | foliage | 360 | bush | ✅ approved |
-| 6 | sedan | vehicles | — | — | ❌ RETIRED (external) |
-| 7 | pickup_truck | vehicles | — | — | ❌ RETIRED (external) |
-| 8 | blood_splatter_decal | decals | — | — | ❌ RETIRED (external) |
-| 9 | asphalt_road_segment | environment | 96 | road | ✅ approved |
-| 10 | two_story_colonial | buildings | 2,600 | static shell | ✅ approved |
-| 11 | bungalow | buildings | 2,000 | static shell | ✅ approved |
-| 12 | bookshelf | props | 264 | dynamic | ✅ approved |
-| 13 | bed_single | props | 1,600 | dynamic | ✅ approved |
-| 14 | kitchen_counter | props | — | — | ❌ RETIRED (split into 4 modular) |
-| 15 | refrigerator | props | 412 | dynamic + loot | ✅ approved |
-| 16 | pine_tree | foliage | 256 | standard tree | ✅ approved |
-| 17 | grass_tuft | foliage | — | — | ❌ RETIRED (external) |
-| 18 | picket_fence | environment | 168 | fence | ✅ approved |
-| 19 | street_light | environment | 504 | light source | ✅ approved |
-| 20 | kitchen_sink_unit | props | 172 | static modular | ✅ approved |
-| 21 | kitchen_stove_unit | props | 416 | static modular | ✅ approved |
-| 22 | kitchen_empty_counter | props | 120 | static modular | ✅ approved |
-| 23 | kitchen_wall_cabinet | props | 60 | static modular | ✅ approved |
-| 24 | shed | buildings | 1,000 | static shell | ✅ approved |
-| 25 | garage_detached | buildings | 1,300 | static shell | ✅ approved |
-| 26 | sofa | props | 3,300 | dynamic | ✅ approved |
-| 27 | coffee_table | props | 424 | dynamic | ✅ approved |
-| 28 | toilet | props | 996 | static fixture | ✅ approved |
-| 29 | bathtub | props | 280 | static fixture | ✅ approved |
-| 30 | mailbox | environment | 1,200 | exterior | ✅ approved |
-| 31 | trash_can | environment | 1,200 | exterior | ✅ approved |
-| 32 | birch_tree | foliage | 1,800 | standard tree | ✅ approved (needs canopy randomization fix) |
-| 33 | brick_wall_segment | environment | 120 | boundary | ✅ approved |
-| — | fence.mog (upstream) | environment | 318 | fence | ✅ approved |
-
-## 9.2 Known Issues Queue 🔒
-
-| # | Asset | Issue | Fix | Status |
-|---|---|---|---|---|
-| 1 | suburban_house.mog (upstream) | Doors flush with wall | Author v2 with `wall` holes | ✅ FIXED |
-| 2 | humanoid.mog (DSL test) | Reads "Roblox/blocky" | Accept for alpha; hybrid for v1 | Accepted |
-| 3 | oak_tree.mog (v1) | Bare twigs from `branch` primitive | Replace with `cylinder` trunk | ✅ FIXED |
-| 4 | sedan + pickup_truck | Wrong dimensions, wrong wheel angle | Retire — external assets | ✅ RETIRED |
-| 5 | blood_splatter_decal | Just a red square | Retire — external assets | ✅ RETIRED |
-| 6 | texture workflow | Gemini free tier = 0 image quota | Need paid key | 🔓 PAUSED |
-| 7 | grass_tuft | Low quality | Retire — external assets | ✅ RETIRED |
-| 8 | house side windows | Windows on rotated walls not aligned | Add `rot=[0, 90, 0]` to side window groups | ✅ FIXED |
-| 9 | bookshelf showing back | Back panel at +Z, camera at +Z | Flip: back at -Z, books at +Z | ✅ FIXED |
-| 10 | bed sheets disconnected | `tags="floating"` made them disconnected | Remove `tags`, overlap with mattress | ✅ FIXED (user accepted minor residual) |
-| 11 | refrigerator middle upside down | Divider/handles area looked wrong | Simplify: remove divider + handles + magnets | ✅ FIXED |
-| 12 | kitchen counter reversed | L-turn going wrong direction | Split into 4 modular pieces (PZ-style) | ✅ FIXED |
-| 13 | birch_tree canopy | "Looks like an atom" — spheres too uniform, no randomization | Add `noise=` or `jitter=` to canopy spheres; vary radii + positions | ⏳ TODO (next batch) |
-
----
-
-# PART 10: OPEN QUESTIONS 🔓
+# PART 9: OPEN QUESTIONS 🔓
 
 1. Survival needs list (subset of PZ's)
 2. Combat focus balance (ratios of stealth/guns/melee encounters)
@@ -1080,21 +997,7 @@ Final assets committed to `/home/z/my-project/assets/<category>/` and backed up 
 
 ---
 
-# PART 11: MILESTONES 🔒
-
-| # | Milestone | Exit criteria | Status |
-|---|---|---|---|
-| 0 | Pre-production | All open questions answered | ⏳ in progress |
-| 1 | Vertical slice — Suburbia | 5 buildings enterable, 1 weapon, 5 loot items, basic Walker AI, day/night | Next |
-| 2 | Alpha — full map | All 10 biomes present, all systems functional | — |
-| 3 | Alpha+ — content polish | All buildings enterable, all loot tables populated, meta-progression balanced | — |
-| 4 | Story mode | Day-1 sim, missions, NPCs, lore fragments, endings | — |
-| 5 | Co-op technical pass | Online architecture validated | — |
-| 6 | v1 release | Hybrid characters, full visual polish, comic shader, all known issues fixed | — |
-
----
-
-# PART 12: TERRAIN ARCHITECTURE 🧪
+# PART 10: TERRAIN ARCHITECTURE 🧪
 
 > **Status: v1 FLAT — elevation deferred. Updated 2026-09-14.**
 > User decision: "go flat for v1 while keeping the subway." All buildings,
@@ -1104,7 +1007,7 @@ Final assets committed to `/home/z/my-project/assets/<category>/` and backed up 
 > (`subway_network.gd`) operates underground and is unaffected — it never
 > depended on surface terrain height.
 
-## 12.0 v1 Flat Terrain (2026-09-14)
+## 10.0 v1 Flat Terrain (2026-09-14)
 
 **What's flat:** All surface placement (buildings, roads, props, foliage, sidewalks, driveways, landmarks, decay layer). Everything sits at Y=0.
 
@@ -1129,7 +1032,7 @@ Final assets committed to `/home/z/my-project/assets/<category>/` and backed up 
 4. Bump `TERRAIN_HEIGHT_VERSION` in terrain_height.gd
 5. Re-bake terrain mesh
 
-## 12.1 Core principle (design — for post-v1 reference)
+## 10.1 Core principle (design — for post-v1 reference)
 
 Two layers, cleanly separated:
 
@@ -1140,7 +1043,7 @@ Two layers, cleanly separated:
 | **Build step** | `tools/terrain_baker.gd` (one-shot) | Reads `terrain_height.gd`, writes to Terrain3D's heightmap asset. Run once at design time, re-run when height function changes (bump `TERRAIN_HEIGHT_VERSION`). |
 | **Everything else** | `ChunkStreamer` + `chunk_builder.gd` | Buildings, props, foliage, streetlights, roads, water surface (separate from terrain), POIs. All sample `terrain_height.height_at()` for their Y position. |
 
-## 12.2 TERRAIN_HEIGHT_VERSION constant
+## 10.2 TERRAIN_HEIGHT_VERSION constant
 
 ```gdscript
 # tools/terrain_height.gd
@@ -1155,7 +1058,7 @@ When `TERRAIN_HEIGHT_VERSION` is bumped:
 
 **Current version: 1** (initial — function not yet written, but version tracking is in place)
 
-## 12.3 Subway-as-layer, not biome
+## 10.3 Subway-as-layer, not biome
 
 **Decision (2026-09-12):** `Biome.SUBWAY` removed from the enum. Subway is a parallel underground layer, not a surface biome.
 
@@ -1167,7 +1070,7 @@ Rationale:
 
 Implementation status: `Biome.SUBWAY` value removed from `city_config.gd` enum. `tools/subway_network.gd` is a stub (constants only: TUNNEL_CEILING_Y=-6, TUNNEL_FLOOR_Y=-10, TUNNEL_RADIUS=2.5). Subway assets (subway_platform, subway_tunnel, subway_train_car, ticket_booth, turnstile, maintenance_tunnel_junction, emergency_exit_stairs, subway_pipe_cluster) are still in the manifest but won't be placed by surface chunk_builder — they'll be placed by `subway_builder.gd` when the player enters a station.
 
-## 12.4 Per-biome elevation signatures
+## 10.4 Per-biome elevation signatures
 
 | Biome | Base Y | Amplitude | Frequency | Result |
 |---|---:|---:|---:|---|
@@ -1183,7 +1086,7 @@ Implementation status: `Biome.SUBWAY` value removed from `city_config.gd` enum. 
 | COASTAL_BEACH | -1.0 | 8.0m | 0.020 | rolling cliff coastline — lighthouse territory |
 | WATER | -2.0 | 0.0 | — | ocean/lake (sea level) |
 
-## 12.5 River redesign (Phase A.2 — done 2026-09-12)
+## 10.5 River redesign (Phase A.2 — done 2026-09-12)
 
 **Was:** River = 2 columns × 6 rows = 12 cells = 25% of map = 3km² water. Player walks endless water.
 
@@ -1202,156 +1105,11 @@ Was:                                Now:
 
 Bridges updated: `from_col=3, to_col=5` (spans 1 river column + 1 bank on each side; was 4-column span over 2 river columns).
 
-## 12.6 Landmark system (Phase F — not yet implemented)
+## 10.6 Landmark system (Phase F — not yet implemented)
 
 `city_config.gd` has a `landmarks` field per biome (added during Phase A). The runtime streamer does NOT yet read it. Hero landmarks (fort_sarran, government_palace, stadium, old_royal_palace, lighthouse, bridge_section, grain_silo, windmill) will NOT spawn in-game until Phase F is done.
 
 Planned design: `res://data/pois.json` — hand-placed POIs. `chunk_builder.gd` queries POIs in chunk bounds. Places 1 per POI exactly. Suppresses procedural placement in POI radius. Landmark visibility check — raycast from 1km away, verify not occluded by terrain. Adjust POI Y if needed.
-
-## 12.7 Terrain phases A–G (each with FPS validation rule)
-
-Validation rule: after each phase, re-run baseline capture. FPS must not drop >20% from baseline (currently 145 FPS headless, threshold 116 FPS). If FPS drops below threshold, STOP and diagnose.
-
-### Phase A — Prep (4–5h) — **PARTIAL DONE 2026-09-12**
-| # | Task | Status |
-|---|---|---|
-| A.1 | Refactor `chunk_streamer.gd` to thin loader (drop inline placement, use `ResourceLoader.load_threaded_request` on prebuilt `.tscn` chunks). Move all placement logic into `chunk_builder.gd` as single source of truth. | 📋 deferred to Phase B — see note below |
-| A.2 | River=25% redesign: reduce RI from 2 columns to 1 column (12.5%). Add `COASTAL_BEACH` biome enum value for the freed column. | 🔒 done (2026-09-12) |
-| A.3 | Remove `Biome.SUBWAY` from enum. Create `tools/subway_network.gd` stub. | 🔒 done (2026-09-12) |
-| A.4 | Re-run `city_builder.gd` to regenerate `.tscn` chunks with new biome layout. | 📋 deferred to Phase B |
-| A.5 | Validation: re-run baseline capture. FPS must be ≥ 116 headless. | 🔒 done — **145 FPS, 0% drop, PASS** |
-
-**Why A.1 + A.4 are deferred to Phase B:** Phase B will require ALL placement code to sample `terrain_height.height_at(x, z)` for Y position. Doing the refactor twice (once for A.1, again in B.1 for terrain) is wasteful. Do both together in Phase B: refactor streamer to thin loader + port v4 logic to chunk_builder.gd + add terrain_height sampling, all in one pass.
-
-### Phase B — Terrain core — ✅ DONE 2026-09-12 (B.1-B.3, B.6)
-| # | Task | Status |
-|---|---|---|
-| B.1 | `tools/terrain_height.gd` — `class_name TerrainHeight`. Pure function `height_at(x, z) → float`. Composes biome elevation (base + FastNoiseLite noise) + river carve (quadratic falloff). TERRAIN_HEIGHT_VERSION = 1. | 🔒 done |
-| B.2 | Debug viz — `tools/terrain_debug_viz.gd` autoload. Heightmap-colored MeshInstance3D (41×31 grid, 2420 tris). Toggle with F3. | 🔒 done |
-| B.3 | `tools/river_network.gd` — river centerline at X=2250 (col 4). `distance_to()`, `water_depth_at()`, `bridge_at()` queries. | 🔒 done |
-| B.4 | Road flattening — `flatten_road_corridor()`. | 📋 deferred to Phase C (needs Terrain3D mesh — can't flatten flat ground) |
-| B.5 | Bridge ramp logic — bridge deck at terrain Y, piers to riverbed, road ramps. | 📋 deferred to Phase C (needs Terrain3D mesh) |
-| B.6 | Validation: re-run baseline. FPS ≥ 116 headless. | 🔒 done — **145 FPS, 0% drop, PASS** |
-
-**Phase B results:**
-- terrain_height.gd: 11 biome elevation profiles, FastNoiseLite seeded at 1337, river carve over 30m half-width to -4m
-- river_network.gd: centerline at X=2250, water_depth_at() returns 0 on land / 4m at river center
-- chunk_streamer.gd v5: all buildings/props/foliage now sample terrain Y for placement
-- Player spawn auto-adjusts Y from terrain (was Y=2 fixed, now Y=terrain+2)
-- Debug viz: F3 toggles heightmap-colored plane (blue=water, green=low, yellow=mid, red=high)
-- Player spawn moved from (2000,2,1500) → (1750,2,1500) — was spawning in river (underwater), now on Parks biome land at Y=3.88
-
-### Phase C — Terrain mesh (4–6h)
-| # | Task | Status |
-|---|---|---|
-| C.1 | Install Terrain3D plugin (https://github.com/outobugi/Terrain3D). Add to `project.godot` plugins list. | 🧪 pending |
-| C.2 | `tools/terrain_baker.gd` — one-shot script that samples `terrain_height.height_at()` on a 4m grid and writes to Terrain3D's heightmap asset. | 🧪 pending |
-| C.3 | Splatmap per biome — paint grass/dirt/rock/sand textures based on biome + slope. | 🧪 pending |
-| C.4 | Delete flat `Ground` node from `main.tscn`. Replace with Terrain3D node. | 🧪 pending |
-| C.5 | Player spawn Y auto-calc: `player.y = terrain_height.height_at(player.x, player.z) + 2.0`. | 🧪 pending |
-| C.6 | Validation: re-run baseline. FPS ≥ 116 headless. Player should walk up/down hills. | 🧪 pending |
-
-### Phase D — Water + bridge (2–3h)
-| # | Task | Status |
-|---|---|---|
-| D.1 | Water surface — translucent plane at Y=0 over carved areas. Animated normal map. | 🧪 pending |
-| D.2 | `water_depth_at(x, z) → float` query — returns 0 on land, >0 over river/ocean. Used for swim state, fish loot, boat traversal (deferred). | 🧪 pending |
-| D.3 | Bridge POI placement — `bridge_section.glb` placed at bridge endpoints in `pois.json`. Pier depth from `terrain_height.height_at()` at pier base. | 🧪 pending |
-| D.4 | Validation: re-run baseline. FPS ≥ 116 headless. Bridges should go over real water. | 🧪 pending |
-
-### Phase E — NavMesh (2–4h)
-| # | Task | Status |
-|---|---|---|
-| E.1 | Add `NavigationRegion3D` per chunk in `chunk_builder.gd`. Bake trivial navmesh against terrain + buildings. | 🧪 pending |
-| E.2 | `NavigationServer3D` query for zombie AI. | 🧪 pending |
-| E.3 | Validation: re-run baseline. FPS ≥ 116 headless. Zombies can path up hills, around valleys, across bridges. | 🧪 pending |
-
-### Phase F — POI system (4–6h)
-| # | Task | Status |
-|---|---|---|
-| F.1 | `res://data/pois.json` — hand-placed POIs (hospital, fort_sarran, government_palace, lighthouse, water_tower, stadium, old_royal_palace, bridges, gas_stations, schools, churches, water_towers, etc.). 60–80 POIs total. | 🧪 pending |
-| F.2 | `chunk_builder.gd` queries POIs in chunk bounds. Places 1 per POI exactly. Suppresses procedural placement in POI radius. | 🧪 pending |
-| F.3 | Landmark visibility check — raycast from 1km away, verify not occluded by terrain. Adjust POI Y if needed. | 🧪 pending |
-| F.4 | Validation: re-run baseline. FPS ≥ 116 headless. Landmarks visible from 500m+. | 🧪 pending |
-
-### Phase G — Independent perf (4–5h, parallel-safe)
-| # | Task | Status |
-|---|---|---|
-| G.1 | `RoadNetwork` spatial grid — `Vector2i → Array[segment]`. `nearest_road_to(pos, radius)` becomes O(1). Removes 14.6M ops from `_face_nearest_road`. | 🧪 pending |
-| G.2 | MultiMesh batching per chunk — group `MeshInstance3D` by mesh, replace with `MultiMeshInstance3D`. 80–90% draw call reduction for foliage. | 🧪 pending |
-| G.3 | `SpatialIndex.insert_box(center, size, rot_y)` — AABB instead of circle. Buildings stop clipping into each other. | 🧪 pending |
-| G.4 | Validation: re-run baseline. FPS ≥ 116 headless. Draw calls should drop 50%+ from G.2. | 🧪 pending |
-
-## 12.8 Baseline metrics (Phase A capture, 2026-09-12)
-
-Captured via `tools/debug_hud.gd` autoload (prints `[HUD] fps=X draws=Y prims=Z texmem=WKB` every 60 frames).
-
-```
-=== Headless FPS (baseline) ===
-Stable: 145 FPS (after warmup, frames 60-600)
-Warmup: 70 FPS (first ~120 frames while chunks build)
-Draw calls / prims / texmem: 0 (headless = no rendering — visible only in editor)
-
-=== Chunk streamer stats (baseline) ===
-Chunks built at startup: 25 (stream_radius=2 → 5×5 grid)
-Total buildings placed: 117 (was 100 pre-A.2, +17 from Coastal Beach)
-Total props placed: 203 (was 60 pre-A.2, +143 from boardwalk_section)
-Total foliage placed: 196
-Total street lights: 0
-Total scene children (all nodes): 516
-
-=== Per-biome breakdown ===
-  Coastal Beach            : 5c, 35b, 145p, 44f  (NEW)
-  Commercial Strip         : 2c, 44b, 14p, 0f
-  Parks & Greenways        : 8c, 0b, 44p, 86f
-  River & Wetlands         : 10c, 38b, 0p, 66f  (reduced from 15c)
-```
-
-**Re-run command (after each phase):**
-```bash
-cd /home/z/my-project/godot_project
-GODOT=/tmp/my-project/godot_engine/Godot_v4.7.2-stable_linux.x86_64
-timeout 18 "$GODOT" --headless --path . res://scenes/main.tscn --quit-after 1500 2>&1 | grep -E "\[HUD\]|chunk.*biome"
-```
-
-## 12.9 Status legend (used in §12.7)
-- 🔒 = decided / fixed (don't touch unless requirements change)
-- 🧪 = under testing / under design / open (work needed)
-- 📋 = backlog (deferred until after alpha vertical slice)
-
----
-
-# APPENDIX A: MOGEN LESSONS LEARNED (cumulative, 11 sessions)
-
-- MoGen compiles fast. suburban_house_v2 (1.8k tris): 12 ms.
-- `mogen check` + `mogen build` work headless. `mogen thumbnail` broken — replaced with Chrome + three.js + swiftshader.
-- `mogen textures` requires **paid Gemini API key** (free tier = 0 image quota).
-- DSL is structural, not artistic. Excellent at buildings/props. Bad at organic characters + vehicles + grass.
-- **The DSL reference is compiled at `/home/z/my-project/mogen-docs/compiled.md` (1559 lines, 106KB).**
-- **The `wall` primitive** with `holes=[cx, cy, w, h]` is the right tool for walls with door/window cutouts.
-- **The `solid` group** with `cleanup="coplanar"` merges same-material primitives. Use for building/vehicle shells.
-- **Floating cluster errors (`E1101`)** — fix by overlapping meshes in ALL 3 axes (X, Y, Z). OR use `tags="floating"` for intentionally disconnected decorative elements.
-- **`slab` uses `anchor=bottom`** by default. When placing a foundation on a lawn, set pos y to overlap.
-- **`icosphere` uses `subdivisions=`** not `detail=`. 1=low-poly, 2=default.
-- **`branch` primitive** is hard to control. Use plain cylinders for stylized trees.
-- **`plane` uses `size=[x, _, z]`** (XZ-aligned). `quad` uses `w=` and `h=` (XY-aligned).
-- **`cone` primitive** with `sides=8` is good for stylized conifer foliage.
-- **Camera yaw convention:** yaw=0 = +Z face (back). yaw=180 = -Z face (front with door).
-- **`alpha_mode="blend"`** for transparency. `alpha_mode="mask"` + `alpha_cutoff=0.5` for 1-bit cutout.
-- **Wrap complex bodies in `solid (cleanup="coplanar")`** to merge same-material parts.
-- **`tags="floating"`** is the escape hatch for intentionally disconnected parts.
-- **`light` node** embedded in .mog — exported as glTF KHR_lights_punctual, Godot reads as Light3D.
-- **Vehicles + blood decals + grass are better as external assets.**
-- **Static vs dynamic furniture split** is the key architecture decision (Part 7).
-- **CRITICAL: window groups on rotated walls must also be rotated.** Wall `rot=[0, 90, 0]` → window group also `rot=[0, 90, 0]`.
-- **Bookshelf orientation:** open side (with books) faces +Z (default camera direction). Back panel at -Z.
-- **Bedding overlap:** sheets/blanket/pillow must overlap with mattress by 0.02-0.03m in Y. Don't use `tags="floating"` for bedding.
-- **Refrigerator simplification:** when in doubt, remove decorative details.
-- **Modular kitchen pattern (PZ-style):** split complex multi-part furniture into separate modular pieces. Each piece is its own .mog file. Place side-by-side in Godot to form any layout.
-- **Two-story colonial window count = 3 upstairs = 3 rooms.** Classic colonial layout: master bedroom (left), bathroom (center), second bedroom (right).
-- **Birch tree canopy needs randomization.** Spheres too uniform → "looks like an atom." Use `noise=` or `jitter=` deformers, vary radii + positions. (TODO next batch)
-
----
 
 # APPENDIX B: FILE MAP
 

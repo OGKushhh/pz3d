@@ -696,3 +696,70 @@ Stage Summary:
 - Down from 10 scattered docs to 5 — easier to find things
 - roadmap.md is now linear: Completed → Next Priorities → Bug list
 - No more duplicate phase entries or dev-hell deferred phases
+
+---
+Task ID: gdd-cleanup-move-implementation-to-roadmap-worklog
+Agent: main (Super Z)
+Task: User: "somethings things in GDD need to fall either in worklog or roadmap." Moved implementation tracking out of GDD into proper places.
+
+Work Log:
+- Removed from GDD → moved to roadmap:
+  * PART 9 (Tier 1 Production Status) → roadmap "Asset production status"
+  * PART 11 (Milestones) → roadmap "Milestones"
+  * §12.7 (Terrain phases A-G) → roadmap "Terrain phases"
+  * §12.9 (Status legend) → folded into terrain phases table
+- Removed from GDD → moved to worklog:
+  * §12.8 (Baseline metrics capture) → this entry (see below)
+  * APPENDIX A (MoGen lessons learned, 11 sessions) → this entry (see below)
+- Cleaned up §4.7.x in GDD:
+  * Removed "(Phase B.6 — next priority)" from §4.7.3 header
+  * Removed "This replaces the current ad-hoc placement..." implementation note
+  * Removed "Rewritten 2026-09-14..." session-history callout from §4.7.4
+  * Removed "Added 2026-09-14. Updated per DeepSeek review..." callout from §4.7.5
+  * Removed "DeepSeek correction" callout
+  * Removed "Two tracks in Phase B.7" + "Files (Phase B.7)" tables (implementation tracking)
+  * Kept: design spec (propose→validate→commit architecture + penalty table + visual contract)
+  * Removed "Added 2026-09-14 per DeepSeek corrections #3 + #4" callout from §4.7.6
+- Renumbered: PART 10 → PART 9, PART 12 → PART 10, §12.x → §10.x
+  * GDD now has sequential parts: 1-10 + Appendix B (file map)
+
+GDD reduced from 1376 → 1132 lines (removed ~244 lines of implementation tracking).
+
+=== Baseline metrics (captured 2026-09-12, moved from GDD §12.8) ===
+Headless FPS (baseline): 145 FPS stable (after warmup), 70 FPS warmup
+Chunks built at startup: 25 (5×5 grid, stream_radius=2)
+Total buildings: 117, props: 203, foliage: 196, total scene children: 516
+Per-biome: Coastal Beach 5c/35b/145p/44f, Commercial 2c/44b/14p, Parks 8c/0b/44p/86f, Wetlands 10c/38b/0p/66f
+
+=== MoGen lessons learned (cumulative, 11 sessions, moved from GDD Appendix A) ===
+- MoGen compiles fast. suburban_house_v2 (1.8k tris): 12ms
+- mogen check + build work headless. mogen thumbnail broken — replaced with Chrome + three.js + swiftshader
+- mogen textures requires paid Gemini API key (free tier = 0 image quota)
+- DSL is structural, not artistic. Excellent at buildings/props. Bad at organic characters/vehicles/grass
+- The wall primitive with holes=[cx,cy,w,h] is the right tool for walls with door/window cutouts
+- The solid group with cleanup="coplanar" merges same-material primitives
+- Floating cluster errors (E1101) — fix by overlapping meshes in ALL 3 axes, or use tags="floating"
+- slab uses anchor=bottom by default. Set pos y to overlap when placing on a lawn
+- icosphere uses subdivisions= not detail=. 1=low-poly, 2=default
+- branch primitive is hard to control. Use plain cylinders for stylized trees
+- plane uses size=[x,_,z] (XZ-aligned). quad uses w= and h= (XY-aligned)
+- cone primitive with sides=8 is good for stylized conifer foliage
+- Camera yaw convention: yaw=0 = +Z face (back). yaw=180 = -Z face (front with door)
+- alpha_mode="blend" for transparency. alpha_mode="mask" + alpha_cutoff=0.5 for 1-bit cutout
+- Wrap complex bodies in solid (cleanup="coplanar") to merge same-material parts
+- tags="floating" is the escape hatch for intentionally disconnected parts
+- light node embedded in .mog — exported as glTF KHR_lights_punctual, Godot reads as Light3D
+- Vehicles + blood decals + grass are better as external assets
+- Static vs dynamic furniture split is the key architecture decision (GDD §7)
+- CRITICAL: window groups on rotated walls must also be rotated
+- Bookshelf orientation: open side (with books) faces +Z. Back panel at -Z
+- Bedding overlap: sheets/blanket/pillow must overlap with mattress by 0.02-0.03m in Y
+- Modular kitchen pattern (PZ-style): split complex multi-part furniture into separate modular pieces
+- Birch tree canopy needs randomization — spheres too uniform → "looks like an atom"
+
+Stage Summary:
+- GDD is now pure design (1132 lines, was 1376)
+- Roadmap has milestones, asset production status, terrain phases
+- Worklog has baseline metrics + MoGen lessons
+- GDD parts renumbered 1-10 (sequential, no gaps)
+- §4.7.x cleaned: design spec only, no session notes or phase tracking
