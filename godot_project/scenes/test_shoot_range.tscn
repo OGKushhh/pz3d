@@ -1,8 +1,9 @@
-[gd_scene load_steps=18 format=3 uid="uid://arcadeshootrange01"]
+[gd_scene load_steps=19 format=3 uid="uid://arcadeshootrange01"]
 
 [ext_resource type="Script" path="res://scripts/test_shoot_player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/shoot_target.gd" id="2_target"]
 [ext_resource type="Script" path="res://scripts/range_target.gd" id="3_range_target"]
+[ext_resource type="Script" path="res://weapons/crosshair.gd" id="4_crosshair"]
 
 [sub_resource type="BoxMesh" id="ground_mesh"]
 size = Vector3(80, 0.1, 80)
@@ -162,3 +163,13 @@ script = ExtResource("3_range_target")
 [node name="TargetBlue3" type="StaticBody3D" parent="Targets"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8, -30)
 script = ExtResource("3_range_target")
+
+[node name="CrosshairLayer" type="CanvasLayer" parent="."]
+
+[node name="Crosshair" type="Control" parent="CrosshairLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_crosshair")
