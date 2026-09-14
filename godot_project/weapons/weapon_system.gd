@@ -118,19 +118,20 @@ func _fire_single_pellet(pellet_index: int) -> void:
         var range_m: float = float(_weapon_data.get("range_m", 100.0))
         var end_pos: Vector3 = origin + dir * range_m
         # Hitscan raycast
-        # Phase: Gun System fix — exclude array must be typed Array[RID], not Array.
-        # Also exclude the player CharacterBody3D so we don't hit ourselves.
+        # Phase: Gun System fix — Camera3D is NOT a CollisionObject3D, so it has no
+        # get_rid(). Only exclude CollisionObject3D ancestors (player CharacterBody3D).
         var space_state := _camera.get_world_3d().direct_space_state
         var query := PhysicsRayQueryParameters3D.create(origin, end_pos)
-        query.exclude = [_camera.get_rid()]
-        # Also exclude the player body (the camera's ancestor)
-        var player_body: Node = _camera.get_parent()
-        while player_body:
-                if player_body is CollisionObject3D:
-                        query.exclude.append((player_body as CollisionObject3D).get_rid())
-                player_body = player_body.get_parent()
-                if player_body == _world_root:
+        # Build exclude list from CollisionObject3D ancestors of the camera
+        var exclude_rids: Array[RID] = []
+        var node: Node = _camera
+        while node:
+                if node is CollisionObject3D:
+                        exclude_rids.append((node as CollisionObject3D).get_rid())
+                node = node.get_parent()
+                if node == _world_root or node == null:
                         break
+        query.exclude = exclude_rids
         var result: Dictionary = space_state.intersect_ray(query)
         if result.size() > 0:
                 end_pos = result["position"]
