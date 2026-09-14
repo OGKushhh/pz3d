@@ -1,14 +1,13 @@
 # AI Middleware Analysis Report
 > Generated from 18 chunk states.
-> Total problems detected: **1**
+> Total problems detected: **0**
 > Total opportunities found: **23**
-> Total actions generated: **2**
+> Total actions generated: **0**
 
 ## Problem Types Detected
 
 | Problem Type | Count | Description |
 |---|---|---|
-| overlaps | 1 | Buildings with intersecting AABBs (3D overlap) |
 
 ## Opportunities Found
 
@@ -21,7 +20,6 @@
 
 | Action Type | Count |
 |---|---|
-| remove | 2 |
 
 ### Fill Type Distribution
 
@@ -38,7 +36,7 @@
 | 7,9 | PARKS | 0 | 57% | 0 | 1 | 0 |
 | 6,9 | PARKS | 0 | 55% | 0 | 1 | 0 |
 | 7,10 | WETLANDS | 0 | 55% | 0 | 1 | 0 |
-| 9,7 | FARMLAND | 7 | 53% | 1 | 2 | 2 |
+| 9,7 | FARMLAND | 5 | 53% | 0 | 2 | 0 |
 | 6,10 | WETLANDS | 0 | 53% | 0 | 1 | 0 |
 | 5,7 | PARKS | 0 | 52% | 0 | 1 | 0 |
 | 5,10 | WETLANDS | 0 | 52% | 0 | 1 | 0 |

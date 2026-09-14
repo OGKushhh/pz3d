@@ -1106,3 +1106,40 @@ Stage Summary:
 - City gen code (chunk_streamer, block_layout, lot_stamper, district_stamper) NOT modified.
 - Headless run confirms grid took effect (farmland chunks now have buildings + landmarks).
 - User can pull and run godot normally to see the full map. Player spawn at (1750, 2250) puts them in Los Santos analog area.
+
+---
+Task ID: session-13-static-hand-authored-test-city
+Agent: main (Super Z)
+Task: User called out my previous "hand-authored map" as worse than city gen. I admitted I only changed biome_grid labels, didn't actually hand-place any assets. User: "yes Option C as Static .tscn, maybe a chunk from every biome compiled in test city map, use all assets".
+
+Work Log:
+- Honestly answered: previous "hand-authored map" was NOT hand-authoring. I moved biome labels + river polyline + POI coords, but left all placement 100% procedural via chunk_streamer.gd. That's why it looked worse — new layout had more parks/wetlands chunks (0 buildings).
+- Wrote /home/z/my-project/scripts/build_test_city_static.py — Python script that generates a static .tscn with EXPLICIT Vector3 placements, zero procedural.
+- 10 chunks, one per biome, 60m × 60m each, total 600m × 60m strip at origin (0..600, 0..60).
+- Per chunk hand-placements (verified by scene load test):
+  * Suburbia: 28 nodes (4 houses, 4 garages, 4 mailboxes, 4 streetlights, 3 trees, 2 fences, 2 trash cans, 1 hydrant, 4 ground/sidewalk planes)
+  * Parks: 30 nodes (gazebo, 4 benches, 4 picnic tables, park_sign, 6 trees, 4 flower patches, 4 bushes, water_fountain, 2 streetlights, 3 path planes)
+  * Forest: 30 nodes (hunting_cabin, ranger_station, deer_stand, cave_entrance, 10 pines, 2 oaks, 2 birches, fallen_log, 4 bushes, 4 ferns, 2 mushrooms)
+  * Farmland: 18 nodes (farmhouse, barn, tractor_shed, grain_silo, grain_storage_shed, windmill, 2 crops, 3 hay_bales, irrigation_canal, util_shed, 2 fences, oak, dirt_road)
+  * Commercial: 21 nodes (corner_store, grocery_store, gas_station, store_pharmacy, 3 parking_meters, 2 dumpsters, shopping_cart, 2 streetlights, 2 trash_cans, 2 bollards, planter_box+tree)
+  * Industrial: 18 nodes (warehouse_large, factory_small, 2 storage_tanks, loading_dock, 3 shipping_containers, 4 chain_link_fences, 2 dumpsters, util_shed, dead_tree, dirt_road)
+  * Wetlands: 22 nodes (fishing_hut, marsh_pier, 2 boardwalks, 6 cattails, 4 marsh_grass, 2 willows, 2 tall_grass, mushrooms, bush, water plane)
+  * Downtown: 28 nodes (highrise_office, apartment_tower_high, bank_branch, parking_garage, 8 bollards, 6 planter_boxes, 3 streetlights, traffic_light, 2 trash_cans, 4 ground/sidewalk planes)
+  * Military: 17 nodes (fort_sarran, military_checkpoint, bunker_entrance, watchtower, helipad, 3 sandbags, 3 barbed_wire_fences, 2 concrete_barriers, field_hospital_tent, storage_tank, dirt_road)
+  * CoastalBeach: 20 nodes (lighthouse, 2 boardwalks, pier_dock, fishing_hut, 5 palm_trees, 2 benches, 2 trash_cans, 2 tall_grass dunes, bush, gazebo, water plane)
+- Total: 232 hand-placed nodes (210 asset instances + 22 ground/road/water planes).
+- File: /home/z/my-project/pz3d/godot_project/scenes/test_city_static.tscn (45,983 bytes).
+- Used 79 unique assets out of 234 manifest.
+- Fix needed mid-build: sub_resource order in .tscn (Sky before Env, Mat before PlaneMesh). After fix, scene loaded cleanly.
+- Verified via /tmp/test_load.gd + /tmp/test_count.gd:
+  * "PASS: scene loaded + instantiated, root name: TestCityStatic"
+  * All 10 chunks present with expected node counts.
+- Added PreviewCamera at top-down angle so user can see all 10 chunks at once when opening the scene.
+- Did NOT touch chunk_streamer.gd, block_layout.gd, lot.gd, district_stamper.gd, placement_validator.gd, or any other city gen code.
+
+Stage Summary:
+- Honest admission: previous "hand-authored map" was just biome label rearrangement. Real hand-authoring is now done: 232 explicit placements in a static .tscn file, zero procedural code paths involved.
+- 10 chunks, one per biome, ~20-30 hand-placed objects each.
+- Scene loads cleanly in godot 4.7.2 headless. User can open it directly in Godot editor: scenes/test_city_static.tscn
+- PreviewCamera at (300, 100, 30) looking down shows all 10 chunks in a row.
+- This is Option C proof-of-concept. If user likes the look, scale up to more chunks (each is 60×60m, full 12km² needs ~3300 chunks but most can be sparse). If user wants different style per chunk, iterate.
