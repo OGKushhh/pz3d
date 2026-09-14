@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://arcadeshootrange01"]
+[gd_scene load_steps=20 format=3 uid="uid://arcadeshootrange01"]
 
 [ext_resource type="Script" path="res://scripts/test_shoot_player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/shoot_target.gd" id="2_target"]
@@ -173,3 +173,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_crosshair")
+
+[node name="TestCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 5)
+fov = 75.0
+far = 500.0
+visible = false
+
+[node name="TestTarget" type="MeshInstance3D" parent="TestCamera"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -15)
+visible = false
+mesh = SubResource("ground_mesh")
