@@ -908,3 +908,136 @@ Stage Summary:
 - VLM confirmed user's intuition: city gen is sparse + random + has trees-in-road glitches.
 - Proposed 3-layer unification: PlanGrid → PlacementDirector → FillerPass. Cost: chunk_streamer shrinks 3594 → ~1500. Risk: 1-2 sessions of broken city during migration, mitigated by USE_DIRECTOR flag.
 - Waiting for user direction: (a) commit to unification, (b) discuss specific layer first, (c) propose alternative approach.
+
+---
+Task ID: session-13-honest-revision-after-running-godot
+Agent: main (Super Z)
+Task: User pushed back on my unification plan: "i want to adapt to the best possible outcome, not replace by the mean of replacing with regression. you sure your plan is that?" — Verifying with actual data before defending.
+
+Work Log:
+- Ran godot headless with current code. Fixed two real bugs blocking the run:
+  * terrain_height.gd line 116: used CityConfig identifier without preload — parse error broke chunk_streamer compilation. Added `const CityConfig = preload(...)`.
+  * chunk_streamer.gd _build_chunk: _path_query.clear() and _stamper.pick_template_for_biome() called from _process before _ready completes (await get_tree().process_frame suspends _ready but _process can fire same frame). Added null guards.
+  * Committed as f9b8603.
+- Got ACTUAL chunk placement data from current code (not stale run reports):
+
+| Chunk | Biome | Buildings | Props | Foliage | Notes |
+|---|---|---|---|---|---|
+| 5_7 | Parks | 0 | 14 | 84 | (key.x+key.y)%4==0 → _place_park fires, adds 84 foliage |
+| 6_7 | Parks | 0 | 14 | 5 | No park, scatter gives 5 foliage |
+| 7_7 | Parks | 0 | 14 | 8 | No park |
+| 5_9 | Parks | 0 | 14 | 96 | _place_park fires |
+| 8_7 | Commercial | 24 | 9 | 7 | Template stamps 15, parcel adds 9 |
+| 9_7 | Commercial | 23 | 7 | 4 | Template stamps 16 |
+| 5_8 | Commercial | 16 | 9 | 7 | Template stamps 16, parcel adds 0 |
+| 6_8 | Commercial | 16 | 8 | 5 | Template stamps 16 |
+| 7_8 | Commercial | 23 | 8 | 5 | Template stamps 16, parcel adds 7 |
+| 8_8 | Commercial | 16 | 8 | 6 | Template stamps 16 |
+| 9_8 | Commercial | 15 | 6 | 4 | Template stamps 15 |
+| 5_10 | Suburbia | 71 | 12 | 8 | Parcel system works |
+| 5_11 | Suburbia | 73 | 11 | 9 | Parcel system works |
+| 6_10 | Wetlands | 0 | 13 | 109 | No parcels (marsh_scatter returns []) |
+| 7_10 | Wetlands | 0 | 12 | 113 | Same |
+| 8_10 | Wetlands | 0 | 15 | 12 | Same |
+| 9_10 | Wetlands | 0 | 13 | 19 | Same |
+| 6_11 | Wetlands | 0 | 20 | 116 | Same |
+| 7_11 | Wetlands | 0 | 15 | 120 | Same |
+
+=== WHAT THE DATA ACTUALLY SHOWS ===
+
+1. Parks and Wetlands have 0 buildings. NOT a density problem. NOT a placement coordination problem. The actual cause:
+   - block_layout.gd BIOME_LAYOUTS: PARKS → "park_layout", WETLANDS → "marsh_scatter"
+   - generate_parcels("park_layout") returns [] (line 124: "parks handled by existing _place_park")
+   - generate_parcels("marsh_scatter") returns [] (line 126: "marsh handled by foliage scatter")
+   - The parcel loop iterates over 0 parcels → places 0 buildings.
+   - target = fill × biome_mult = 0.05 × 80 = 4. But target is irrelevant when there are 0 parcels.
+   - This is a DESIGN decision that was made (parks=wilderness, wetlands=marsh) but it's WHY VLM saw "sparse" and "isolated islands."
+
+2. Commercial works because of district templates, not the parcel system:
+   - commercial_strip template stamps 15-16 buildings per chunk at hand-authored positions.
+   - The parcel system adds 0-9 more on top.
+   - Template is doing the heavy lifting. Parcel system is a minor contributor.
+
+3. Suburbia works well: 71-73 buildings. The parcel system + lot recipes are doing their job.
+
+4. Scatters are wildly inconsistent:
+   - Parks chunk 5_7: 84 foliage (because _place_park fires on (5+7)%4==0)
+   - Parks chunk 6_7: 5 foliage (no park, just scatter)
+   - Same biome, same density → 17x foliage difference. The (key.x+key.y)%4==0 rule is arbitrary.
+
+5. The "copy-paste" look VLM saw has a clear cause: meso filter.
+   - Chunk 5_8 allowed_types: ["motel"] → all 16 buildings are motel variants
+   - Chunk 6_9 allowed_types: ["grocery_store"] → all 15 buildings are grocery_store
+   - _get_meso_allowed_types returns 1-3 types per chunk. The parcel loop picks from this filtered pool.
+   - Result: 16 copies of the same building in one chunk. THAT'S the "copy-paste" look.
+
+=== HONEST REVISION OF MY PLAN ===
+
+My original 3-layer plan had TWO regression risks I missed:
+
+REGRESSION RISK #1: PlanGrid swap would have LOST city_plan.json's per-cell hand-tuning.
+- city_plan.json has per-cell density: 0.95 downtown, 0.05 parks, 0.30 forest.
+- PlanGrid._fill_biome_density reads profile.fill (per-biome), NOT city_plan.json (per-cell).
+- If I swapped _get_density_for_cell to query PlanGrid, I'd lose the hand-tuned gradient.
+- Fix: PlanGrid should INGEST city_plan.json as its starting density, not replace it with profile.fill.
+
+REGRESSION RISK #2: FillerPass would have killed scatter variation.
+- Real cities have clusters + gaps + outliers.
+- The current scatters (random sampling) give that variation.
+- A unified FillerPass that walks density in order would produce uniform-looking placement.
+- Fix: Keep scatters random, but BIAS them by PlanGrid density. Don't replace them.
+
+REGRESSION RISK #3 (the big one): PlacementDirector was mostly code cleanliness.
+- The validation layer (PlacementValidator) already exists.
+- The coordination layer (spatial index) already exists.
+- A director in between doesn't make the city better — it makes the code cleaner.
+- The user is right: this is replace-for-replace's-sake.
+- Fix: DROP the director. It's not earning its complexity.
+
+=== REVISED PLAN (additive, not replacing) ===
+
+Targeted fixes based on actual data:
+
+FIX 1 (cheap, high impact): Generate parcels for parks and wetlands.
+- Parks: add a "park_layout" parcel generator that creates 2-3 small parcels for park structures (gazebo, picnic shelter, ranger_station).
+- Wetlands: add a "marsh_scatter" parcel generator that creates 1-2 parcels for fishing_hut, marsh_pier.
+- Cost: ~50 lines in block_layout.gd. No new classes. No migration.
+- Expected: parks goes from 0 buildings to 2-3. Wetlands goes from 0 to 1-2.
+
+FIX 2 (cheap, high impact): Loosen the meso filter.
+- Current: _get_meso_allowed_types returns 1-3 types per chunk.
+- Change: return 4-6 types per chunk, OR remove the filter and rely on anti-clustering + district budgets.
+- Cost: ~10 lines in _get_meso_allowed_types or its data source.
+- Expected: chunks go from "16 copies of motel" to "16 buildings with 4-6 types."
+
+FIX 3 (medium, medium impact): Make scatters consistent.
+- Current: _place_park fires on (key.x+key.y)%4==0 → 84 foliage in some chunks, 5 in others.
+- Change: every parks chunk gets a baseline foliage scatter (fill × foliage_mult). _place_park adds ON TOP of that, not instead.
+- Cost: ~20 lines in _build_chunk.
+- Expected: parks chunks consistently have 30-50 foliage, not 5 or 84.
+
+FIX 4 (medium, high impact): Wire PlanGrid as density CONSULTANT, not density SOURCE.
+- PlanGrid.build() already runs (line 328-329). Its sample_density(pos) is never called.
+- Change scatters to bias their random sampling by PlanGrid density: instead of `pos = random_in_chunk()`, do `pos = density_weighted_random_in_chunk(plan_grid)`.
+- KEEP _get_density_for_cell reading from city_plan.json (the hand-tuned source).
+- PlanGrid becomes an ADDITIONAL signal (road-distance modulation) that scatters consult, not a REPLACEMENT for city_plan.
+- Cost: ~30 lines across the two scatter functions.
+- Expected: buildings cluster near roads (PlanGrid's road-distance modulation does this), not scattered uniformly.
+
+FIX 5 (drop): PlacementDirector. Not earning its complexity.
+FIX 6 (drop): FillerPass unification. Would kill variation.
+
+=== WHAT I'M NOT SURE ABOUT ===
+
+I'm not sure about the meso filter. It might exist for a reason — maybe to create district identity ("this block is all motels"). Loosening it might make commercial feel less distinct. Need to test.
+
+I'm not sure about parks/wetlands parcels. The current design (parks=wilderness, wetlands=marsh) might be intentional. Adding buildings there might break the biome identity. Need user input: should parks have structures, or stay wilderness?
+
+I'm not sure PlanGrid's road-distance modulation is correct. The formula is `1.5 - rd/100.0` clamped to [0.2, 1.3]. At rd=0 (on road), factor=1.3. At rd=130m, factor=0.2. That's a 6.5x density difference. Might be too aggressive — buildings would cluster TOO tightly on roads. Need to test and tune.
+
+Stage Summary:
+- User was right to push back. My original plan had 3 regression risks.
+- Ran godot headless, got actual data. Real problems are: (1) parks/wetlands have 0 parcels, (2) meso filter forces 1-3 types per chunk = copy-paste look, (3) scatter inconsistency from _place_park modulo rule.
+- Revised plan: 4 targeted fixes (parcels for parks/wetlands, loosen meso, consistent scatters, PlanGrid as consultant). DROP the director and FillerPass.
+- All 4 fixes are additive — they don't replace working systems, they fix broken ones.
+- Waiting for user direction on: (a) should parks/wetlands have buildings or stay wilderness? (b) loosen meso or keep district identity? (c) commit to the 4-fix plan?
