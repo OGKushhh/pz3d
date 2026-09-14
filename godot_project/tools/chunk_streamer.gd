@@ -1896,11 +1896,64 @@ func _place_landmark(
                         var lm_manifest: Dictionary = _get_component_manifest(lm_name)
                         if not lm_manifest.is_empty():
                                 _attach_components(inst, lm_manifest, crng)
+                # Phase C.4: Landmark footprints — add supporting structures
+                _place_landmark_footprint(chunk_root, chosen_pos, lm_name, crng)
                 print("[ChunkStreamer] LANDMARK placed: %s at %s (chunk %d_%d)" % [
                         lm_name, chosen_pos, key.x, key.y
                 ])
                 return 1
         return 0
+
+# Phase C.4: Landmark footprints — stadiums get parking lots, palaces get
+# plazas, hospitals get ambulance access. Called after landmark placement.
+# Places a parking_lot / plaza mesh + supporting props near the landmark.
+func _place_landmark_footprint(chunk_root: Node3D, lm_pos: Vector3, lm_name: String, crng: RandomNumberGenerator) -> void:
+        # Parking lot: large asphalt plane 30m to the south of the landmark
+        if lm_name in ["stadium", "government_palace", "old_royal_palace", "hospital", "grocery_store", "store_supermarket"]:
+                var parking_offset: Vector3 = Vector3(0, 0, 40)  # 40m south of landmark
+                var parking_pos: Vector3 = lm_pos + parking_offset
+                if spatial.is_free(parking_pos, 15.0) and not spatial.is_on_road(parking_pos):
+                        _create_plane_mesh_rotated(chunk_root, "ParkingLot",
+                                Vector3(parking_pos.x, Y_PARKING, parking_pos.z),
+                                Vector2(30, 20), Color(0.14, 0.14, 0.16, 1), 0.0)
+                        # Add a few cars (school_bus for now, M.A.V.S vehicles in C.5)
+                        for _i in range(3):
+                                var car_pos := parking_pos + Vector3(
+                                        crng.randf_range(-12, 12), 0,
+                                        crng.randf_range(-7, 7)
+                                )
+                                if spatial.is_free(car_pos, 2.0):
+                                        var car_scene := _get_asset("school_bus")
+                                        if car_scene:
+                                                var car_inst := car_scene.instantiate()
+                                                car_inst.position = car_pos
+                                                car_inst.rotation.y = crng.randf_range(0, TAU)
+                                                car_inst.name = "parked_school_bus_%d" % crng.randi()
+                                                car_inst.set_meta("building_name", "school_bus")
+                                                car_inst.set_meta("landmark_footprint", lm_name)
+                                                chunk_root.add_child(car_inst)
+                                                spatial.insert(car_pos, 2.0)
+                        spatial.insert(parking_pos, 15.0)
+        # Plaza: stone-colored plane 20m to the south of palace/government buildings
+        if lm_name in ["government_palace", "old_royal_palace", "fort_sarran"]:
+                var plaza_pos: Vector3 = lm_pos + Vector3(0, 0, 25)
+                if spatial.is_free(plaza_pos, 10.0) and not spatial.is_on_road(plaza_pos):
+                        _create_plane_mesh_rotated(chunk_root, "Plaza",
+                                Vector3(plaza_pos.x, Y_PARKING, plaza_pos.z),
+                                Vector2(20, 15), Color(0.45, 0.42, 0.38, 1), 0.0)  # stone color
+                        # Bollards flanking the plaza entrance
+                        for side in [-1, 1]:
+                                var bollard_pos := plaza_pos + Vector3(side * 8, 0, 5)
+                                if manifest.has("bollard"):
+                                        var bscene := _get_asset("bollard")
+                                        if bscene:
+                                                var binst := bscene.instantiate()
+                                                binst.position = bollard_pos
+                                                binst.name = "plaza_bollard_%d" % crng.randi()
+                                                binst.set_meta("building_name", "bollard")
+                                                binst.set_meta("landmark_footprint", lm_name)
+                                                chunk_root.add_child(binst)
+                        spatial.insert(plaza_pos, 10.0)
 
 # ============================================================
 # Phase B.7.11: ROADSIDE CONTENT PLACEMENT
