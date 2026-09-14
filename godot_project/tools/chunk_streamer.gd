@@ -1131,10 +1131,15 @@ func _place_park(chunk_root: Node3D, center: Vector3, crng: RandomNumberGenerato
                 if scene == null:
                         continue
                 var offset := Vector3(crng.randf_range(-20, 20), 0, crng.randf_range(-20, 20))
+                var park_pos: Vector3 = center + offset
+                # Phase B.7.14: skip if park furniture would land on a path
+                if _path_query.is_on_path(park_pos, 1.5):
+                        continue
                 var inst: Node3D = scene.instantiate()
-                inst.position = center + offset
+                inst.position = park_pos
                 inst.rotation.y = crng.randf_range(0, TAU)
                 inst.name = "%s_park_%d" % [asset_name, crng.randi() % 100000]
+                inst.set_meta("building_name", asset_name)  # B.7.13: for chunk_states dumper
                 chunk_root.add_child(inst)
 
         # Trees in circle
@@ -1175,7 +1180,7 @@ func _place_street_lights(chunk_root: Node3D, chunk_roads: Array, crng: RandomNu
                         var base: Vector3 = a.lerp(b, t)
                         for side in [-1, 1]:
                                 var pos: Vector3 = base + perp * edge_offset * float(side)
-                                if spatial.is_free(pos, light_radius) and not spatial.is_on_road(pos):
+                                if spatial.is_free(pos, light_radius) and not spatial.is_on_road(pos) and not _path_query.is_on_path(pos, 1.0):
                                         var inst: Node3D = scene.instantiate()
                                         inst.position = pos
                                         inst.rotation.y = 0.0 if side < 0 else PI
@@ -1822,8 +1827,11 @@ func _place_roadside_content(chunk_root: Node3D, chunk_roads: Array, crng: Rando
         var placed := 0
         var attempted := 0
         # Define asset pools (filtered to what's in the manifest)
+        # Phase B.7.14: removed sedan + pickup_truck (sucky models). M.A.V.S addon
+        # installed — its vehicles will be integrated as abandoned cars in Phase C.5
+        # (Decay Layer). For now, car_pool only has school_bus.
         var car_pool: Array = []
-        for c in ["sedan", "pickup_truck", "school_bus"]:
+        for c in ["school_bus"]:
                 if manifest.has(c):
                         car_pool.append(c)
         var prop_pool: Array = []
@@ -1950,7 +1958,7 @@ func _place_utility_poles(chunk_root: Node3D, chunk_roads: Array, crng: RandomNu
                         # Alternate sides: even index → +perp, odd index → -perp
                         var side: int = 1 if (pole_index % 2) == 0 else -1
                         var pole_pos: Vector3 = base + perp * float(side) * UTILITY_POLE_OFFSET_M
-                        if spatial.is_free(pole_pos, pole_radius) and not spatial.is_on_road(pole_pos):
+                        if spatial.is_free(pole_pos, pole_radius) and not spatial.is_on_road(pole_pos) and not _path_query.is_on_path(pole_pos, 1.0):
                                 var inst: Node3D = scene.instantiate()
                                 inst.position = pole_pos
                                 # Pole faces along the road (crossbar perpendicular to road)
@@ -2016,6 +2024,9 @@ func _place_fire_hydrants(chunk_root: Node3D, chunk_roads: Array, crng: RandomNu
                                 if not spatial.is_free(hydrant_pos, hydrant_radius):
                                         continue
                                 if spatial.is_on_road(hydrant_pos):
+                                        continue
+                                # Phase B.7.14: skip if hydrant would land on a path
+                                if _path_query.is_on_path(hydrant_pos, 1.0):
                                         continue
                                 var inst: Node3D = scene.instantiate()
                                 inst.position = hydrant_pos
@@ -2189,6 +2200,9 @@ func _place_backyard_fill(
                 if manifest.has(bf) and not candidates.has(bf):
                         candidates.append(bf)
         if candidates.is_empty():
+                return
+        # Phase B.7.14: skip if backyard position is on a path (was missing — props on paths bug)
+        if _path_query.is_on_path(lot_pos, 1.5):
                 return
         # 60% chance to place a backyard prop (40% stay empty for variety)
         if crng.randf() > 0.6:
