@@ -88,6 +88,48 @@ User feedback after walking the scene: "more organized now but not production le
 
 ---
 
+## Phase C — Structural Believability (next major phase)
+
+> **Added 2026-09-14** after user's 24-point analysis + 5 reference repos. The map currently looks "generated, not lived-in" due to 3 structural gaps: uniform roads, cell-based biomes, standalone buildings. Phase C fixes the architecture; Phase B.7 was incremental patches on top.
+
+### Phase C.1 — Road hierarchy (highest impact)
+Replace flat 8×6 grid (all 8m "street") with 3-tier hierarchy:
+- **Highway**: 12m wide, 2km grid, connects biomes
+- **Arterial**: 8m wide, 500m grid, current roads
+- **Local street**: 5m wide, 120m grid inside residential cells
+Fixes "roads too sparse" (#2) + "no city center vs outskirts" (#1).
+
+### Phase C.2 — Zoned districts (CityCrafter3D pattern)
+Replace biome cells with zone overlays: each district has core/ring/edge.
+Commercial core → residential ring → industrial edge.
+Fixes "biomes too uniform" (#5, #6, #7).
+
+### Phase C.3 — Attached buildings
+Add row-house + strip-mall lot recipes. Perimeter-only placement (hollow block centers for interiors).
+Fixes "everything standalone" (#8, #9).
+
+### Phase C.4 — Landmark footprints
+Stadium gets parking lot, palace gets plaza, hospital gets ambulance access.
+Fixes "landmarks standalone" (#11, #12).
+
+### Phase C.5 — Decay layer (corrected scope per user)
+VALID now (implement after C.1-C.4):
+- Abandoned vehicle convoys (using M.A.V.S vehicles)
+- Quarantine signs, military checkpoint narrative
+- Mass graves
+- Looted stores (empty shelves, broken doors)
+
+FUTURE (not in Phase C):
+- Broken windows on buildings — requires window child meshes on all assets (assets not final yet)
+- Overgrowth on buildings — day-1-to-10-years simulation mechanic
+Fixes #23, #24 (atmospheric/post-apoc feel).
+
+### Phase C.6 — OBB Parcelling (optional)
+Port stavguo's recursive OBB split for organic residential lots.
+Fixes "uniform parcel sizes" (#8).
+
+---
+
 ## Phase B.7-alt — Visual contract scene (optional, parallel to B.7)
 
 Hand-author ONE hero block (e.g. suburb_block from `district_templates.gd`) in a separate `scenes/authored_reference.tscn` scene as a **visual benchmark** for what the runtime generator should produce. ~1 day. Useful as a "this is what good looks like" target — NOT a substitute for Phase B.7.
