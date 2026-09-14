@@ -638,13 +638,24 @@ static func grid_layout() -> Array:
     var DT := Biome.DOWNTOWN
     var CB := Biome.COASTAL_BEACH
     var WE := Biome.WETLANDS
+    # v4 (2026-09-15): GTA-SA-inspired hand-authored layout.
+    # 3 cities at 3 corners + countryside between, matching GTA SA structure:
+    #   - San Fierro analog (NW peninsula): Downtown 2x2 block, dense core
+    #   - Las Venturas analog (NE strip): Commercial 4x2 block, long horizontal
+    #   - Los Santos analog (SE coast): Suburbia + Industrial along south coast
+    #   - Bone County desert (N-center): Military 2x2 block (Area 69 analog)
+    #   - Mt Chiliad (SW): Forest 2x2 block (mountain + trees)
+    #   - Red County (W-center): Farmland strip
+    #   - Flint County (dead center): Parks (green heart, Flint Water analog)
+    #   - Wetlands: Sarran River delta at south-center (LS inlet analog)
+    #   - Coastal Beach: west column (Sarran Bay) + south LS beach
     return [
-        [F,  F,  FA, FA, F,  CB, IN, IN],
-        [F,  FA, FA, FA, FA, CB, IN, MI],
-        [SU, SU, FA, PA, FA, CB, DT, MI],
-        [SU, SU, CO, PA, CO, CB, DT, IN],
-        [SU, PA, CO, CO, CO, CB, DT, IN],
-        [PA, SU, SU, WE, WE, CB, IN, IN],
+        [DT, DT, MI, MI, CO, CO, CO, CO],
+        [DT, DT, MI, MI, CO, CO, CO, CO],
+        [F,  F,  FA, PA, FA, CO, CO, CO],
+        [F,  FA, FA, PA, FA, SU, SU, IN],
+        [CB, FA, WE, PA, WE, SU, SU, IN],
+        [CB, CB, WE, WE, WE, SU, IN, IN],
     ]
 
 static func bridges() -> Array:

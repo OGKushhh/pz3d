@@ -1041,3 +1041,68 @@ Stage Summary:
 - Revised plan: 4 targeted fixes (parcels for parks/wetlands, loosen meso, consistent scatters, PlanGrid as consultant). DROP the director and FillerPass.
 - All 4 fixes are additive — they don't replace working systems, they fix broken ones.
 - Waiting for user direction on: (a) should parks/wetlands have buildings or stay wilderness? (b) loosen meso or keep district identity? (c) commit to the 4-fix plan?
+
+---
+Task ID: session-13-gta-sa-handauthored-map-v4
+Agent: main (Super Z)
+Task: User: "HAND AUTHER ANOTHER NEW MAP 100% like GTA SA MAP , DONT TOUCH CITY GEN". Pulled repo, found large-detailed-map-of-gta-san-andreas.jpg in download/, ran VLM analysis on it, hand-authored new biome_grid + map_data based on actual GTA SA structure.
+
+Work Log:
+- Pulled origin/main (commit 122916a) — found download/large-detailed-map-of-gta-san-andreas.jpg (1.5MB).
+- Ran VLM (glm-5v-turbo) on the GTA SA map. Got specific structural facts:
+  * Los Santos: SE corner, dense grid, beach on south coast, inlet north of city
+  * San Fierro: NW peninsula, juts into water on 3 sides, hilly
+  * Las Venturas: NE, long narrow horizontal strip (The Strip)
+  * Mt Chiliad: SW, mountainous + forested (Whetstone region)
+  * Red County + Flint County: center-west countryside (farms + green + Back O' Beyond forest)
+  * Bone County + Tierra Robada: north desert (Area 51 / Big Ear)
+  * Bridges: Gant (SF bay north), Garver/Kincaid (SF→mainland), Fallow (center), Frederick (far east)
+  * Curving highways between cities, not just grid
+- Backed up old map_data.json → map_data_v1_backup.json
+- Updated CityConfig.grid_layout() to v4 — GTA-SA-faithful layout:
+
+  Row 0 (north):  [DT, DT, MI, MI, CO, CO, CO, CO]   SF | Bone County | LV
+  Row 1:          [DT, DT, MI, MI, CO, CO, CO, CO]
+  Row 2:          [F,  F,  FA, PA, FA, CO, CO, CO]   Mt Chiliad | Red County | Flint | LV south
+  Row 3:          [F,  FA, FA, PA, FA, SU, SU, IN]   Mt Chiliad | farms | Flint | LS north | LS docks
+  Row 4:          [CB, FA, WE, PA, WE, SU, SU, IN]   coast | farms | marsh | Flint | LS wetlands | LS | LS docks
+  Row 5 (south):  [CB, CB, WE, WE, WE, SU, IN, IN]   LS beach | Sarran delta | LS south | LS port
+
+- Updated map_data.json v4:
+  * River moved from full N-S (2250, 0→3000) to LS-inlet style (2000,1500 → 2300,3000). Shorter, only crosses south-center.
+  * POIs repositioned to match GTA SA landmarks:
+    - fort_sarran at (1500, 500) — Sherman Dam analog (Military N-center)
+    - government_palace at (400, 400) — SF City Hall analog (SF peninsula center)
+    - stadium at (3500, 500) — LV Strip analog
+    - old_royal_palace at (3500, 2500) — LS landmark
+    - lighthouse at (200, 2800) — Southwest coast
+    - grain_silo at (1200, 1800) — Red County farmland
+    - windmill at (800, 1500) — Red County
+    - broadcast_tower at (800, 2500) — Mt Chiliad summit (Big Ear analog)
+  * Elevation updated: FOREST amp=12 (Mt Chiliad mountain), DOWNTOWN base=1.5 amp=2 (SF hills), MILITARY base=2 (Bone County high desert)
+- Did NOT modify chunk_streamer.gd, block_layout.gd, lot.gd, district_stamper.gd, or any other city gen code.
+- Ran godot headless. Layout took effect:
+  * Farmland chunks 8_7, 9_7 now have buildings (4-6) + landmarks (1) — was 0 before.
+  * Wetlands chunks all have 0 buildings (expected — marsh_scatter layout, no parcels).
+  * Parks chunks have 0 buildings (expected — park_layout returns no parcels).
+- Northern chunks (SF, LV, Bone County) not built in headless run because player spawns at z=2250 and ChunkStreamer only builds near player. User will see them when running godot normally.
+
+=== GTA SA STRUCTURAL CORRESPONDENCE ===
+| GTA SA region        | Mazar biome    | Grid position (row,col) |
+|---|---|---|
+| San Fierro (NW city) | Downtown       | (0-1, 0-1)              |
+| Las Venturas (NE strip) | Commercial  | (0-1, 4-7)              |
+| Bone County (N desert) | Military     | (0-1, 2-3)              |
+| Mt Chiliad (SW mtn)  | Forest         | (2-3, 0-1)              |
+| Red County (W farms) | Farmland       | (2-4, 1-4)               |
+| Flint County (center)| Parks          | (2-4, 3) + (4,3)        |
+| Los Santos (SE city)| Suburbia+Indust| (3-5, 5-7)              |
+| LS Inlet (S water)   | Wetlands       | (4-5, 2-4)              |
+| Sarran Bay (W coast) | Coastal Beach  | (4-5, 0-1)              |
+| LS docks (SE port)   | Industrial     | (3-5, 7)                |
+
+Stage Summary:
+- Hand-authored GTA-SA-faithful map v4. 8x6 biome grid + roads + river + 8 POIs + elevation profiles all updated to match GTA SA structure.
+- City gen code (chunk_streamer, block_layout, lot_stamper, district_stamper) NOT modified.
+- Headless run confirms grid took effect (farmland chunks now have buildings + landmarks).
+- User can pull and run godot normally to see the full map. Player spawn at (1750, 2250) puts them in Los Santos analog area.
