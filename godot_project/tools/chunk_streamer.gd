@@ -1072,6 +1072,13 @@ func _build_chunk(key: Vector2i) -> void:
         # zombies) a more menacing feel.
         var z_count := _place_zombies(chunk_root, profile, origin, crng, poi_exclusions)
 
+        # Phase C.5: Decay layer — post-apoc atmosphere
+        # Abandoned vehicle convoys along highways, quarantine signs at borders,
+        # mass graves in remote areas, looted store debris near commercial.
+        # This is the "post-event" layer that makes the city look abandoned, not
+        # like a "regular Tuesday".
+        s_count += _place_decay_layer(chunk_root, origin, biome, crng, chunk_roads)
+
         add_child(chunk_root)
         _loaded[key] = chunk_root
 
@@ -2220,6 +2227,130 @@ func _place_fire_hydrants(chunk_root: Node3D, chunk_roads: Array, crng: RandomNu
 #
 # Returns the count of zombies actually placed (added to z_count by caller).
 const ZOMBIE_RADIUS := 1.0  # 1m clearance so zombies don't overlap each other
+
+# ============================================================
+# Phase C.5: DECAY LAYER — post-apoc atmosphere
+# ============================================================
+# Places abandoned vehicles, quarantine signs, mass graves, and looted store
+# debris as a post-placement pass. This is the "post-event" layer that makes
+# the city look abandoned, not like a "regular Tuesday".
+#
+# Per user feedback (2026-09-14):
+# - VALID now: abandoned vehicle convoys, quarantine signs, mass graves, looted stores
+# - FUTURE: broken windows (need window child meshes), overgrowth (sim mechanic)
+#
+# Returns count of decay items placed.
+const DECAY_VEHICLE_INTERVAL := 300.0  # abandoned vehicles every 300m along highways
+func _place_decay_layer(chunk_root: Node3D, origin: Vector3, biome: int, crng: RandomNumberGenerator, chunk_roads: Array) -> int:
+        var placed := 0
+        # 1. Abandoned vehicle convoys along highways
+        # Walk highway segments and place 3-5 vehicles in a line (convoy), some tilted
+        for seg in chunk_roads:
+                if seg.get("kind", "") != "highway":
+                        continue
+                var a: Vector3 = seg["start"]
+                var b: Vector3 = seg["end"]
+                var length: float = a.distance_to(b)
+                if length < 50.0:
+                        continue
+                var dir: Vector3 = (b - a).normalized()
+                var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
+                # Place convoys at intervals along the highway
+                var convoy_t := DECAY_VEHICLE_INTERVAL * 0.5
+                while convoy_t < length:
+                        # 40% chance to place a convoy here
+                        if crng.randf() < 0.4:
+                                var convoy_size := crng.randi_range(2, 4)
+                                for i in range(convoy_size):
+                                        var car_pos := a + dir * (convoy_t + i * 8.0) + perp * 3.0
+                                        if spatial.is_free(car_pos, 2.0) and not spatial.is_on_road(car_pos):
+                                                # Use school_bus as placeholder; M.A.V.S vehicles in future
+                                                var car_scene := _get_asset("school_bus")
+                                                if car_scene:
+                                                        var car_inst := car_scene.instantiate()
+                                                        car_inst.position = car_pos
+                                                        # Tilt some vehicles (crashed/abandoned look)
+                                                        car_inst.rotation.y = atan2(dir.x, dir.z) + crng.randf_range(-0.4, 0.4)
+                                                        car_inst.name = "abandoned_bus_%d" % crng.randi()
+                                                        car_inst.set_meta("building_name", "school_bus")
+                                                        car_inst.set_meta("decay_layer", "convoy")
+                                                        chunk_root.add_child(car_inst)
+                                                        spatial.insert(car_pos, 2.0)
+                                                        placed += 1
+                        convoy_t += DECAY_VEHICLE_INTERVAL
+
+        # 2. Mass graves in remote biomes (Forest, Wetlands, Farmland)
+        if biome in [2, 3, 6]:  # FOREST, FARMLAND, WETLANDS
+                if crng.randf() < 0.3:  # 30% chance per chunk
+                        var grave_pos := origin + Vector3(
+                                crng.randf_range(40, CityConfig.CHUNK_SIZE_M - 40),
+                                0,
+                                crng.randf_range(40, CityConfig.CHUNK_SIZE_M - 40)
+                        )
+                        if spatial.is_free(grave_pos, 5.0) and not spatial.is_on_road(grave_pos):
+                                var grave_scene := _get_asset("mass_grave")
+                                if grave_scene:
+                                        var grave_inst := grave_scene.instantiate()
+                                        grave_inst.position = grave_pos
+                                        grave_inst.rotation.y = crng.randf_range(0, TAU)
+                                        grave_inst.name = "mass_grave_%d" % crng.randi()
+                                        grave_inst.set_meta("building_name", "mass_grave")
+                                        grave_inst.set_meta("decay_layer", "mass_grave")
+                                        chunk_root.add_child(grave_inst)
+                                        spatial.insert(grave_pos, 5.0)
+                                        placed += 1
+
+        # 3. Quarantine signs + military debris near map borders (MILITARY biome)
+        if biome == 8:  # MILITARY
+                var signs := ["sandbag", "barrier_concrete", "traffic_cone", "construction_barrier"]
+                for i in range(3):
+                        var sign_pos := origin + Vector3(
+                                crng.randf_range(20, CityConfig.CHUNK_SIZE_M - 20),
+                                0,
+                                crng.randf_range(20, CityConfig.CHUNK_SIZE_M - 20)
+                        )
+                        if spatial.is_free(sign_pos, 2.0) and not spatial.is_on_road(sign_pos):
+                                var sign_name: String = signs[crng.randi() % signs.size()]
+                                if manifest.has(sign_name):
+                                        var sign_scene := _get_asset(sign_name)
+                                        if sign_scene:
+                                                var sign_inst := sign_scene.instantiate()
+                                                sign_inst.position = sign_pos
+                                                sign_inst.rotation.y = crng.randf_range(0, TAU)
+                                                sign_inst.name = "quarantine_%s_%d" % [sign_name, crng.randi()]
+                                                sign_inst.set_meta("building_name", sign_name)
+                                                sign_inst.set_meta("decay_layer", "quarantine")
+                                                chunk_root.add_child(sign_inst)
+                                                spatial.insert(sign_pos, 2.0)
+                                                placed += 1
+
+        # 4. Looted store debris near commercial buildings
+        if biome == 4:  # COMMERCIAL
+                if crng.randf() < 0.5:  # 50% chance per commercial chunk
+                        var debris := ["trash_can", "traffic_cone", "construction_barrier"]
+                        for i in range(2):
+                                var debris_pos := origin + Vector3(
+                                        crng.randf_range(20, CityConfig.CHUNK_SIZE_M - 20),
+                                        0,
+                                        crng.randf_range(20, CityConfig.CHUNK_SIZE_M - 20)
+                                )
+                                if spatial.is_free(debris_pos, 2.0) and not spatial.is_on_road(debris_pos):
+                                        var debris_name: String = debris[crng.randi() % debris.size()]
+                                        if manifest.has(debris_name):
+                                                var debris_scene := _get_asset(debris_name)
+                                                if debris_scene:
+                                                        var debris_inst := debris_scene.instantiate()
+                                                        debris_inst.position = debris_pos
+                                                        debris_inst.rotation.y = crng.randf_range(0, TAU)
+                                                        debris_inst.name = "looted_%s_%d" % [debris_name, crng.randi()]
+                                                        debris_inst.set_meta("building_name", debris_name)
+                                                        debris_inst.set_meta("decay_layer", "looted")
+                                                        chunk_root.add_child(debris_inst)
+                                                        spatial.insert(debris_pos, 2.0)
+                                                        placed += 1
+
+        return placed
+
 func _place_zombies(
         chunk_root: Node3D, profile: Dictionary, origin: Vector3,
         crng: RandomNumberGenerator, poi_exclusions: Array
