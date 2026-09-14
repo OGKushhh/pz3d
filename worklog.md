@@ -796,3 +796,115 @@ Stage Summary:
 - Repo is the MAZAR game (Project Zomboid 3D). State at HEAD: Phases A/B/C complete (city gen + parcels + lots + structural believability), Phase D (gameplay systems: interiors, vehicles, NPC AI, save/load, inventory, health) is the next major phase per roadmap.
 - Communication protocol acknowledged: this agent appends to worklog.md (or roadmap.md) for every action, then pushes to origin/main. User will ask questions in-chat; answers + reasoning also get logged to repo.
 - Waiting for user's question. Not making any code/art changes until user gives direction.
+
+---
+Task ID: session-13-city-gen-unification-analysis
+Agent: main (Super Z)
+Task: User asked: "city gen is not very good, what do you think about: unify placement system, density systems, fill empty space systems?" — discussion mode, no code changes yet.
+
+Work Log:
+- Read in full: chunk_streamer.gd (3594 lines), placement_validator.gd, plan_grid.gd, block_layout.gd, lot_stamper.gd, district_stamper.gd, lot.gd, city_config.gd (head).
+- Grepped all 87 functions in chunk_streamer. Counted 7+ parallel placement entry points.
+- Ran VLM (glm-5v-turbo) on screenshots/image.png through image6.png. Verbatim findings:
+  * "extremely sparse … buildings are isolated islands in a sea of grass"
+  * "roads don't connect to buildings logically … some houses sit far away from the pavement"
+  * "placement feels random rather than planned … they are scattered arbitrarily"
+  * "a large tree is growing directly in the middle of the road"
+  * "houses appear to be sitting on top of bright green rectangular platforms" (the slabs)
+  * "no lane markings, no sidewalks, no curbs"
+  * "low variation, copy-paste prototype look"
+  * "floating asset glitch"
+- Read runs/run_001/report_iter3.md and runs/run_003/report_iter3.md. Confirmed:
+  * Parks chunks: 0 buildings, 75-94% gap (broken even for a "parks" biome)
+  * Wetlands chunks: 0 buildings, 53-55% gap (broken)
+  * Coastal chunks: 1-3 buildings, 73-97% gap (broken)
+  * Commercial chunks: 4-12 buildings, 30-49% gap (mediocre)
+  * Suburbia chunk: 59 buildings, 25% gap (best result, still 1-in-4 cells empty)
+  * Middleware is only "removing" — 7 actions in iter3, all removes. Net-zero additive value.
+
+=== ANALYSIS: 7 parallel placement systems ===
+1. POI placement — reads map_data.json
+2. Landmark placement — v8 anti-clustering, _place_landmark, _place_landmark_footprint
+3. District template stamping — DistrictStamper.stamp_template at chunk-center, then spatial.insert(anchor, 75m) blocks the whole interior
+4. Lot recipe stamping — LotStamper.stamp_lot per parcel (the most "designed" path)
+5. Procedural parcel fallback — pick from profile.buildings, place at parcel.building_pos
+6. Roadside content pass — _place_roadside_content (cars + props + small buildings along roads)
+7. Block interior fill — _fill_block_interiors (5 fixed positions per chunk)
+8. Gap filler scatter — fill*20 random points + is_free check
+9. Interior greenery scatter — fill*foliage_mult random points
+10. AI middleware post-fill — _apply_fill_plan (offline, slow, only does removes in practice)
+
+=== ANALYSIS: density is computed 4 different ways ===
+1. _city_plan.density_gradient.grid — JSON data file, read by _get_density_for_cell(col, row). Per-cell 0..1 value.
+2. BIOME_DENSITY_MULT — hardcoded dict {0: 80, 1: 80, 2: 80, 3: 80, 4: 100, ...}. Per-biome multiplier.
+3. BIOME_FOLIAGE_MULT — hardcoded dict {0: 50, 1: 200, 2: 300, ...}. Separate multiplier for foliage.
+4. _get_zone_for_chunk + ZONE_CORE/RING/EDGE_PROB — third multiplier, per-zone.
+5. PlanGrid (plan_grid.gd) — full 20m resolution density field with biome fill + 3x3 blur × 2 + road-distance modulation + Perlin noise. BUILT BUT NEVER QUERIED BY CHUNK_STREAMER. Confirmed dead code via grep — _get_density_for_cell reads from _city_plan, NOT from plan_grid.
+6. DISTRICT_NOISE — Valheim-style biome blending. Yet another density modulator.
+
+Final formula in _build_chunk: target = fill × biome_mult × zone_mult. Where:
+- fill = _city_plan grid value (cell-based, ~500m resolution)
+- biome_mult = hardcoded per-biome constant
+- zone_mult = core/ring/edge overlay (3 buckets)
+PlanGrid (the highest-resolution density source with road-distance awareness) is bypassed entirely.
+
+=== ANALYSIS: fill-empty-space has 4 uncoordinated systems ===
+1. Gap filler (line ~953) — random scatter of "picket_fence", "planter_box", "garden_gnome", "trash_can", "mailbox" at fill*20 positions. Pure is_free check.
+2. Interior greenery (line ~993) — random scatter of foliage assets at fill*foliage_mult positions. Same is_free check.
+3. _fill_block_interiors (line ~3270) — 5 fixed positions (center + ±60m offsets) × cluster fills (parking_lot, backyard, alley, courtyard, tree_cluster, green_space, plaza). Each cluster is a sub-placement.
+4. _place_backyard_fill — companion props behind parcels (called per-parcel in main loop).
+5. AI middleware (_apply_fill_plan) — post-hoc fixes via fill_plan.json. Only removes in practice.
+
+None of these coordinate. A mailbox can land in a parking lot. A tree can land on a path. The _path_query check (Phase B.7.6) was added as a bandaid — every scatter must now ask "is_on_path?". But that's a negative check ("don't place here"), not a positive director ("place THIS there").
+
+=== ROOT-CAUSE DIAGNOSIS ===
+The problem isn't that any one system is bad. It's that they all run in parallel, each with their own density source, each scattering into the same spatial index, each adding bandaid checks for what the others missed.
+
+The PlanGrid was BUILT for exactly this — to be the single density field that placement reads from. But it was never wired in. Instead, _get_density_for_cell reads from _city_plan JSON (which is per-cell, ~500m resolution), and BIOME_DENSITY_MULT/ZONE_MULT override it with hardcoded constants.
+
+VLM saw "sparse + random + trees in road" because:
+- Density comes from 4 sources that don't agree
+- Placement happens from 7 entry points that don't coordinate
+- Fill happens from 4 systems that don't coordinate
+- PlanGrid (the only system that modulates by road distance) is dead code
+
+=== PROPOSED UNIFICATION (high-level, not yet committing to build) ===
+Three layers, one direction of dependency:
+
+LAYER 1 — PlanGrid (already exists, just wire it)
+  - Inputs: biome fill (already done), road network (already done), Perlin noise (already done), zone overlay (already done via _modulate_by_road_distance + _modulate_by_noise).
+  - Outputs: sample_density(pos) → 0..1, sample_land_use(pos) → enum, sample_setback(pos) → float.
+  - Kills: _city_plan.density_gradient, BIOME_DENSITY_MULT, BIOME_FOLIAGE_MULT, _get_zone_for_chunk, DISTRICT_NOISE (all become inputs to PlanGrid, not parallel density sources).
+
+LAYER 2 — PlacementDirector (new class, replaces 7 entry points)
+  - propose(pos, asset, role) → bool  (uses PlacementValidator — already exists, just route everything through it)
+  - commit(pos, asset, inst)
+  - remaining_budget(chunk) → int  (single source of "how many more things go here")
+  - All 7 current placement entry points call director.propose() + director.commit() instead of touching spatial directly.
+
+LAYER 3 — FillerPass (replaces 4 scatter systems)
+  - Walk PlanGrid cells in density order (highest first)
+  - For each cell: ask PlanGrid what should go here (residential/commercial/foliage/etc.)
+  - Pick from corresponding asset pool
+  - director.propose() + commit()
+  - Stop when budget exhausted
+  - Kills: gap_fillers scatter, interior greenery scatter, _fill_block_interiors, _place_backyard_fill, _apply_fill_plan (all become one walk-the-density-field pass)
+
+=== COST / RISK ===
+- chunk_streamer.gd would shrink from 3594 → ~1500 lines.
+- Every existing placement path needs migration (lot recipes, district templates, landmarks, POIs all stay — they call director instead of touching spatial directly).
+- AI middleware becomes obsolete if director is correct (it's currently only doing removes anyway).
+- Risk: 1-2 sessions of broken city gen while migrating. Mitigation: keep old paths as fallback behind a USE_DIRECTOR flag, A/B compare via chunk_state metrics.
+
+=== MY OPINION ===
+YES — unification is the right call. The current architecture has accreted 7 entry points + 4 density sources + 4 fill systems over 12 sessions of bandaids. Each bandaid was correct in isolation ("tree landed on path? add is_on_path check"). But the cumulative result is what VLM saw: sparse, random, uncoordinated, with a tree in the middle of a road.
+
+The PlanGrid is the right unification primitive — it already exists, already has road-distance modulation, already has Perlin noise. It's just not wired to anything. Wiring it + adding a PlacementDirector + collapsing the 4 fill systems into one FillerPass is the cleanest path forward.
+
+Alternative: keep accreting bandaids on the current 7-system architecture. This is what the last 12 sessions did. Each session fixed one symptom ("garage facing wrong way", "tree on path", "buildings too sparse") by adding one more bandaid. The cost per bandaid is going up (each new rule has to coordinate with all the previous ones). I don't recommend this path.
+
+Stage Summary:
+- Analyzed 7 placement entry points, 4 density sources, 4 fill systems. PlanGrid exists but is dead code. AI middleware is net-zero (only removes, never adds).
+- VLM confirmed user's intuition: city gen is sparse + random + has trees-in-road glitches.
+- Proposed 3-layer unification: PlanGrid → PlacementDirector → FillerPass. Cost: chunk_streamer shrinks 3594 → ~1500. Risk: 1-2 sessions of broken city during migration, mitigated by USE_DIRECTOR flag.
+- Waiting for user direction: (a) commit to unification, (b) discuss specific layer first, (c) propose alternative approach.
