@@ -251,7 +251,15 @@ const DISTRICT_NOISE_FREQ := 0.5
 # Used by all placement code to put buildings/props/foliage on terrain
 # instead of flat Y=0. Road flattening keeps road-adjacent placements
 # at Y≈0 (same as before). Block interiors get full biome elevation.
+# Phase v1-flat (2026-09-14): FLAT TERRAIN for v1.
+# User decided to go flat for v1 while keeping the subway underground.
+# terrain_height.gd is kept intact for future re-enable, but _terrain_y
+# now always returns 0.0 so all buildings/props/roads sit at Y=0.
+const FLAT_TERRAIN_V1 := true
+
 func _terrain_y(x: float, z: float) -> float:
+        if FLAT_TERRAIN_V1:
+                return 0.0
         if terrain == null:
                 return 0.0
         return terrain.height_at(x, z)

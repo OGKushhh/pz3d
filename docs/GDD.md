@@ -1095,10 +1095,40 @@ Final assets committed to `/home/z/my-project/assets/<category>/` and backed up 
 
 # PART 12: TERRAIN ARCHITECTURE 🧪
 
-> **Status: design locked, implementation in phases A–G (see §12.7).**
-> Captured 2026-09-12 after DeepSeek review of original terrain plan.
+> **Status: v1 FLAT — elevation deferred. Updated 2026-09-14.**
+> User decision: "go flat for v1 while keeping the subway." All buildings,
+> roads, props, and foliage sit at Y=0. The `terrain_height.gd` module is kept
+> intact for future re-enable (post-v1), but `_terrain_y()` in chunk_streamer.gd
+> now always returns 0.0 via the `FLAT_TERRAIN_V1` constant. The subway system
+> (`subway_network.gd`) operates underground and is unaffected — it never
+> depended on surface terrain height.
 
-## 12.1 Core principle: Terrain3D owns terrain, ChunkStreamer owns everything else
+## 12.0 v1 Flat Terrain (2026-09-14)
+
+**What's flat:** All surface placement (buildings, roads, props, foliage, sidewalks, driveways, landmarks, decay layer). Everything sits at Y=0.
+
+**What's NOT flat:** Bridges remain elevated +3m (they cross the river, so elevation is structural). Subway tunnels are underground (their own Y coordinate system, independent of surface terrain).
+
+**Why flat for v1:**
+- Simplifies placement math — no height queries, no terrain following
+- Eliminates z-fighting between ground mesh and placed objects
+- Faster iteration — no heightmap generation or baking step
+- The city gen pipeline (Lot System, road hierarchy, decay layer) is the priority; terrain elevation is a polish item
+
+**How it's implemented:**
+- `chunk_streamer.gd`: `FLAT_TERRAIN_V1 := true` constant. `_terrain_y()` returns 0.0 when enabled.
+- `terrain_height.gd`: kept intact (ELEVATIONS table, height_at() function) — not deleted, just not called.
+- `terrain_baker.gd`: heightmap mesh generation was already disabled in Phase B.4. Only bridges + water are placed.
+- `terrain_debug_viz.gd`: autoload already disabled (caused z-fighting with flat ground).
+
+**Re-enabling elevation (post-v1):**
+1. Set `FLAT_TERRAIN_V1 := false` in chunk_streamer.gd
+2. Re-enable the heightmap mesh generation in terrain_baker.gd `_build_terrain()`
+3. Re-enable TerrainDebugViz autoload (optional, for debugging)
+4. Bump `TERRAIN_HEIGHT_VERSION` in terrain_height.gd
+5. Re-bake terrain mesh
+
+## 12.1 Core principle (design — for post-v1 reference)
 
 Two layers, cleanly separated:
 
