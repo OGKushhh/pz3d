@@ -1289,3 +1289,65 @@ Stage Summary:
 - map_baker.gd was deferred (Phase B.8) — needs to be built now. ~2-3 hours.
 - Three-stage plan: bake → hand-tune → expand variety. Each stage shippable.
 - Waiting for user direction: (a) commit to Stage 1 and build map_baker.gd, (b) discuss specific design before building, (c) propose alternative.
+
+---
+Task ID: session-13-map-baker-built-and-baked
+Agent: main (Super Z)
+Task: User approved the baked hybrid plan: "i like this plan, we get to gen then edit. we might achieve the impossible goal bro strart now". Built map_baker.gd, ran it, verified output.
+
+Work Log:
+- Wrote scripts/map_baker.gd (723 lines) — bakes city to static .tscn file.
+  Architecture:
+  * Extends SceneTree (runs headless like build_test_city.gd)
+  * Reuses: CityConfig, SpatialIndex, RoadNetwork, BlockLayout, DistrictStamper, LotStamper, PlacementValidator, PathQuery, RiverNetwork, TerrainHeight
+  * Baker IS the "streamer" object passed to stampers — implements _get_asset, _attach_building_collision, _create_plane_mesh_rotated, _get_road_edge_near, plus _path_query, spatial, roads, _asset_positions, _get_district_type_count fields expected by validator
+  * Placement validated via PlacementValidator (collision/overlap/setback/neighbor-compat/repetition)
+  * Sky + Sun + Ground + Player (WASD + mouse + jump + sprint + V=fly) — same as test_city_v2
+  * Outputs: res://scenes/baked_city.tscn (2.5MB)
+- Fixed 3 bugs during development:
+  1. roads.add_segment → roads._add_segment (private API, underscore prefix)
+  2. path_query → _path_query (validator expects this field name on streamer)
+  3. result.ok → result.get("ok", false) (safer Dictionary access)
+  4. Chunk→biome grid mapping (chunks are 250m, biome grid is 500m — need to divide)
+- Ran baker on full 12km² map (16×12 = 192 chunks):
+  * Build time: 1.61 seconds
+  * Save time: 0.39 seconds
+  * Placed: 9,759 objects
+  * Skipped: 10 (validator rejected — collisions/overlaps/bad setbacks)
+  * Output: scenes/baked_city.tscn (2.5MB)
+- Verified scene loads cleanly:
+  * "PASS: baked_city loaded, root=BakedCity children=333"
+  * Total nodes in tree: 94,287
+  * Loads in <1 second at runtime (vs streaming's 750ms+ for 25 chunks at startup)
+- What's in the baked city:
+  * All 192 chunks built (16 cols × 12 rows)
+  * Each chunk has: POIs (from map_data), district template (hand-authored), lot recipes (hand-authored), procedural buildings, foliage, props
+  * All placements validated (no buildings on roads, no overlapping, proper setbacks)
+  * Player at (1600, 2, 1500) — center of map, eye height 1.65m
+  * Sky + sun + fog + tonemap (NOT pitch black)
+  * Ground collision (StaticBody3D, can't fall through)
+  * Building collision (box colliders from AABB)
+  * Fly mode (V key) for easy exploration
+
+=== WHAT THE USER CAN NOW DO ===
+1. Pull the repo
+2. Open scenes/baked_city.tscn in Godot editor
+3. Press F6 (Play) → drops in at center of map, can walk/fly around
+4. See the full 12km² city with all 10 biomes
+5. Hand-tune specific blocks in the editor:
+   - Delete a misplaced building → drag in a different one → save
+   - Adjust positions, rotations, scales visually
+   - The .tscn is now the source of truth
+6. Or: tweak the generator (district_templates.gd, lot.gd, city_config.gd) and re-bake
+
+=== STAGE 1 COMPLETE. NEXT STEPS ===
+Stage 2 (hand-tune specific blocks): user identifies bad blocks in editor, we fix in .tscn or generator
+Stage 3 (biome variety per block): expand district_templates (currently 1-2 per biome → goal 5+) and lot recipes (currently 11 → goal 20+)
+Stage 4 (future): delete chunk_streamer.gd entirely if baked city is good enough
+
+Stage Summary:
+- map_baker.gd built and working. 9,759 placements baked in 1.61s. Output: 2.5MB .tscn file.
+- PlacementValidator integrated — 10 bad placements caught and skipped automatically.
+- Scene loads cleanly, is drop-in playable (WASD + mouse + jump + sprint + V fly).
+- User can now pull, open in Godot editor, and hand-tune specific blocks.
+- The "impossible goal" (good city gen + hand-authoring + no collisions) is now achievable: gen produces a validated draft, user edits the draft in editor.
