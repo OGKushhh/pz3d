@@ -620,7 +620,9 @@ func _build_chunk(key: Vector2i) -> void:
         # Phase B.7.5: Clear path query at the start of each chunk build.
         # Path segments are per-chunk — we don't want path data from the previous
         # chunk leaking into the current chunk's gap filler / foliage checks.
-        _path_query.clear()
+        # Guard against _process running before _ready completes (await frame).
+        if _path_query != null:
+                _path_query.clear()
         var col: int = clamp(int(key.x * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_COLS - 1)
         var row: int = clamp(int(key.y * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_ROWS - 1)
         var base_biome: int = CityConfig.grid_layout()[row][col]
@@ -715,7 +717,7 @@ func _build_chunk(key: Vector2i) -> void:
         var lm_count := _place_landmark(chunk_root, profile, origin, key, crng, poi_exclusions)
         l_count += lm_count
 
-        # === Phase A.7: HAND-AUTHORED DISTRICT TEMPLATE STAMPING ===
+        # Phase A.7: HAND-AUTHORED DISTRICT TEMPLATE STAMPING ===
         # If this biome has a template defined (see data/district_templates.gd
         # BIOME_TEMPLATES map), stamp it at the chunk's anchor (cell center).
         # The template includes buildings + foliage + props at hand-authored
@@ -723,7 +725,10 @@ func _build_chunk(key: Vector2i) -> void:
         # After stamping, mark the anchor's footprint (75m radius) as occupied
         # in the spatial index so procedural placement skips that area.
         # Per docs/district_templates.md: coverage is ~30% (major biomes only).
-        var template_name := _stamper.pick_template_for_biome(biome, crng)
+        # Guard against _process running before _ready completes (await frame).
+        var template_name := ""
+        if _stamper != null:
+                template_name = _stamper.pick_template_for_biome(biome, crng)
         var template_placed := 0
         if template_name != "":
                 var anchor_pos := origin + Vector3(

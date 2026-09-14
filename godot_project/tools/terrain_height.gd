@@ -11,6 +11,8 @@
 class_name TerrainHeight
 extends RefCounted
 
+const CityConfig = preload("res://tools/city_config.gd")
+
 # v3 (2026-09-13, Phase A.4): removed RIVER from ELEVATIONS (river is now a
 # polyline overlay carved separately — see _river carve in height_at).
 # Added WETLANDS (low-elevation swampy biome — base -0.5m for marshland
