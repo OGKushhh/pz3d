@@ -8,6 +8,7 @@ var segments: Array = []
 func generate(rng: RandomNumberGenerator) -> void:
     segments.clear()
     _build_grid_roads(rng)
+    _build_local_streets(rng)
     _build_bridges(rng)
     _build_highway(rng)
 
@@ -23,27 +24,73 @@ func _add_segment(start: Vector3, end: Vector3, width: float, kind: String, name
         s["name"] = name
     segments.append(s)
 
+# Phase C.1.1: 3-tier road hierarchy.
+# Highways: every 4th grid road (every 2000m), 12m wide, "highway" kind.
+# Arterials: remaining grid roads (every 500m), 8m wide, "arterial" kind (was "street").
+# Local streets: inside cells at 125m spacing, 5m wide, "local" kind (C.1.2).
+#
+# Highway rows: 0 and 4 (z=0, z=2000) — 2 east-west highways
+# Highway cols: 0 and 4 (x=0, x=2000) — 2 north-south highways
+# This creates a highway ring around the city center + cross-highways through it.
+const HIGHWAY_WIDTH := 12.0
+const ARTERIAL_WIDTH := 8.0  # was CityConfig.ROAD_WIDTH (8.0)
+const LOCAL_WIDTH := 5.0
+const HIGHWAY_INTERVAL := 4  # every 4th grid line is a highway
+
 func _build_grid_roads(_rng: RandomNumberGenerator) -> void:
+    # Horizontal roads (east-west) at each row boundary
     for row in range(CityConfig.GRID_ROWS + 1):
-        if false:
-            continue
         var z: float = row * CityConfig.CELL_SIZE_M
+        var is_hwy: bool = (row % HIGHWAY_INTERVAL == 0)
+        var kind: String = "highway" if is_hwy else "arterial"
+        var width: float = HIGHWAY_WIDTH if is_hwy else ARTERIAL_WIDTH
         for col in range(CityConfig.GRID_COLS):
             _add_segment(
                 Vector3(col * CityConfig.CELL_SIZE_M, 0, z),
                 Vector3((col + 1) * CityConfig.CELL_SIZE_M, 0, z),
-                CityConfig.ROAD_WIDTH, "street"
+                width, kind
             )
+    # Vertical roads (north-south) at each column boundary
     for col in range(CityConfig.GRID_COLS + 1):
-        if false:
-            continue
         var x: float = col * CityConfig.CELL_SIZE_M
+        var is_hwy: bool = (col % HIGHWAY_INTERVAL == 0)
+        var kind: String = "highway" if is_hwy else "arterial"
+        var width: float = HIGHWAY_WIDTH if is_hwy else ARTERIAL_WIDTH
         for row in range(CityConfig.GRID_ROWS):
             _add_segment(
                 Vector3(x, 0, row * CityConfig.CELL_SIZE_M),
                 Vector3(x, 0, (row + 1) * CityConfig.CELL_SIZE_M),
-                CityConfig.ROAD_WIDTH, "street"
+                width, kind
             )
+
+# Phase C.1.2: Local streets inside each cell.
+# Each 500m cell gets local streets at 125m spacing, dividing it into 4 strips.
+# Local streets run parallel to the arterials and connect to them at cell borders.
+# Width: 5m, kind: "local". These are the narrow residential streets where houses face.
+const LOCAL_STREET_SPACING := 125.0  # meters between local streets
+func _build_local_streets(_rng: RandomNumberGenerator) -> void:
+    # For each cell, add local streets inside it (not on borders — arterials handle those)
+    for row in range(CityConfig.GRID_ROWS):
+        for col in range(CityConfig.GRID_COLS):
+            var cell_x: float = col * CityConfig.CELL_SIZE_M
+            var cell_z: float = row * CityConfig.CELL_SIZE_M
+            # Horizontal local streets (east-west) inside the cell
+            # Skip the cell border (z=0 offset) — that's an arterial. Add 3 local streets at 125, 250, 375m
+            for i in range(1, int(CityConfig.CELL_SIZE_M / LOCAL_STREET_SPACING)):
+                var z: float = cell_z + i * LOCAL_STREET_SPACING
+                _add_segment(
+                    Vector3(cell_x, 0, z),
+                    Vector3(cell_x + CityConfig.CELL_SIZE_M, 0, z),
+                    LOCAL_WIDTH, "local"
+                )
+            # Vertical local streets (north-south) inside the cell
+            for i in range(1, int(CityConfig.CELL_SIZE_M / LOCAL_STREET_SPACING)):
+                var x: float = cell_x + i * LOCAL_STREET_SPACING
+                _add_segment(
+                    Vector3(x, 0, cell_z),
+                    Vector3(x, 0, cell_z + CityConfig.CELL_SIZE_M),
+                    LOCAL_WIDTH, "local"
+                )
 
 func _build_bridges(_rng: RandomNumberGenerator) -> void:
     for b in CityConfig.bridges():

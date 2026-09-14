@@ -90,6 +90,10 @@ const C_LANE := Color(0.90, 0.88, 0.82, 1)
 const C_SIDEWALK := Color(0.70, 0.68, 0.64, 1)
 const C_GRASS := Color(0.22, 0.40, 0.16, 1)
 const C_PARK := Color(0.18, 0.38, 0.14, 1)
+# Phase C.1.3: Road type colors
+const C_HIGHWAY := Color(0.08, 0.08, 0.10, 1)   # darker asphalt
+const C_LOCAL := Color(0.16, 0.16, 0.18, 1)     # lighter residential asphalt
+const C_SHOULDER := Color(0.22, 0.38, 0.16, 1)  # grass shoulder for highways
 const C_WATER := Color(0.15, 0.30, 0.45, 0.7)
 
 # Placement constants
@@ -123,7 +127,7 @@ const SPECIAL_ANTICLUSTER := [
 # v8: Road kinds that are NOT eligible for building placement.
 # "street" is the default — buildings line it. "highway" and "bridge" get
 # rendered as road surfaces but skipped during lot assignment.
-const NON_LOT_ROAD_KINDS := ["highway", "bridge"]
+const NON_LOT_ROAD_KINDS := ["highway", "bridge"]  # Phase C.1: "local" NOT excluded — lots can face local streets
 
 # v8.1: Y-offset layer cake (see chunk_builder.gd placement-rules header).
 # Phase A.6: _create_plane_mesh_rotated takes Y via pos.y (PlaneMesh.size
@@ -308,6 +312,9 @@ func _ready() -> void:
 
         # Load roads from map_data
         _load_roads_from_data()
+        # Phase C.1: reclassify roads + add local streets on top of the base grid
+        _reclassify_roads()
+        _add_local_streets()
         roads.mark_roads_in_index(spatial, CityConfig.SPATIAL_CELL_M)
 
         plan_grid = PlanGrid.new()
@@ -491,6 +498,50 @@ func _load_roads_from_data():
                         road.get("name", "")
                 )
         print("[ChunkStreamer] roads loaded: %d segments" % roads.segments.size())
+
+# Phase C.1.1: Reclassify "street" roads as "highway" or "arterial" based on position.
+# Every 4th grid line (at 0m, 2000m) becomes "highway" (12m wide).
+# Remaining "street" roads become "arterial" (8m wide).
+# Preserves existing "highway", "bridge", "diagonal" kinds from map_data.json.
+func _reclassify_roads() -> void:
+        var reclassified: int = 0
+        for seg in roads.segments:
+                var kind: String = seg.get("kind", "street")
+                if kind != "street":
+                        continue  # skip existing highway/bridge/diagonal
+                # Check if this road is at a highway interval (every 2000m)
+                var a: Vector3 = seg["start"]
+                var b: Vector3 = seg["end"]
+                var is_horizontal: bool = abs(a.z - b.z) < 0.1
+                var is_vertical: bool = abs(a.x - b.x) < 0.1
+                if is_horizontal:
+                        var z: float = a.z
+                        if int(z / CityConfig.CELL_SIZE_M) % RoadNetwork.HIGHWAY_INTERVAL == 0:
+                                seg["kind"] = "highway"
+                                seg["width"] = RoadNetwork.HIGHWAY_WIDTH
+                                reclassified += 1
+                        else:
+                                seg["kind"] = "arterial"
+                                seg["width"] = RoadNetwork.ARTERIAL_WIDTH
+                elif is_vertical:
+                        var x: float = a.x
+                        if int(x / CityConfig.CELL_SIZE_M) % RoadNetwork.HIGHWAY_INTERVAL == 0:
+                                seg["kind"] = "highway"
+                                seg["width"] = RoadNetwork.HIGHWAY_WIDTH
+                                reclassified += 1
+                        else:
+                                seg["kind"] = "arterial"
+                                seg["width"] = RoadNetwork.ARTERIAL_WIDTH
+        print("[ChunkStreamer] roads reclassified: %d highways, rest arterials (%d total)" % [reclassified, roads.segments.size()])
+
+# Phase C.1.2: Add local streets inside each cell at 125m spacing.
+# Delegates to RoadNetwork._build_local_streets() which generates 5m wide
+# "local" roads inside each 500m cell, creating a denser residential grid.
+func _add_local_streets() -> void:
+        var before: int = roads.segments.size()
+        roads._build_local_streets(rng)
+        var added: int = roads.segments.size() - before
+        print("[ChunkStreamer] local streets added: %d (total now %d)" % [added, roads.segments.size()])
 
 func _process(_delta: float) -> void:
         if player == null or manifest.is_empty():
@@ -1024,64 +1075,84 @@ func _build_visible_roads(chunk_root: Node3D, origin: Vector3, chunk_size: float
                 var a: Vector3 = seg["start"]
                 var b: Vector3 = seg["end"]
                 var width: float = float(seg.get("width", 8.0))
+                var kind: String = seg.get("kind", "arterial")
                 var length: float = a.distance_to(b)
                 if length < 1.0:
                         continue
                 var mid: Vector3 = (a + b) * 0.5
                 var dir: Vector3 = (b - a).normalized()
-
-                # Phase A.6: unified road rendering — works for axis-aligned AND
-                # diagonal roads. The old code used is_horizontal = abs(dir.z) >
-                # abs(dir.x) to swap X/Z dimensions, which only handled the two
-                # axis-aligned cases. Diagonal avenues (Sarran Avenue, Bayview
-                # Avenue) need actual yaw rotation.
-                #
-                # Math: PlaneMesh.size = Vector2(X_dim, Z_dim) in local space.
-                # Default forward (local +Z) = (0, 0, 1) world. After yaw rotation
-                # around Y by angle θ, local +Z becomes (sin θ, 0, cos θ).
-                # To align local +Z with road dir = (dir.x, 0, dir.z):
-                #   sin θ = dir.x, cos θ = dir.z  →  θ = atan2(dir.x, dir.z)
-                #
-                # We always pass size = Vector2(perp_width, dir_length) where
-                # perp_width is the road's physical width and dir_length is its
-                # physical length. The yaw handles all orientation.
                 var yaw: float = atan2(dir.x, dir.z)
                 var perp: Vector3 = Vector3(-dir.z, 0, dir.x)
 
-                # Road surface — width along local X (perp), length along local Z (dir)
+                # Phase C.1.3: Road color + lane markings by type
+                var road_color: Color = C_ROAD
+                var has_lane: bool = false
+                var has_sidewalks: bool = true
+                var has_grass_shoulder: bool = true
+                match kind:
+                        "highway":
+                                road_color = C_HIGHWAY
+                                has_lane = true  # double yellow + white lanes
+                                has_sidewalks = false  # highways have shoulders, not sidewalks
+                                has_grass_shoulder = true  # wide grass shoulder instead
+                        "arterial":
+                                road_color = C_ROAD
+                                has_lane = width >= 8.0
+                                has_sidewalks = true
+                                has_grass_shoulder = true
+                        "local":
+                                road_color = C_LOCAL
+                                has_lane = false  # local streets don't have lane markings
+                                has_sidewalks = true  # but narrower
+                                has_grass_shoulder = false  # local streets have yards, not shoulders
+                        _:
+                                road_color = C_ROAD
+                                has_lane = width >= 8.0
+                                has_sidewalks = true
+                                has_grass_shoulder = true
+
+                # Road surface
                 _create_plane_mesh_rotated(chunk_root, "Road",
                         Vector3(mid.x, Y_ROAD, mid.z),
-                        Vector2(width, length), C_ROAD, yaw)
+                        Vector2(width, length), road_color, yaw)
 
                 # Phase B.4: skip lane/sidewalk/grass near intersections
                 var near_crossing: bool = _is_near_intersection(mid, 20.0)
 
                 # Center lane line (only on wider roads, not at intersections)
-                if width >= 8.0 and not near_crossing:
+                if has_lane and not near_crossing:
                         _create_plane_mesh_rotated(chunk_root, "Lane",
                                 Vector3(mid.x, Y_LANE, mid.z),
                                 Vector2(0.15, length), C_LANE, yaw)
 
                 # Sidewalks + grass strips — skip at intersections
                 if not near_crossing:
-                        var sw_off: float = width * 0.5 + CityConfig.SIDEWALK_WIDTH * 0.5
-                        var sw1: Vector3 = mid + perp * sw_off
-                        var sw2: Vector3 = mid - perp * sw_off
-                        _create_plane_mesh_rotated(chunk_root, "SW1",
-                                Vector3(sw1.x, Y_SIDEWALK, sw1.z),
-                                Vector2(CityConfig.SIDEWALK_WIDTH, length), C_SIDEWALK, yaw)
-                        _create_plane_mesh_rotated(chunk_root, "SW2",
-                                Vector3(sw2.x, Y_SIDEWALK, sw2.z),
-                                Vector2(CityConfig.SIDEWALK_WIDTH, length), C_SIDEWALK, yaw)
-                        var gs_off: float = width * 0.5 + CityConfig.SIDEWALK_WIDTH + CityConfig.GRASS_STRIP_WIDTH * 0.5
-                        var gs1: Vector3 = mid + perp * gs_off
-                        var gs2: Vector3 = mid - perp * gs_off
-                        _create_plane_mesh_rotated(chunk_root, "GS1",
-                                Vector3(gs1.x, Y_GRASS, gs1.z),
-                                Vector2(CityConfig.GRASS_STRIP_WIDTH, length), C_GRASS, yaw)
-                        _create_plane_mesh_rotated(chunk_root, "GS2",
-                                Vector3(gs2.x, Y_GRASS, gs2.z),
-                                Vector2(CityConfig.GRASS_STRIP_WIDTH, length), C_GRASS, yaw)
+                        if has_sidewalks:
+                                # Local streets get narrower sidewalks (1.0m vs 1.5m)
+                                var sw_width: float = 1.5 if kind != "local" else 1.0
+                                var sw_off: float = width * 0.5 + sw_width * 0.5
+                                var sw1: Vector3 = mid + perp * sw_off
+                                var sw2: Vector3 = mid - perp * sw_off
+                                _create_plane_mesh_rotated(chunk_root, "SW1",
+                                        Vector3(sw1.x, Y_SIDEWALK, sw1.z),
+                                        Vector2(sw_width, length), C_SIDEWALK, yaw)
+                                _create_plane_mesh_rotated(chunk_root, "SW2",
+                                        Vector3(sw2.x, Y_SIDEWALK, sw2.z),
+                                        Vector2(sw_width, length), C_SIDEWALK, yaw)
+                        if has_grass_shoulder:
+                                # Grass strip between sidewalk and lot (or wider for highways)
+                                var gs_width: float = CityConfig.GRASS_STRIP_WIDTH
+                                if kind == "highway":
+                                        gs_width = 4.0  # wider shoulder for highways
+                                var gs_off: float = width * 0.5 + (CityConfig.SIDEWALK_WIDTH if has_sidewalks else 0.0) + gs_width * 0.5
+                                var gs1: Vector3 = mid + perp * gs_off
+                                var gs2: Vector3 = mid - perp * gs_off
+                                _create_plane_mesh_rotated(chunk_root, "GS1",
+                                        Vector3(gs1.x, Y_GRASS, gs1.z),
+                                        Vector2(gs_width, length), C_GRASS, yaw)
+                                _create_plane_mesh_rotated(chunk_root, "GS2",
+                                        Vector3(gs2.x, Y_GRASS, gs2.z),
+                                        Vector2(gs_width, length), C_GRASS, yaw)
 
 # Phase A.6: Plane mesh helper that supports yaw rotation around Y.
 # Used for ALL road rendering (axis-aligned AND diagonal). Size is Vector2
