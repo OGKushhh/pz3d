@@ -591,3 +591,63 @@ Stage Summary:
 - Phase B.6 (Lot System) is the locked-in next step. Three sub-tasks: B.6.1 create `tools/lot.gd` (Lot data structure + recipes), B.6.2 create `tools/lot_stamper.gd` (stamps Lot at parcel position, draws sidewalk + driveway), B.6.3 patch `chunk_streamer.gd:617-690` + gap filler.
 - Next action: implement B.6.1 — `tools/lot.gd`. Will follow DistrictTemplates pattern exactly (class_name + const LOTS dict + helpers). Starting with 6-10 recipes covering the major biomes (SUBURBIA, COMMERCIAL, INDUSTRIAL, DOWNTOWN, FARMLAND, MILITARY). Commit + push after each sub-task so user can review via the repo.
 - No code committed this session yet — just environment setup + verification + this worklog entry.
+
+---
+Task ID: phase-c-complete + gun-system-start
+Agent: main (Super Z)
+Task: Complete all Phase C tasks (road hierarchy, zoned districts, attached buildings, landmark footprints, decay layer, OBB parcelling), run middleware, then start gun system. User specified the 6 components that make shooting feel good: hitscan raycast, tracer line, recoil kick, spread pattern, recovery, muzzle flash.
+
+Work Log:
+- C.1 Road hierarchy (commit 46633be): 3-tier system replacing flat 8m "street" grid.
+  - Highways: 12m wide, every 2000m, darker color, no sidewalks, wide grass shoulder
+  - Arterials: 8m wide, every 500m, standard
+  - Local streets: 5m wide, every 125m inside cells, lighter color, narrow sidewalks
+  - 9 highways + ~25 arterials + 144 local streets visible in 25 chunks (was 34 total)
+  - Updated road_network.gd with HIGHWAY_WIDTH/ARTERIAL_WIDTH/LOCAL_WIDTH constants
+  - Updated _build_visible_roads in chunk_streamer.gd with per-kind rendering logic
+- C.2 Zoned districts (commit 3409fdd): core/ring/edge overlay
+  - CITY_CENTER at (2000, 1500), ZONE_CORE_RADIUS=1200, ZONE_RING_RADIUS=2200
+  - Density multiplier: core=1.3x, ring=1.0x, edge=0.5x
+  - Applied on top of BIOME_DENSITY_MULT
+- C.3 Attached buildings (commit 6ba5754): 3 new lot recipes
+  - suburb_row_houses: 3 houses at 7m spacing
+  - commercial_strip_mall_attached: 3 storefronts at 10m spacing
+  - downtown_attached_highrises: 2 highrises at 16m spacing (zero gap)
+- C.4 Landmark footprints (commit 3a699b4): _place_landmark_footprint function
+  - Parking lots (30x20m) for stadium/hospital/grocery
+  - Plazas (20x15m stone) for palace/fort
+  - Bollards flanking plaza entrances
+  - Parked school_buses (placeholder for M.A.V.S vehicles)
+- C.5 Decay layer (commit 2f1aac0): _place_decay_layer function
+  - Abandoned vehicle convoys along highways (2-4 buses, tilted, 40% chance per 300m)
+  - Mass graves in Forest/Farmland/Wetlands (30% chance per chunk)
+  - Quarantine signs in MILITARY (sandbags, barriers, cones)
+  - Looted store debris in COMMERCIAL (50% chance, trash cans + barriers)
+  - All tagged with "decay_layer" meta for identification
+- C.6 OBB-style parcel variation (commit 810c314): organic lot sizes
+  - Parcel width varies ±3m (was uniform 20m)
+  - 20% chance to split lot into 2 narrow 15m lots (row-house style)
+  - Deterministic per chunk (seed = hash(origin) ^ 0xBEEF)
+- Middleware run (commit 7a432b3): runs/run_003/
+  - Baseline: 11 problems (5 overlaps, 5 min_spacing, 1 repetition)
+  - After iter 1: 8 problems (kept — 27.3% reduction)
+  - Iter 2-3 reverted (would worsen)
+  - 7 remove actions in fill_plan.json (fixes overlaps from new attached recipes)
+  - Removed: 2 salon, 3 store_pharmacy, 1 house_ranch, 1 house_cape_cod
+
+Stage Summary:
+- All 6 Phase C tasks complete, each as separate commit
+- Middleware reduced problems 27.3% (11 → 8)
+- 7 overlap removes queued in fill_plan.json (auto-apply on next chunk load)
+- City gen is structurally complete — ready for gun system
+
+Next: gun system with 6 components per user spec:
+1. Hitscan raycast — instant bullet, ~20 lines
+2. Tracer line — thin quad fades over 0.1s, ~30 lines
+3. Recoil kick — camera pitches up per shot, ~10 lines
+4. Spread pattern — per-gun array of (x,y) offsets, data not code, ~5 lines + table
+5. Recovery — recoil decays toward 0, ~10 lines
+6. Muzzle flash — sprite spawn + fade, ~20 lines
+
+User mentioned "fetch and see the weapons assets i gave you" but no URL was
+provided in the message. Need to ask user for the weapon asset URL/zip path.
