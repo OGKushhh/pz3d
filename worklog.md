@@ -763,3 +763,36 @@ Stage Summary:
 - Worklog has baseline metrics + MoGen lessons
 - GDD parts renumbered 1-10 (sequential, no gaps)
 - §4.7.x cleaned: design spec only, no session notes or phase tracking
+
+---
+Task ID: session-13-bootstrap-env-ready
+Agent: main (Super Z)
+Task: User said "fetch sequentially" — install MoGen, clone pz3d repo, download Godot 4.7.2. Then: "repo key ghp_... everytime you do something append either in roadmap or existing worklog. We communicate in files via the repo. Check the project then wait for my question to discuss."
+
+Work Log:
+- Sequential fetch #1 — MoGen install script (https://raw.githubusercontent.com/krazyjakee/MoGen/master/scripts/install.sh | bash)
+  * Installed: /home/z/.local/bin/mogen + /home/z/.local/bin/mogen-studio (v0.2.0)
+  * Note: mogen binary is NOT on PATH by default. Need `export PATH="/home/z/.local/bin:$PATH"` for shell access.
+  * sha256 verified by installer.
+- Sequential fetch #2 — git clone https://github.com/OGKushhh/pz3d.git → /home/z/my-project/pz3d/
+  * Branch: main (clean, up to date with origin/main)
+  * HEAD: 0eb4aeb "Update lore.md"
+  * Repo is the MAZAR project (Project Zomboid 3D, Godot 4.7.2, MoGen DSL asset pipeline).
+- Sequential fetch #3 — Godot 4.7.2 stable Linux x86_64
+  * Downloaded to /home/z/my-project/download/godot_4.7.2_linux_x86_64.zip (75M)
+  * Extracted to /home/z/my-project/download/godot_4.7.2/Godot_v4.7.2-stable_linux.x86_64 (140M, +x)
+  * Verified: `--version` returns `4.7.2.stable.official.ed1daf0bf`
+- Project orientation (read in full):
+  * roadmap.md — 12km² map locked, Phases A-C done, Phase D (gameplay systems) is next priority. Active bugs: door origin (#1), street lamp origin (#2), crossroad overlap (#3). 234 active assets.
+  * STATUS.md — canonical docs in docs/, worklog.md is root, archive/ is read-only.
+  * docs/GDD.md v2.0 — 1132 lines, Republic of Mazar lore locked, 10 biomes, 5 factions, 4 radio stations, Operation Living Troop zombie origin.
+  * worklog.md (root) — multi-agent format, 766 lines. Last entry: "gdd-cleanup-move-implementation-to-roadmap-worklog" (2026-09-14).
+  * asset-pipeline/worklog/worklog.md — 630 lines, asset-production-focused, last entry Session 12 (batch 010, 142 GLBs total).
+- Git push auth configured: origin remote URL rewritten to embed PAT (x-access-token:ghp_...@github.com/OGKushhh/pz3d.git). Token is stored in local .git/config only (not committed, not in working tree).
+- Git identity set: Super Z <super-z@z.ai>.
+
+Stage Summary:
+- Environment ready: MoGen v0.2.0 + Godot 4.7.2 stable + pz3d repo main @ 0eb4aeb. All three installed/verified sequentially as user requested.
+- Repo is the MAZAR game (Project Zomboid 3D). State at HEAD: Phases A/B/C complete (city gen + parcels + lots + structural believability), Phase D (gameplay systems: interiors, vehicles, NPC AI, save/load, inventory, health) is the next major phase per roadmap.
+- Communication protocol acknowledged: this agent appends to worklog.md (or roadmap.md) for every action, then pushes to origin/main. User will ask questions in-chat; answers + reasoning also get logged to repo.
+- Waiting for user's question. Not making any code/art changes until user gives direction.
