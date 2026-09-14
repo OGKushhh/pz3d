@@ -23,7 +23,7 @@ const RecoilController := preload("res://weapons/recoil_controller.gd")
 
 var _weapon_class: String = "pistol"
 var _weapon_data: Dictionary = {}
-var _last_fire_time: float = 0.0
+var _cooldown_timer: Timer
 var _shot_index: int = 0
 var _camera: Camera3D
 var _recoil: RecoilController
@@ -34,6 +34,10 @@ func equip(weapon_class: String) -> void:
         _weapon_class = weapon_class
         _weapon_data = WeaponSpreads.get_weapon_data(weapon_class)
         _shot_index = 0
+        # Phase #2: update cooldown timer to match new weapon's fire rate
+        if _cooldown_timer and not _weapon_data.is_empty():
+                var fire_rate: float = float(_weapon_data.get("fire_rate", 1.0))
+                _cooldown_timer.wait_time = 1.0 / fire_rate
         print("[WeaponSystem] equipped: %s (dmg=%d, rate=%.1f, spread=%.1f°)" % [
                 weapon_class,
                 _weapon_data.get("damage", 0),
@@ -63,16 +67,24 @@ func _ready() -> void:
         if _world_root == null:
                 # Default to the scene root
                 _world_root = get_tree().current_scene
+        # Phase #2: create cooldown timer (replaces Time.get_ticks_msec() math)
+        _cooldown_timer = Timer.new()
+        _cooldown_timer.name = "CooldownTimer"
+        _cooldown_timer.one_shot = false
+        _cooldown_timer.wait_time = 0.2  # default; updated on equip()
+        add_child(_cooldown_timer)
 
 # Try to fire. Returns true if a shot was fired, false if rate-limited or no data.
+# Phase #2: uses Timer (one_shot=false, but stopped/started on fire) for rate limiting.
+# Tests can read _cooldown_timer.wait_time to verify fire_rate, and await its timeout.
 func fire() -> bool:
         if _weapon_data.is_empty():
                 return false
-        var now: float = Time.get_ticks_msec() / 1000.0
-        var fire_interval: float = 1.0 / float(_weapon_data.get("fire_rate", 1.0))
-        if now - _last_fire_time < fire_interval:
-                return false  # rate-limited
-        _last_fire_time = now
+        # Rate-limit via timer: if timer is running, we're in cooldown
+        if not _cooldown_timer.is_stopped():
+                return false
+        # Start cooldown timer for next shot
+        _cooldown_timer.start()
         # Fire each pellet (shotgun = 8, others = 1)
         var pellets: int = int(_weapon_data.get("pellets_per_shot", 1))
         for i in range(pellets):
