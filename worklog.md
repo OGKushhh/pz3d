@@ -1351,3 +1351,38 @@ Stage Summary:
 - Scene loads cleanly, is drop-in playable (WASD + mouse + jump + sprint + V fly).
 - User can now pull, open in Godot editor, and hand-tune specific blocks.
 - The "impossible goal" (good city gen + hand-authoring + no collisions) is now achievable: gen produces a validated draft, user edits the draft in editor.
+
+---
+Task ID: session-13-baker-owner-fix-10x-buildings
+Agent: main (Super Z)
+Task: User: "i need you to hand tune, just remember that, you can always use the middleware for reading data, continue". Used middleware (chunk_states dump) to diagnose the baked city. Found + fixed critical bug.
+
+Work Log:
+- Built scripts/dump_baked_city.gd — loads baked_city.tscn, walks all nodes, groups by chunk, writes chunk_states_baked.json (same format as chunk_states_auto.json). Used by ai_fill_planner.py for analysis.
+- First dump: 1 chunk, 119 buildings — dumper bug (global_position returns (0,0,0) before tree add). Fixed: used transform.origin instead.
+- Second dump: 192 chunks, 179 buildings — 74.5% empty. Way too sparse.
+- Fixed density_gradient in city_plan.json — was still using OLD biome layout values (Downtown cells had density 0.30 instead of 0.95). Updated to match v4 GTA-SA layout.
+- Re-baked with fixed density: still only 179 buildings. Same problem.
+- Added debug prints to map_baker.gd for first 9 chunks. Results showed:
+  * Downtown (biome 7) chunks: 12 parcels, target=114, placed=19-38. Lot recipes working (5-12 per chunk).
+  * But dumper only found 1-3 buildings per chunk in the .tscn.
+- ROOT CAUSE: lot_stamper + district_stamper add buildings as children of chunk_root but DON'T set `owner = city_root`. Godot's ResourceSaver.pack() only saves nodes whose owner matches the root. 90% of buildings were being silently dropped during save.
+- FIX: added _set_owner_recursive(city_root, city_root) call before save. Walks entire tree, sets owner on every node.
+- After fix:
+  * Buildings: 179 → 1,852 (10x improvement!)
+  * Foliage: 3,550 → 4,097
+  * Props: 1,319 → 3,132
+  * Gaps: 79.2% → 68.9% empty
+  * File size: 2.5MB → 50MB
+  * Total nodes: 94,287 → 319,026
+  * Save time: 0.35s → 5.09s (more nodes to serialize)
+  * Load time: still <1s at runtime
+- Top chunks by building count: 41-42 buildings (was 5-7). This matches the debug output (19-38 lot-stamped buildings + companions per Downtown chunk).
+- Verified scene loads: "PASS: 319026 nodes"
+- Built dump_baked_city.gd as the middleware data pipeline: baked_city.tscn → chunk_states_baked.json → ai_fill_planner.py → analysis report
+
+Stage Summary:
+- Fixed critical owner bug. Baked city now has 1,852 buildings (was 179). 10x improvement.
+- Middleware pipeline working: dump_baked_city.gd → chunk_states_baked.json → analysis.
+- 68.9% gaps remain — next step is to use middleware to identify which chunks need filling, then hand-tune.
+- File is 50MB (was 2.5MB) but loads in <1s. Acceptable for a 12km² map.

@@ -6,16 +6,16 @@
   },
 
   "density_gradient": {
-    "_doc": "Target fill per grid cell (col, row). Downtown = dense (0.95), Commercial = medium-dense (0.80), Suburbia = medium (0.70), Industrial = sparse (0.50), Forest/Farmland = very sparse (0.30), Wetlands = minimal (0.10), Parks = minimal (0.05), Coastal = sparse (0.20)",
+    "_doc": "v4 (2026-09-15): Updated to match GTA-SA biome layout. SF(Downtown)=dense NW, LV(Commercial)=dense NE, LS(Suburbia)=medium SE, Mt Chiliad(Forest)=sparse SW, Bone County(Military)=sparse N-center, Red County(Farmland)=medium W-center, Flint County(Parks)=minimal center, Wetlands=minimal S delta, Coastal=sparse W coast.",
     "grid": [
-      [0.30, 0.30, 0.30, 0.30, 0.30, 0.20, 0.50, 0.50],
-      [0.30, 0.30, 0.30, 0.30, 0.30, 0.20, 0.50, 0.40],
-      [0.70, 0.70, 0.30, 0.05, 0.30, 0.20, 0.95, 0.40],
-      [0.70, 0.05, 0.80, 0.05, 0.80, 0.20, 0.95, 0.50],
-      [0.70, 0.05, 0.80, 0.80, 0.80, 0.20, 0.95, 0.50],
-      [0.05, 0.70, 0.70, 0.80, 0.10, 0.20, 0.50, 0.50]
+      [0.95, 0.95, 0.30, 0.30, 0.80, 0.80, 0.80, 0.80],
+      [0.95, 0.95, 0.30, 0.30, 0.80, 0.80, 0.80, 0.80],
+      [0.30, 0.30, 0.50, 0.05, 0.50, 0.80, 0.80, 0.80],
+      [0.30, 0.50, 0.50, 0.05, 0.50, 0.70, 0.70, 0.50],
+      [0.20, 0.50, 0.10, 0.05, 0.10, 0.70, 0.70, 0.50],
+      [0.20, 0.20, 0.10, 0.10, 0.10, 0.70, 0.50, 0.50]
     ],
-    "_note": "Gradient: dense downtown (col 6, rows 2-4 = 0.95) → medium commercial (cols 2-4, rows 3-4 = 0.80) → medium suburbia (col 0-1, rows 2-5 = 0.70) → sparse forest/farmland (cols 0-1, rows 0-1 = 0.30) → minimal wetlands (cols 3-4, row 5 = 0.10) → minimal parks (scattered = 0.05). This creates a real density gradient from downtown center to periphery."
+    "_note": "Row 0-1: DT=0.95(NW city), MI=0.30(Bone County desert), CO=0.80(LV strip). Row 2-3: F=0.30(Mt Chiliad), FA=0.50(Red County farms), PA=0.05(Flint County park), CO=0.80, SU=0.70(LS residential), IN=0.50(docks). Row 4-5: CB=0.20(coast), WE=0.10 marsh delta, SU=0.70, IN=0.50."
   },
 
   "road_hierarchy": {

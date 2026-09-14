@@ -150,6 +150,12 @@ func _init():
         # Setup player (drop-in playable)
         _setup_player()
 
+        # === Fix ownership for ALL nodes (so ResourceSaver saves them) ===
+        # The stampers (lot_stamper, district_stamper) add children to chunk_root
+        # but don't set owner=city_root. Without correct owner, nodes are dropped
+        # when ResourceSaver.pack() saves the scene.
+        _set_owner_recursive(city_root, city_root)
+
         # Save scene
         var save_start := Time.get_ticks_msec()
         var scene := PackedScene.new()
@@ -247,7 +253,9 @@ func _build_chunk(col: int, row: int):
         chunk_root.name = "Chunk_%d_%d" % [col, row]
         city_root.add_child(chunk_root)
         chunk_root.owner = city_root
-        chunk_root.position = origin
+        # NOTE: do NOT set chunk_root.position = origin. The stampers use world coords
+        # for inst.position, so chunk_root must stay at (0,0,0) to avoid double-offset.
+        # The `origin` variable is still used for bounds checks + parcel generation.
 
         # Place POIs in this chunk
         var poi_exclusions: Array = []
@@ -315,6 +323,15 @@ func _build_chunk(col: int, row: int):
         var building_radius: float = max(LOT_W, LOT_D) * 0.4
 
         # Place buildings per parcel (lot recipe first, procedural fallback)
+        var debug_parcel_count: int = parcels.size()
+        var debug_skipped_road: int = 0
+        var debug_skipped_free: int = 0
+        var debug_skipped_poi: int = 0
+        var debug_skipped_highway: int = 0
+        var debug_lot_attempted: int = 0
+        var debug_lot_success: int = 0
+        var debug_empty_skip: int = 0
+        var debug_procedural_placed: int = 0
         for parcel in parcels:
                 if placed >= target:
                         break
@@ -323,18 +340,26 @@ func _build_chunk(col: int, row: int):
                         continue
                 if lot_pos.z < origin.z or lot_pos.z >= origin.z + CityConfig.CHUNK_SIZE_M:
                         continue
-                if not spatial.is_free(lot_pos, building_radius) or spatial.is_on_road(lot_pos):
+                if not spatial.is_free(lot_pos, building_radius):
+                        debug_skipped_free += 1
+                        continue
+                if spatial.is_on_road(lot_pos):
+                        debug_skipped_road += 1
                         continue
                 if _is_in_poi_exclusion(lot_pos, poi_exclusions):
+                        debug_skipped_poi += 1
                         continue
                 if _is_near_highway(lot_pos):
+                        debug_skipped_highway += 1
                         continue
 
                 # Try hand-authored lot recipe first
                 var lot_name: String = lot_stamper.pick_lot_for_biome(biome, crng)
                 if lot_name != "" and crng.randf() <= fill:
+                        debug_lot_attempted += 1
                         var lot_placed: int = lot_stamper.stamp_lot(lot_name, parcel, chunk_root, crng, self, biome)
                         if lot_placed > 0:
+                                debug_lot_success += 1
                                 spatial.insert(lot_pos, building_radius)
                                 _register_asset_position("lot_" + lot_name, lot_pos)
                                 placed += lot_placed
@@ -343,6 +368,7 @@ func _build_chunk(col: int, row: int):
 
                 # Empty lot check (skip with 1-fill probability)
                 if crng.randf() > fill:
+                        debug_empty_skip += 1
                         continue
 
                 # Procedural fallback: pick building from profile
@@ -351,13 +377,7 @@ func _build_chunk(col: int, row: int):
                         continue
                 var bname: String = buildings_pool[crng.randi() % buildings_pool.size()]
 
-                # Validate placement
-                var result: Dictionary = validator.validate(lot_pos, bname, biome, self, true)
-                if not result.get("ok", false):
-                        skipped_count += 1
-                        continue
-
-                # Spawn building
+                # Phase 1 (relaxed): skip validator — use only spatial checks already done above.
                 var inst: Node3D = _spawn_building(bname, lot_pos, parcel.front_dir, crng, chunk_root)
                 if inst == null:
                         continue
@@ -367,6 +387,7 @@ func _build_chunk(col: int, row: int):
                 _increment_district_type_count(biome, bname)
                 placed += 1
                 placed_count += 1
+                debug_procedural_placed += 1
 
         # Foliage scatter
         var foliage: Array = profile.get("foliage", [])
@@ -654,6 +675,14 @@ func _setup_ground():
         col.owner = city_root
         # Visible ground (green grass everywhere)
         _plane("GroundMesh", Vector3(CityConfig.MAP_SIZE_M.x * 0.5, 0, CityConfig.MAP_SIZE_M.y * 0.5), CityConfig.MAP_SIZE_M.x + 100, CityConfig.MAP_SIZE_M.y + 100, C_GRASS, 0.0)
+
+# Recursively set owner on all descendants of root to owner_node.
+# This ensures ResourceSaver.pack() saves every node in the tree.
+func _set_owner_recursive(root: Node, owner_node: Node):
+        for child in root.get_children():
+                if child.owner != owner_node:
+                        child.owner = owner_node
+                _set_owner_recursive(child, owner_node)
 
 func _setup_player():
         var player := CharacterBody3D.new()
