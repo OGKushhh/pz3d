@@ -50,5 +50,5 @@
 | 9,8 | COMMERCIAL | 3 | 36% | 0 | 2 | 0 |
 | 9,9 | COMMERCIAL | 4 | 34% | 0 | 2 | 0 |
 | 8,8 | COMMERCIAL | 4 | 32% | 0 | 2 | 0 |
-| 8,7 | COMMERCIAL | 11 | 31% | 2 | 2 | 2 |
-| 5,10 | SUBURBIA | 59 | 25% | 3 | 2 | 2 |
+| 8,7 | COMMERCIAL | 12 | 31% | 2 | 2 | 2 |
+| 5,10 | SUBURBIA | 61 | 25% | 3 | 2 | 2 |
