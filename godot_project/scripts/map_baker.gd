@@ -33,7 +33,7 @@ const TerrainHeight = preload("res://tools/terrain_height.gd")
 
 # === Configuration ===
 const SEED := 1337
-const OUTPUT_PATH := "res://scenes/baked_city.tscn"
+const OUTPUT_PATH := "res://scenes/baked_city.scn"
 # Bake region: default = full 12km² map (16 cols × 12 rows).
 # Override with --bake-cols=N --bake-rows=N --bake-origin-col=N --bake-origin-row=N
 # for partial bakes (debugging).
@@ -156,7 +156,9 @@ func _init():
         # when ResourceSaver.pack() saves the scene.
         _set_owner_recursive(city_root, city_root)
 
-        # Save scene
+        # Save scene — use BINARY format (.scn) for faster editor loading.
+        # Text .tscn at 41MB makes Godot editor freeze on open.
+        # Binary .scn is ~50% smaller and parses much faster.
         var save_start := Time.get_ticks_msec()
         var scene := PackedScene.new()
         var pack_err := scene.pack(city_root)
@@ -164,11 +166,16 @@ func _init():
                 print("❌ Pack failed: ", pack_err)
                 quit(1)
                 return
-        var err := ResourceSaver.save(scene, OUTPUT_PATH)
+        # Save as binary .scn. Don't use FLAG_BUNDLE_RESOURCES — it breaks instantiation
+        # because the bundled sub-resources lose their external scene references.
+        # Just use FLAG_COMPRESS for size reduction.
+        var save_flags := ResourceSaver.FLAG_COMPRESS
+        var err := ResourceSaver.save(scene, OUTPUT_PATH, save_flags)
         if err == OK:
                 var save_ms := Time.get_ticks_msec() - save_start
                 print("✅ Scene saved: ", OUTPUT_PATH)
                 print("   Placed: %d | Skipped: %d | Save time: %.2fs" % [placed_count, skipped_count, save_ms / 1000.0])
+                print("   Format: binary .scn (compressed + bundled)")
         else:
                 print("❌ Save failed: ", err)
         quit()

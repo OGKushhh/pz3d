@@ -1,4 +1,4 @@
-# PostBakeCleanup — reads baked_city.tscn, finds overlapping buildings,
+# PostBakeCleanup — reads baked_city.scn, finds overlapping buildings,
 # removes the smaller one of each pair, saves cleaned .tscn.
 #
 # Run: godot --headless --path godot_project --script res://scripts/post_bake_cleanup.gd
@@ -6,8 +6,8 @@
 extends SceneTree
 
 const CityConfig = preload("res://tools/city_config.gd")
-const INPUT_PATH := "res://scenes/baked_city.tscn"
-const OUTPUT_PATH := "res://scenes/baked_city_clean.tscn"
+const INPUT_PATH := "res://scenes/baked_city.scn"
+const OUTPUT_PATH := "res://scenes/baked_city_clean.scn"
 
 func _init():
 	print("=== PostBakeCleanup ===")

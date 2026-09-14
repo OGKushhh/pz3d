@@ -17,10 +17,12 @@ func _init():
         if f:
                 manifest = JSON.parse_string(f.get_as_text())
         
-        # Load baked city
-        var scene := load("res://scenes/baked_city.tscn")
+        # Load baked city (try .scn first, then .tscn)
+        var scene := load("res://scenes/baked_city.scn")
         if scene == null:
-                print("FAIL: baked_city.tscn not found")
+                scene = load("res://scenes/baked_city.tscn")
+        if scene == null:
+                print("FAIL: baked_city scene not found")
                 quit(1)
         var inst: Node3D = scene.instantiate()
         # Add to tree so global_position works correctly

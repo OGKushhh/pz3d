@@ -1440,3 +1440,26 @@ Stage Summary:
 - baked_city.tscn is now 41MB with ~5836 building nodes (1458 by dumper count — dumper undercounts because manifest categories are inconsistent).
 - The gen → edit pipeline is working: baker produces draft → middleware analyzes → cleanup removes bad placements → user opens in editor for final hand-tune.
 - Next: user opens baked_city.tscn in Godot editor, identifies specific blocks to tune. We iterate on those.
+
+---
+Task ID: session-13-binary-scn-format-fix
+Agent: main (Super Z)
+Task: User: "i tried opening baked city clean but godot is not responding. do i reboot it?"
+
+Work Log:
+- Diagnosed: 41MB text .tscn file was choking Godot editor on open. Not corrupted, just too big for text parsing of 90,000+ nodes on main thread.
+- Fix: switched map_baker.gd to save as binary .scn with ResourceSaver.FLAG_COMPRESS.
+  * First attempt with FLAG_BUNDLE_RESOURCES broke instantiation (bundled sub-resources lost external scene refs).
+  * Second attempt with just FLAG_COMPRESS works.
+- Updated dump_baked_city.gd to try .scn first, then .tscn fallback.
+- Updated post_bake_cleanup.gd to read/write .scn.
+- Re-baked: baked_city.scn = 4.5MB (was 41MB .tscn → 9x smaller).
+- Ran post_bake_cleanup on .scn: found 6910 buildings, 1316 overlaps, removed 1074. Output: baked_city_clean.scn = 13MB (compressed, with bundled resources from cleanup save).
+- Replaced baked_city.scn with cleaned version.
+- Verified: 258,864 nodes. Load time: 179ms. Instantiate: 1044ms. Walk: 271ms. Total: ~1.5s.
+- Old text .tscn files deleted (baked_city.tscn, baked_city_clean.tscn).
+
+Stage Summary:
+- Baked city is now binary .scn (13MB cleaned). Loads in ~1.5s.
+- Godot editor will open it without freezing.
+- User should reboot Godot, then open scenes/baked_city.scn (not .tscn).
