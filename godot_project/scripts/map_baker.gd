@@ -97,7 +97,7 @@ const C_WATER := Color(0.15, 0.30, 0.45, 0.7)
 
 # Biome density multiplier (matches chunk_streamer)
 const BIOME_DENSITY_MULT := {
-        0: 50, 1: 5, 2: 5, 3: 10, 4: 100, 5: 60, 6: 3, 7: 120, 8: 30, 9: 8, 10: 0, 11: 0
+        0: 50, 1: 5, 2: 5, 3: 10, 4: 100, 5: 60, 6: 3, 7: 120, 8: 40, 9: 8, 10: 0, 11: 0
 }
 const BIOME_FOLIAGE_MULT := {
         0: 50, 1: 200, 2: 300, 3: 80, 4: 15, 5: 20, 6: 250, 7: 10, 8: 30, 9: 150, 10: 0, 11: 0
@@ -375,11 +375,28 @@ func _build_chunk(col: int, row: int):
                 var buildings_pool: Array = profile.get("buildings", [])
                 if buildings_pool.is_empty():
                         continue
-                var bname: String = buildings_pool[crng.randi() % buildings_pool.size()]
+                # Anti-repetition: try up to 3 different picks to find one that's not over-repeated
+                var bname: String = ""
+                for _attempt in range(3):
+                        var candidate: String = buildings_pool[crng.randi() % buildings_pool.size()]
+                        var type_count: int = _get_district_type_count(biome, candidate)
+                        if type_count < 5:
+                                bname = candidate
+                                break
+                if bname == "":
+                        continue  # all candidates are over-repeated, skip this parcel
 
                 # Phase 1 (relaxed): skip validator — use only spatial checks already done above.
+                # But DO check AABB overlap with existing buildings (prevents buildings inside each other)
                 var inst: Node3D = _spawn_building(bname, lot_pos, parcel.front_dir, crng, chunk_root)
                 if inst == null:
+                        continue
+                # Check AABB overlap with existing buildings in this chunk
+                var new_aabb := _compute_aabb(inst)
+                # Transform to world space (add building position)
+                new_aabb.position += inst.position
+                if _has_aabb_overlap(new_aabb, chunk_root):
+                        inst.queue_free()
                         continue
                 inst.set_meta("parcel_id", parcel.parcel_id)
                 spatial.insert(lot_pos, building_radius)
@@ -500,17 +517,36 @@ func _compute_aabb(node: Node3D) -> AABB:
                 var mesh_aabb := mi.get_aabb()
                 if mesh_aabb.size == Vector3.ZERO:
                         continue
-                # Transform to node-local space
-                var local_aabb := mesh_aabb
-                # mi.position is relative to building_inst; the AABB is in mesh-local
-                # Translate by mi.position to get building-local AABB
-                local_aabb.position += mi.position
+                mesh_aabb.position += mi.position
                 if first:
-                        aabb = local_aabb
+                        aabb = mesh_aabb
                         first = false
                 else:
-                        aabb = aabb.merge(local_aabb)
+                        aabb = aabb.merge(mesh_aabb)
         return aabb
+
+# Check if a new AABB overlaps any existing building in the chunk
+func _has_aabb_overlap(new_aabb: AABB, chunk_root: Node3D) -> bool:
+        if new_aabb.size == Vector3.ZERO:
+                return false
+        for child in chunk_root.get_children():
+                if not child is Node3D:
+                        continue
+                var n3d: Node3D = child
+                if not n3d.get_meta("building_name", ""):
+                        continue  # skip non-building nodes
+                var existing_aabb := _compute_aabb(n3d)
+                if existing_aabb.size == Vector3.ZERO:
+                        continue
+                # Transform existing AABB to world space too
+                existing_aabb.position += n3d.position
+                # Check XZ overlap (ignore Y — buildings at different heights don't collide)
+                if new_aabb.position.x < existing_aabb.position.x + existing_aabb.size.x and \
+                   new_aabb.position.x + new_aabb.size.x > existing_aabb.position.x and \
+                   new_aabb.position.z < existing_aabb.position.z + existing_aabb.size.z and \
+                   new_aabb.position.z + new_aabb.size.z > existing_aabb.position.z:
+                        return true
+        return false
 
 func _create_plane_mesh_rotated(parent: Node3D, name: String, pos: Vector3, size: Vector2, color: Color, yaw: float) -> void:
         var mi := MeshInstance3D.new()
