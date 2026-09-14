@@ -136,57 +136,85 @@ static func generate_parcels(layout_type: String, origin: Vector3, chunk_size: f
 # of 110m depth = 27m front yard, which was the "empty space" the user reported.
 # Now: 20m wide × 30m deep, 2 rows per edge. E/W edges skip corners.
 # Interior path runs E-W + N-S through center.
+# Phase C.6 (2026-09-14): Added OBB-style variation — parcels get random width
+# variation (±3m) + some lots split into 2 smaller lots (15m wide) for variety.
+# This creates the non-uniform, organic lot pattern that real suburbs have.
 static func _gen_residential_grid(origin: Vector3, chunk_size: float) -> Array:
         var parcels: Array = []
         var margin := 8.0  # margin from chunk edge to first parcel (was 12)
         var path_half := 3.0  # half of 6m center path
         # Target lot dimensions per user: ~20m × 30m (real suburban)
-        var parcel_w := 20.0  # width along road (was ~37m)
+        var base_w := 20.0  # base width (Phase C.6: was parcel_w, now varies)
         var parcel_d := 30.0  # depth from road to backyard (was ~110m)
         var usable_w := chunk_size - margin * 2
         var usable_d := chunk_size - margin * 2
-        var parcel_count_ns := int(usable_w / parcel_w)  # parcels per row on N/S edges
-        # Rows per side: (usable_depth/2 - path_half) / parcel_d, capped at 2
-        # 2 rows = 60m per side, leaving center for path + green space
+        # Phase C.6: walk along the edge, varying parcel width ±3m
+        # Occasionally split a lot into 2 narrow ones (15m each) for row-house feel
+        var rng := RandomNumberGenerator.new()
+        rng.seed = hash(origin) ^ 0xBEEF
         var parcel_rows: int = min(2, int((usable_d * 0.5 - path_half) / parcel_d))
         # North edge: rows from north edge toward center
         for row in range(parcel_rows):
-                for i in range(parcel_count_ns):
-                        var x_min := origin.x + margin + i * parcel_w
-                        var x_max := x_min + parcel_w
-                        var z_min := origin.z + margin + row * parcel_d
-                        var z_max := z_min + parcel_d
-                        parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "N", origin, chunk_size))
+                var x := margin
+                while x + base_w <= usable_w + margin:
+                        # Phase C.6: 20% chance to split into 2 narrow lots (row-house style)
+                        if rng.randf() < 0.2 and x + base_w * 2 <= usable_w + margin:
+                                _add_residential_parcel(parcels, origin.x + x, origin.z + margin + row * parcel_d, 15.0, parcel_d, "N")
+                                _add_residential_parcel(parcels, origin.x + x + 15.0, origin.z + margin + row * parcel_d, 15.0, parcel_d, "N")
+                                x += 30.0
+                        else:
+                                # Vary width ±3m for organic feel
+                                var w_var := base_w + rng.randf_range(-3.0, 3.0)
+                                _add_residential_parcel(parcels, origin.x + x, origin.z + margin + row * parcel_d, w_var, parcel_d, "N")
+                                x += w_var
         # South edge: rows from south edge toward center
         for row in range(parcel_rows):
-                for i in range(parcel_count_ns):
-                        var x_min := origin.x + margin + i * parcel_w
-                        var x_max := x_min + parcel_w
-                        var z_max := origin.z + chunk_size - margin - row * parcel_d
-                        var z_min := z_max - parcel_d
-                        parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "S", origin, chunk_size))
-        # East/West edges: skip corners (N/S parcel rows take the first parcel_d*parcel_rows meters)
+                var x := margin
+                while x + base_w <= usable_w + margin:
+                        if rng.randf() < 0.2 and x + base_w * 2 <= usable_w + margin:
+                                _add_residential_parcel(parcels, origin.x + x, origin.z + chunk_size - margin - row * parcel_d - parcel_d, 15.0, parcel_d, "S")
+                                _add_residential_parcel(parcels, origin.x + x + 15.0, origin.z + chunk_size - margin - row * parcel_d - parcel_d, 15.0, parcel_d, "S")
+                                x += 30.0
+                        else:
+                                var w_var := base_w + rng.randf_range(-3.0, 3.0)
+                                _add_residential_parcel(parcels, origin.x + x, origin.z + chunk_size - margin - row * parcel_d - parcel_d, w_var, parcel_d, "S")
+                                x += w_var
+        # East/West edges: skip corners
         var ew_start: float = margin + parcel_d * float(parcel_rows)
         var ew_end: float = chunk_size - margin - parcel_d * float(parcel_rows)
         var ew_usable: float = ew_end - ew_start
-        var parcel_count_ew: int = int(ew_usable / parcel_w)
         # East edge
         for row in range(parcel_rows):
-                for i in range(parcel_count_ew):
-                        var z_min: float = origin.z + ew_start + i * parcel_w
-                        var z_max: float = z_min + parcel_w
-                        var x_max: float = origin.x + chunk_size - margin - row * parcel_d
-                        var x_min: float = x_max - parcel_d
-                        parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "E", origin, chunk_size))
+                var z := ew_start
+                while z + base_w <= ew_end:
+                        if rng.randf() < 0.2 and z + base_w * 2 <= ew_end:
+                                _add_residential_parcel(parcels, origin.x + chunk_size - margin - row * parcel_d - parcel_d, origin.z + z, parcel_d, 15.0, "E")
+                                _add_residential_parcel(parcels, origin.x + chunk_size - margin - row * parcel_d - parcel_d, origin.z + z + 15.0, parcel_d, 15.0, "E")
+                                z += 30.0
+                        else:
+                                var w_var := base_w + rng.randf_range(-3.0, 3.0)
+                                _add_residential_parcel(parcels, origin.x + chunk_size - margin - row * parcel_d - parcel_d, origin.z + z, parcel_d, w_var, "E")
+                                z += w_var
         # West edge
         for row in range(parcel_rows):
-                for i in range(parcel_count_ew):
-                        var z_min: float = origin.z + ew_start + i * parcel_w
-                        var z_max: float = z_min + parcel_w
-                        var x_min: float = origin.x + margin + row * parcel_d
-                        var x_max: float = x_min + parcel_d
-                        parcels.append(Parcel.new(Vector2(x_min, z_min), Vector2(x_max, z_max), "W", origin, chunk_size))
+                var z := ew_start
+                while z + base_w <= ew_end:
+                        if rng.randf() < 0.2 and z + base_w * 2 <= ew_end:
+                                _add_residential_parcel(parcels, origin.x + margin + row * parcel_d, origin.z + z, parcel_d, 15.0, "W")
+                                _add_residential_parcel(parcels, origin.x + margin + row * parcel_d, origin.z + z + 15.0, parcel_d, 15.0, "W")
+                                z += 30.0
+                        else:
+                                var w_var := base_w + rng.randf_range(-3.0, 3.0)
+                                _add_residential_parcel(parcels, origin.x + margin + row * parcel_d, origin.z + z, parcel_d, w_var, "W")
+                                z += w_var
         return parcels
+
+# Phase C.6: Helper to add a residential parcel with explicit position + size.
+# Replaces the old Parcel.new(Vector2, Vector2, ...) call with explicit x/z.
+static func _add_residential_parcel(parcels: Array, x: float, z: float, w: float, d: float, edge: String) -> void:
+        var min_pos := Vector2(x, z)
+        var max_pos := Vector2(x + w, z + d)
+        parcels.append(Parcel.new(min_pos, max_pos, edge, Vector3(x, 0, z), 250.0))
 
 # Commercial perimeter: storefronts flush with road on all 4 sides.
 # Parking lot in center. No backyards.
