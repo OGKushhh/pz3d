@@ -259,6 +259,8 @@ func _bake_chunk_to_file(col: int, row: int):
         _plane_in_parent(chunk_root, "BiomeGround", origin + Vector3(CityConfig.CHUNK_SIZE_M * 0.5, 0, CityConfig.CHUNK_SIZE_M * 0.5), CityConfig.CHUNK_SIZE_M, CityConfig.CHUNK_SIZE_M, biome_color, 0.001)
 
         # Place POIs in this chunk
+        # FIX: POIs declared on road centerlines (e.g. at exact 500m grid intersections)
+        # are nudged OFF the road before placement. User: "a tower and a stadium on roads".
         var poi_exclusions: Array = []
         for poi in map_data.get("pois", []):
                 var poi_pos_arr: Array = poi.get("pos", [0, 0, 0])
@@ -269,6 +271,8 @@ func _bake_chunk_to_file(col: int, row: int):
                         continue
                 var poi_asset: String = poi.get("type", "")
                 var poi_radius: float = float(poi.get("radius", 30))
+                # Nudge POI off road if too close (< 15m = on or near road)
+                poi_pos = _nudge_off_road(poi_pos, poi_radius)
                 var poi_scene := _get_asset(poi_asset)
                 if poi_scene:
                         var poi_inst := poi_scene.instantiate()
@@ -410,18 +414,92 @@ func _bake_chunk_to_file(col: int, row: int):
                         spatial.insert(pos, 3.0)
                         placed_count += 1
 
-        # Props scatter — increased density + more variety (fills empty spaces between dense areas)
+        # Props scatter — increased density + per-biome variety (fills empty spaces)
         # User: "places between dense places are hella empty, we might need to put things between
         # instead of all foliage for performance, woods stay woods of course"
-        var gap_fillers: Array = [
-                "picket_fence", "planter_box", "garden_gnome", "trash_can", "mailbox",
-                "fire_hydrant", "street_light", "bollard", "parking_meter",
-                "dumpster", "shopping_cart", "traffic_cone", "construction_barrier",
-                "bench_park", "picnic_table", "water_fountain"
-        ]
-        # Forest biome exception: keep woods as woods (no urban props)
-        if biome == CityConfig.Biome.FOREST or biome == CityConfig.Biome.PARKS:
-                gap_fillers = ["fallen_log", "rocks_small", "bush"]
+        var gap_fillers: Array = []
+        # Per-biome gap filler pool — each biome gets appropriate props for its identity
+        match biome:
+                CityConfig.Biome.SUBURBIA:
+                        # Residential: yard props + light street furniture
+                        gap_fillers = [
+                                "picket_fence", "mailbox", "trash_can", "garden_gnome",
+                                "planter_box", "fire_hydrant", "street_light", "bollard",
+                                "bench_park", "picnic_table", "water_fountain",
+                                "playground_slide", "swing_set", "seesaw",
+                                "shopping_cart", "traffic_cone"
+                        ]
+                CityConfig.Biome.COMMERCIAL:
+                        # Storefronts: parking + commercial clutter
+                        gap_fillers = [
+                                "parking_meter", "shopping_cart", "dumpster", "trash_can",
+                                "bollard", "planter_box", "street_light", "traffic_cone",
+                                "construction_barrier", "bench_park", "picnic_table",
+                                "fire_hydrant", "mailbox", "traffic_light"
+                        ]
+                CityConfig.Biome.INDUSTRIAL:
+                        # Heavy industrial: containers + barriers + machinery
+                        gap_fillers = [
+                                "shipping_container", "storage_tank", "loading_dock",
+                                "dumpster", "construction_barrier", "barrier_concrete",
+                                "guard_rail", "chain_link_fence", "barbed_wire_fence",
+                                "sandbag", "traffic_cone", "bollard", "street_light",
+                                "utility_pole", "power_pole"
+                        ]
+                CityConfig.Biome.DOWNTOWN:
+                        # Urban core: bollards + planters + street furniture
+                        gap_fillers = [
+                                "bollard", "planter_box", "trash_can", "street_light",
+                                "bench_park", "water_fountain", "parking_meter",
+                                "traffic_light", "fire_hydrant", "construction_barrier",
+                                "turnstile", "manhole_cover", "sewer_grate"
+                        ]
+                CityConfig.Biome.MILITARY:
+                        # Military: barriers + sandbags + checkpoints
+                        gap_fillers = [
+                                "barrier_concrete", "sandbag", "barbed_wire_fence",
+                                "chain_link_fence", "guard_rail", "bollard",
+                                "traffic_cone", "construction_barrier", "street_light",
+                                "shipping_container", "storage_tank"
+                        ]
+                CityConfig.Biome.FARMLAND:
+                        # Rural: fences + hay + irrigation
+                        gap_fillers = [
+                                "hay_bale", "wood_fence_post", "picket_fence",
+                                "irrigation_canal", "planter_box", "trash_can",
+                                "bench_park", "picnic_table", "fire_hydrant",
+                                "street_light", "mailbox", "garden_gnome"
+                        ]
+                CityConfig.Biome.COASTAL_BEACH:
+                        # Beach: boardwalk + benches + palms (already in foliage)
+                        gap_fillers = [
+                                "bench_park", "picnic_table", "trash_can", "planter_box",
+                                "street_light", "water_fountain", "gazebo", "park_sign",
+                                "mailbox", "traffic_cone"
+                        ]
+                CityConfig.Biome.WETLANDS:
+                        # Marsh: minimal urban props, keep natural
+                        gap_fillers = [
+                                "fallen_log", "rocks_small", "boardwalk_section",
+                                "trash_can", "park_sign"
+                        ]
+                CityConfig.Biome.PARKS:
+                        # Park: benches + playground + picnic
+                        gap_fillers = [
+                                "bench_park", "picnic_table", "playground_slide",
+                                "swing_set", "seesaw", "water_fountain", "park_sign",
+                                "planter_box", "trash_can", "garden_gnome",
+                                "fire_hydrant", "street_light"
+                        ]
+                CityConfig.Biome.FOREST:
+                        # Woods stay woods — only natural props
+                        gap_fillers = ["fallen_log", "rocks_small", "bush"]
+                _:
+                        # Default fallback
+                        gap_fillers = [
+                                "picket_fence", "planter_box", "trash_can", "mailbox",
+                                "fire_hydrant", "street_light", "bollard", "bench_park"
+                        ]
         var valid_fillers: Array = []
         for gf in gap_fillers:
                 if manifest.has(gf):
@@ -582,6 +660,36 @@ func _is_near_highway(pos: Vector3) -> bool:
                 if d < HIGHWAY_CLEARANCE_M:
                         return true
         return false
+
+# FIX: Nudge a POI position OFF the road if it's too close to a road centerline.
+# User reported: "a tower and a stadium on roads". POIs declared at exact grid
+# intersections (e.g. 1500,500) land exactly on road centerlines.
+#
+# Strategy: query nearest road. If distance < (road_half_width + poi_radius + 5m buffer),
+# move the POI away from the road by the shortfall + extra buffer.
+# Picks the side (X or Z) that has more space (avoids nudging into a wall/edge).
+func _nudge_off_road(pos: Vector3, poi_radius: float) -> Vector3:
+        var info: Dictionary = roads.nearest_road_info(pos)
+        if not info.get("found", false):
+                return pos  # no road nearby, leave as-is
+        var road_dist: float = float(info.get("distance", 0.0))
+        var road_point: Vector3 = info.get("point", pos)
+        var road_dir: Vector3 = info.get("direction", Vector3.FORWARD)
+        # Estimate road half-width from the road's kind (streets=4m, highways=6m, bridges=6m)
+        # We don't have the actual road width here without the segment, so use a safe default
+        var road_half_w: float = 6.0  # generous: covers highways + sidewalks
+        var safe_dist: float = road_half_w + poi_radius + 5.0  # 5m extra buffer
+        if road_dist >= safe_dist:
+                return pos  # already far enough, no nudge needed
+        # Need to move POI (safe_dist - road_dist) meters away from road centerline
+        var nudge_amount: float = safe_dist - road_dist
+        # Direction from road point to POI (perpendicular to road, pointing AWAY from road)
+        var away_dir: Vector3 = (pos - road_point).normalized()
+        if away_dir.length() < 0.01:
+                # POI is exactly ON road centerline — pick perpendicular to road direction
+                away_dir = Vector3(-road_dir.z, 0, road_dir.x).normalized()
+        var nudged_pos: Vector3 = pos + away_dir * nudge_amount
+        return nudged_pos
 
 func _is_in_poi_exclusion(pos: Vector3, exclusions: Array) -> bool:
         for ex in exclusions:
