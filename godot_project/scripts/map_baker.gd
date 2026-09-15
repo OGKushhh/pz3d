@@ -165,10 +165,10 @@ func _init():
                 quit(1)
                 return
         var save_flags := ResourceSaver.FLAG_COMPRESS
-        var err := ResourceSaver.save(scene, "res://scenes/baked_world.res", save_flags)
+        var err := ResourceSaver.save(scene, "res://scenes/baked_world.tscn")
         if err == OK:
                 var save_ms := Time.get_ticks_msec() - save_start
-                print("✅ World scene saved: res://scenes/baked_world.res")
+                print("✅ World scene saved: res://scenes/baked_world.tscn")
                 print("   Placed: %d | Skipped: %d | Save time: %.2fs" % [placed_count, skipped_count, save_ms / 1000.0])
         else:
                 print("❌ Save failed: ", err)
@@ -441,8 +441,8 @@ func _bake_chunk_to_file(col: int, row: int):
         var chunk_scene := PackedScene.new()
         var pack_err := chunk_scene.pack(chunk_root)
         if pack_err == OK:
-                var chunk_path := "%schunk_%d_%d.res" % [OUTPUT_DIR, col, row]
-                var save_err := ResourceSaver.save(chunk_scene, chunk_path, ResourceSaver.FLAG_COMPRESS)
+                var chunk_path := "%schunk_%d_%d.tscn" % [OUTPUT_DIR, col, row]
+                var save_err := ResourceSaver.save(chunk_scene, chunk_path)
                 if save_err != OK:
                         push_warning("[MapBaker] Failed to save chunk %d_%d: %s" % [col, row, save_err])
         # Free the chunk node (it's saved to disk, no longer needed in memory)
@@ -719,45 +719,8 @@ func _setup_player():
         col.position = Vector3(0, 0.9, 0)
         player.add_child(col)
         col.owner = city_root
-        var script := GDScript.new()
-        script.source_code = """extends CharacterBody3D
-const WALK = 5.0
-const SPRINT = 8.0
-const SENS = 0.002
-const FLY = 15.0
-var spd = WALK
-var fly_mode = false
-func _ready():
-    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-func _input(e):
-    if e is InputEventMouseMotion:
-        rotate_y(-e.relative.x * SENS)
-        $Camera3D.rotate_x(-e.relative.y * SENS)
-        $Camera3D.rotation.x = clamp($Camera3D.rotation.x, -1.5, 1.5)
-    if e.is_action_pressed("ui_cancel"):
-        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-    if e.is_action_pressed("fly_toggle"):
-        fly_mode = !fly_mode
-        $Col.disabled = fly_mode
-func _physics_process(d):
-    if fly_mode:
-        var i = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-        var dir = (transform.basis * Vector3(i.x, 0, i.y)).normalized()
-        if dir: velocity = dir * FLY
-        else: velocity = velocity.move_toward(Vector3.ZERO, FLY * d * 5)
-        if Input.is_action_pressed("jump"): velocity.y = FLY
-        if Input.is_action_pressed("crouch"): velocity.y = -FLY
-        move_and_slide()
-        return
-    if not is_on_floor(): velocity.y -= 9.8 * d
-    if Input.is_action_just_pressed("jump") and is_on_floor(): velocity.y = 4.5
-    spd = SPRINT if Input.is_action_pressed("sprint") else WALK
-    var i = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-    var dir = (transform.basis * Vector3(i.x, 0, i.y)).normalized()
-    if dir: velocity.x = dir.x * spd; velocity.z = dir.z * spd
-    else: velocity.x = move_toward(velocity.x, 0, spd*d*10); velocity.z = move_toward(velocity.z, 0, spd*d*10)
-    move_and_slide()"""
-        player.set_script(script)
+        # Use external script (embedded GDScript source doesn't save reliably)
+        player.set_script(preload("res://scripts/player_controller_baked.gd"))
         city_root.add_child(player)
         player.owner = city_root
         placed_count += 1
@@ -769,80 +732,8 @@ func _physics_process(d):
 func _setup_chunk_loader():
     var loader := Node3D.new()
     loader.name = "ChunkLoader"
-    var script := GDScript.new()
-    script.source_code = """extends Node3D
-
-const CHUNK_SIZE := 250.0
-const CHUNKS_COLS := 16
-const CHUNKS_ROWS := 12
-const STREAM_RADIUS := 2  # load 5x5 = 25 chunks around player
-const CHUNK_DIR := "res://scenes/baked_chunks/"
-
-var player: CharacterBody3D
-var loaded_chunks: Dictionary = {}  # Vector2i → Node3D
-var last_chunk: Vector2i = Vector2i(-999, -999)
-
-func _ready():
-    # Find player
-    await get_tree().process_frame
-    player = get_parent().get_node_or_null("Player")
-    if player == null:
-        # Try CharacterBody3D children
-        for c in get_parent().get_children():
-            if c is CharacterBody3D:
-                player = c
-                break
-    print("[ChunkLoader] ready, player at ", player.global_position if player else "null")
-
-func _process(_delta):
-    if player == null:
-        return
-    var cx := int(player.global_position.x / CHUNK_SIZE)
-    var cz := int(player.global_position.z / CHUNK_SIZE)
-    var current_chunk := Vector2i(cx, cz)
-    if current_chunk == last_chunk:
-        return
-    last_chunk = current_chunk
-    _refresh(current_chunk)
-
-func _refresh(center: Vector2i):
-    # Load chunks in radius
-    for dy in range(-STREAM_RADIUS, STREAM_RADIUS + 1):
-        for dx in range(-STREAM_RADIUS, STREAM_RADIUS + 1):
-            var key := Vector2i(center.x + dx, center.y + dy)
-            if key.x < 0 or key.y < 0 or key.x >= CHUNKS_COLS or key.y >= CHUNKS_ROWS:
-                continue
-            if not loaded_chunks.has(key):
-                _load_chunk(key)
-    # Unload distant chunks
-    var unload_r := STREAM_RADIUS + 1
-    var to_unload: Array = []
-    for key in loaded_chunks:
-        var dx: int = abs(key.x - center.x)
-        var dy: int = abs(key.y - center.y)
-        if dx > unload_r or dy > unload_r:
-            to_unload.append(key)
-    for key in to_unload:
-        _unload_chunk(key)
-
-func _load_chunk(key: Vector2i):
-    var path := "%schunk_%d_%d.res" % [CHUNK_DIR, key.x, key.y]
-    if not ResourceLoader.exists(path):
-        return  # no file (water/empty chunk)
-    var scene := load(path) as PackedScene
-    if scene == null:
-        return
-    var inst := scene.instantiate()
-    inst.name = "Chunk_%d_%d" % [key.x, key.y]
-    get_parent().add_child(inst)
-    loaded_chunks[key] = inst
-
-func _unload_chunk(key: Vector2i):
-    var inst: Node = loaded_chunks[key]
-    inst.queue_free()
-    loaded_chunks.erase(key)
-"""
-    loader.set_script(script)
+    # Use external script (embedded GDScript source doesn't save reliably)
+    loader.set_script(preload("res://scripts/chunk_loader.gd"))
     city_root.add_child(loader)
     loader.owner = city_root
     placed_count += 1

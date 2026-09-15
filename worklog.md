@@ -1508,3 +1508,31 @@ Stage Summary:
 - 192 chunk .res files in scenes/baked_chunks/ (251-371KB each)
 - ChunkLoader script loads 25 chunks at a time based on player position
 - This is the SAME streaming pattern as original chunk_streamer, but with pre-baked data instead of procedural generation at runtime
+
+---
+Task ID: session-13-revert-to-tscn-fix-scripts
+Agent: main (Super Z)
+Task: User: "i cant move camera, also you can revert it back to original extension". Two issues: (1) camera not moving, (2) revert to .tscn.
+
+Work Log:
+- Diagnosed camera issue: Player node had NO script attached. The embedded GDScript source (script.source_code = """...""") doesn't save reliably via ResourceSaver — the script reference is lost when the .res is saved and reloaded.
+- Fix: created two EXTERNAL script files that get preloaded:
+  * scripts/player_controller_baked.gd — WASD + mouse + jump + sprint + V=fly
+  * scripts/chunk_loader.gd — loads .tscn chunk files near player (stream_radius=2)
+- Updated map_baker.gd to use preload() instead of embedded GDScript source:
+  * player.set_script(preload("res://scripts/player_controller_baked.gd"))
+  * loader.set_script(preload("res://scripts/chunk_loader.gd"))
+- Reverted extension from .res back to .tscn (user request). Chunk files are small enough (726KB-1.2MB each in text format) that editor can handle them.
+- Updated all paths: baked_world.res → baked_world.tscn, chunk_X_Y.res → chunk_X_Y.tscn
+- Deleted old .res files (baked_world.res, 192 × chunk_X_Y.res)
+- Re-baked: 192 chunk .tscn files, baked_world.tscn = 64KB
+- Verified scripts attached:
+  * "PASS: Player has script: res://scripts/player_controller_baked.gd"
+  * "PASS: ChunkLoader has script: res://scripts/chunk_loader.gd"
+- Also added: chunk_loader.gd forces initial chunk load in _ready() (was only loading on player move before, so first frame had no chunks visible)
+
+Stage Summary:
+- Camera issue fixed: external scripts attached via preload().
+- Extension reverted to .tscn as requested.
+- 192 chunk .tscn files (726KB-1.2MB each) + baked_world.tscn (64KB).
+- User can now open scenes/baked_world.tscn, press F6, and walk/fly around.
