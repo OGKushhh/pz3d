@@ -43,7 +43,9 @@ const VAULT_MAX_DIST := 2.5   # max distance to window for vault
 
 # Weapon system
 const WeaponSystem := preload("res://weapons/weapon_system.gd")
+const WeaponViewModel := preload("res://weapons/weapon_viewmodel.gd")
 var _weapon_system: Node
+var _weapon_viewmodel: Node
 var _crosshair: Control
 
 var spd := WALK
@@ -60,6 +62,10 @@ func _ready() -> void:
     cam.add_child(_weapon_system)
     _weapon_system.equip("pistol")
     _weapon_system.set_world_root(get_parent())
+    # Setup weapon viewmodel (visible gun in first person)
+    _weapon_viewmodel = WeaponViewModel.new()
+    _weapon_viewmodel.name = "WeaponViewModel"
+    cam.add_child(_weapon_viewmodel)
     # Add crosshair UI
     _setup_crosshair()
 
@@ -90,6 +96,13 @@ func _setup_crosshair() -> void:
             "right": line.position = Vector2(7, -1)
         _crosshair.add_child(line)
 
+# Switch weapon: updates both weapon_system (gameplay) + weapon_viewmodel (visual)
+func _switch_weapon(weapon_class: String) -> void:
+    if _weapon_system:
+        _weapon_system.equip(weapon_class)
+    if _weapon_viewmodel:
+        _weapon_viewmodel.equip(weapon_class)
+
 func _input(e: InputEvent) -> void:
     if e is InputEventMouseMotion:
         rotate_y(-e.relative.x * SENS)
@@ -108,10 +121,10 @@ func _input(e: InputEvent) -> void:
     # Weapon switch: 1=pistol, 2=rifle, 3=shotgun, 4=sniper
     if e is InputEventKey and e.pressed:
         match e.keycode:
-            KEY_1: if _weapon_system: _weapon_system.equip("pistol")
-            KEY_2: if _weapon_system: _weapon_system.equip("rifle")
-            KEY_3: if _weapon_system: _weapon_system.equip("shotgun")
-            KEY_4: if _weapon_system: _weapon_system.equip("sniper_rifle")
+            KEY_1: _switch_weapon("pistol")
+            KEY_2: _switch_weapon("rifle")
+            KEY_3: _switch_weapon("shotgun")
+            KEY_4: _switch_weapon("sniper_rifle")
     # Phase B.4: T toggles fly mode for map assessment
     if e is InputEventKey and e.pressed and e.keycode == KEY_T:
         _fly_mode = not _fly_mode

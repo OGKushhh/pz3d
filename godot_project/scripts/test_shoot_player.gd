@@ -10,6 +10,7 @@ var _yaw: float = 0.0
 var _pitch: float = 0.0
 var _camera: Camera3D
 var _weapon_system: Node
+var _weapon_viewmodel: Node
 
 func _ready() -> void:
         _camera = $Camera3D
@@ -24,6 +25,10 @@ func _ready() -> void:
         _weapon_system.equip("pistol")
         # Set world root to this player's parent (the scene root)
         _weapon_system.set_world_root(get_parent())
+        # Setup weapon viewmodel (visible gun in first person)
+        _weapon_viewmodel = preload("res://weapons/weapon_viewmodel.gd").new()
+        _weapon_viewmodel.name = "WeaponViewModel"
+        _camera.add_child(_weapon_viewmodel)
 
 func _input(event: InputEvent) -> void:
         if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -34,10 +39,10 @@ func _input(event: InputEvent) -> void:
                 # Phase #3: emit signals instead of calling weapon_system directly
                 var sb := get_node_or_null("/root/SignalBus")
                 match event.keycode:
-                        KEY_1: if sb: sb.weapon_switch.emit("pistol")
-                        KEY_2: if sb: sb.weapon_switch.emit("rifle")
-                        KEY_3: if sb: sb.weapon_switch.emit("shotgun")
-                        KEY_4: if sb: sb.weapon_switch.emit("sniper_rifle")
+                        KEY_1: _switch_weapon("pistol")
+                        KEY_2: _switch_weapon("rifle")
+                        KEY_3: _switch_weapon("shotgun")
+                        KEY_4: _switch_weapon("sniper_rifle")
                         KEY_ESCAPE: Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
         if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
                 # Phase #3: emit fire signal instead of calling fire() directly
@@ -65,3 +70,14 @@ func _physics_process(delta: float) -> void:
         var vel := (forward * -input_dir.y + right * input_dir.x) * SPEED
         velocity = vel
         move_and_slide()
+
+# Switch weapon: updates both weapon_system (gameplay) + weapon_viewmodel (visual)
+func _switch_weapon(weapon_class: String) -> void:
+        if _weapon_system:
+                _weapon_system.equip(weapon_class)
+        if _weapon_viewmodel:
+                _weapon_viewmodel.equip(weapon_class)
+        # Also emit signal so SignalBus listeners (if any) get notified
+        var sb := get_node_or_null("/root/SignalBus")
+        if sb:
+                sb.weapon_switch.emit(weapon_class)

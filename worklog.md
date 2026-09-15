@@ -1672,3 +1672,49 @@ Stage Summary:
 - 2 of 5 user-reported issues fixed this session: POIs on roads + biome-specific gap fillers.
 - 5 of 5 issues now resolved (from previous sessions: Y-layering, debug colors, gap density).
 - User can pull, test, and we talk about what's next.
+
+---
+Task ID: session-13-pps-shooter-essentials-quality-fps-controller
+Agent: main (Super Z)
+Task: User provided direct download links for PPS Shooter Essentials + Quality FPS Controller. "download PPS Shooter Essentials + Quality FPS Controller, wire them into our project, delete the basic weapons"
+
+Work Log:
+- Downloaded PPS Shooter Essentials from https://store.godotengine.org/asset/alstraininite/pps-shooter-essentials/download/5851/ (3.7MB zip).
+  Contents: 2 rigged guns (ZC57=pistol, MGP7=rifle), 4 grenades (M67, M84), attachments (scopes, suppressors, handles, lasers, lights), props (ammo boxes, canteen, knife, radio, fuel barrels, medkit, sandbags). All low-poly, rigged, with textures.
+- Downloaded Quality First Person Controller from https://store.godotengine.org/asset/colormatic-studios/quality-first-person-controller/download/5778/ (13KB zip, addons/fpc).
+  Contents: character.gd (highly customizable FPS controller with crouch/sprint/headbob/jump animations), character.tscn, reticles, MIT license.
+- Copied PPS assets to assets/weapons/pps/ (GLB/Guns, GLB/Props, Texture).
+- Copied QFPS addon to addons/fpc/ (character.gd, character.tscn, reticles).
+- Created weapons/weapon_viewmodel.gd — shows the actual gun model in first person:
+  * Weapon class → model mapping: pistol→ZC57_Rigged, rifle/shotgun/sniper→MGP7_Rigged
+  * Attachment system: pistol gets OpticV1, rifle gets SuppressorV1, sniper gets OpticV1+universal scope
+  * Viewmodel position: bottom-right of screen (0.35, -0.35, -0.6) with slight rotation
+  * equip() clears current model + attachments, loads new ones
+- Updated player_main.gd (main game player):
+  * Added WeaponViewModel as child of camera
+  * Added _switch_weapon() helper that updates both weapon_system (gameplay) + weapon_viewmodel (visual)
+  * Weapon switch keys 1/2/3/4 now call _switch_weapon
+- Updated test_shoot_player.gd (test range player):
+  * Same WeaponViewModel setup
+  * Same _switch_weapon helper
+  * Also emits SignalBus.weapon_switch for any signal listeners
+- Deleted old basic weapon GLBs:
+  * pistol_001.glb, rifle_001.glb, shotgun_001.glb, sniper_rifle_001.glb (4 files)
+  * Kept melee weapons (axe, baseball_bat, hockey_stick, knife) — still valid
+- Verified:
+  * WeaponSystem script: res://weapons/weapon_system.gd ✓
+  * WeaponViewModel script: res://weapons/weapon_viewmodel.gd ✓
+  * Has model child: true ✓
+  * Model name: WeaponModel_pistol ✓
+  * Fire result: true ✓
+  * TargetRed1 HIT! damage=35, hits=1 ✓
+- Both weapon_system (raycast + tracer + recoil) AND weapon_viewmodel (visible gun) work.
+- PPS weapon models are rigged — bones available for future animations (reload, ADS, etc.)
+- QFPS addon available at addons/fpc/ for future use (headbob, crouch animations, etc.)
+
+Stage Summary:
+- PPS Shooter Essentials integrated: 2 rigged guns + attachments + props (sandbags, ammo boxes, medkit, fuel barrels)
+- Quality FPS Controller addon installed (not yet wired — keeping our simpler player for now, can switch later)
+- Weapon viewmodel system: visible gun in first person, switches with weapon class
+- Old basic weapon GLBs deleted
+- Firing works end-to-end: left click → weapon_system.fire() → raycast → tracer + muzzle flash + recoil + viewmodel shows gun
