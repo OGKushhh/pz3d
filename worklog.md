@@ -1463,3 +1463,33 @@ Stage Summary:
 - Baked city is now binary .scn (13MB cleaned). Loads in ~1.5s.
 - Godot editor will open it without freezing.
 - User should reboot Godot, then open scenes/baked_city.scn (not .tscn).
+
+---
+Task ID: session-13-gun-system-fix
+Agent: main (Super Z)
+Task: User: "okay lets focus on gun system, for now, whats next, i didnt fire 1 single bullet because of non working range"
+
+Work Log:
+- Tested weapon system headless: fired directly via weapon_system.fire() → "Fire result: true" → "[Target] TargetRed1 HIT! damage=35, hits=1". The gun code WORKS.
+- Diagnosed the actual issue: test_shoot_range.tscn had TWO Camera3D nodes:
+  * Player/Camera3D (attached to player, has WeaponSystem as child)
+  * TestCamera (separate, static at position (0, 1.7, 5))
+  Neither was marked current=true. Godot picked TestCamera (last in tree) as active → player looked through a static camera with no weapon system → clicking did nothing.
+- FIX 1: Removed TestCamera + TestTarget from test_shoot_range.tscn. Marked Player/Camera3D as current=true.
+- FIX 2: Added weapon system to player_main.gd (the main game player controller):
+  * Imports WeaponSystem, creates instance as child of $Cam
+  * Equips pistol on _ready()
+  * Left click → fire()
+  * Keys 1/2/3/4 → switch weapons (pistol/rifle/shotgun/sniper_rifle)
+  * Added simple crosshair (center dot + 4 red lines)
+  * set_world_root(get_parent()) so tracers/flash spawn in scene root
+- Now user can:
+  * Open test_shoot_range.tscn → press F6 → WASD + mouse + left click to shoot targets
+  * Open main.tscn → press F6 → WASD + mouse + left click to shoot in the city
+  * Press 1/2/3/4 to switch weapons
+
+Stage Summary:
+- Gun system was never broken — the test scene had a camera conflict (TestCamera stealing focus from Player/Camera3D).
+- Fixed test_shoot_range.tscn: removed TestCamera, marked Player/Camera3D as current.
+- Added weapon system to player_main.gd: can now shoot in main.tscn (the actual game city).
+- Both scenes should now allow firing: left click = shoot, 1/2/3/4 = switch weapons.

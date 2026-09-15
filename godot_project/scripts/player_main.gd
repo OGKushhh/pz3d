@@ -41,6 +41,11 @@ const VAULT_UP := 1.2         # meters upward teleport on vault
 const VAULT_COOLDOWN := 0.5   # seconds between vaults
 const VAULT_MAX_DIST := 2.5   # max distance to window for vault
 
+# Weapon system
+const WeaponSystem := preload("res://weapons/weapon_system.gd")
+var _weapon_system: Node
+var _crosshair: Control
+
 var spd := WALK
 var look_target: Node3D = null  # current interactive node under crosshair
 var _vault_timer: float = 0.0  # cooldown timer
@@ -48,6 +53,42 @@ var _fly_mode: bool = false    # Phase B.4: toggle fly mode for map assessment
 
 func _ready() -> void:
     Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+    # Setup weapon system — attach to camera (Cam)
+    var cam := $Cam
+    _weapon_system = WeaponSystem.new()
+    _weapon_system.name = "WeaponSystem"
+    cam.add_child(_weapon_system)
+    _weapon_system.equip("pistol")
+    _weapon_system.set_world_root(get_parent())
+    # Add crosshair UI
+    _setup_crosshair()
+
+func _setup_crosshair() -> void:
+    # Simple crosshair: 4 small colored rectangles around screen center
+    var layer := CanvasLayer.new()
+    layer.name = "CrosshairLayer"
+    get_parent().add_child(layer)
+    _crosshair = Control.new()
+    _crosshair.name = "Crosshair"
+    _crosshair.set_anchors_preset(Control.PRESET_FULL_RECT)
+    layer.add_child(_crosshair)
+    # Center dot
+    var dot := ColorRect.new()
+    dot.color = Color(1, 0, 0, 0.8)
+    dot.size = Vector2(4, 4)
+    dot.position = Vector2(-2, -2)
+    _crosshair.add_child(dot)
+    # 4 lines
+    for dir in ["top", "bottom", "left", "right"]:
+        var line := ColorRect.new()
+        line.color = Color(1, 0, 0, 0.6)
+        line.size = Vector2(2, 8) if dir in ["top", "bottom"] else Vector2(8, 2)
+        match dir:
+            "top": line.position = Vector2(-1, -15)
+            "bottom": line.position = Vector2(-1, 7)
+            "left": line.position = Vector2(-15, -1)
+            "right": line.position = Vector2(7, -1)
+        _crosshair.add_child(line)
 
 func _input(e: InputEvent) -> void:
     if e is InputEventMouseMotion:
@@ -60,6 +101,17 @@ func _input(e: InputEvent) -> void:
         _try_interact()
     if e.is_action_pressed("break"):
         _try_break()
+    # Fire weapon on left click
+    if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+        if _weapon_system:
+            _weapon_system.fire()
+    # Weapon switch: 1=pistol, 2=rifle, 3=shotgun, 4=sniper
+    if e is InputEventKey and e.pressed:
+        match e.keycode:
+            KEY_1: if _weapon_system: _weapon_system.equip("pistol")
+            KEY_2: if _weapon_system: _weapon_system.equip("rifle")
+            KEY_3: if _weapon_system: _weapon_system.equip("shotgun")
+            KEY_4: if _weapon_system: _weapon_system.equip("sniper_rifle")
     # Phase B.4: T toggles fly mode for map assessment
     if e is InputEventKey and e.pressed and e.keycode == KEY_T:
         _fly_mode = not _fly_mode
