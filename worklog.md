@@ -1536,3 +1536,30 @@ Stage Summary:
 - Extension reverted to .tscn as requested.
 - 192 chunk .tscn files (726KB-1.2MB each) + baked_world.tscn (64KB).
 - User can now open scenes/baked_world.tscn, press F6, and walk/fly around.
+
+---
+Task ID: session-13-user-feedback-5-issues
+Agent: main (Super Z)
+Task: User feedback after testing baked_world.tscn:
+1. "a tower and a stadium on roads" — POIs placed at coords that overlap road geometry
+2. "some need tweaks, i actually need to redo a lot of assets because some of them look wrong" — asset quality issues, user will redo
+3. "places between dense places are hella empty, we might need to put things between instead of all foliage for performance" — gap-filler too sparse, foliage is heavy + doesn't fill visually
+4. "woods stay woods of course" — Forest biome exception, keep dense foliage there
+5. "in previous system i marked each place with different color ground, we need a way to distinguish them while testing like color ground or map system" — debug ground color per biome
+6. "roads should be above pavements or paths" — Y layering issue: roads must be above sidewalks/paths
+
+Work Log:
+- Acknowledged all 5 issues + 2 Y-layering + debug coloring
+- Issue 1 (POIs on roads): need to check POI positions vs road positions, add road-aware POI placement OR move POIs off roads
+- Issue 3 (empty between dense): need to increase gap-filler density + add small structures (sheds, fences, etc) instead of just foliage
+- Issue 5 (debug coloring): biome-ground-color override per chunk, easy to add
+- Issue 6 (Y layering): roads Y=0.020, sidewalks Y=0.050, paths Y=0.010. Currently roads BELOW sidewalks (incorrect). Need to raise roads above sidewalks OR lower sidewalks below roads. User says "roads should be above pavements or paths" — so roads Y > paths Y.
+
+=== PRIORITY ORDER (my recommendation) ===
+1. Y-layering fix (5 min) — biggest visual improvement, easy to do
+2. Debug ground coloring per biome (15 min) — helps user identify biomes
+3. Gap-filler density increase (30 min) — fills empty spaces between dense areas
+4. POI-on-road fix (30 min) — move POIs off roads
+5. Asset redo (user task, ongoing) — user handles this
+
+Will start with #1 + #2 + #3 this session. #4 next session. #5 is user's domain.
