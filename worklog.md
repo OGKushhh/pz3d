@@ -1463,3 +1463,20 @@ Stage Summary:
 - Baked city is now binary .scn (13MB cleaned). Loads in ~1.5s.
 - Godot editor will open it without freezing.
 - User should reboot Godot, then open scenes/baked_city.scn (not .tscn).
+
+---
+Task ID: session-13-scn-to-res-extension-fix
+Agent: main (Super Z)
+Task: User: "i got load error but cant see anything, same non responding". The .scn extension confused Godot editor — it's reserved for imported files.
+
+Work Log:
+- Diagnosed: .scn extension is typically for files in .godot/imported/ (from .glb/.fbx imports). Godot editor sees a .scn in scenes/ and doesn't know how to handle it without an .import file.
+- Fix: changed all paths from .scn to .res (Godot's native generic resource extension, loads directly without import).
+- Updated: map_baker.gd OUTPUT_PATH, dump_baked_city.gd load path, post_bake_cleanup.gd INPUT_PATH + OUTPUT_PATH.
+- Re-baked as .res: 4.5MB (raw) → 13MB (after cleanup, compressed).
+- Verified: 258,864 nodes, load=174ms, inst=1047ms. Loads cleanly.
+- Deleted all .scn files (baked_city.scn, baked_city_clean.scn, .import file).
+
+Stage Summary:
+- Baked city is now baked_city.res (13MB cleaned). .res extension is Godot-native, loads without import.
+- User should pull, then open scenes/baked_city.res in Godot editor.

@@ -18,7 +18,7 @@ func _init():
                 manifest = JSON.parse_string(f.get_as_text())
         
         # Load baked city (try .scn first, then .tscn)
-        var scene := load("res://scenes/baked_city.scn")
+        var scene := load("res://scenes/baked_city.res")
         if scene == null:
                 scene = load("res://scenes/baked_city.tscn")
         if scene == null:

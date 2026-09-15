@@ -33,7 +33,7 @@ const TerrainHeight = preload("res://tools/terrain_height.gd")
 
 # === Configuration ===
 const SEED := 1337
-const OUTPUT_PATH := "res://scenes/baked_city.scn"
+const OUTPUT_PATH := "res://scenes/baked_city.res"
 # Bake region: default = full 12km² map (16 cols × 12 rows).
 # Override with --bake-cols=N --bake-rows=N --bake-origin-col=N --bake-origin-row=N
 # for partial bakes (debugging).
