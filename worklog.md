@@ -1480,3 +1480,31 @@ Work Log:
 Stage Summary:
 - Baked city is now baked_city.res (13MB cleaned). .res extension is Godot-native, loads without import.
 - User should pull, then open scenes/baked_city.res in Godot editor.
+
+---
+Task ID: session-13-chunked-bake-streaming-fix
+Agent: main (Super Z)
+Task: User: "same, its issue from something else. do we have load/unload chunks? does it load all chunks?". User correctly identified the issue — baked city loads ALL 258,864 nodes at once, editor tries to render 221,224 meshes simultaneously, GPU chokes.
+
+Work Log:
+- Verified user's diagnosis: baked_city.res loads all 192 chunks = 258,864 nodes = 221,224 MeshInstance3D. Godot editor 3D viewport tries to render ALL of them → not responding.
+- Original chunk_streamer.gd has streaming (stream_radius=2 = 5×5 = 25 chunks at a time = ~50,000 nodes). The baked version lost this.
+- Fix: restructured map_baker.gd to bake EACH CHUNK as its own .res file:
+  * OUTPUT_DIR = res://scenes/baked_chunks/
+  * Each chunk saved as chunk_<col>_<row>.res (192 files total)
+  * World scene (baked_world.res) contains only: sky + sun + ground + player + ChunkLoader script
+  * ChunkLoader: runtime script that loads chunks near player (stream_radius=2), unloads distant ones
+- Results:
+  * 192 chunk files, 251-371KB each, 57MB total
+  * baked_world.res = 9.1KB (was 13MB monolithic)
+  * World scene loads in 3ms (was 175ms)
+  * Initial nodes: 146 (was 258,864)
+  * At runtime: only 25 chunks loaded = ~50,000 nodes (same as original chunk_streamer)
+- Editor will now open baked_world.res instantly. Chunks stream in as player moves.
+- Did NOT delete chunk_streamer.gd — it's still available as fallback if user wants procedural.
+
+Stage Summary:
+- Chunked bake + streaming loader implemented. Editor will open baked_world.res in 3ms.
+- 192 chunk .res files in scenes/baked_chunks/ (251-371KB each)
+- ChunkLoader script loads 25 chunks at a time based on player position
+- This is the SAME streaming pattern as original chunk_streamer, but with pre-baked data instead of procedural generation at runtime
