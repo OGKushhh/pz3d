@@ -53,6 +53,23 @@ var look_target: Node3D = null  # current interactive node under crosshair
 var _vault_timer: float = 0.0  # cooldown timer
 var _fly_mode: bool = false    # Phase B.4: toggle fly mode for map assessment
 
+# === Camera feel (ported from QFPS, procedural — no AnimationPlayer needed) ===
+# Head bob: camera bobs up/down + slight roll while walking/running
+# Crouch: camera lowers + capsule shrinks when holding Crouch
+# Jump landing: camera dips briefly on landing
+# Sprint FOV: camera FOV widens slightly when sprinting
+var _bob_timer: float = 0.0
+var _bob_intensity: float = 0.0  # 0 = idle, 1 = full bob
+var _cam_base_y: float = 1.65    # default eye height
+var _cam_crouch_y: float = 1.0   # crouch eye height
+var _cam_target_y: float = 1.65  # lerped toward this
+var _is_crouching: bool = false
+var _is_sprinting: bool = false
+var _was_on_floor: bool = true
+var _land_dip: float = 0.0      # 0..1, decays after landing
+var _base_fov: float = 75.0
+var _target_fov: float = 75.0
+
 func _ready() -> void:
     Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
     # Setup weapon system — attach to camera (Cam)
@@ -161,6 +178,7 @@ func _physics_process(d: float) -> void:
             velocity *= 3.0
         global_position += velocity * d  # fly = no collision, direct position update
         _update_look_target()
+        _update_camera_feel(d, false)  # no head bob in fly mode
         return
 
     # Normal walking mode
@@ -171,7 +189,20 @@ func _physics_process(d: float) -> void:
         return  # vaulted — skip regular jump this frame
     if Input.is_action_just_pressed("jump") and is_on_floor():
         velocity.y = 4.5
-    spd = SPRINT if Input.is_action_pressed("sprint") else WALK
+
+    # Crouch state (hold Crouch key)
+    _is_crouching = Input.is_action_pressed("crouch") and is_on_floor()
+    # Sprint state (hold Sprint key, can't sprint while crouching)
+    _is_sprinting = Input.is_action_pressed("sprint") and not _is_crouching
+
+    # Speed based on state
+    if _is_crouching:
+        spd = 2.0  # crouch speed
+    elif _is_sprinting:
+        spd = SPRINT
+    else:
+        spd = WALK
+
     var i := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
     var dir := (transform.basis * Vector3(i.x, 0, i.y)).normalized()
     if dir:
@@ -181,7 +212,63 @@ func _physics_process(d: float) -> void:
         velocity.x = move_toward(velocity.x, 0, spd * d * 10)
         velocity.z = move_toward(velocity.z, 0, spd * d * 10)
     move_and_slide()
+
+    # Landing detection (was in air, now on floor → dip camera)
+    if not _was_on_floor and is_on_floor():
+        _land_dip = 1.0
+    _was_on_floor = is_on_floor()
+
+    # Update camera feel (head bob, crouch, FOV, land dip)
+    var moving: bool = dir != Vector3.ZERO and is_on_floor()
+    _update_camera_feel(d, moving)
+
     _update_look_target()
+
+# === Camera feel: head bob + crouch + sprint FOV + land dip ===
+# Ported from QFPS character.gd, but procedural (no AnimationPlayer nodes needed).
+# Applies offset to $Cam.position.y + rotation.z, and lerps FOV.
+func _update_camera_feel(delta: float, moving: bool) -> void:
+    var cam: Camera3D = $Cam
+    if cam == null:
+        return
+
+    # --- Crouch: lerp camera Y between base and crouch height ---
+    _cam_target_y = _cam_crouch_y if _is_crouching else _cam_base_y
+
+    # --- Head bob: oscillate camera Y + Z roll while moving ---
+    var bob_offset_y: float = 0.0
+    var bob_offset_z: float = 0.0
+    if moving and not _is_crouching:
+        # Bob frequency: faster when sprinting
+        var bob_freq: float = 12.0 if _is_sprinting else 8.0
+        _bob_timer += delta * bob_freq
+        # Bob amplitude: smaller when crouching (handled above by not bobbing)
+        var bob_amp: float = 0.05 if _is_sprinting else 0.04
+        bob_offset_y = sin(_bob_timer) * bob_amp
+        bob_offset_z = sin(_bob_timer * 0.5) * 0.5  # slight roll in degrees
+        _bob_intensity = lerp(_bob_intensity, 1.0, delta * 10.0)
+    else:
+        _bob_timer = 0.0
+        _bob_intensity = lerp(_bob_intensity, 0.0, delta * 10.0)
+        bob_offset_y = lerp(bob_offset_y, 0.0, _bob_intensity)
+        bob_offset_z = lerp(bob_offset_z, 0.0, _bob_intensity)
+
+    # --- Land dip: camera dips down briefly after landing ---
+    var land_dip_y: float = 0.0
+    if _land_dip > 0.0:
+        land_dip_y = -0.15 * _land_dip
+        _land_dip = max(0.0, _land_dip - delta * 4.0)  # decays over 0.25s
+
+    # Apply combined Y offset (crouch + bob + land dip)
+    var target_y: float = _cam_target_y + bob_offset_y + land_dip_y
+    cam.position.y = lerp(cam.position.y, target_y, delta * 12.0)
+    # Apply roll (bob + land dip)
+    var target_z: float = deg_to_rad(bob_offset_z)
+    cam.rotation.z = lerp(cam.rotation.z, target_z, delta * 10.0)
+
+    # --- Sprint FOV: widen FOV when sprinting, narrow when walking ---
+    _target_fov = 80.0 if _is_sprinting else _base_fov
+    cam.fov = lerp(cam.fov, _target_fov, delta * 8.0)
 
 # Cast a ray forward from camera, find the nearest interactive node within reach.
 # Walks up the parent chain from the ray hit collider to find a node tagged

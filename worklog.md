@@ -1718,3 +1718,45 @@ Stage Summary:
 - Weapon viewmodel system: visible gun in first person, switches with weapon class
 - Old basic weapon GLBs deleted
 - Firing works end-to-end: left click → weapon_system.fire() → raycast → tracer + muzzle flash + recoil + viewmodel shows gun
+
+---
+Task ID: session-13-camera-feel-headbob-crouch-sprint
+Agent: main (Super Z)
+Task: User: "does Quality First Person Controller have skeleton?" → No, just a CapsuleMesh placeholder. User: "yes" (wire in the camera feel). Ported QFPS's head bob + crouch + sprint FOV + land dip using procedural animation (no AnimationPlayer nodes needed).
+
+Work Log:
+- Studied QFPS character.gd (507 lines). Key systems:
+  * Head bob: AnimationPlayer "walk" + "sprint" animations, speed_scale tied to current_speed
+  * Crouch: AnimationPlayer "crouch" animation (capsule shrinks, camera lowers)
+  * Jump: AnimationPlayer "land_left" / "land_right" / "land_center" based on velocity direction
+  * Sprint FOV: lerp from 75 → 85 when sprinting
+  * State machine: normal / crouching / sprinting
+  * CrouchCeilingDetection: ShapeCast3D prevents standing up under low ceilings
+- QFPS requires AnimationPlayer nodes with specific animations (walk, sprint, crouch, land_*, RESET). Our player has no AnimationPlayers. Two options:
+  1. Wire QFPS's character.tscn (would require restructuring our Player node + adding AnimationPlayers + creating animations)
+  2. Port the LOGIC procedurally (sin waves for bob, lerp for crouch, etc.) — no AnimationPlayer needed
+- Chose option 2: procedural camera feel. Cleaner, no scene restructuring, no animation authoring.
+- Added to player_main.gd:
+  * State vars: _bob_timer, _bob_intensity, _cam_base_y (1.65), _cam_crouch_y (1.0), _is_crouching, _is_sprinting, _was_on_floor, _land_dip, _base_fov (75), _target_fov
+  * _update_camera_feel(delta, moving) function:
+    - Crouch: lerps camera Y between 1.65 (stand) and 1.0 (crouch)
+    - Head bob: sin wave at 8Hz (walk) or 12Hz (sprint), amplitude 0.04m (walk) or 0.05m (sprint), plus slight Z roll
+    - Land dip: -0.15m Y offset that decays over 0.25s after landing
+    - Sprint FOV: lerps from 75 → 80 when sprinting
+  * _physics_process now tracks crouch/sprint state, updates speed (2.0 crouch / 8.0 sprint / 5.0 walk), detects landings
+  * Fly mode skips camera feel (no bob while flying)
+- Applied same camera feel to test_shoot_player.gd (test range):
+  * Same state vars + _update_camera_feel function
+  * Crouch Y is -0.65 (camera is child of player at y=0, so crouch lowers camera)
+  * Added gravity + jump (test player previously had no gravity)
+- Verified both scenes load cleanly with no errors.
+- Did NOT add:
+  * CrouchCeilingDetection (ShapeCast3D) — would require scene restructuring. Can add later if needed.
+  * View tilting (camera rolls when strafing) — QFPS has it as optional, skipped for now.
+  * Debug panel — QFPS has one, skipped (we have DebugHUD autoload).
+
+Stage Summary:
+- Camera feel ported from QFPS using procedural animation. No AnimationPlayer nodes needed.
+- Features: head bob (walk + sprint frequencies), crouch (camera lowers + speed drops), sprint FOV kick, land dip on landing.
+- Applied to both player_main.gd (main game) and test_shoot_player.gd (test range).
+- Weapon viewmodel still floats (no arms) — that's a separate asset need.
