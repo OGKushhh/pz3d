@@ -33,7 +33,7 @@ const TerrainHeight = preload("res://tools/terrain_height.gd")
 
 # === Configuration ===
 const SEED := 1337
-const OUTPUT_PATH := "res://scenes/baked_city.scn"
+const OUTPUT_DIR := "res://scenes/baked_chunks/"
 # Bake region: default = full 12km² map (16 cols × 12 rows).
 # Override with --bake-cols=N --bake-rows=N --bake-origin-col=N --bake-origin-row=N
 # for partial bakes (debugging).
@@ -76,11 +76,14 @@ const Y_GROUND := 0.000
 const Y_GRASS := 0.005
 const Y_PATH := 0.010
 const Y_DRIVEWAY := 0.015
-const Y_ROAD := 0.020
-const Y_LANE := 0.025
-const Y_PARKING := 0.030
-const Y_SIDEWALK := 0.050
-const Y_BUILDING_SLAB := 0.060
+# FIX: roads ABOVE sidewalks/paths (user: "roads should be above pavements or paths")
+# Old: road=0.020, sidewalk=0.050 (sidewalk higher than road, looks sunken)
+# New: road=0.060, sidewalk=0.040, path=0.010 (road highest, then sidewalk, then path)
+const Y_SIDEWALK := 0.040
+const Y_PARKING := 0.050
+const Y_ROAD := 0.060       # roads above sidewalks
+const Y_LANE := 0.065        # lane lines sit on top of road
+const Y_BUILDING_SLAB := 0.070
 const Y_PARK := 0.005
 const MIN_CLEARANCE_M := 2.0
 const HIGHWAY_CLEARANCE_M := 15.0
@@ -132,33 +135,31 @@ func _init():
         _load_roads_from_data()
         roads.mark_roads_in_index(spatial, CityConfig.SPATIAL_CELL_M)
 
-        # Setup environment + ground (sky, sun, ground collision)
+        # Make output directory
+        DirAccess.make_dir_recursive_absolute(OUTPUT_DIR)
+
+        # Global environment setup (sky + sun + ground — these go in a separate "world" scene)
         _setup_sky()
         _setup_sun()
         _setup_ground()
 
-        # Build all chunks in bake region
+        # Bake each chunk as a separate .res file
         var build_start := Time.get_ticks_msec()
         for col in range(BAKE_ORIGIN_COL, BAKE_ORIGIN_COL + BAKE_COLS):
                 for row in range(BAKE_ORIGIN_ROW, BAKE_ORIGIN_ROW + BAKE_ROWS):
                         if col < 0 or row < 0 or col >= CityConfig.CHUNKS_COLS or row >= CityConfig.CHUNKS_ROWS:
                                 continue
-                        _build_chunk(col, row)
+                        _bake_chunk_to_file(col, row)
         var build_ms := Time.get_ticks_msec() - build_start
         print("  Build time: %.2fs" % (build_ms / 1000.0))
 
-        # Setup player (drop-in playable)
+        # Save the world scene (sky + sun + ground + player + ChunkStreamer loader)
         _setup_player()
+        _setup_chunk_loader()
 
-        # === Fix ownership for ALL nodes (so ResourceSaver saves them) ===
-        # The stampers (lot_stamper, district_stamper) add children to chunk_root
-        # but don't set owner=city_root. Without correct owner, nodes are dropped
-        # when ResourceSaver.pack() saves the scene.
+        # Set owner recursively for the world scene
         _set_owner_recursive(city_root, city_root)
 
-        # Save scene — use BINARY format (.scn) for faster editor loading.
-        # Text .tscn at 41MB makes Godot editor freeze on open.
-        # Binary .scn is ~50% smaller and parses much faster.
         var save_start := Time.get_ticks_msec()
         var scene := PackedScene.new()
         var pack_err := scene.pack(city_root)
@@ -166,16 +167,12 @@ func _init():
                 print("❌ Pack failed: ", pack_err)
                 quit(1)
                 return
-        # Save as binary .scn. Don't use FLAG_BUNDLE_RESOURCES — it breaks instantiation
-        # because the bundled sub-resources lose their external scene references.
-        # Just use FLAG_COMPRESS for size reduction.
         var save_flags := ResourceSaver.FLAG_COMPRESS
-        var err := ResourceSaver.save(scene, OUTPUT_PATH, save_flags)
+        var err := ResourceSaver.save(scene, "res://scenes/baked_world.tscn")
         if err == OK:
                 var save_ms := Time.get_ticks_msec() - save_start
-                print("✅ Scene saved: ", OUTPUT_PATH)
+                print("✅ World scene saved: res://scenes/baked_world.tscn")
                 print("   Placed: %d | Skipped: %d | Save time: %.2fs" % [placed_count, skipped_count, save_ms / 1000.0])
-                print("   Format: binary .scn (compressed + bundled)")
         else:
                 print("❌ Save failed: ", err)
         quit()
@@ -235,41 +232,37 @@ func _build_road_mesh(start: Vector3, end: Vector3, width: float, kind: String):
         _plane("Sidewalk", center + Vector3(perp_x * sw_off, 0, perp_z * sw_off), length, sw_w, C_SIDEWALK, Y_SIDEWALK)
         _plane("Sidewalk", center - Vector3(perp_x * sw_off, 0, perp_z * sw_off), length, sw_w, C_SIDEWALK, Y_SIDEWALK)
 
-# === CHUNK BUILDER (simplified chunk_streamer._build_chunk) ===
-func _build_chunk(col: int, row: int):
-        var key := Vector2i(col, row)
+# === CHUNK BAKER (saves each chunk to its own .res file) ===
+func _bake_chunk_to_file(col: int, row: int):
         var origin := Vector3(col * CityConfig.CHUNK_SIZE_M, 0, row * CityConfig.CHUNK_SIZE_M)
-        # Map chunk (col,row) → biome grid (col,row). Biome grid is 8×6 (500m cells),
-        # chunks are 16×12 (250m cells). 4 chunks per biome cell.
         var grid_col: int = clamp(int(col * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_COLS - 1)
         var grid_row: int = clamp(int(row * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_ROWS - 1)
         var biome: int = CityConfig.grid_layout()[grid_row][grid_col]
         if biome == CityConfig.Biome.WATER or biome == CityConfig.Biome.EMPTY:
-                return
+                return  # skip water/empty chunks entirely
 
         var profile: Dictionary = CityConfig.biomes().get(biome, {})
         if profile.is_empty():
                 return
 
-        # Per-chunk RNG (deterministic per seed + chunk)
+        # Per-chunk RNG
         var crng := RandomNumberGenerator.new()
         crng.seed = SEED + col * 1000 + row
 
-        # Per-chunk root (for organization)
+        # Per-chunk root node (will be saved as its own .res)
         var chunk_root := Node3D.new()
         chunk_root.name = "Chunk_%d_%d" % [col, row]
-        city_root.add_child(chunk_root)
-        chunk_root.owner = city_root
-        # NOTE: do NOT set chunk_root.position = origin. The stampers use world coords
-        # for inst.position, so chunk_root must stay at (0,0,0) to avoid double-offset.
-        # The `origin` variable is still used for bounds checks + parcel generation.
+
+        # Debug: per-biome colored ground plane (helps distinguish biomes while testing)
+        # Sits at Y=0.001 (just above ground) so roads/sidewalks render on top
+        var biome_color: Color = CityConfig.ground_color_for(biome)
+        _plane_in_parent(chunk_root, "BiomeGround", origin + Vector3(CityConfig.CHUNK_SIZE_M * 0.5, 0, CityConfig.CHUNK_SIZE_M * 0.5), CityConfig.CHUNK_SIZE_M, CityConfig.CHUNK_SIZE_M, biome_color, 0.001)
 
         # Place POIs in this chunk
         var poi_exclusions: Array = []
         for poi in map_data.get("pois", []):
                 var poi_pos_arr: Array = poi.get("pos", [0, 0, 0])
                 var poi_pos := Vector3(float(poi_pos_arr[0]), 0, float(poi_pos_arr[2]))
-                # Check if POI is in this chunk
                 if poi_pos.x < origin.x or poi_pos.x >= origin.x + CityConfig.CHUNK_SIZE_M:
                         continue
                 if poi_pos.z < origin.z or poi_pos.z >= origin.z + CityConfig.CHUNK_SIZE_M:
@@ -282,27 +275,24 @@ func _build_chunk(col: int, row: int):
                         poi_inst.position = poi_pos
                         poi_inst.name = "POI_" + poi.get("id", poi_asset)
                         chunk_root.add_child(poi_inst)
-                        poi_inst.owner = city_root
                         spatial.insert(poi_pos, poi_radius)
                         poi_exclusions.append({"center": poi_pos, "radius": poi_radius})
                         _global_poi_exclusions.append({"center": poi_pos, "radius": poi_radius})
                         placed_count += 1
 
-        # Stamp district template (hand-authored block composition)
+        # Stamp district template
         var template_name: String = stamper.pick_template_for_biome(biome, crng)
-        var template_placed: int = 0
         if template_name != "":
                 var anchor_pos := origin + Vector3(CityConfig.CHUNK_SIZE_M * 0.5, 0, CityConfig.CHUNK_SIZE_M * 0.5)
                 var template_rot := crng.randf_range(0, TAU)
-                template_placed = stamper.stamp_template(template_name, anchor_pos, template_rot, chunk_root, crng, self)
+                var template_placed: int = stamper.stamp_template(template_name, anchor_pos, template_rot, chunk_root, crng, self)
                 if template_placed > 0:
                         spatial.insert(anchor_pos, 75.0)
                         poi_exclusions.append({"center": anchor_pos, "radius": 75.0})
 
-        # Generate parcels + place buildings via lot recipes
+        # Generate parcels
         var layout_type: String = BlockLayout.layout_for_biome(biome)
         var parcels: Array = BlockLayout.generate_parcels(layout_type, origin, CityConfig.CHUNK_SIZE_M)
-        # Query road_network for each parcel's actual nearest road
         for parcel in parcels:
                 var info: Dictionary = roads.nearest_road_info(parcel.building_pos)
                 if info.get("found", false):
@@ -313,7 +303,7 @@ func _build_chunk(col: int, row: int):
                         if to_road.length() > 0.1:
                                 parcel.front_dir = to_road.normalized()
 
-        # Draw interior paths (so validator can check is_on_path)
+        # Draw interior paths
         var paths: Array = BlockLayout.get_interior_paths(layout_type, origin, CityConfig.CHUNK_SIZE_M)
         for path in paths:
                 var p_center := Vector3((path["start"].x + path["end"].x) * 0.5, Y_PATH, (path["start"].z + path["end"].z) * 0.5)
@@ -322,23 +312,14 @@ func _build_chunk(col: int, row: int):
                 var p_yaw: float = atan2(path["end"].x - path["start"].x, path["end"].z - path["start"].z)
                 _create_plane_mesh_rotated(chunk_root, "Path", p_center, Vector2(p_width, p_len), Color(0.25, 0.25, 0.27, 1), p_yaw)
 
-        # Density target (uses grid coords, not chunk coords)
+        # Density target
         var fill: float = _get_density_for_cell(grid_col, grid_row, profile)
         var biome_mult: int = int(BIOME_DENSITY_MULT.get(biome, 50))
         var target: int = int(fill * biome_mult)
         var placed := 0
         var building_radius: float = max(LOT_W, LOT_D) * 0.4
 
-        # Place buildings per parcel (lot recipe first, procedural fallback)
-        var debug_parcel_count: int = parcels.size()
-        var debug_skipped_road: int = 0
-        var debug_skipped_free: int = 0
-        var debug_skipped_poi: int = 0
-        var debug_skipped_highway: int = 0
-        var debug_lot_attempted: int = 0
-        var debug_lot_success: int = 0
-        var debug_empty_skip: int = 0
-        var debug_procedural_placed: int = 0
+        # Place buildings per parcel
         for parcel in parcels:
                 if placed >= target:
                         break
@@ -348,41 +329,30 @@ func _build_chunk(col: int, row: int):
                 if lot_pos.z < origin.z or lot_pos.z >= origin.z + CityConfig.CHUNK_SIZE_M:
                         continue
                 if not spatial.is_free(lot_pos, building_radius):
-                        debug_skipped_free += 1
                         continue
                 if spatial.is_on_road(lot_pos):
-                        debug_skipped_road += 1
                         continue
                 if _is_in_poi_exclusion(lot_pos, poi_exclusions):
-                        debug_skipped_poi += 1
                         continue
                 if _is_near_highway(lot_pos):
-                        debug_skipped_highway += 1
                         continue
 
-                # Try hand-authored lot recipe first
                 var lot_name: String = lot_stamper.pick_lot_for_biome(biome, crng)
                 if lot_name != "" and crng.randf() <= fill:
-                        debug_lot_attempted += 1
                         var lot_placed: int = lot_stamper.stamp_lot(lot_name, parcel, chunk_root, crng, self, biome)
                         if lot_placed > 0:
-                                debug_lot_success += 1
                                 spatial.insert(lot_pos, building_radius)
                                 _register_asset_position("lot_" + lot_name, lot_pos)
                                 placed += lot_placed
                                 placed_count += lot_placed
                                 continue
 
-                # Empty lot check (skip with 1-fill probability)
                 if crng.randf() > fill:
-                        debug_empty_skip += 1
                         continue
 
-                # Procedural fallback: pick building from profile
                 var buildings_pool: Array = profile.get("buildings", [])
                 if buildings_pool.is_empty():
                         continue
-                # Anti-repetition: try up to 3 different picks to find one that's not over-repeated
                 var bname: String = ""
                 for _attempt in range(3):
                         var candidate: String = buildings_pool[crng.randi() % buildings_pool.size()]
@@ -391,16 +361,12 @@ func _build_chunk(col: int, row: int):
                                 bname = candidate
                                 break
                 if bname == "":
-                        continue  # all candidates are over-repeated, skip this parcel
+                        continue
 
-                # Phase 1 (relaxed): skip validator — use only spatial checks already done above.
-                # But DO check AABB overlap with existing buildings (prevents buildings inside each other)
                 var inst: Node3D = _spawn_building(bname, lot_pos, parcel.front_dir, crng, chunk_root)
                 if inst == null:
                         continue
-                # Check AABB overlap with existing buildings in this chunk
                 var new_aabb := _compute_aabb(inst)
-                # Transform to world space (add building position)
                 new_aabb.position += inst.position
                 if _has_aabb_overlap(new_aabb, chunk_root):
                         inst.queue_free()
@@ -411,7 +377,6 @@ func _build_chunk(col: int, row: int):
                 _increment_district_type_count(biome, bname)
                 placed += 1
                 placed_count += 1
-                debug_procedural_placed += 1
 
         # Foliage scatter
         var foliage: Array = profile.get("foliage", [])
@@ -442,22 +407,32 @@ func _build_chunk(col: int, row: int):
                         finst.name = "%s_%d" % [fname, crng.randi() % 100000]
                         finst.set_meta("building_name", fname)
                         chunk_root.add_child(finst)
-                        finst.owner = city_root
                         spatial.insert(pos, 3.0)
                         placed_count += 1
 
-        # Props scatter (small gap fillers)
-        var gap_fillers: Array = ["picket_fence", "planter_box", "garden_gnome", "trash_can", "mailbox"]
+        # Props scatter — increased density + more variety (fills empty spaces between dense areas)
+        # User: "places between dense places are hella empty, we might need to put things between
+        # instead of all foliage for performance, woods stay woods of course"
+        var gap_fillers: Array = [
+                "picket_fence", "planter_box", "garden_gnome", "trash_can", "mailbox",
+                "fire_hydrant", "street_light", "bollard", "parking_meter",
+                "dumpster", "shopping_cart", "traffic_cone", "construction_barrier",
+                "bench_park", "picnic_table", "water_fountain"
+        ]
+        # Forest biome exception: keep woods as woods (no urban props)
+        if biome == CityConfig.Biome.FOREST or biome == CityConfig.Biome.PARKS:
+                gap_fillers = ["fallen_log", "rocks_small", "bush"]
         var valid_fillers: Array = []
         for gf in gap_fillers:
                 if manifest.has(gf):
                         valid_fillers.append(gf)
-        var gap_count: int = int(fill * 20)
+        # Increased from fill*20 to fill*40 (2x more gap fillers)
+        var gap_count: int = int(fill * 40)
         for i in range(gap_count):
                 var pos := Vector3(
                         origin.x + crng.randf_range(15.0, CityConfig.CHUNK_SIZE_M - 15.0),
                         0,
-                        origin.z + crng.randf_range(15.0, CityConfig.CHUNK_SIZE_M - 15.0)
+                        origin.z + crng.randf_range(15.0, CityConfig.CHUNK_SIZE_M - 5.0)
                 )
                 if not spatial.is_free(pos, 2.0) or spatial.is_on_road(pos):
                         continue
@@ -475,9 +450,22 @@ func _build_chunk(col: int, row: int):
                         inst.rotation.y = crng.randf_range(0, TAU)
                         inst.name = "%s_%d" % [fname, crng.randi() % 100000]
                         chunk_root.add_child(inst)
-                        inst.owner = city_root
                         spatial.insert(pos, 2.0)
                         placed_count += 1
+
+        # Set owner recursively for this chunk
+        _set_owner_recursive(chunk_root, chunk_root)
+
+        # Save this chunk as its own .res file
+        var chunk_scene := PackedScene.new()
+        var pack_err := chunk_scene.pack(chunk_root)
+        if pack_err == OK:
+                var chunk_path := "%schunk_%d_%d.tscn" % [OUTPUT_DIR, col, row]
+                var save_err := ResourceSaver.save(chunk_scene, chunk_path)
+                if save_err != OK:
+                        push_warning("[MapBaker] Failed to save chunk %d_%d: %s" % [col, row, save_err])
+        # Free the chunk node (it's saved to disk, no longer needed in memory)
+        chunk_root.queue_free()
 
 # === STREAMER INTERFACE (called by stampers + validator) ===
 func _get_asset(name: String) -> PackedScene:
@@ -568,7 +556,8 @@ func _create_plane_mesh_rotated(parent: Node3D, name: String, pos: Vector3, size
         mi.position = Vector3(pos.x, pos.y, pos.z)
         mi.rotation.y = yaw
         parent.add_child(mi)
-        mi.owner = city_root
+        # Set owner to parent (chunk_root or city_root depending on context)
+        mi.owner = parent
         placed_count += 1
         # Register path segments in path_query (so validator can check is_on_path)
         if name == "Sidewalk" or name == "Driveway" or name == "Path":
@@ -661,6 +650,22 @@ func _plane(name_prefix: String, center: Vector3, size_x: float, size_z: float, 
         mi.owner = city_root
         placed_count += 1
 
+# Like _plane but adds to a specific parent (for chunk-local ground planes)
+func _plane_in_parent(parent: Node3D, name_prefix: String, center: Vector3, size_x: float, size_z: float, color: Color, y_offset: float):
+        var mi := MeshInstance3D.new()
+        mi.name = name_prefix + "_" + str(placed_count)
+        var p := PlaneMesh.new()
+        p.size = Vector2(size_x, size_z)
+        mi.mesh = p
+        var mat := StandardMaterial3D.new()
+        mat.albedo_color = color
+        mat.roughness = 0.85
+        mi.material_override = mat
+        mi.position = Vector3(center.x, y_offset, center.z)
+        parent.add_child(mi)
+        mi.owner = parent
+        placed_count += 1
+
 # === ENVIRONMENT SETUP (from build_test_city_v2.gd, proven to work) ===
 func _setup_sky():
         var env := Environment.new()
@@ -749,46 +754,22 @@ func _setup_player():
         col.position = Vector3(0, 0.9, 0)
         player.add_child(col)
         col.owner = city_root
-        var script := GDScript.new()
-        script.source_code = """extends CharacterBody3D
-const WALK = 5.0
-const SPRINT = 8.0
-const SENS = 0.002
-const FLY = 15.0
-var spd = WALK
-var fly_mode = false
-func _ready():
-    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-func _input(e):
-    if e is InputEventMouseMotion:
-        rotate_y(-e.relative.x * SENS)
-        $Camera3D.rotate_x(-e.relative.y * SENS)
-        $Camera3D.rotation.x = clamp($Camera3D.rotation.x, -1.5, 1.5)
-    if e.is_action_pressed("ui_cancel"):
-        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-    if e.is_action_pressed("fly_toggle"):
-        fly_mode = !fly_mode
-        $Col.disabled = fly_mode
-func _physics_process(d):
-    if fly_mode:
-        var i = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-        var dir = (transform.basis * Vector3(i.x, 0, i.y)).normalized()
-        if dir: velocity = dir * FLY
-        else: velocity = velocity.move_toward(Vector3.ZERO, FLY * d * 5)
-        if Input.is_action_pressed("jump"): velocity.y = FLY
-        if Input.is_action_pressed("crouch"): velocity.y = -FLY
-        move_and_slide()
-        return
-    if not is_on_floor(): velocity.y -= 9.8 * d
-    if Input.is_action_just_pressed("jump") and is_on_floor(): velocity.y = 4.5
-    spd = SPRINT if Input.is_action_pressed("sprint") else WALK
-    var i = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-    var dir = (transform.basis * Vector3(i.x, 0, i.y)).normalized()
-    if dir: velocity.x = dir.x * spd; velocity.z = dir.z * spd
-    else: velocity.x = move_toward(velocity.x, 0, spd*d*10); velocity.z = move_toward(velocity.z, 0, spd*d*10)
-    move_and_slide()"""
-        player.set_script(script)
+        # Use external script (embedded GDScript source doesn't save reliably)
+        player.set_script(preload("res://scripts/player_controller_baked.gd"))
         city_root.add_child(player)
         player.owner = city_root
         placed_count += 1
         print("  ✓ Player at center, fly mode toggle (V)")
+
+# === CHUNK LOADER ===
+# Runtime script that loads .res chunk files near the player and unloads distant ones.
+# This replaces the procedural chunk_streamer — loads pre-baked chunks instead.
+func _setup_chunk_loader():
+    var loader := Node3D.new()
+    loader.name = "ChunkLoader"
+    # Use external script (embedded GDScript source doesn't save reliably)
+    loader.set_script(preload("res://scripts/chunk_loader.gd"))
+    city_root.add_child(loader)
+    loader.owner = city_root
+    placed_count += 1
+    print("  ✓ ChunkLoader (stream_radius=2, loads 25 chunks at a time)")
