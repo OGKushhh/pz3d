@@ -76,11 +76,14 @@ const Y_GROUND := 0.000
 const Y_GRASS := 0.005
 const Y_PATH := 0.010
 const Y_DRIVEWAY := 0.015
-const Y_ROAD := 0.020
-const Y_LANE := 0.025
-const Y_PARKING := 0.030
-const Y_SIDEWALK := 0.050
-const Y_BUILDING_SLAB := 0.060
+# FIX: roads ABOVE sidewalks/paths (user: "roads should be above pavements or paths")
+# Old: road=0.020, sidewalk=0.050 (sidewalk higher than road, looks sunken)
+# New: road=0.060, sidewalk=0.040, path=0.010 (road highest, then sidewalk, then path)
+const Y_SIDEWALK := 0.040
+const Y_PARKING := 0.050
+const Y_ROAD := 0.060       # roads above sidewalks
+const Y_LANE := 0.065        # lane lines sit on top of road
+const Y_BUILDING_SLAB := 0.070
 const Y_PARK := 0.005
 const MIN_CLEARANCE_M := 2.0
 const HIGHWAY_CLEARANCE_M := 15.0
@@ -250,6 +253,11 @@ func _bake_chunk_to_file(col: int, row: int):
         var chunk_root := Node3D.new()
         chunk_root.name = "Chunk_%d_%d" % [col, row]
 
+        # Debug: per-biome colored ground plane (helps distinguish biomes while testing)
+        # Sits at Y=0.001 (just above ground) so roads/sidewalks render on top
+        var biome_color: Color = CityConfig.ground_color_for(biome)
+        _plane_in_parent(chunk_root, "BiomeGround", origin + Vector3(CityConfig.CHUNK_SIZE_M * 0.5, 0, CityConfig.CHUNK_SIZE_M * 0.5), CityConfig.CHUNK_SIZE_M, CityConfig.CHUNK_SIZE_M, biome_color, 0.001)
+
         # Place POIs in this chunk
         var poi_exclusions: Array = []
         for poi in map_data.get("pois", []):
@@ -402,13 +410,24 @@ func _bake_chunk_to_file(col: int, row: int):
                         spatial.insert(pos, 3.0)
                         placed_count += 1
 
-        # Props scatter
-        var gap_fillers: Array = ["picket_fence", "planter_box", "garden_gnome", "trash_can", "mailbox"]
+        # Props scatter — increased density + more variety (fills empty spaces between dense areas)
+        # User: "places between dense places are hella empty, we might need to put things between
+        # instead of all foliage for performance, woods stay woods of course"
+        var gap_fillers: Array = [
+                "picket_fence", "planter_box", "garden_gnome", "trash_can", "mailbox",
+                "fire_hydrant", "street_light", "bollard", "parking_meter",
+                "dumpster", "shopping_cart", "traffic_cone", "construction_barrier",
+                "bench_park", "picnic_table", "water_fountain"
+        ]
+        # Forest biome exception: keep woods as woods (no urban props)
+        if biome == CityConfig.Biome.FOREST or biome == CityConfig.Biome.PARKS:
+                gap_fillers = ["fallen_log", "rocks_small", "bush"]
         var valid_fillers: Array = []
         for gf in gap_fillers:
                 if manifest.has(gf):
                         valid_fillers.append(gf)
-        var gap_count: int = int(fill * 20)
+        # Increased from fill*20 to fill*40 (2x more gap fillers)
+        var gap_count: int = int(fill * 40)
         for i in range(gap_count):
                 var pos := Vector3(
                         origin.x + crng.randf_range(15.0, CityConfig.CHUNK_SIZE_M - 15.0),
@@ -629,6 +648,22 @@ func _plane(name_prefix: String, center: Vector3, size_x: float, size_z: float, 
         mi.position = Vector3(center.x, y_offset, center.z)
         city_root.add_child(mi)
         mi.owner = city_root
+        placed_count += 1
+
+# Like _plane but adds to a specific parent (for chunk-local ground planes)
+func _plane_in_parent(parent: Node3D, name_prefix: String, center: Vector3, size_x: float, size_z: float, color: Color, y_offset: float):
+        var mi := MeshInstance3D.new()
+        mi.name = name_prefix + "_" + str(placed_count)
+        var p := PlaneMesh.new()
+        p.size = Vector2(size_x, size_z)
+        mi.mesh = p
+        var mat := StandardMaterial3D.new()
+        mat.albedo_color = color
+        mat.roughness = 0.85
+        mi.material_override = mat
+        mi.position = Vector3(center.x, y_offset, center.z)
+        parent.add_child(mi)
+        mi.owner = parent
         placed_count += 1
 
 # === ENVIRONMENT SETUP (from build_test_city_v2.gd, proven to work) ===

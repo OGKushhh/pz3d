@@ -1,12 +1,21 @@
 [gd_scene format=4]
 
-[ext_resource type="PackedScene" path="res://assets/foliage/willow_tree.glb" id="1_o0csp"]
-[ext_resource type="PackedScene" path="res://assets/foliage/rocks_small.glb" id="2_j68fc"]
-[ext_resource type="PackedScene" path="res://assets/foliage/tall_grass.glb" id="3_k0s1w"]
-[ext_resource type="PackedScene" path="res://assets/foliage/cattail.glb" id="4_74fno"]
-[ext_resource type="PackedScene" path="res://assets/foliage/weeds.glb" id="5_gjjy3"]
-[ext_resource type="PackedScene" path="res://assets/foliage/marsh_grass.glb" id="6_0agor"]
-[ext_resource type="PackedScene" path="res://assets/foliage/fern.glb" id="7_ly0qw"]
+[ext_resource type="PackedScene" path="res://assets/foliage/willow_tree.glb" id="1_k0s1w"]
+[ext_resource type="PackedScene" path="res://assets/foliage/rocks_small.glb" id="2_74fno"]
+[ext_resource type="PackedScene" path="res://assets/foliage/tall_grass.glb" id="3_gjjy3"]
+[ext_resource type="PackedScene" path="res://assets/foliage/cattail.glb" id="4_0agor"]
+[ext_resource type="PackedScene" path="res://assets/foliage/weeds.glb" id="5_ly0qw"]
+[ext_resource type="PackedScene" path="res://assets/foliage/marsh_grass.glb" id="6_ctd3r"]
+[ext_resource type="PackedScene" path="res://assets/foliage/fern.glb" id="7_bqwtx"]
+[ext_resource type="PackedScene" path="res://assets/environment/bench_park.glb" id="8_1fekp"]
+[ext_resource type="PackedScene" path="res://assets/environment/picket_fence.glb" id="9_n3ch2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ho5ul"]
+albedo_color = Color(0.3, 0.35, 0.18, 1)
+roughness = 0.85
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_1t7d3"]
+size = Vector2(250, 250)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ymnan"]
 resource_name = "bark_brown"
@@ -2160,9 +2169,254 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_w0tft")
 
-[node name="Chunk_8_9" type="Node3D" unique_id=567326328]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yh54l"]
+resource_name = "frame_metal"
+albedo_color = Color(0.48452926, 0.50638646, 0.5370987, 1)
+metallic = 0.7
+roughness = 0.5
 
-[node name="willow_tree_15390" type="Node3D" parent="." unique_id=1473158014 instance=ExtResource("1_o0csp")]
+[sub_resource type="ArrayMesh" id="ArrayMesh_8u38l"]
+_surfaces = [{
+"aabb": AABB(-0.75, 0, -0.27, 0.03999996, 0.8, 0.32000002),
+"format": 34896613377,
+"index_count": 144,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAACAAEABAABAAUABQABAAYAAwAGAAEABAAFAAcABQAGAAcACAACAAQABAAHAAgACQACAAgACAAHAAoABwAGAAoACQAIAAoABgALAAoACQAKAAsADAALAAYAAwAMAAYADQAJAAsADQALAAwAAwAOAAwADwAJAA0ADwAQAAkAEAACAAkADwANABAAAAACABAAEAANABEAAAASAAMAAAAQABIAAwATAA4AEgATAAMADQAUABEAEAARABUAEgAQABUAFQARABQADQAWABQAFQAUABYADQAMABYAEgAVABcAEgAXABMAFwAVABYAFwAYABMAFwAWABgAEwAYABkAGAAWABkADAAZABYAEwAZAA4ADAAOABkA"),
+"name": "frame_metal",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 26,
+"vertex_data": PackedByteArray("AACZif8PAAAAAJkJ/x8AAAAAAAD/HwAAAACZif8fAAAAAAAA//8AAAAAmQn//wAA//+ZCf8fAAD//5kJ//8AAP//AAD//wAAAAAAAP8PAAD//wAA/x8AAP//AAD/DwAA//+Zif8fAAD//wAAAAAAAP//mYn//wAAAAAAAAAAAAAAAP//AAAAAP////8AAAAAAABllv8PAAAAAJmJ//8AAP//////HwAAAAD///8fAAD//2WW/x8AAAAAZZb/HwAAAABllv//AAD//2WW//8AAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_il5u6"]
+resource_name = "bench_park_merged_frame_metal"
+_surfaces = [{
+"aabb": AABB(-0.75, 0, -0.27, 0.03999996, 0.8, 0.32000002),
+"attribute_data": PackedByteArray("/1fMxDJbzIQyW/9//4f/f/+HzIQyW8zEzFT///9X/3/MVP9//1cyyzJb////h8zEMlsyy/+HMssyq/8H/6f/BzKrZg7/p2YOzKRmDv93Zg7MpP8H/3f/BzI7/wcye2YOMnv/BzI7Zg7/f/8H/39mDv///wf//2YOzDT/BwAA/wfMNGYOAABmDjJb/wcyW2YO/4f/B/+HZg7MVP8HzFRmDjJb/wcyW2YOzKT/B/93/wf/d2YOzKRmDjI7/wfMNP8HzDRmDjI7Zg7MpMyE/6f/f8yk/3//d8yE/3f/f8ykzMQyq/9//3fMxP93MsvMpDLLzKT//zKr////h/8HMlv/BzJbZg7/h2YO/3//BzJ7/wcye2YO/39mDg=="),
+"format": 34896613399,
+"index_count": 144,
+"index_data": PackedByteArray("AAABAAIAAwACAAEAAwABAAQAAAAFAAEAAAACAAYABgACAAcACAAGAAcAAAAGAAkAAAAJAAUACQAGAAoACQALAAUACQAKAAwACQAMAAsADAANAAsADgAPABAAEAAPABEADwASABEADwATABIADwAUABMAEwAUABUAFgAXABgAFgAZABcAGgAbABwAHAAbAB0AHgAfACAAHwAhACAAIgAjACQAJAAjACUAJgAnACgAKAAnACkAKgArACwAKgAsAC0ALgAvADAALgAwADEAMgAzADQANQAyADQANgA1ADQANwAzADIAOAAzADcANwA5ADoANwA6ADsAOAA3ADsAOAA7ADwAOAA8AD0APgA/AEAAPgBAAEEAQgBDAEQAQgBEAEUA"),
+"material": SubResource("StandardMaterial3D_yh54l"),
+"name": "frame_metal",
+"primitive": 3,
+"uv_scale": Vector4(1.6, 1.6, 0, 0),
+"vertex_count": 70,
+"vertex_data": PackedByteArray("AACZif8P/z8AAJkJ/x9dUgAAAAD/HyU+AAAAAP//+0AAAJkJ///8MwAAmYn/H5RSAAD//wAA5RkAAAAA/w80PgAAAAAAAOcSAABllv8P/z8AAP///x/DZAAAmYn//79CAABllv8fPFEAAGWW//+INgAAAAAAAHcAAAAAAP8PIgz//wAAAAATHf//AAD/D+k///8AAP8fZDz//wAA//+0MwAAAAD/H1MMAAAAAP//yxEAAJmJ/x/+P///mQn/H/Q/AACZCf8fUC///5mJ/x+GLQAAAAAAAKkM//8AAAAA2xQAAP//AAC2Ev////8AAF4UAABllv8fVy4AAP///x+nOv//ZZb/H3E///////8ftTEAAGWW/x88Uf//ZZb/H+IZAABllv//iDb//2WW//8fDgAA//8AAOUZ/////wAAjgEAAP///x/DZP//////HycBAACZif8fwh8AAJmJ//+uDf//mYn//4g2//+Zif8fu00AAJmJ///ENgAAZZb//2wR//9llv//FTf//5mJ//9sEf//mQn/H/tQ//8AAP8P6T///wAA/x9kPP//mQn///tA//8AAP//tDP//5mJ/x+7Tf//AAAAABMd//+Zif//iDb//2WW//+9Qv//ZZb/H2tR//////8fjUv/////AAAPIAAAmQn///wzAACZCf8fXVL//5kJ/x/4Iv//mQn//8sRAAAAAP//GzkAAJkJ//9xDv//mQn//xs5//8AAP//HQ7/f///HZFA0R9ZjuzfTWvooKTatKAxxukegi39jlnG7Cl85Pz/f/7/yocQ4QpWUOwRlDzIvqI3uIQadn0zRpdzL358Ao963wpvZx8xK1t+S0pGaXNLSwpw8U8OgZSt/YJraoqq/5zKVePGMMf4NVo2+sidyAQ1fTMZb4OsUmoIna2zKnZ2p0haEZQ8yJ6l+I2+oje49bW8jB6CLf1W11qEyocQ4W+29oDLX5RxxkmYc0Bdx0f7cuEfxEhroCB2D7qst/pf3onvRYDSlRaPet8Kb2cfMR+ykxcrW35L+3LhHy9+fAJAXcdH56oWFMfDXBYShSwCcIj2BaCk2rQdkUDR2J5Pj7O09I+ZQ1WdNXnQu2W8qWJxhvxD")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_8u38l")
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_w2cv1"]
+_surfaces = [{
+"aabb": AABB(0.71000004, 0, -0.27, 0.03999996, 0.8, 0.32000002),
+"format": 34896613377,
+"index_count": 144,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAACAAEABAABAAUABQABAAYAAwAGAAEABAAFAAcABQAGAAcACAACAAQABAAHAAgACQACAAgACAAHAAoABwAGAAoACQAIAAoABgALAAoACQAKAAsADAALAAYAAwAMAAYADQAJAAsADQALAAwAAwAOAAwADwAJAA0ADwAQAAkAEAACAAkADwANABAAAAACABAAEAANABEAAAASAAMAAAAQABIAAwATAA4AEgATAAMADQAUABEAEAARABUAEgAQABUAFQARABQADQAWABQAFQAUABYADQAMABYAEgAVABcAEgAXABMAFwAVABYAFwAYABMAFwAWABgAEwAYABkAGAAWABkADAAZABYAEwAZAA4ADAAOABkA"),
+"name": "frame_metal",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 26,
+"vertex_data": PackedByteArray("AACZif8PAAAAAJkJ/x8AAAAAAAD/HwAAAACZif8fAAAAAAAA//8AAAAAmQn//wAA//+ZCf8fAAD//5kJ//8AAP//AAD//wAAAAAAAP8PAAD//wAA/x8AAP//AAD/DwAA//+Zif8fAAD//wAAAAAAAP//mYn//wAAAAAAAAAAAAAAAP//AAAAAP////8AAAAAAABllv8PAAAAAJmJ//8AAP//////HwAAAAD///8fAAD//2WW/x8AAAAAZZb/HwAAAABllv//AAD//2WW//8AAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_6nehy"]
+resource_name = "bench_park_merged_frame_metal2"
+_surfaces = [{
+"aabb": AABB(0.71000004, 0, -0.27, 0.03999996, 0.8, 0.32000002),
+"attribute_data": PackedByteArray("/1fMxDJbzIQyW/9//4f/f/+HzIQyW8zEzFT///9X/3/MVP9//1cyyzJb////h8zEMlsyy/+HMssyq5jx/6eY8TKr//f/p//3zKT/9/93//fMpJjx/3eY8TI7mPEye//3MnuY8TI7//f/f5jx/3//9///mPH////3zDSY8QAAmPHMNP/3AAD/9zJbmPEyW//3/4eY8f+H//fMVJjxzFT/9zJbmPEyW//3zKSY8f93mPH/d//3zKT/9zI7mPHMNJjxzDT/9zI7//fMpMyE/6f/f8yk/3//d8yE/3f/f8ykzMQyq/9//3fMxP93MsvMpDLLzKT//zKr////h5jxMluY8TJb//f/h//3/3+Y8TJ7mPEye//3/3//9w=="),
+"format": 34896613399,
+"index_count": 144,
+"index_data": PackedByteArray("AAABAAIAAwACAAEAAwABAAQAAAAFAAEAAAACAAYABgACAAcACAAGAAcAAAAGAAkAAAAJAAUACQAGAAoACQALAAUACQAKAAwACQAMAAsADAANAAsADgAPABAAEAAPABEADwASABEADwATABIADwAUABMAEwAUABUAFgAXABgAFgAZABcAGgAbABwAHAAbAB0AHgAfACAAHwAhACAAIgAjACQAJAAjACUAJgAnACgAKAAnACkAKgArACwAKgAsAC0ALgAvADAALgAwADEAMgAzADQANQAyADQANgA1ADQANwAzADIAOAAzADcANwA5ADoANwA6ADsAOAA3ADsAOAA7ADwAOAA8AD0APgA/AEAAPgBAAEEAQgBDAEQAQgBEAEUA"),
+"material": SubResource("StandardMaterial3D_yh54l"),
+"name": "frame_metal",
+"primitive": 3,
+"uv_scale": Vector4(1.6, 1.6, 0, 0),
+"vertex_count": 70,
+"vertex_data": PackedByteArray("AACZif8P/z8AAJkJ/x9dUgAAAAD/HyU+AAAAAP//+0AAAJkJ///8MwAAmYn/H5RSAAD//wAA5RkAAAAA/w80PgAAAAAAAOcSAABllv8P/z8AAP///x/DZAAAmYn//79CAABllv8fPFEAAGWW//+INgAAAAAAAHcAAAAAAP8PIgz//wAAAAATHf//AAD/D+k///8AAP8fZDz//wAA//+0MwAAAAD/H1MMAAAAAP//yxEAAJmJ/x/+P///mQn/H/Q/AACZCf8fUC///5mJ/x+GLQAAAAAAAKkM//8AAAAA2xQAAP//AAC2Ev////8AAF4UAABllv8fVy4AAP///x+nOv//ZZb/H3E///////8ftTEAAGWW/x88Uf//ZZb/H+IZAABllv//iDb//2WW//8fDgAA//8AAOUZ/////wAAjgEAAP///x/DZP//////HycBAACZif8fwh8AAJmJ//+uDf//mYn//4g2//+Zif8fu00AAJmJ///ENgAAZZb//2wR//9llv//FTf//5mJ//9sEf//mQn/H/tQ//8AAP8P6T///wAA/x9kPP//mQn///tA//8AAP//tDP//5mJ/x+7Tf//AAAAABMd//+Zif//iDb//2WW//+9Qv//ZZb/H2tR//////8fjUv/////AAAPIAAAmQn///wzAACZCf8fXVL//5kJ/x/4Iv//mQn//8sRAAAAAP//GzkAAJkJ//9xDv//mQn//xs5//8AAP//HQ7/f///HZFA0R9ZjuzfTWvooKTatKAxxukegi39jlnG7Cl85Pz/f/7/yocQ4QpWUOwRlDzIvqI3uIQadn0zRpdzL358Ao963wpvZx8xK1t+S0pGaXNLSwpw8U8OgZSt/YJraoqq/5zKVePGMMf4NVo2+sidyAQ1fTMZb4OsUmoIna2zKnZ2p0haEZQ8yJ6l+I2+oje49bW8jB6CLf1W11qEyocQ4W+29oDLX5RxxkmYc0Bdx0f7cuEfxEhroCB2D7qst/pf3onvRYDSlRaPet8Kb2cfMR+ykxcrW35L+3LhHy9+fAJAXcdH56oWFMfDXBYShSwCcIj2BaCk2rQdkUDR2J5Pj7O09I+ZQ1WdNXnQu2W8qWJxhvxD")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_w2cv1")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q3rqa"]
+resource_name = "wood_oak"
+albedo_color = Color(0.7014107, 0.5657284, 0.42358288, 1)
+roughness = 0.7
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_bmwiv"]
+_surfaces = [{
+"aabb": AABB(-0.75, -0.02, -0.06, 1.5, 0.04, 0.12),
+"format": 34896613377,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAwACAAEAAAAEAAEAAwAFAAIAAAACAAUABgADAAEABgABAAQABgAFAAMABwAEAAAABwAGAAQAAAAFAAcABgAHAAUA"),
+"name": "wood_oak",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("//8AAAAAAAD///////8AAP////8AAAAAAAD/////AAD//wAA//8AAAAA//8AAAAAAAAAAP//AAAAAAAAAAAAAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_itg48"]
+resource_name = "bench_park_slat_1"
+_surfaces = [{
+"aabb": AABB(-0.75, -0.02, -0.06, 1.5, 0.04, 0.12),
+"attribute_data": PackedByteArray("/3//fzyKqqr/f6qqPIr/f/9//388iqqq/3+qqjyK/3//f/9//////////3//f////3//f/////////9//3////9//3///6qq////f/9/qqr/f/9///+qqv///3//f6qq"),
+"format": 34896613399,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUACAAJAAoACAALAAkADAANAA4ADAAPAA0AEAARABIAEAATABEAFAAVABYAFAAXABUA"),
+"material": SubResource("StandardMaterial3D_q3rqa"),
+"name": "wood_oak",
+"primitive": 3,
+"uv_scale": Vector4(6, 0.48, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("//8AAAAA//////////////////8AAP////8AAP////8AAAAA/////wAA//8AAP//AAD///////8AAAAAAAD//wAA//////8//////wAA/z//////////PwAA//8AAP8/AAAAAAAA/z///wAA////P///AAAAAP8/AAAAAP///z8AAAAA///+f/////////5///8AAP///n8AAP/////+f///AAAAAAAAAAD//wAAAAAAAAAAAAAAAP////8AAAAA/7//f/+//3//v/9//7//f/8//3//P/9//z//f/8//3////9/////f////3////9/AAD/fwAA/38AAP9/AAD/f/9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_bmwiv")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3040k"]
+resource_name = "fence_white"
+albedo_color = Color(0.9639762, 0.9593466, 0.935741, 1)
+roughness = 0.6
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_aehga"]
+_surfaces = [{
+"aabb": AABB(-0.03, -0.5, -0.03, 0.06, 1, 0.06),
+"format": 34896613377,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAwACAAEAAAAEAAEAAwAFAAIAAAACAAUABgADAAEABgABAAQABgAFAAMABwAEAAAABwAGAAQAAAAFAAcABgAHAAUA"),
+"name": "fence_white",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("//8AAAAAAAD///////8AAP////8AAAAAAAD/////AAD//wAA//8AAAAA//8AAAAAAAAAAP//AAAAAAAAAAAAAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_dqpww"]
+resource_name = "picket_fence_post_l"
+_surfaces = [{
+"aabb": AABB(-0.03, -0.5, -0.03, 0.06, 1, 0.06),
+"attribute_data": PackedByteArray("/3//f///////f///////f/9//3///////3///////3//f/9///+th////3//f62H/3//f///rYf///9//3+th/9//3//////////f/9/////f/9//////////3//f///"),
+"format": 34896613399,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUACAAJAAoACAALAAkADAANAA4ADAAPAA0AEAARABIAEAATABEAFAAVABYAFAAXABUA"),
+"material": SubResource("StandardMaterial3D_3040k"),
+"name": "fence_white",
+"primitive": 3,
+"uv_scale": Vector4(0.24, 4, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("//8AAAAA//////////////////8AAP////8AAP////8AAAAA/////wAA//8AAP//AAD///////8AAAAAAAD//wAA//////8//////wAA/z//////////PwAA//8AAP8/AAAAAAAA/z///wAA////P///AAAAAP8/AAAAAP///z8AAAAA///+f/////////5///8AAP///n8AAP/////+f///AAAAAAAAAAD//wAAAAAAAAAAAAAAAP////8AAAAA/7//f/+//3//v/9//7//f/8//3//P/9//z//f/8//3////9/////f////3////9/AAD/fwAA/38AAP9/AAD/f/9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_aehga")
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_ip0x3"]
+_surfaces = [{
+"aabb": AABB(-0.05, -0.025, -0.05, 0.1, 0.05, 0.1),
+"format": 34896613377,
+"index_count": 18,
+"index_data": PackedByteArray("AAABAAIAAgABAAMAAAACAAMAAQAEAAMABAAAAAMAAAAEAAEA"),
+"name": "fence_white",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 5,
+"vertex_data": PackedByteArray("//8AAP9/AAAAAAAA/38AAP9/AAD//wAA/3////9/AAD/fwAAAAAAAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_v2yee"]
+resource_name = "picket_fence_cap_l"
+_surfaces = [{
+"aabb": AABB(-0.05, -0.025, -0.05, 0.1, 0.05, 0.1),
+"attribute_data": PackedByteArray("gdr/f30l/3//f4Lo/398F/9//3////9//7////9//3/+//9//7////9//3/+//9//7////9//3////9//7///w=="),
+"format": 34896613399,
+"index_count": 18,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABwAIAAkACgALAAwADQAOAA8A"),
+"material": SubResource("StandardMaterial3D_3040k"),
+"name": "fence_white",
+"primitive": 3,
+"uv_scale": Vector4(0.28284273, 0.24494898, 0, 0),
+"vertex_count": 16,
+"vertex_data": PackedByteArray("//8AAP9//z8AAAAA/3//P/9/AAD///8//38AAAAA/z///wAA/3+H9v9/AAD//4f2/3////9/h/b/fwAA//+H9gAAAAD/f4f2/3////9/h/YAAAAA/3/i6P9/AAAAAOLo/3////9/4uj/fwAAAADi6P//AAD/f+Lo/3////9/4ugAAP9/AAD/fwAA/38AAP9/m558l5uefJebnnyXguicHoLonB6C6JweGPXMUhj1zFIY9cxSzNLmiszS5orM0uaK")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_ip0x3")
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_if5is"]
+_surfaces = [{
+"aabb": AABB(-0.97, -0.02, -0.015, 1.94, 0.04, 0.03),
+"format": 34896613377,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAwACAAEAAAAEAAEAAwAFAAIAAAACAAUABgADAAEABgABAAQABgAFAAMABwAEAAAABwAGAAQAAAAFAAcABgAHAAUA"),
+"name": "fence_white",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("//8AAAAAAAD///////8AAP////8AAAAAAAD/////AAD//wAA//8AAAAA//8AAAAAAAAAAP//AAAAAAAAAAAAAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_dpj2o"]
+resource_name = "picket_fence_rail_top"
+_surfaces = [{
+"aabb": AABB(-0.97, -0.02, -0.015, 1.94, 0.04, 0.03),
+"attribute_data": PackedByteArray("/3//f/qB////f///+oH/f/9//3/6gf///3////qB/3//f/9/////3////3//f//f/3//f////9////9//3//3/9//3//////////f/9/////f/9//////////3//f///"),
+"format": 34896613399,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUACAAJAAoACAALAAkADAANAA4ADAAPAA0AEAARABIAEAATABEAFAAVABYAFAAXABUA"),
+"material": SubResource("StandardMaterial3D_3040k"),
+"name": "fence_white",
+"primitive": 3,
+"uv_scale": Vector4(7.76, 0.16, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("//8AAAAA//////////////////8AAP////8AAP////8AAAAA/////wAA//8AAP//AAD///////8AAAAAAAD//wAA//////8//////wAA/z//////////PwAA//8AAP8/AAAAAAAA/z///wAA////P///AAAAAP8/AAAAAP///z8AAAAA///+f/////////5///8AAP///n8AAP/////+f///AAAAAAAAAAD//wAAAAAAAAAAAAAAAP////8AAAAA/7//f/+//3//v/9//7//f/8//3//P/9//z//f/8//3////9/////f////3////9/AAD/fwAA/38AAP9/AAD/f/9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_if5is")
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_e747p"]
+_surfaces = [{
+"aabb": AABB(-0.04, -0.4, -0.01, 0.08, 0.8, 0.02),
+"format": 34896613377,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAwACAAEAAAAEAAEAAwAFAAIAAAACAAUABgADAAEABgABAAQABgAFAAMABwAEAAAABwAGAAQAAAAFAAcABgAHAAUA"),
+"name": "fence_white",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("//8AAAAAAAD///////8AAP////8AAAAAAAD/////AAD//wAA//8AAAAA//8AAAAAAAAAAP//AAAAAAAAAAAAAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_x2wyy"]
+resource_name = "picket_fence_board"
+_surfaces = [{
+"aabb": AABB(-0.04, -0.4, -0.01, 0.08, 0.8, 0.02),
+"attribute_data": PackedByteArray("/3//f/+f////f////5//f/9//3//n////3////+f/3//f/9///8yg////3//fzKD/3//f///MoP///9//38yg/9//3//////////f/9/////f/9//////////3//f///"),
+"format": 34896613399,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUACAAJAAoACAALAAkADAANAA4ADAAPAA0AEAARABIAEAATABEAFAAVABYAFAAXABUA"),
+"material": SubResource("StandardMaterial3D_3040k"),
+"name": "fence_white",
+"primitive": 3,
+"uv_scale": Vector4(0.32, 3.2, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("//8AAAAA//////////////////8AAP////8AAP////8AAAAA/////wAA//8AAP//AAD///////8AAAAAAAD//wAA//////8//////wAA/z//////////PwAA//8AAP8/AAAAAAAA/z///wAA////P///AAAAAP8/AAAAAP///z8AAAAA///+f/////////5///8AAP///n8AAP/////+f///AAAAAAAAAAD//wAAAAAAAAAAAAAAAP////8AAAAA/7//f/+//3//v/9//7//f/8//3//P/9//z//f/8//3////9/////f////3////9/AAD/fwAA/38AAP9/AAD/f/9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_e747p")
+
+[node name="Chunk_8_9" type="Node3D" unique_id=1110595992]
+
+[node name="BiomeGround_4849" type="MeshInstance3D" parent="." unique_id=1943175534]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2125, 0.001, 2375)
+material_override = SubResource("StandardMaterial3D_ho5ul")
+mesh = SubResource("PlaneMesh_1t7d3")
+
+[node name="willow_tree_15390" type="Node3D" parent="." unique_id=1473158014 instance=ExtResource("1_k0s1w")]
 transform = Transform3D(0.048586223, 0, 0.9202894, 0, 0.921571, 0, -0.9202894, 0, 0.048586223, 2091.5295, 0, 2402.855)
 metadata/building_name = "willow_tree"
 
@@ -2229,74 +2483,74 @@ metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="willow_tree_32588" type="Node3D" parent="." unique_id=815409463 instance=ExtResource("1_o0csp")]
+[node name="willow_tree_32588" type="Node3D" parent="." unique_id=1153900001 instance=ExtResource("1_k0s1w")]
 transform = Transform3D(1.0166326, 0, -0.75703776, 0, 1.2675362, 0, 0.75703776, 0, 1.0166326, 2235.0493, 0, 2366.6753)
 metadata/building_name = "willow_tree"
 
-[node name="trunk" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1604404938]
+[node name="trunk" type="MeshInstance3D" parent="willow_tree_32588" unique_id=763757777]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
 mesh = SubResource("ArrayMesh_tqg8s")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="root_flare" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1937224977]
+[node name="root_flare" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1463285794]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 mesh = SubResource("ArrayMesh_4bu26")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="canopy_top" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1842691606]
+[node name="canopy_top" type="MeshInstance3D" parent="willow_tree_32588" unique_id=759635660]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 0)
 mesh = SubResource("ArrayMesh_vaokh")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_l" type="MeshInstance3D" parent="willow_tree_32588" unique_id=958233225]
+[node name="canopy_l" type="MeshInstance3D" parent="willow_tree_32588" unique_id=296356790]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.8, 0.2)
 mesh = SubResource("ArrayMesh_31ehm")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_r" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1842195211]
+[node name="canopy_r" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1258725983]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 2.8, -0.2)
 mesh = SubResource("ArrayMesh_ifj6o")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_f" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1791725974]
+[node name="canopy_f" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1351598957]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 2.5, 0.7)
 mesh = SubResource("ArrayMesh_vg0o5")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_b" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1648556259]
+[node name="canopy_b" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1247052476]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 2.5, -0.7)
 mesh = SubResource("ArrayMesh_txwp4")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="branch_1" type="MeshInstance3D" parent="willow_tree_32588" unique_id=791207982]
+[node name="branch_1" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1511780445]
 transform = Transform3D(0.8660254, -0.50000006, 0, 0.38302225, 0.66341394, -0.64278764, 0.32139382, 0.55667037, 0.76604444, 0.4, 2.3, 0.2)
 mesh = SubResource("ArrayMesh_uueje")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="branch_2" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1793524148]
+[node name="branch_2" type="MeshInstance3D" parent="willow_tree_32588" unique_id=1213858809]
 transform = Transform3D(0.90630776, 0.42261833, 7.450581e-09, -0.34618866, 0.74240386, 0.57357645, 0.2424039, -0.5198368, 0.81915206, -0.35, 2.4, -0.2)
 mesh = SubResource("ArrayMesh_ip2hn")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="rocks_small_13995" type="Node3D" parent="." unique_id=1330192616 instance=ExtResource("2_j68fc")]
+[node name="rocks_small_13995" type="Node3D" parent="." unique_id=1330192616 instance=ExtResource("2_74fno")]
 transform = Transform3D(1.196953, 0, -0.17516823, 0, 1.2097027, 0, 0.17516823, 0, 1.196953, 2027.1821, 0, 2465.6543)
 metadata/building_name = "rocks_small"
 
@@ -2329,32 +2583,32 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="rocks_small_13998" type="Node3D" parent="." unique_id=1500716409 instance=ExtResource("2_j68fc")]
+[node name="rocks_small_13998" type="Node3D" parent="." unique_id=279086857 instance=ExtResource("2_74fno")]
 transform = Transform3D(-0.22680363, 0, 0.928628, 0, 0.9559236, 0, -0.928628, 0, -0.22680363, 2018.9728, 0, 2321.3472)
 metadata/building_name = "rocks_small"
 
-[node name="rock_1" type="MeshInstance3D" parent="rocks_small_13998" unique_id=1186875461]
+[node name="rock_1" type="MeshInstance3D" parent="rocks_small_13998" unique_id=699011017]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.05)
 mesh = SubResource("ArrayMesh_ijgfw")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="rock_2" type="MeshInstance3D" parent="rocks_small_13998" unique_id=1666878989]
+[node name="rock_2" type="MeshInstance3D" parent="rocks_small_13998" unique_id=1252426861]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.07, -0.1)
 mesh = SubResource("ArrayMesh_v5sd4")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="rock_3" type="MeshInstance3D" parent="rocks_small_13998" unique_id=1773097675]
+[node name="rock_3" type="MeshInstance3D" parent="rocks_small_13998" unique_id=568105776]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.05, 0.12)
 mesh = SubResource("ArrayMesh_5vcyk")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="moss_1" type="MeshInstance3D" parent="rocks_small_13998" unique_id=549566150]
+[node name="moss_1" type="MeshInstance3D" parent="rocks_small_13998" unique_id=1216815415]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.18, 0.05)
 mesh = SubResource("ArrayMesh_lv4v7")
 metadata/extras = {
@@ -2362,74 +2616,74 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="willow_tree_50537" type="Node3D" parent="." unique_id=63032799 instance=ExtResource("1_o0csp")]
+[node name="willow_tree_50537" type="Node3D" parent="." unique_id=1600188639 instance=ExtResource("1_k0s1w")]
 transform = Transform3D(-0.53208923, 0, -0.7025197, 0, 0.8812792, 0, 0.7025197, 0, -0.53208923, 2231.8906, 0, 2388.4053)
 metadata/building_name = "willow_tree"
 
-[node name="trunk" type="MeshInstance3D" parent="willow_tree_50537" unique_id=474637870]
+[node name="trunk" type="MeshInstance3D" parent="willow_tree_50537" unique_id=1610605914]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
 mesh = SubResource("ArrayMesh_tqg8s")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="root_flare" type="MeshInstance3D" parent="willow_tree_50537" unique_id=449757193]
+[node name="root_flare" type="MeshInstance3D" parent="willow_tree_50537" unique_id=786564764]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 mesh = SubResource("ArrayMesh_4bu26")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="canopy_top" type="MeshInstance3D" parent="willow_tree_50537" unique_id=651195658]
+[node name="canopy_top" type="MeshInstance3D" parent="willow_tree_50537" unique_id=1571309925]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 0)
 mesh = SubResource("ArrayMesh_vaokh")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_l" type="MeshInstance3D" parent="willow_tree_50537" unique_id=590620890]
+[node name="canopy_l" type="MeshInstance3D" parent="willow_tree_50537" unique_id=1375331980]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.8, 0.2)
 mesh = SubResource("ArrayMesh_31ehm")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_r" type="MeshInstance3D" parent="willow_tree_50537" unique_id=1537518097]
+[node name="canopy_r" type="MeshInstance3D" parent="willow_tree_50537" unique_id=501715927]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 2.8, -0.2)
 mesh = SubResource("ArrayMesh_ifj6o")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_f" type="MeshInstance3D" parent="willow_tree_50537" unique_id=1196551579]
+[node name="canopy_f" type="MeshInstance3D" parent="willow_tree_50537" unique_id=368801400]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 2.5, 0.7)
 mesh = SubResource("ArrayMesh_vg0o5")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_b" type="MeshInstance3D" parent="willow_tree_50537" unique_id=771503612]
+[node name="canopy_b" type="MeshInstance3D" parent="willow_tree_50537" unique_id=1857773520]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 2.5, -0.7)
 mesh = SubResource("ArrayMesh_txwp4")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="branch_1" type="MeshInstance3D" parent="willow_tree_50537" unique_id=578349654]
+[node name="branch_1" type="MeshInstance3D" parent="willow_tree_50537" unique_id=2099086905]
 transform = Transform3D(0.8660254, -0.50000006, 0, 0.38302225, 0.66341394, -0.64278764, 0.32139382, 0.55667037, 0.76604444, 0.4, 2.3, 0.2)
 mesh = SubResource("ArrayMesh_uueje")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="branch_2" type="MeshInstance3D" parent="willow_tree_50537" unique_id=2116421907]
+[node name="branch_2" type="MeshInstance3D" parent="willow_tree_50537" unique_id=809951611]
 transform = Transform3D(0.90630776, 0.42261833, 7.450581e-09, -0.34618866, 0.74240386, 0.57357645, 0.2424039, -0.5198368, 0.81915206, -0.35, 2.4, -0.2)
 mesh = SubResource("ArrayMesh_ip2hn")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="tall_grass_58098" type="Node3D" parent="." unique_id=1533866903 instance=ExtResource("3_k0s1w")]
+[node name="tall_grass_58098" type="Node3D" parent="." unique_id=1533866903 instance=ExtResource("3_gjjy3")]
 transform = Transform3D(0.84395707, 0, 0.030064588, 0, 0.8444924, 0, -0.030064588, 0, 0.84395707, 2203.5486, 0, 2344.5554)
 metadata/building_name = "tall_grass"
 
@@ -2497,7 +2751,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="cattail_18741" type="Node3D" parent="." unique_id=1182686332 instance=ExtResource("4_74fno")]
+[node name="cattail_18741" type="Node3D" parent="." unique_id=1182686332 instance=ExtResource("4_0agor")]
 transform = Transform3D(0.276563, 0, -0.9648671, 0, 1.0037209, 0, 0.9648671, 0, 0.276563, 2172.7756, 0, 2374.2124)
 metadata/building_name = "cattail"
 
@@ -2581,11 +2835,11 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="tall_grass_20473" type="Node3D" parent="." unique_id=974089062 instance=ExtResource("3_k0s1w")]
+[node name="tall_grass_20473" type="Node3D" parent="." unique_id=1237230074 instance=ExtResource("3_gjjy3")]
 transform = Transform3D(-1.2198908, 0, 0.014225167, 0, 1.2199738, 0, -0.014225167, 0, -1.2198908, 2053.1667, 0, 2339.8699)
 metadata/building_name = "tall_grass"
 
-[node name="blade_1" type="MeshInstance3D" parent="tall_grass_20473" unique_id=469979998]
+[node name="blade_1" type="MeshInstance3D" parent="tall_grass_20473" unique_id=834248697]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.05)
 mesh = SubResource("ArrayMesh_y2yva")
 metadata/extras = {
@@ -2593,7 +2847,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_2" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1033381601]
+[node name="blade_2" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1136452891]
 transform = Transform3D(0.4980973, -0.043577872, 0.8660255, 0.08715575, 0.9961947, 3.7252903e-09, -0.86272997, 0.07547909, 0.49999994, 0.08, 0.175, -0.03)
 mesh = SubResource("ArrayMesh_wfaum")
 metadata/extras = {
@@ -2601,7 +2855,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_3" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1461775278]
+[node name="blade_3" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1177571442]
 transform = Transform3D(0.64034164, 0.05602262, -0.76604444, -0.08715574, 0.9961947, 0, 0.7631294, 0.06676517, 0.6427876, -0.06, 0.19, -0.04)
 mesh = SubResource("ArrayMesh_xj2et")
 metadata/extras = {
@@ -2609,7 +2863,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_4" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1891984683]
+[node name="blade_4" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1950619025]
 transform = Transform3D(0.86483854, -0.04532427, 0.5, 0.05233596, 0.9986295, 0, -0.49931479, 0.02616798, 0.8660254, 0.1, 0.15, 0.08)
 mesh = SubResource("ArrayMesh_f32p3")
 metadata/extras = {
@@ -2617,7 +2871,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_5" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1623684517]
+[node name="blade_5" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1132933694]
 transform = Transform3D(0.34155136, 0.017899955, -0.9396926, -0.052335963, 0.9986295, 3.7252903e-09, 0.9384048, 0.049179714, 0.3420201, -0.08, 0.21, 0.06)
 mesh = SubResource("ArrayMesh_qx25i")
 metadata/extras = {
@@ -2625,7 +2879,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_6" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1789940489]
+[node name="blade_6" type="MeshInstance3D" parent="tall_grass_20473" unique_id=909481366]
 transform = Transform3D(-0.49513412, 0.06958656, 0.86602545, 0.1391731, 0.99026805, -3.7252903e-09, -0.85759735, 0.12052743, -0.5000001, 0.04, 0.18, -0.08)
 mesh = SubResource("ArrayMesh_fpf8g")
 metadata/extras = {
@@ -2633,7 +2887,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_7" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1221492951]
+[node name="blade_7" type="MeshInstance3D" parent="tall_grass_20473" unique_id=486920183]
 transform = Transform3D(0.9305476, 0.13077994, 0.34202015, -0.1391731, 0.99026805, -1.8626451e-09, -0.33869165, -0.0476, 0.9396926, -0.03, 0.165, 0.1)
 mesh = SubResource("ArrayMesh_md78x")
 metadata/extras = {
@@ -2641,7 +2895,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_8" type="MeshInstance3D" parent="tall_grass_20473" unique_id=1729145387]
+[node name="blade_8" type="MeshInstance3D" parent="tall_grass_20473" unique_id=2056679820]
 transform = Transform3D(-0.17298746, 0.015134435, 0.9848078, 0.087155744, 0.9961947, 0, -0.9810603, 0.08583166, -0.17364824, 0.12, 0.195, 0.03)
 mesh = SubResource("ArrayMesh_dmmu5")
 metadata/extras = {
@@ -2649,7 +2903,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weeds_84190" type="Node3D" parent="." unique_id=1763346084 instance=ExtResource("5_gjjy3")]
+[node name="weeds_84190" type="Node3D" parent="." unique_id=1763346084 instance=ExtResource("5_ly0qw")]
 transform = Transform3D(1.0074712, 0, -0.40967587, 0, 1.087581, 0, 0.40967587, 0, 1.0074712, 2153.7627, 0, 2304.7834)
 metadata/building_name = "weeds"
 
@@ -2693,7 +2947,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="marsh_grass_95534" type="Node3D" parent="." unique_id=7897790 instance=ExtResource("6_0agor")]
+[node name="marsh_grass_95534" type="Node3D" parent="." unique_id=7897790 instance=ExtResource("6_ctd3r")]
 transform = Transform3D(-0.5058849, 0, -0.72393316, 0, 0.8831754, 0, 0.72393316, 0, -0.5058849, 2025.1157, 0, 2343.1296)
 metadata/building_name = "marsh_grass"
 
@@ -2889,11 +3143,11 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="tall_grass_50083" type="Node3D" parent="." unique_id=171830259 instance=ExtResource("3_k0s1w")]
+[node name="tall_grass_50083" type="Node3D" parent="." unique_id=418679488 instance=ExtResource("3_gjjy3")]
 transform = Transform3D(-0.95863354, 0, 0.68239516, 0, 1.1767079, 0, -0.68239516, 0, -0.95863354, 2097.8452, 0, 2347.8506)
 metadata/building_name = "tall_grass"
 
-[node name="blade_1" type="MeshInstance3D" parent="tall_grass_50083" unique_id=186083349]
+[node name="blade_1" type="MeshInstance3D" parent="tall_grass_50083" unique_id=531127929]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.05)
 mesh = SubResource("ArrayMesh_y2yva")
 metadata/extras = {
@@ -2901,7 +3155,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_2" type="MeshInstance3D" parent="tall_grass_50083" unique_id=1926280051]
+[node name="blade_2" type="MeshInstance3D" parent="tall_grass_50083" unique_id=1398150268]
 transform = Transform3D(0.4980973, -0.043577872, 0.8660255, 0.08715575, 0.9961947, 3.7252903e-09, -0.86272997, 0.07547909, 0.49999994, 0.08, 0.175, -0.03)
 mesh = SubResource("ArrayMesh_wfaum")
 metadata/extras = {
@@ -2909,7 +3163,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_3" type="MeshInstance3D" parent="tall_grass_50083" unique_id=690495641]
+[node name="blade_3" type="MeshInstance3D" parent="tall_grass_50083" unique_id=1576244844]
 transform = Transform3D(0.64034164, 0.05602262, -0.76604444, -0.08715574, 0.9961947, 0, 0.7631294, 0.06676517, 0.6427876, -0.06, 0.19, -0.04)
 mesh = SubResource("ArrayMesh_xj2et")
 metadata/extras = {
@@ -2917,7 +3171,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_4" type="MeshInstance3D" parent="tall_grass_50083" unique_id=382726804]
+[node name="blade_4" type="MeshInstance3D" parent="tall_grass_50083" unique_id=477621359]
 transform = Transform3D(0.86483854, -0.04532427, 0.5, 0.05233596, 0.9986295, 0, -0.49931479, 0.02616798, 0.8660254, 0.1, 0.15, 0.08)
 mesh = SubResource("ArrayMesh_f32p3")
 metadata/extras = {
@@ -2925,7 +3179,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_5" type="MeshInstance3D" parent="tall_grass_50083" unique_id=1842833193]
+[node name="blade_5" type="MeshInstance3D" parent="tall_grass_50083" unique_id=875564791]
 transform = Transform3D(0.34155136, 0.017899955, -0.9396926, -0.052335963, 0.9986295, 3.7252903e-09, 0.9384048, 0.049179714, 0.3420201, -0.08, 0.21, 0.06)
 mesh = SubResource("ArrayMesh_qx25i")
 metadata/extras = {
@@ -2933,7 +3187,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_6" type="MeshInstance3D" parent="tall_grass_50083" unique_id=752087027]
+[node name="blade_6" type="MeshInstance3D" parent="tall_grass_50083" unique_id=2097202996]
 transform = Transform3D(-0.49513412, 0.06958656, 0.86602545, 0.1391731, 0.99026805, -3.7252903e-09, -0.85759735, 0.12052743, -0.5000001, 0.04, 0.18, -0.08)
 mesh = SubResource("ArrayMesh_fpf8g")
 metadata/extras = {
@@ -2941,7 +3195,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_7" type="MeshInstance3D" parent="tall_grass_50083" unique_id=692718861]
+[node name="blade_7" type="MeshInstance3D" parent="tall_grass_50083" unique_id=1606454657]
 transform = Transform3D(0.9305476, 0.13077994, 0.34202015, -0.1391731, 0.99026805, -1.8626451e-09, -0.33869165, -0.0476, 0.9396926, -0.03, 0.165, 0.1)
 mesh = SubResource("ArrayMesh_md78x")
 metadata/extras = {
@@ -2949,7 +3203,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_8" type="MeshInstance3D" parent="tall_grass_50083" unique_id=604116076]
+[node name="blade_8" type="MeshInstance3D" parent="tall_grass_50083" unique_id=758155700]
 transform = Transform3D(-0.17298746, 0.015134435, 0.9848078, 0.087155744, 0.9961947, 0, -0.9810603, 0.08583166, -0.17364824, 0.12, 0.195, 0.03)
 mesh = SubResource("ArrayMesh_dmmu5")
 metadata/extras = {
@@ -2957,11 +3211,11 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="tall_grass_99152" type="Node3D" parent="." unique_id=355876045 instance=ExtResource("3_k0s1w")]
+[node name="tall_grass_99152" type="Node3D" parent="." unique_id=270629662 instance=ExtResource("3_gjjy3")]
 transform = Transform3D(-0.7462263, 0, 0.40816385, 0, 0.8505595, 0, -0.40816385, 0, -0.7462263, 2145.5662, 0, 2344.5417)
 metadata/building_name = "tall_grass"
 
-[node name="blade_1" type="MeshInstance3D" parent="tall_grass_99152" unique_id=1469661775]
+[node name="blade_1" type="MeshInstance3D" parent="tall_grass_99152" unique_id=433856809]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.05)
 mesh = SubResource("ArrayMesh_y2yva")
 metadata/extras = {
@@ -2969,7 +3223,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_2" type="MeshInstance3D" parent="tall_grass_99152" unique_id=1283592046]
+[node name="blade_2" type="MeshInstance3D" parent="tall_grass_99152" unique_id=808142650]
 transform = Transform3D(0.4980973, -0.043577872, 0.8660255, 0.08715575, 0.9961947, 3.7252903e-09, -0.86272997, 0.07547909, 0.49999994, 0.08, 0.175, -0.03)
 mesh = SubResource("ArrayMesh_wfaum")
 metadata/extras = {
@@ -2977,7 +3231,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_3" type="MeshInstance3D" parent="tall_grass_99152" unique_id=584269658]
+[node name="blade_3" type="MeshInstance3D" parent="tall_grass_99152" unique_id=451979310]
 transform = Transform3D(0.64034164, 0.05602262, -0.76604444, -0.08715574, 0.9961947, 0, 0.7631294, 0.06676517, 0.6427876, -0.06, 0.19, -0.04)
 mesh = SubResource("ArrayMesh_xj2et")
 metadata/extras = {
@@ -2985,7 +3239,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_4" type="MeshInstance3D" parent="tall_grass_99152" unique_id=1147909632]
+[node name="blade_4" type="MeshInstance3D" parent="tall_grass_99152" unique_id=1042437900]
 transform = Transform3D(0.86483854, -0.04532427, 0.5, 0.05233596, 0.9986295, 0, -0.49931479, 0.02616798, 0.8660254, 0.1, 0.15, 0.08)
 mesh = SubResource("ArrayMesh_f32p3")
 metadata/extras = {
@@ -2993,7 +3247,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_5" type="MeshInstance3D" parent="tall_grass_99152" unique_id=1489335243]
+[node name="blade_5" type="MeshInstance3D" parent="tall_grass_99152" unique_id=887895940]
 transform = Transform3D(0.34155136, 0.017899955, -0.9396926, -0.052335963, 0.9986295, 3.7252903e-09, 0.9384048, 0.049179714, 0.3420201, -0.08, 0.21, 0.06)
 mesh = SubResource("ArrayMesh_qx25i")
 metadata/extras = {
@@ -3001,7 +3255,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_6" type="MeshInstance3D" parent="tall_grass_99152" unique_id=978229525]
+[node name="blade_6" type="MeshInstance3D" parent="tall_grass_99152" unique_id=1329697524]
 transform = Transform3D(-0.49513412, 0.06958656, 0.86602545, 0.1391731, 0.99026805, -3.7252903e-09, -0.85759735, 0.12052743, -0.5000001, 0.04, 0.18, -0.08)
 mesh = SubResource("ArrayMesh_fpf8g")
 metadata/extras = {
@@ -3009,7 +3263,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_7" type="MeshInstance3D" parent="tall_grass_99152" unique_id=671132387]
+[node name="blade_7" type="MeshInstance3D" parent="tall_grass_99152" unique_id=2043096145]
 transform = Transform3D(0.9305476, 0.13077994, 0.34202015, -0.1391731, 0.99026805, -1.8626451e-09, -0.33869165, -0.0476, 0.9396926, -0.03, 0.165, 0.1)
 mesh = SubResource("ArrayMesh_md78x")
 metadata/extras = {
@@ -3017,7 +3271,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_8" type="MeshInstance3D" parent="tall_grass_99152" unique_id=1713335816]
+[node name="blade_8" type="MeshInstance3D" parent="tall_grass_99152" unique_id=2080069861]
 transform = Transform3D(-0.17298746, 0.015134435, 0.9848078, 0.087155744, 0.9961947, 0, -0.9810603, 0.08583166, -0.17364824, 0.12, 0.195, 0.03)
 mesh = SubResource("ArrayMesh_dmmu5")
 metadata/extras = {
@@ -3025,11 +3279,11 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weeds_64249" type="Node3D" parent="." unique_id=1236327914 instance=ExtResource("5_gjjy3")]
+[node name="weeds_64249" type="Node3D" parent="." unique_id=346722154 instance=ExtResource("5_ly0qw")]
 transform = Transform3D(0.7967125, 0, -0.35784277, 0, 0.87338555, 0, 0.35784277, 0, 0.7967125, 2217.2974, 0, 2432.3135)
 metadata/building_name = "weeds"
 
-[node name="weed_1" type="MeshInstance3D" parent="weeds_64249" unique_id=85719823]
+[node name="weed_1" type="MeshInstance3D" parent="weeds_64249" unique_id=2052924515]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.075, 0.05)
 mesh = SubResource("ArrayMesh_sowfp")
 metadata/extras = {
@@ -3037,7 +3291,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weed_2" type="MeshInstance3D" parent="weeds_64249" unique_id=1700529040]
+[node name="weed_2" type="MeshInstance3D" parent="weeds_64249" unique_id=832308645]
 transform = Transform3D(0.5, 0, 0.8660254, 0, 1, 0, -0.8660254, 0, 0.5, 0.06, 0.06, -0.03)
 mesh = SubResource("ArrayMesh_7oott")
 metadata/extras = {
@@ -3045,7 +3299,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weed_3" type="MeshInstance3D" parent="weeds_64249" unique_id=324788607]
+[node name="weed_3" type="MeshInstance3D" parent="weeds_64249" unique_id=1991194414]
 transform = Transform3D(0.6427876, 0, -0.76604456, 0, 1, 0, 0.76604456, 0, 0.6427876, -0.05, 0.065, -0.04)
 mesh = SubResource("ArrayMesh_gpt73")
 metadata/extras = {
@@ -3053,7 +3307,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weed_4" type="MeshInstance3D" parent="weeds_64249" unique_id=1321848416]
+[node name="weed_4" type="MeshInstance3D" parent="weeds_64249" unique_id=219244027]
 transform = Transform3D(0.8660254, 0, 0.50000006, 0, 1, 0, -0.50000006, 0, 0.8660254, 0.08, 0.05, 0.08)
 mesh = SubResource("ArrayMesh_lkhgm")
 metadata/extras = {
@@ -3061,7 +3315,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weed_5" type="MeshInstance3D" parent="weeds_64249" unique_id=198026247]
+[node name="weed_5" type="MeshInstance3D" parent="weeds_64249" unique_id=1822996802]
 transform = Transform3D(0.3420201, 0, -0.9396927, 0, 1, 0, 0.9396927, 0, 0.3420201, -0.07, 0.07, 0.06)
 mesh = SubResource("ArrayMesh_6a1b1")
 metadata/extras = {
@@ -3069,11 +3323,11 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="marsh_grass_33937" type="Node3D" parent="." unique_id=909958491 instance=ExtResource("6_0agor")]
+[node name="marsh_grass_33937" type="Node3D" parent="." unique_id=1626086110 instance=ExtResource("6_ctd3r")]
 transform = Transform3D(-0.5695083, 0, 0.7349432, 0, 0.9297748, 0, -0.7349432, 0, -0.5695083, 2113.3083, 0, 2426.5308)
 metadata/building_name = "marsh_grass"
 
-[node name="mud" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1791285352]
+[node name="mud" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=215785924]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 mesh = SubResource("ArrayMesh_41kmf")
 metadata/extras = {
@@ -3081,7 +3335,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="water" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1433556456]
+[node name="water" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=47532552]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.015, 0)
 mesh = SubResource("ArrayMesh_6iq0w")
 metadata/extras = {
@@ -3089,7 +3343,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_1" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=773548522]
+[node name="r_1" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=740759641]
 transform = Transform3D(0.9961947, -0.087155744, 2.3283064e-10, 0.08682409, 0.99240386, -0.087155744, 0.007596124, 0.08682409, 0.9961947, 0, 0.9, 0)
 mesh = SubResource("ArrayMesh_vr1q7")
 metadata/extras = {
@@ -3097,7 +3351,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_2" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1113491738]
+[node name="r_2" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=229667686]
 transform = Transform3D(0.99026805, -0.13917309, 0, 0.1386435, 0.9864998, 0.08715574, -0.012129733, -0.08630755, 0.9961947, 0.15, 0.8, 0.1)
 mesh = SubResource("ArrayMesh_r75a8")
 metadata/extras = {
@@ -3105,7 +3359,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_3" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=968209976]
+[node name="r_3" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1666877757]
 transform = Transform3D(0.9961947, 0.087155744, 0, -0.0870363, 0.9948295, -0.05233596, -0.0045613796, 0.052136805, 0.9986295, -0.1, 0.85, 0.15)
 mesh = SubResource("ArrayMesh_g8vwh")
 metadata/extras = {
@@ -3113,7 +3367,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_4" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1929903603]
+[node name="r_4" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1853226673]
 transform = Transform3D(0.9961947, -0.087155744, 0, 0.0870363, 0.9948295, 0.05233596, -0.0045613796, -0.052136805, 0.9986295, 0.2, 0.75, -0.1)
 mesh = SubResource("ArrayMesh_7jvgr")
 metadata/extras = {
@@ -3121,7 +3375,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_5" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=2098662649]
+[node name="r_5" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1811940240]
 transform = Transform3D(0.9986295, 0.052335955, 1.1641532e-10, -0.05220847, 0.9961969, -0.06975647, -0.0036507715, 0.069660865, 0.9975641, -0.15, 0.82, -0.15)
 mesh = SubResource("ArrayMesh_wu3f5")
 metadata/extras = {
@@ -3129,7 +3383,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_6" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=946793710]
+[node name="r_6" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1951298011]
 transform = Transform3D(0.9975641, -0.06975647, 0, 0.069660865, 0.9961969, -0.052335955, 0.0036507717, 0.05220847, 0.9986295, -0.8, 0.85, 0.3)
 mesh = SubResource("ArrayMesh_h6jg3")
 metadata/extras = {
@@ -3137,7 +3391,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_7" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=968262748]
+[node name="r_7" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1202318828]
 transform = Transform3D(0.9945219, -0.10452847, -2.3283064e-10, 0.10427384, 0.9920993, 0.06975647, -0.007291537, -0.06937433, 0.9975641, -0.7, 0.78, 0.45)
 mesh = SubResource("ArrayMesh_5phv2")
 metadata/extras = {
@@ -3145,7 +3399,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_8" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=457563985]
+[node name="r_8" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1878237478]
 transform = Transform3D(0.9975641, 0.06975647, -2.3283064e-10, -0.06949102, 0.99376804, -0.08715574, -0.0060796766, 0.086943425, 0.9961947, -0.9, 0.73, 0.2)
 mesh = SubResource("ArrayMesh_6poam")
 metadata/extras = {
@@ -3153,7 +3407,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_9" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=506889606]
+[node name="r_9" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1942091553]
 transform = Transform3D(0.9961947, -0.087155744, 0, 0.0870363, 0.9948295, 0.05233596, -0.0045613796, -0.052136805, 0.9986295, -0.65, 0.8, 0.15)
 mesh = SubResource("ArrayMesh_2lkhy")
 metadata/extras = {
@@ -3161,7 +3415,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_10" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=830018089]
+[node name="r_10" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=85487637]
 transform = Transform3D(0.9961947, 0.087155744, 0, -0.0870363, 0.9948295, -0.05233596, -0.0045613796, 0.052136805, 0.9986295, 0.8, 0.88, -0.3)
 mesh = SubResource("ArrayMesh_y2kqi")
 metadata/extras = {
@@ -3169,7 +3423,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_11" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1757320450]
+[node name="r_11" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=237457392]
 transform = Transform3D(0.9975641, -0.06975647, 0, 0.06958655, 0.99513406, 0.06975647, -0.0048659653, -0.06958655, 0.9975641, 0.7, 0.75, -0.45)
 mesh = SubResource("ArrayMesh_5sq31")
 metadata/extras = {
@@ -3177,7 +3431,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_12" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1488676260]
+[node name="r_12" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1309749762]
 transform = Transform3D(0.9986295, -0.05233596, 0, 0.052136805, 0.9948295, -0.087155744, 0.0045613796, 0.0870363, 0.9961947, 0.9, 0.83, -0.2)
 mesh = SubResource("ArrayMesh_j5aul")
 metadata/extras = {
@@ -3185,7 +3439,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_13" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=709678784]
+[node name="r_13" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=35469287]
 transform = Transform3D(0.9975641, 0.06975647, 0, -0.069660865, 0.9961969, 0.052335955, 0.0036507717, -0.05220847, 0.9986295, 0.85, 0.78, 0.1)
 mesh = SubResource("ArrayMesh_5phv2")
 metadata/extras = {
@@ -3193,7 +3447,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_14" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1484728804]
+[node name="r_14" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=2090211720]
 transform = Transform3D(0.99254614, -0.12186935, 2.3283064e-10, 0.121702336, 0.9911859, -0.05233596, 0.0063781496, 0.051945854, 0.9986295, 0.1, 0.85, 0.8)
 mesh = SubResource("ArrayMesh_h6jg3")
 metadata/extras = {
@@ -3201,7 +3455,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_15" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1391514439]
+[node name="r_15" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=258275115]
 transform = Transform3D(0.9961947, -0.087155744, 0, 0.0870363, 0.9948295, 0.05233596, -0.0045613796, -0.052136805, 0.9986295, -0.1, 0.75, 0.7)
 mesh = SubResource("ArrayMesh_5sq31")
 metadata/extras = {
@@ -3209,7 +3463,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_16" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1873999639]
+[node name="r_16" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=171934502]
 transform = Transform3D(0.9986295, 0.052335955, 1.1641532e-10, -0.05220847, 0.9961969, -0.06975647, -0.0036507715, 0.069660865, 0.9975641, 0.2, 0.78, 0.9)
 mesh = SubResource("ArrayMesh_ke0x0")
 metadata/extras = {
@@ -3217,7 +3471,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_17" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1311567028]
+[node name="r_17" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=12005017]
 transform = Transform3D(0.9975641, -0.06975647, 0, 0.06958655, 0.99513406, 0.06975647, -0.0048659653, -0.06958655, 0.9975641, -0.2, 0.8, -0.8)
 mesh = SubResource("ArrayMesh_2lkhy")
 metadata/extras = {
@@ -3225,7 +3479,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="r_18" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=380739644]
+[node name="r_18" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=2028835004]
 transform = Transform3D(0.9975641, 0.06975647, -2.3283064e-10, -0.06949102, 0.99376804, -0.08715574, -0.0060796766, 0.086943425, 0.9961947, 0.1, 0.73, -0.7)
 mesh = SubResource("ArrayMesh_f0s6f")
 metadata/extras = {
@@ -3233,7 +3487,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="cattail_1" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=490596791]
+[node name="cattail_1" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1228463478]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1, 0.9, -0.5)
 mesh = SubResource("ArrayMesh_8fmj8")
 metadata/extras = {
@@ -3241,7 +3495,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="cat_head_1" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=774768319]
+[node name="cat_head_1" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=999739533]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1, 1.95, -0.5)
 mesh = SubResource("ArrayMesh_xo0dj")
 metadata/extras = {
@@ -3249,7 +3503,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="cattail_2" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1955703281]
+[node name="cattail_2" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=944034344]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.85, 0.6)
 mesh = SubResource("ArrayMesh_1yye3")
 metadata/extras = {
@@ -3257,7 +3511,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="cat_head_2" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=961068132]
+[node name="cat_head_2" type="MeshInstance3D" parent="marsh_grass_33937" unique_id=1168408199]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.8, 0.6)
 mesh = SubResource("ArrayMesh_g0mw1")
 metadata/extras = {
@@ -3265,145 +3519,145 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="willow_tree_87517" type="Node3D" parent="." unique_id=185560317 instance=ExtResource("1_o0csp")]
+[node name="willow_tree_87517" type="Node3D" parent="." unique_id=813302020 instance=ExtResource("1_k0s1w")]
 transform = Transform3D(0.8978339, 0, 0.42301294, 0, 0.99249464, 0, -0.42301294, 0, 0.8978339, 2080.8936, 0, 2403.5527)
 metadata/building_name = "willow_tree"
 
-[node name="trunk" type="MeshInstance3D" parent="willow_tree_87517" unique_id=1502358283]
+[node name="trunk" type="MeshInstance3D" parent="willow_tree_87517" unique_id=1343860518]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
 mesh = SubResource("ArrayMesh_tqg8s")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="root_flare" type="MeshInstance3D" parent="willow_tree_87517" unique_id=661999358]
+[node name="root_flare" type="MeshInstance3D" parent="willow_tree_87517" unique_id=820217255]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 mesh = SubResource("ArrayMesh_4bu26")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="canopy_top" type="MeshInstance3D" parent="willow_tree_87517" unique_id=1771302979]
+[node name="canopy_top" type="MeshInstance3D" parent="willow_tree_87517" unique_id=58868365]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 0)
 mesh = SubResource("ArrayMesh_vaokh")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_l" type="MeshInstance3D" parent="willow_tree_87517" unique_id=16939032]
+[node name="canopy_l" type="MeshInstance3D" parent="willow_tree_87517" unique_id=165907875]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.8, 0.2)
 mesh = SubResource("ArrayMesh_31ehm")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_r" type="MeshInstance3D" parent="willow_tree_87517" unique_id=1703474220]
+[node name="canopy_r" type="MeshInstance3D" parent="willow_tree_87517" unique_id=1604866043]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 2.8, -0.2)
 mesh = SubResource("ArrayMesh_ifj6o")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_f" type="MeshInstance3D" parent="willow_tree_87517" unique_id=1575640848]
+[node name="canopy_f" type="MeshInstance3D" parent="willow_tree_87517" unique_id=1654756999]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 2.5, 0.7)
 mesh = SubResource("ArrayMesh_vg0o5")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_b" type="MeshInstance3D" parent="willow_tree_87517" unique_id=991683252]
+[node name="canopy_b" type="MeshInstance3D" parent="willow_tree_87517" unique_id=895877621]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 2.5, -0.7)
 mesh = SubResource("ArrayMesh_txwp4")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="branch_1" type="MeshInstance3D" parent="willow_tree_87517" unique_id=1109559301]
+[node name="branch_1" type="MeshInstance3D" parent="willow_tree_87517" unique_id=2118331632]
 transform = Transform3D(0.8660254, -0.50000006, 0, 0.38302225, 0.66341394, -0.64278764, 0.32139382, 0.55667037, 0.76604444, 0.4, 2.3, 0.2)
 mesh = SubResource("ArrayMesh_uueje")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="branch_2" type="MeshInstance3D" parent="willow_tree_87517" unique_id=1797178679]
+[node name="branch_2" type="MeshInstance3D" parent="willow_tree_87517" unique_id=1430432946]
 transform = Transform3D(0.90630776, 0.42261833, 7.450581e-09, -0.34618866, 0.74240386, 0.57357645, 0.2424039, -0.5198368, 0.81915206, -0.35, 2.4, -0.2)
 mesh = SubResource("ArrayMesh_ip2hn")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="willow_tree_9148" type="Node3D" parent="." unique_id=1850488015 instance=ExtResource("1_o0csp")]
+[node name="willow_tree_9148" type="Node3D" parent="." unique_id=1371186263 instance=ExtResource("1_k0s1w")]
 transform = Transform3D(0.070048586, 0, -0.96747273, 0, 0.9700053, 0, 0.96747273, 0, 0.070048586, 2191.859, 0, 2395.9656)
 metadata/building_name = "willow_tree"
 
-[node name="trunk" type="MeshInstance3D" parent="willow_tree_9148" unique_id=1688091622]
+[node name="trunk" type="MeshInstance3D" parent="willow_tree_9148" unique_id=899408572]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
 mesh = SubResource("ArrayMesh_tqg8s")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="root_flare" type="MeshInstance3D" parent="willow_tree_9148" unique_id=582241407]
+[node name="root_flare" type="MeshInstance3D" parent="willow_tree_9148" unique_id=138696316]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 mesh = SubResource("ArrayMesh_4bu26")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="canopy_top" type="MeshInstance3D" parent="willow_tree_9148" unique_id=452133643]
+[node name="canopy_top" type="MeshInstance3D" parent="willow_tree_9148" unique_id=1495739733]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 0)
 mesh = SubResource("ArrayMesh_vaokh")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_l" type="MeshInstance3D" parent="willow_tree_9148" unique_id=1705791544]
+[node name="canopy_l" type="MeshInstance3D" parent="willow_tree_9148" unique_id=840652610]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.8, 0.2)
 mesh = SubResource("ArrayMesh_31ehm")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_r" type="MeshInstance3D" parent="willow_tree_9148" unique_id=605686138]
+[node name="canopy_r" type="MeshInstance3D" parent="willow_tree_9148" unique_id=1407789918]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 2.8, -0.2)
 mesh = SubResource("ArrayMesh_ifj6o")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_f" type="MeshInstance3D" parent="willow_tree_9148" unique_id=772212711]
+[node name="canopy_f" type="MeshInstance3D" parent="willow_tree_9148" unique_id=243566681]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 2.5, 0.7)
 mesh = SubResource("ArrayMesh_vg0o5")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="canopy_b" type="MeshInstance3D" parent="willow_tree_9148" unique_id=1272005274]
+[node name="canopy_b" type="MeshInstance3D" parent="willow_tree_9148" unique_id=2078094017]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 2.5, -0.7)
 mesh = SubResource("ArrayMesh_txwp4")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="branch_1" type="MeshInstance3D" parent="willow_tree_9148" unique_id=2023376038]
+[node name="branch_1" type="MeshInstance3D" parent="willow_tree_9148" unique_id=603391221]
 transform = Transform3D(0.8660254, -0.50000006, 0, 0.38302225, 0.66341394, -0.64278764, 0.32139382, 0.55667037, 0.76604444, 0.4, 2.3, 0.2)
 mesh = SubResource("ArrayMesh_uueje")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="branch_2" type="MeshInstance3D" parent="willow_tree_9148" unique_id=2136472521]
+[node name="branch_2" type="MeshInstance3D" parent="willow_tree_9148" unique_id=707488141]
 transform = Transform3D(0.90630776, 0.42261833, 7.450581e-09, -0.34618866, 0.74240386, 0.57357645, 0.2424039, -0.5198368, 0.81915206, -0.35, 2.4, -0.2)
 mesh = SubResource("ArrayMesh_ip2hn")
 metadata/extras = {
 "kind": "cylinder"
 }
 
-[node name="tall_grass_27803" type="Node3D" parent="." unique_id=343157825 instance=ExtResource("3_k0s1w")]
+[node name="tall_grass_27803" type="Node3D" parent="." unique_id=656959984 instance=ExtResource("3_gjjy3")]
 transform = Transform3D(-0.40547976, 0, 0.76537913, 0, 0.86615187, 0, -0.76537913, 0, -0.40547976, 2068.9377, 0, 2468.9016)
 metadata/building_name = "tall_grass"
 
-[node name="blade_1" type="MeshInstance3D" parent="tall_grass_27803" unique_id=1592131172]
+[node name="blade_1" type="MeshInstance3D" parent="tall_grass_27803" unique_id=190033261]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.05)
 mesh = SubResource("ArrayMesh_y2yva")
 metadata/extras = {
@@ -3411,7 +3665,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_2" type="MeshInstance3D" parent="tall_grass_27803" unique_id=395234390]
+[node name="blade_2" type="MeshInstance3D" parent="tall_grass_27803" unique_id=1723888294]
 transform = Transform3D(0.4980973, -0.043577872, 0.8660255, 0.08715575, 0.9961947, 3.7252903e-09, -0.86272997, 0.07547909, 0.49999994, 0.08, 0.175, -0.03)
 mesh = SubResource("ArrayMesh_wfaum")
 metadata/extras = {
@@ -3419,7 +3673,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_3" type="MeshInstance3D" parent="tall_grass_27803" unique_id=1633145123]
+[node name="blade_3" type="MeshInstance3D" parent="tall_grass_27803" unique_id=1952218049]
 transform = Transform3D(0.64034164, 0.05602262, -0.76604444, -0.08715574, 0.9961947, 0, 0.7631294, 0.06676517, 0.6427876, -0.06, 0.19, -0.04)
 mesh = SubResource("ArrayMesh_xj2et")
 metadata/extras = {
@@ -3427,7 +3681,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_4" type="MeshInstance3D" parent="tall_grass_27803" unique_id=282982910]
+[node name="blade_4" type="MeshInstance3D" parent="tall_grass_27803" unique_id=2123856239]
 transform = Transform3D(0.86483854, -0.04532427, 0.5, 0.05233596, 0.9986295, 0, -0.49931479, 0.02616798, 0.8660254, 0.1, 0.15, 0.08)
 mesh = SubResource("ArrayMesh_f32p3")
 metadata/extras = {
@@ -3435,7 +3689,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_5" type="MeshInstance3D" parent="tall_grass_27803" unique_id=1050504201]
+[node name="blade_5" type="MeshInstance3D" parent="tall_grass_27803" unique_id=624936332]
 transform = Transform3D(0.34155136, 0.017899955, -0.9396926, -0.052335963, 0.9986295, 3.7252903e-09, 0.9384048, 0.049179714, 0.3420201, -0.08, 0.21, 0.06)
 mesh = SubResource("ArrayMesh_qx25i")
 metadata/extras = {
@@ -3443,7 +3697,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_6" type="MeshInstance3D" parent="tall_grass_27803" unique_id=1069386587]
+[node name="blade_6" type="MeshInstance3D" parent="tall_grass_27803" unique_id=1551050502]
 transform = Transform3D(-0.49513412, 0.06958656, 0.86602545, 0.1391731, 0.99026805, -3.7252903e-09, -0.85759735, 0.12052743, -0.5000001, 0.04, 0.18, -0.08)
 mesh = SubResource("ArrayMesh_fpf8g")
 metadata/extras = {
@@ -3451,7 +3705,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_7" type="MeshInstance3D" parent="tall_grass_27803" unique_id=110912085]
+[node name="blade_7" type="MeshInstance3D" parent="tall_grass_27803" unique_id=547969092]
 transform = Transform3D(0.9305476, 0.13077994, 0.34202015, -0.1391731, 0.99026805, -1.8626451e-09, -0.33869165, -0.0476, 0.9396926, -0.03, 0.165, 0.1)
 mesh = SubResource("ArrayMesh_md78x")
 metadata/extras = {
@@ -3459,7 +3713,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_8" type="MeshInstance3D" parent="tall_grass_27803" unique_id=1042727763]
+[node name="blade_8" type="MeshInstance3D" parent="tall_grass_27803" unique_id=738786046]
 transform = Transform3D(-0.17298746, 0.015134435, 0.9848078, 0.087155744, 0.9961947, 0, -0.9810603, 0.08583166, -0.17364824, 0.12, 0.195, 0.03)
 mesh = SubResource("ArrayMesh_dmmu5")
 metadata/extras = {
@@ -3467,7 +3721,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="fern_82289" type="Node3D" parent="." unique_id=578944916 instance=ExtResource("7_ly0qw")]
+[node name="fern_82289" type="Node3D" parent="." unique_id=578944916 instance=ExtResource("7_bqwtx")]
 transform = Transform3D(0.7496935, 0, 0.73734134, 0, 1.0515287, 0, -0.73734134, 0, 0.7496935, 2054.7258, 0, 2399.9229)
 metadata/building_name = "fern"
 
@@ -3526,11 +3780,11 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weeds_63053" type="Node3D" parent="." unique_id=1848014108 instance=ExtResource("5_gjjy3")]
+[node name="weeds_63053" type="Node3D" parent="." unique_id=1130674841 instance=ExtResource("5_ly0qw")]
 transform = Transform3D(-0.76513004, 0, -0.36393508, 0, 0.8472737, 0, 0.36393508, 0, -0.76513004, 2135.0786, 0, 2321.8657)
 metadata/building_name = "weeds"
 
-[node name="weed_1" type="MeshInstance3D" parent="weeds_63053" unique_id=147849029]
+[node name="weed_1" type="MeshInstance3D" parent="weeds_63053" unique_id=384663733]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.075, 0.05)
 mesh = SubResource("ArrayMesh_sowfp")
 metadata/extras = {
@@ -3538,7 +3792,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weed_2" type="MeshInstance3D" parent="weeds_63053" unique_id=793879113]
+[node name="weed_2" type="MeshInstance3D" parent="weeds_63053" unique_id=1838346054]
 transform = Transform3D(0.5, 0, 0.8660254, 0, 1, 0, -0.8660254, 0, 0.5, 0.06, 0.06, -0.03)
 mesh = SubResource("ArrayMesh_7oott")
 metadata/extras = {
@@ -3546,7 +3800,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weed_3" type="MeshInstance3D" parent="weeds_63053" unique_id=1880493563]
+[node name="weed_3" type="MeshInstance3D" parent="weeds_63053" unique_id=1710444884]
 transform = Transform3D(0.6427876, 0, -0.76604456, 0, 1, 0, 0.76604456, 0, 0.6427876, -0.05, 0.065, -0.04)
 mesh = SubResource("ArrayMesh_gpt73")
 metadata/extras = {
@@ -3554,7 +3808,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weed_4" type="MeshInstance3D" parent="weeds_63053" unique_id=679116439]
+[node name="weed_4" type="MeshInstance3D" parent="weeds_63053" unique_id=636418225]
 transform = Transform3D(0.8660254, 0, 0.50000006, 0, 1, 0, -0.50000006, 0, 0.8660254, 0.08, 0.05, 0.08)
 mesh = SubResource("ArrayMesh_lkhgm")
 metadata/extras = {
@@ -3562,7 +3816,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="weed_5" type="MeshInstance3D" parent="weeds_63053" unique_id=1372734981]
+[node name="weed_5" type="MeshInstance3D" parent="weeds_63053" unique_id=1923899774]
 transform = Transform3D(0.3420201, 0, -0.9396927, 0, 1, 0, 0.9396927, 0, 0.3420201, -0.07, 0.07, 0.06)
 mesh = SubResource("ArrayMesh_6a1b1")
 metadata/extras = {
@@ -3570,32 +3824,32 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="rocks_small_36955" type="Node3D" parent="." unique_id=548705105 instance=ExtResource("2_j68fc")]
+[node name="rocks_small_36955" type="Node3D" parent="." unique_id=71671793 instance=ExtResource("2_74fno")]
 transform = Transform3D(-0.95079964, 0, 0.7896392, 0, 1.2359409, 0, -0.7896392, 0, -0.95079964, 2231.0269, 0, 2411.1943)
 metadata/building_name = "rocks_small"
 
-[node name="rock_1" type="MeshInstance3D" parent="rocks_small_36955" unique_id=1174523973]
+[node name="rock_1" type="MeshInstance3D" parent="rocks_small_36955" unique_id=1043731536]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.05)
 mesh = SubResource("ArrayMesh_ijgfw")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="rock_2" type="MeshInstance3D" parent="rocks_small_36955" unique_id=1261163028]
+[node name="rock_2" type="MeshInstance3D" parent="rocks_small_36955" unique_id=320363580]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.07, -0.1)
 mesh = SubResource("ArrayMesh_v5sd4")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="rock_3" type="MeshInstance3D" parent="rocks_small_36955" unique_id=1882033979]
+[node name="rock_3" type="MeshInstance3D" parent="rocks_small_36955" unique_id=1588531548]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.05, 0.12)
 mesh = SubResource("ArrayMesh_5vcyk")
 metadata/extras = {
 "kind": "icosphere"
 }
 
-[node name="moss_1" type="MeshInstance3D" parent="rocks_small_36955" unique_id=1767414413]
+[node name="moss_1" type="MeshInstance3D" parent="rocks_small_36955" unique_id=1353313507]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.18, 0.05)
 mesh = SubResource("ArrayMesh_lv4v7")
 metadata/extras = {
@@ -3603,11 +3857,11 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="tall_grass_59287" type="Node3D" parent="." unique_id=1715059296 instance=ExtResource("3_k0s1w")]
+[node name="tall_grass_59287" type="Node3D" parent="." unique_id=1053005106 instance=ExtResource("3_gjjy3")]
 transform = Transform3D(-0.13255756, 0, -0.9574553, 0, 0.9665879, 0, 0.9574553, 0, -0.13255756, 2102.9578, 0, 2371.9346)
 metadata/building_name = "tall_grass"
 
-[node name="blade_1" type="MeshInstance3D" parent="tall_grass_59287" unique_id=1303580224]
+[node name="blade_1" type="MeshInstance3D" parent="tall_grass_59287" unique_id=790949155]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.05)
 mesh = SubResource("ArrayMesh_y2yva")
 metadata/extras = {
@@ -3615,7 +3869,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_2" type="MeshInstance3D" parent="tall_grass_59287" unique_id=309815965]
+[node name="blade_2" type="MeshInstance3D" parent="tall_grass_59287" unique_id=1112416632]
 transform = Transform3D(0.4980973, -0.043577872, 0.8660255, 0.08715575, 0.9961947, 3.7252903e-09, -0.86272997, 0.07547909, 0.49999994, 0.08, 0.175, -0.03)
 mesh = SubResource("ArrayMesh_wfaum")
 metadata/extras = {
@@ -3623,7 +3877,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_3" type="MeshInstance3D" parent="tall_grass_59287" unique_id=1874156761]
+[node name="blade_3" type="MeshInstance3D" parent="tall_grass_59287" unique_id=936223285]
 transform = Transform3D(0.64034164, 0.05602262, -0.76604444, -0.08715574, 0.9961947, 0, 0.7631294, 0.06676517, 0.6427876, -0.06, 0.19, -0.04)
 mesh = SubResource("ArrayMesh_xj2et")
 metadata/extras = {
@@ -3631,7 +3885,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_4" type="MeshInstance3D" parent="tall_grass_59287" unique_id=1377659589]
+[node name="blade_4" type="MeshInstance3D" parent="tall_grass_59287" unique_id=200525714]
 transform = Transform3D(0.86483854, -0.04532427, 0.5, 0.05233596, 0.9986295, 0, -0.49931479, 0.02616798, 0.8660254, 0.1, 0.15, 0.08)
 mesh = SubResource("ArrayMesh_f32p3")
 metadata/extras = {
@@ -3639,7 +3893,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_5" type="MeshInstance3D" parent="tall_grass_59287" unique_id=1763078886]
+[node name="blade_5" type="MeshInstance3D" parent="tall_grass_59287" unique_id=101443048]
 transform = Transform3D(0.34155136, 0.017899955, -0.9396926, -0.052335963, 0.9986295, 3.7252903e-09, 0.9384048, 0.049179714, 0.3420201, -0.08, 0.21, 0.06)
 mesh = SubResource("ArrayMesh_qx25i")
 metadata/extras = {
@@ -3647,7 +3901,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_6" type="MeshInstance3D" parent="tall_grass_59287" unique_id=2134311476]
+[node name="blade_6" type="MeshInstance3D" parent="tall_grass_59287" unique_id=2119828918]
 transform = Transform3D(-0.49513412, 0.06958656, 0.86602545, 0.1391731, 0.99026805, -3.7252903e-09, -0.85759735, 0.12052743, -0.5000001, 0.04, 0.18, -0.08)
 mesh = SubResource("ArrayMesh_fpf8g")
 metadata/extras = {
@@ -3655,7 +3909,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_7" type="MeshInstance3D" parent="tall_grass_59287" unique_id=716202480]
+[node name="blade_7" type="MeshInstance3D" parent="tall_grass_59287" unique_id=545563850]
 transform = Transform3D(0.9305476, 0.13077994, 0.34202015, -0.1391731, 0.99026805, -1.8626451e-09, -0.33869165, -0.0476, 0.9396926, -0.03, 0.165, 0.1)
 mesh = SubResource("ArrayMesh_md78x")
 metadata/extras = {
@@ -3663,7 +3917,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_8" type="MeshInstance3D" parent="tall_grass_59287" unique_id=236031664]
+[node name="blade_8" type="MeshInstance3D" parent="tall_grass_59287" unique_id=196810802]
 transform = Transform3D(-0.17298746, 0.015134435, 0.9848078, 0.087155744, 0.9961947, 0, -0.9810603, 0.08583166, -0.17364824, 0.12, 0.195, 0.03)
 mesh = SubResource("ArrayMesh_dmmu5")
 metadata/extras = {
@@ -3671,11 +3925,11 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="tall_grass_71635" type="Node3D" parent="." unique_id=767323003 instance=ExtResource("3_k0s1w")]
+[node name="tall_grass_71635" type="Node3D" parent="." unique_id=2122862687 instance=ExtResource("3_gjjy3")]
 transform = Transform3D(0.59043294, 0, 0.68267226, 0, 0.90258104, 0, -0.68267226, 0, 0.59043294, 2175.252, 0, 2419.1272)
 metadata/building_name = "tall_grass"
 
-[node name="blade_1" type="MeshInstance3D" parent="tall_grass_71635" unique_id=242736051]
+[node name="blade_1" type="MeshInstance3D" parent="tall_grass_71635" unique_id=122235693]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.05)
 mesh = SubResource("ArrayMesh_y2yva")
 metadata/extras = {
@@ -3683,7 +3937,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_2" type="MeshInstance3D" parent="tall_grass_71635" unique_id=450919251]
+[node name="blade_2" type="MeshInstance3D" parent="tall_grass_71635" unique_id=765965148]
 transform = Transform3D(0.4980973, -0.043577872, 0.8660255, 0.08715575, 0.9961947, 3.7252903e-09, -0.86272997, 0.07547909, 0.49999994, 0.08, 0.175, -0.03)
 mesh = SubResource("ArrayMesh_wfaum")
 metadata/extras = {
@@ -3691,7 +3945,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_3" type="MeshInstance3D" parent="tall_grass_71635" unique_id=1078957506]
+[node name="blade_3" type="MeshInstance3D" parent="tall_grass_71635" unique_id=1437684187]
 transform = Transform3D(0.64034164, 0.05602262, -0.76604444, -0.08715574, 0.9961947, 0, 0.7631294, 0.06676517, 0.6427876, -0.06, 0.19, -0.04)
 mesh = SubResource("ArrayMesh_xj2et")
 metadata/extras = {
@@ -3699,7 +3953,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_4" type="MeshInstance3D" parent="tall_grass_71635" unique_id=1550137593]
+[node name="blade_4" type="MeshInstance3D" parent="tall_grass_71635" unique_id=301984549]
 transform = Transform3D(0.86483854, -0.04532427, 0.5, 0.05233596, 0.9986295, 0, -0.49931479, 0.02616798, 0.8660254, 0.1, 0.15, 0.08)
 mesh = SubResource("ArrayMesh_f32p3")
 metadata/extras = {
@@ -3707,7 +3961,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_5" type="MeshInstance3D" parent="tall_grass_71635" unique_id=1268547536]
+[node name="blade_5" type="MeshInstance3D" parent="tall_grass_71635" unique_id=744905577]
 transform = Transform3D(0.34155136, 0.017899955, -0.9396926, -0.052335963, 0.9986295, 3.7252903e-09, 0.9384048, 0.049179714, 0.3420201, -0.08, 0.21, 0.06)
 mesh = SubResource("ArrayMesh_qx25i")
 metadata/extras = {
@@ -3715,7 +3969,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_6" type="MeshInstance3D" parent="tall_grass_71635" unique_id=715163202]
+[node name="blade_6" type="MeshInstance3D" parent="tall_grass_71635" unique_id=555399111]
 transform = Transform3D(-0.49513412, 0.06958656, 0.86602545, 0.1391731, 0.99026805, -3.7252903e-09, -0.85759735, 0.12052743, -0.5000001, 0.04, 0.18, -0.08)
 mesh = SubResource("ArrayMesh_fpf8g")
 metadata/extras = {
@@ -3723,7 +3977,7 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_7" type="MeshInstance3D" parent="tall_grass_71635" unique_id=885427830]
+[node name="blade_7" type="MeshInstance3D" parent="tall_grass_71635" unique_id=2128015631]
 transform = Transform3D(0.9305476, 0.13077994, 0.34202015, -0.1391731, 0.99026805, -1.8626451e-09, -0.33869165, -0.0476, 0.9396926, -0.03, 0.165, 0.1)
 mesh = SubResource("ArrayMesh_md78x")
 metadata/extras = {
@@ -3731,10 +3985,239 @@ metadata/extras = {
 "tags": ["floating"]
 }
 
-[node name="blade_8" type="MeshInstance3D" parent="tall_grass_71635" unique_id=1449018456]
+[node name="blade_8" type="MeshInstance3D" parent="tall_grass_71635" unique_id=1446516488]
 transform = Transform3D(-0.17298746, 0.015134435, 0.9848078, 0.087155744, 0.9961947, 0, -0.9810603, 0.08583166, -0.17364824, 0.12, 0.195, 0.03)
 mesh = SubResource("ArrayMesh_dmmu5")
 metadata/extras = {
 "kind": "quad",
 "tags": ["floating"]
+}
+
+[node name="bench_park_33516" type="Node3D" parent="." unique_id=2061058903 instance=ExtResource("8_1fekp")]
+transform = Transform3D(-0.9810567, 0, 0.19372101, 0, 1, 0, -0.19372101, 0, -0.9810567, 2125.9973, 0, 2302.707)
+
+[node name="frame_l" type="Node3D" parent="bench_park_33516" unique_id=1051585371]
+metadata/extras = {
+"kind": "solid",
+"tags": ["solid", "cleanup=coplanar"]
+}
+
+[node name="merged_frame_metal" type="MeshInstance3D" parent="bench_park_33516/frame_l" unique_id=1616627669]
+mesh = SubResource("ArrayMesh_il5u6")
+metadata/extras = {
+"kind": "merged",
+"tags": ["merged"]
+}
+
+[node name="frame_r" type="Node3D" parent="bench_park_33516" unique_id=2083065936]
+metadata/extras = {
+"kind": "solid",
+"tags": ["solid", "cleanup=coplanar"]
+}
+
+[node name="merged_frame_metal2" type="MeshInstance3D" parent="bench_park_33516/frame_r" unique_id=6380503]
+mesh = SubResource("ArrayMesh_6nehy")
+metadata/extras = {
+"kind": "merged",
+"tags": ["merged"]
+}
+
+[node name="slat_1" type="MeshInstance3D" parent="bench_park_33516" unique_id=340211508]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47, 0.05)
+mesh = SubResource("ArrayMesh_itg48")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="slat_2" type="MeshInstance3D" parent="bench_park_33516" unique_id=1613152674]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47, -0.08)
+mesh = SubResource("ArrayMesh_itg48")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="slat_3" type="MeshInstance3D" parent="bench_park_33516" unique_id=1196260152]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47, -0.21)
+mesh = SubResource("ArrayMesh_itg48")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="back_1" type="MeshInstance3D" parent="bench_park_33516" unique_id=1951455380]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, -0.25)
+mesh = SubResource("ArrayMesh_itg48")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="back_2" type="MeshInstance3D" parent="bench_park_33516" unique_id=1963634156]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.57, -0.25)
+mesh = SubResource("ArrayMesh_itg48")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="picket_fence_14781" type="Node3D" parent="." unique_id=71733723 instance=ExtResource("9_n3ch2")]
+transform = Transform3D(-0.8450127, 0, -0.5347462, 0, 1, 0, 0.5347462, 0, -0.8450127, 2026.1643, 0, 2398.4268)
+
+[node name="post_l" type="MeshInstance3D" parent="picket_fence_14781" unique_id=153557084]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.5, 0)
+mesh = SubResource("ArrayMesh_dqpww")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="post_r" type="MeshInstance3D" parent="picket_fence_14781" unique_id=910650284]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.5, 0)
+mesh = SubResource("ArrayMesh_dqpww")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="cap_l" type="MeshInstance3D" parent="picket_fence_14781" unique_id=662053375]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1.025, 0)
+mesh = SubResource("ArrayMesh_v2yee")
+metadata/extras = {
+"kind": "pyramid"
+}
+
+[node name="cap_r" type="MeshInstance3D" parent="picket_fence_14781" unique_id=1109371739]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.025, 0)
+mesh = SubResource("ArrayMesh_v2yee")
+metadata/extras = {
+"kind": "pyramid"
+}
+
+[node name="rail_top" type="MeshInstance3D" parent="picket_fence_14781" unique_id=1495575518]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+mesh = SubResource("ArrayMesh_dpj2o")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="rail_bot" type="MeshInstance3D" parent="picket_fence_14781" unique_id=1193782928]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+mesh = SubResource("ArrayMesh_dpj2o")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="picket_1" type="Node3D" parent="picket_fence_14781" unique_id=2063495641]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, 0)
+metadata/extras = {
+"kind": "group"
+}
+
+[node name="board" type="MeshInstance3D" parent="picket_fence_14781/picket_1" unique_id=352429607]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("ArrayMesh_x2wyy")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="point" type="MeshInstance3D" parent="picket_fence_14781/picket_1" unique_id=39183499]
+transform = Transform3D(0.7071067, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, 0.7071067, 0, 0.875, 0)
+mesh = SubResource("ArrayMesh_v2yee")
+metadata/extras = {
+"kind": "pyramid"
+}
+
+[node name="picket_2" type="Node3D" parent="picket_fence_14781" unique_id=1853489347]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.48, 0, 0)
+metadata/extras = {
+"kind": "group"
+}
+
+[node name="board2" type="MeshInstance3D" parent="picket_fence_14781/picket_2" unique_id=109891954]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("ArrayMesh_x2wyy")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="point2" type="MeshInstance3D" parent="picket_fence_14781/picket_2" unique_id=1647446096]
+transform = Transform3D(0.7071067, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, 0.7071067, 0, 0.875, 0)
+mesh = SubResource("ArrayMesh_v2yee")
+metadata/extras = {
+"kind": "pyramid"
+}
+
+[node name="picket_3" type="Node3D" parent="picket_fence_14781" unique_id=1325910588]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.16, 0, 0)
+metadata/extras = {
+"kind": "group"
+}
+
+[node name="board3" type="MeshInstance3D" parent="picket_fence_14781/picket_3" unique_id=1296110024]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("ArrayMesh_x2wyy")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="point3" type="MeshInstance3D" parent="picket_fence_14781/picket_3" unique_id=225265555]
+transform = Transform3D(0.7071067, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, 0.7071067, 0, 0.875, 0)
+mesh = SubResource("ArrayMesh_v2yee")
+metadata/extras = {
+"kind": "pyramid"
+}
+
+[node name="picket_4" type="Node3D" parent="picket_fence_14781" unique_id=2090314064]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16, 0, 0)
+metadata/extras = {
+"kind": "group"
+}
+
+[node name="board4" type="MeshInstance3D" parent="picket_fence_14781/picket_4" unique_id=825241484]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("ArrayMesh_x2wyy")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="point4" type="MeshInstance3D" parent="picket_fence_14781/picket_4" unique_id=109438475]
+transform = Transform3D(0.7071067, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, 0.7071067, 0, 0.875, 0)
+mesh = SubResource("ArrayMesh_v2yee")
+metadata/extras = {
+"kind": "pyramid"
+}
+
+[node name="picket_5" type="Node3D" parent="picket_fence_14781" unique_id=546980150]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.48, 0, 0)
+metadata/extras = {
+"kind": "group"
+}
+
+[node name="board5" type="MeshInstance3D" parent="picket_fence_14781/picket_5" unique_id=1384969985]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("ArrayMesh_x2wyy")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="point5" type="MeshInstance3D" parent="picket_fence_14781/picket_5" unique_id=1537108279]
+transform = Transform3D(0.7071067, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, 0.7071067, 0, 0.875, 0)
+mesh = SubResource("ArrayMesh_v2yee")
+metadata/extras = {
+"kind": "pyramid"
+}
+
+[node name="picket_6" type="Node3D" parent="picket_fence_14781" unique_id=338373281]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, 0)
+metadata/extras = {
+"kind": "group"
+}
+
+[node name="board6" type="MeshInstance3D" parent="picket_fence_14781/picket_6" unique_id=1468435102]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("ArrayMesh_x2wyy")
+metadata/extras = {
+"kind": "box"
+}
+
+[node name="point6" type="MeshInstance3D" parent="picket_fence_14781/picket_6" unique_id=1654196337]
+transform = Transform3D(0.7071067, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, 0.7071067, 0, 0.875, 0)
+mesh = SubResource("ArrayMesh_v2yee")
+metadata/extras = {
+"kind": "pyramid"
 }

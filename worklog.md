@@ -1563,3 +1563,44 @@ Work Log:
 5. Asset redo (user task, ongoing) — user handles this
 
 Will start with #1 + #2 + #3 this session. #4 next session. #5 is user's domain.
+
+---
+Task ID: session-13-y-layering-debug-colors-gap-fillers
+Agent: main (Super Z)
+Task: Fix 3 of 5 user-reported issues: Y-layering (roads above sidewalks), debug ground colors per biome, increase gap fillers between dense areas.
+
+Work Log:
+- Issue #6 (Y-layering): roads were Y=0.020, sidewalks Y=0.050 → sidewalks were ABOVE roads (looked sunken). Fixed:
+  * Y_PATH = 0.010 (lowest, interior paths)
+  * Y_SIDEWALK = 0.040
+  * Y_PARKING = 0.050
+  * Y_ROAD = 0.060 (above sidewalks)
+  * Y_LANE = 0.065 (lane lines on top of road)
+  * Y_BUILDING_SLAB = 0.070
+- Issue #5 (debug ground colors): added _plane_in_parent() function. Each chunk now gets a BiomeGround plane at Y=0.001 with CityConfig.ground_color_for(biome). Colors:
+  * Suburbia: mowed green (0.35, 0.52, 0.20)
+  * Parks: bright green (0.40, 0.60, 0.25)
+  * Forest: dark mossy (0.20, 0.35, 0.15)
+  * Farmland: dry yellow-green (0.55, 0.48, 0.22)
+  * Commercial: grey concrete (0.45, 0.43, 0.40)
+  * Industrial: stained concrete (0.35, 0.33, 0.30)
+  * Wetlands: marsh brown-green (0.30, 0.35, 0.18)
+  * Downtown: pavement grey (0.40, 0.38, 0.35)
+  * Military: dusty tan (0.50, 0.45, 0.35)
+  * Coastal Beach: sand (0.72, 0.67, 0.47)
+- Issue #3 (gap fillers too sparse): increased gap_count from fill*20 → fill*40 (2x). Expanded gap_fillers list from 5 → 16 props:
+  * Urban: picket_fence, planter_box, garden_gnome, trash_can, mailbox, fire_hydrant, street_light, bollard, parking_meter, dumpster, shopping_cart, traffic_cone, construction_barrier, bench_park, picnic_table, water_fountain
+  * Forest/Parks exception: fallen_log, rocks_small, bush (keeps woods as woods per user)
+- Re-baked: 9108 placements (was 7692, +18% from increased gap fillers)
+- Verified: Player script attached, Loader script attached, chunk 8_7 has BiomeGround plane.
+- Did NOT fix:
+  * Issue #1 (POIs on roads) — needs POI position adjustment, next session
+  * Issue #2 (asset redo) — user's task
+  * Issue #4 (gap filler variety in non-forest biomes) — partially addressed, more work needed
+
+Stage Summary:
+- 3 of 5 issues fixed: Y-layering, debug ground colors, gap filler density.
+- User can now distinguish biomes by ground color (Suburbia=green, Downtown=grey, Forest=dark, etc).
+- Roads render above sidewalks/paths (no more sunken look).
+- Empty spaces between dense areas now have 2x more props + 3x more variety.
+- Forest biomes stay forest-y (no urban props, just logs/rocks/bushes).
