@@ -188,7 +188,7 @@ const DISTRICT_IDENTITY := {
         "ambient_tint": Color(0.92, 0.85, 0.75),
         "sun_energy_mult": 0.75,  # darker (industrial smog)
         "fog_density_mult": 1.6,  # thick smog
-        "palette_primary": Color(0.45, 0.38, 0.32),  # steel gray
+        "palette_primary": Color(0.50, 0.35, 0.25),  # rust-tinted steel (warmer, more orange)
         "palette_accent": Color(0.65, 0.40, 0.15),  # rust orange
         "palette_name": "rust oranges, steel grays, sulfur yellows",
     },
@@ -198,7 +198,7 @@ const DISTRICT_IDENTITY := {
         "ambient_tint": Color(0.88, 0.95, 0.95),
         "sun_energy_mult": 0.8,
         "fog_density_mult": 2.0,  # thickest mist (marsh)
-        "palette_primary": Color(0.20, 0.40, 0.38),  # deep teal
+        "palette_primary": Color(0.18, 0.35, 0.42),  # deep teal (bluer, colder — B > G)
         "palette_accent": Color(0.75, 0.70, 0.35),  # artificial yellow
         "palette_name": "deep teals, artificial yellows, cold concrete grays",
     },
