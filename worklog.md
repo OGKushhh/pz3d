@@ -1463,3 +1463,54 @@ Stage Summary:
 - Baked city is now binary .scn (13MB cleaned). Loads in ~1.5s.
 - Godot editor will open it without freezing.
 - User should reboot Godot, then open scenes/baked_city.scn (not .tscn).
+
+---
+Task ID: session-13-style-guide-from-mood-references
+Agent: main (Super Z)
+Task: User provided 3 mood reference images for Mazar's visual style. "Style mood references for Mazar — not technical specs." Analyzed all 3 via VLM, synthesized into comprehensive style guide.
+
+Work Log:
+- VLM analyzed 3 mood reference images:
+  1. mood_interior_npc.jpg — interior kitchen scene with NPC survivor, barricaded door, HUD layout, warm lighting
+  2. mood_horde_barricade.jpg — exterior horde attack, shotgun viewmodel, zombie density, barricade construction
+  3. mood_suburb_street.jpg — suburban street with lone zombie, fog atmosphere, cel-shading style, utility poles
+- Extracted detailed style information from each:
+  * Color palette (specific hex values for environment, UI, blood)
+  * Lighting direction (overcast, late afternoon, fog density 150-200m)
+  * HUD layout (pixel-precise positions: Status top-left, Weapon top-right, Vitals+Minimap bottom-left)
+  * Icon style (flat vector, 2px black strokes, segmented bars, severity indicators)
+  * NPC appearance (zombie: cel-shaded, tattered civilian clothes, pale gray-green skin; survivor: olive t-shirt, neutral pose)
+  * Horde density (15-20 visible, 3 zones: front line 1-2m, mid-ground 3-8m, background 10-30m)
+  * Barricade construction (improvised wooden junk: tables, planks, doors, chairs)
+  * Comic-book elements (cel-shading, inverted-hull outlines, posterization, paper grain, BANG/CRACK pop-ups)
+  * Weapon viewmodel rules (holster when not shooting, appears on aim/fire/reload)
+- Wrote docs/style/STYLE_GUIDE.md — comprehensive 12-section style guide covering:
+  1. Art style (cel-shaded comic book)
+  2. Color palette (environment + UI, with hex values)
+  3. Lighting direction & mood (overcast, fog, post-processing)
+  4. HUD layout (ASCII diagram + table with positions/sizes/styles)
+  5. Icon style (flat vector, specific icons for each status)
+  6. NPC appearance (zombie + survivor details)
+  7. Horde density (3-zone breakdown)
+  8. Barricade construction (materials, damage states)
+  9. Environmental atmosphere (1950s-70s suburbia)
+  10. Comic-book elements (pop-ups, weapon holstering, viewmodel)
+  11. What NOT to copy (generation artifacts, permanent text, etc.)
+  12. Implementation priority (ordered list)
+- Copied all 3 mood images to docs/style/ for reference.
+- Key design decisions documented:
+  * Toon shader + outlines = 70% of identity (implementation priority #1)
+  * Fog color #8B8B7A matching sky (priority #2)
+  * HUD = opaque panels with thick black borders (not glass/glassy)
+  * Blood uses saturated crimson to pop against muted palette
+  * Weapons holster when not shooting (don't always show gun)
+  * BANG/CRACK = 0.3s pop-ups (not permanent on-screen text)
+  * All UI text: bold condensed sans-serif, all caps
+  * Segmented bars (battery-style) for status, not smooth gradients
+- User noted: "The 3D models in these images are painted, not real geometry. They communicate mood and color, not topology, UVs, or poly count. Real assets will be built in MoGen using the visual language established here."
+
+Stage Summary:
+- Comprehensive style guide written: docs/style/STYLE_GUIDE.md (12 sections, hex values, pixel positions, implementation priority)
+- 3 mood reference images saved: docs/style/mood_*.jpg/.png
+- This guide defines the visual language for ALL future asset creation, shader development, HUD design, and atmosphere work.
+- Next: implement the toon shader (cel-shading + inverted-hull outlines) — the #1 priority that defines 70% of the art style.
