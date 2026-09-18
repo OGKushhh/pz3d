@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="WieldableItemPD" format=3 uid="uid://ckvdkigvwowm5"]
+
+[ext_resource type="Script" uid="uid://6vgnb68cqtwh" path="res://addons/cogito/InventoryPD/CustomResources/AmmoItemPD.gd" id="1_5rkh5"]
+[ext_resource type="Texture2D" uid="uid://heih3rs4r4gt" path="res://addons/cogito/Assets/Graphics/ItemIcons/CogitoFlashlight.png" id="1_f43pq"]
+[ext_resource type="Resource" uid="uid://cupby6uqaftvv" path="res://addons/cogito/InventoryPD/Items/Cogito_Battery.tres" id="2_cq8rq"]
+[ext_resource type="Script" uid="uid://bkxgkf3pj8kb8" path="res://addons/cogito/InventoryPD/CustomResources/WieldableItemPD.gd" id="2_h6bnx"]
+[ext_resource type="Texture2D" uid="uid://4xstvhrf4r2h" path="res://addons/cogito/Assets/Graphics/BatteryIcon.png" id="3_ea2qf"]
+[ext_resource type="AudioStream" uid="uid://npav2p2tk10i" path="res://addons/cogito/Assets/Audio/Kenney/handleSmallLeather.ogg" id="3_f88a5"]
+[ext_resource type="Texture2D" uid="uid://baq6iv1cuvl1q" path="res://addons/cogito/Assets/Graphics/Crosshair_Kenney/crosshair066.png" id="4_533w5"]
+[ext_resource type="PackedScene" uid="uid://5r8icl42jumy" path="res://addons/cogito/Wieldables/flashlight.tscn" id="5_ty4ey"]
+
+[resource]
+script = ExtResource("2_h6bnx")
+wieldable_scene = ExtResource("5_ty4ey")
+wieldable_data_icon = ExtResource("3_ea2qf")
+wieldable_crosshair = ExtResource("4_533w5")
+hint_on_empty = "Out of battery."
+charge_max = 100.0
+ammo_types = Array[ExtResource("1_5rkh5")]([ExtResource("2_cq8rq")])
+charge_current = 100.0
+name = "Flashlight"
+description = "Eats batteries like it's its job."
+icon = ExtResource("1_f43pq")
+drop_scene = "res://addons/cogito/PackedScenes/Pickups/pickup_flashlight.tscn"
+hint_text_on_use = "hint_flashlight"
+sound_pickup = ExtResource("3_f88a5")
+can_auto_slot = true
+slot_number = 2

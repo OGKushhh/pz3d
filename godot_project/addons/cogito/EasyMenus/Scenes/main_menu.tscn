@@ -1,0 +1,167 @@
+[gd_scene format=3 uid="uid://dq6tvhqcy2aps"]
+
+[ext_resource type="Theme" uid="uid://by44nnjeu6u4n" path="res://addons/cogito/Theme/Cogito_Theme_A.tres" id="1_74dia"]
+[ext_resource type="Script" uid="uid://mp64lt5trfar" path="res://addons/cogito/EasyMenus/Scripts/main_menu_controller.gd" id="1_lbw7r"]
+[ext_resource type="AudioStream" uid="uid://cr3bcp0u6w1pl" path="res://addons/cogito/Assets/Audio/Kenney/UiAudio/mouseclick1.ogg" id="3_cfl52"]
+[ext_resource type="PackedScene" uid="uid://cjwwvfrpcvm85" path="res://addons/cogito/DemoScenes/Cogito_Credits.tscn" id="3_f6qiv"]
+[ext_resource type="AudioStream" uid="uid://kbw2s407quul" path="res://addons/cogito/Assets/Audio/Kenney/UiAudio/click1.ogg" id="4_mhv4c"]
+[ext_resource type="Script" uid="uid://bg6tmerhavxb3" path="res://addons/cogito/Theme/CogitoUiButton.gd" id="4_ufukr"]
+[ext_resource type="PackedScene" uid="uid://0j1d1ysruqvf" path="res://addons/cogito/EasyMenus/Scenes/SaveLoadMenu.tscn" id="8_djw7k"]
+[ext_resource type="PackedScene" uid="uid://bly6wti1q8bsu" path="res://addons/cogito/EasyMenus/Scenes/OptionsTabMenu.tscn" id="8_ig87r"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n66hi"]
+
+[node name="MainMenu" type="Control" unique_id=638542596 node_paths=PackedStringArray("first_focus_button")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_74dia")
+script = ExtResource("1_lbw7r")
+first_focus_button = NodePath("ContentMain/GameMenu/VBoxContainer/MarginContainer1/Continue")
+credits_packed_scene = ExtResource("3_f6qiv")
+sound_hover = ExtResource("3_cfl52")
+sound_click = ExtResource("4_mhv4c")
+
+[node name="ContentMain" type="VBoxContainer" parent="." unique_id=1983692077]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -250.0
+offset_right = 250.0
+offset_bottom = 621.0
+grow_horizontal = 2
+theme_override_constants/separation = 15
+
+[node name="Spacer" type="PanelContainer" parent="ContentMain" unique_id=1153301815]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_n66hi")
+
+[node name="VBoxContainerTitle" type="VBoxContainer" parent="ContentMain" unique_id=1051909800]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="ContentMain/VBoxContainerTitle" unique_id=1325105498]
+auto_translate_mode = 2
+layout_mode = 2
+theme_override_font_sizes/font_size = 45
+text = "COGITO"
+horizontal_alignment = 1
+
+[node name="SubTitleLabel" type="Label" parent="ContentMain/VBoxContainerTitle" unique_id=290098808]
+auto_translate_mode = 2
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Template Project"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="ContentMain" unique_id=1838423442]
+visible = false
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="GameMenu" type="MarginContainer" parent="ContentMain" unique_id=1071554485]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 25
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ContentMain/GameMenu" unique_id=2066822050]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="MarginContainer1" type="MarginContainer" parent="ContentMain/GameMenu/VBoxContainer" unique_id=1821381796]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="Continue" type="Button" parent="ContentMain/GameMenu/VBoxContainer/MarginContainer1" unique_id=243882435]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+disabled = true
+text = "Continue
+"
+script = ExtResource("4_ufukr")
+
+[node name="MarginContainer2" type="MarginContainer" parent="ContentMain/GameMenu/VBoxContainer" unique_id=1012893924]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="NewGame" type="Button" parent="ContentMain/GameMenu/VBoxContainer/MarginContainer2" unique_id=678079341]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "New Game"
+script = ExtResource("4_ufukr")
+
+[node name="MarginContainer3" type="MarginContainer" parent="ContentMain/GameMenu/VBoxContainer" unique_id=1065005407]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="Load" type="Button" parent="ContentMain/GameMenu/VBoxContainer/MarginContainer3" unique_id=503732728]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "Load"
+script = ExtResource("4_ufukr")
+
+[node name="MarginContainer4" type="MarginContainer" parent="ContentMain/GameMenu/VBoxContainer" unique_id=49048906]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="OptionsButton" type="Button" parent="ContentMain/GameMenu/VBoxContainer/MarginContainer4" unique_id=92414995]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "Options"
+script = ExtResource("4_ufukr")
+
+[node name="MarginContainer5" type="MarginContainer" parent="ContentMain/GameMenu/VBoxContainer" unique_id=1140000380]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="CreditsButton" type="Button" parent="ContentMain/GameMenu/VBoxContainer/MarginContainer5" unique_id=1753340340]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "Credits"
+script = ExtResource("4_ufukr")
+
+[node name="MarginContainer6" type="MarginContainer" parent="ContentMain/GameMenu/VBoxContainer" unique_id=599525969]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="QuitButton" type="Button" parent="ContentMain/GameMenu/VBoxContainer/MarginContainer6" unique_id=1219370419]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "Quit"
+script = ExtResource("4_ufukr")
+
+[node name="OptionsTabMenu" parent="ContentMain" unique_id=1053557160 instance=ExtResource("8_ig87r")]
+visible = false
+layout_mode = 2
+
+[node name="SaveLoadMenu" parent="ContentMain" unique_id=1509615915 instance=ExtResource("8_djw7k")]
+visible = false
+layout_mode = 2
+
+[connection signal="pressed" from="ContentMain/GameMenu/VBoxContainer/MarginContainer1/Continue" to="." method="_on_main_menu_continue_pressed"]
+[connection signal="pressed" from="ContentMain/GameMenu/VBoxContainer/MarginContainer2/NewGame" to="." method="_on_main_menu_new_game_pressed"]
+[connection signal="pressed" from="ContentMain/GameMenu/VBoxContainer/MarginContainer3/Load" to="." method="open_save_load_menu"]
+[connection signal="pressed" from="ContentMain/GameMenu/VBoxContainer/MarginContainer4/OptionsButton" to="." method="open_options_menu"]
+[connection signal="pressed" from="ContentMain/GameMenu/VBoxContainer/MarginContainer5/CreditsButton" to="." method="_on_credits_button_pressed"]
+[connection signal="pressed" from="ContentMain/GameMenu/VBoxContainer/MarginContainer6/QuitButton" to="." method="quit"]

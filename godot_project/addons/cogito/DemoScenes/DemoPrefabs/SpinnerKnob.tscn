@@ -1,0 +1,82 @@
+[gd_scene format=4 uid="uid://drfalkw7krees"]
+
+[ext_resource type="Script" uid="uid://d041v6palciio" path="res://addons/cogito/CogitoObjects/cogito_static_interactable.gd" id="1_0b2bk"]
+[ext_resource type="PackedScene" uid="uid://dj0gfxwalruly" path="res://addons/cogito/Components/Interactions/SpinnerInteraction.tscn" id="2_mkcnl"]
+[ext_resource type="Texture2D" uid="uid://cyagrdasje82c" path="res://addons/cogito/Assets/Graphics/Crosshair_Kenney/flair_arrow_3.png" id="3_mkcnl"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_af7i7"]
+resource_name = "carpetWhite"
+albedo_color = Color(0.987835, 1, 1, 1)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_46pyy"]
+_surfaces = [{
+"aabb": AABB(-0.0676646, 0, -0.0519615, 0.135329, 0.11001, 0.103923),
+"format": 34896613377,
+"index_count": 180,
+"index_data": PackedByteArray("AgAAAAEAAQADAAIAAwAEAAIAAwAFAAQABQAGAAQABgAHAAQAAQAAAAgACAAJAAEACAAKAAkACgAHAAYACgALAAkACgAGAAsAAgAMAA0ADQAAAAIADQAOAAAADgAPAAAAEAANAAwADAARABAAEQAPABAAEQAAAA8AEwASAAQABAAHABMABgAFABQAFAAVAAYACAAAABEAEQAWAAgACwAGABUAFQAXAAsADwAYABkAGQAQAA8AFgARAAwADAAaABYADAASABoAEgATABoAGwAYAA8ADwAOABsAAwAcABQAFAAFAAMAHQAcAAMAAwABAB0AHgAbAA4ADgANAB4ACAAWABoAGgAKAAgAGwAeABkAGQAYABsAGgATAAcABwAKABoAHAAdAB8AHwAXABwAFwAUABwAFwAVABQADQAQABkAGQAeAA0AHwAdAAEAAQAJAB8ABAASAAwADAACAAQACwAXAB8AHwAJAAsA"),
+"name": "carpetWhite",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 32,
+"vertex_data": PackedByteArray("/xz5//9/AAAiQPn//38AAL9V+f///wAAUGf5/1/YAAA/x/n///8AAK21+f9f2AAA3Nz5//9/AAD///n//38AAL9V+f8AAAAAUGf5/58nAAA/x/n/AAAAAK21+f+fJwAAv1UAAP//AACZQWbOjNIAACUxZs5xrQAAJTGSMXGtAACZQZIxjNIAAP8cAAD/fwAAP8cAAP//AAD//wAA/38AAK21Kbpf2AAA3Nwpuv9/AAC/VQAAAAAAAK21KbqfJwAAAACSMWTSAABzEJIxgPcAAD/HAAAAAAAAAABmzmTSAABQZym6X9gAACJAKbr/fwAAcxBmzoD3AABQZym6nycAAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_dckl7"]
+resource_name = "kitchenCoffeeMachine_Mesh mug"
+_surfaces = [{
+"aabb": AABB(-0.0676646, 0, -0.0519615, 0.135329, 0.11001, 0.103923),
+"attribute_data": PackedByteArray("ECdGv6BGRr8LWv//02n16wDA//84sPXratNGv/vyRr8LWo1+02mWkgDAjX44sJaSfblGv0qVy1B9uUI2h1NCNrt3y1C7d72kSpW9pIdTRr+HU0a/h1NCNn25Rr99uUI2rpxCNq6coFtJVkI2SVagW3esQjZ3rEa/gUZCNoFGRr+1qUI2tamgW1BjQjZQY6Bb+/Lv6DPks/vUxkDWDbgE6e7YRr/zpf//86WNfv4/jX7+P///Aw1Gv///vaQEzb2k///LUATNy1ArlqBbxk+gWyuWQjbGT0I2SVagW0lWQjaunKBbrpxCNgMN7+gqOUDWyxuz+/FHBOnzpUa//j9Gv/OlQjb+P0I2SpXLUEqVvaS7d8tQu3e9pIFGRr+BRkI2d6xGv3esQjagRka/02mWktNp9es4sJaSOLD162rTRr/6Mr2kAAC9pPoyy1AAAMtQUGOgW1BjQja1qaBbtalCNgDARr8LWka/AMBCNgtaQjY4sKBb02mgWziwQjbTaUI2"),
+"format": 34896613399,
+"index_count": 180,
+"index_data": PackedByteArray("AgAAAAEAAQADAAIAAwAEAAIAAwAFAAQABQAGAAQABgAHAAQAAQAAAAgACAAJAAEACAAKAAkACgAHAAYACgALAAkACgAGAAsADgAMAA0ADQAPAA4ADQAQAA8AEAARAA8AEgANAAwADAATABIAEwARABIAEwAPABEAFgAUABUAFQAXABYAGgAYABkAGQAbABoAHgAcAB0AHQAfAB4AIgAgACEAIQAjACIAJgAkACUAJQAnACYAKgAoACkAKQArACoAKQAsACsALAAtACsAMAAuAC8ALwAxADAANAAyADMAMwA1ADQAOAA2ADcANwA5ADgAPAA6ADsAOwA9ADwAQAA+AD8APwBBAEAARABCAEMAQwBFAEQASABGAEcARwBJAEgATABKAEsASwBNAEwATQBOAEwATQBPAE4AUgBQAFEAUQBTAFIAVgBUAFUAVQBXAFYAWgBYAFkAWQBbAFoAXgBcAF0AXQBfAF4A"),
+"material": SubResource("StandardMaterial3D_af7i7"),
+"name": "carpetWhite",
+"primitive": 3,
+"uv_scale": Vector4(2.9655, 4.04573, 0, 0),
+"vertex_count": 96,
+"vertex_data": PackedByteArray("/xz5//9//78iQPn//3//v79V+f////+/UGf5/1/Y/78/x/n/////v621+f9f2P+/3Nz5//9//7////n//3//v79V+f8AAP+/UGf5/58n/78/x/n/AAD/v621+f+fJ/+/v1UAAP//qqqZQWbOjNKqqr9V+f///6qq/xz5//9/qqolMWbOca2qqiUxkjFxraqqmUGSMYzSqqr/HAAA/3+qqj/HAAD//6qqP8f5////qqr//wAA/3+qqv//+f//f6qqrbX5/1/YVNWttSm6X9hU1dzc+f//f1TV3Nwpuv9/VNX/HPn//39U1f8cAAD/f1TVv1X5/wAAVNW/VQAAAABU1dzc+f//f6qq3Nwpuv9/qqqttfn/nyeqqq21KbqfJ6qqAACSMWTS//9zEJIxgPf//yUxkjFxrf//mUGSMYzS////HAAA/3///79VAAD/////v1UAAAAA//8/xwAAAAD//z/HAAD///////8AAP9///8AAJIxZNKp6iUxkjFxranqAABmzmTSqeolMWbOca2p6lBnKbpf2P//rbUpul/Y//9QZ/n/X9j//621+f9f2P//UGcpul/YVNVQZ/n/X9hU1SJAKbr/f1TVIkD5//9/VNUAAGbOZNL/vyUxZs5xrf+/cxBmzoD3/7+ZQWbOjNL/v79VAAAAAP//P8cAAAAA//+/Vfn/AAD//z/H+f8AAP//cxBmzoD3qqpzEJIxgPeqqgAAZs5k0qqqAACSMWTSqqr//wAA/39U1f//+f//f1TVP8cAAAAAVNU/x/n/AABU1SJAKbr/f/+/UGcpup8n/79QZym6X9j/v621KbqfJ/+/rbUpul/Y/7/c3Cm6/3//v5lBkjGM0lSVcxCSMYD3VJWZQWbOjNJUlXMQZs6A91SVIkApuv9/qqoiQPn//3+qqlBnKbqfJ6qqUGf5/58nqqo/xwAA////f79VAAD///9/P8f5/////3+/Vfn/////f621KbqfJ/9/UGcpup8n/3+ttfn/nyf/f1Bn+f+fJ/9/////f////3////9//v//f////3////9/////f////3////9/////f////3////9//3////9/////f////3////9/////f////3////9/////fwAA/38AAP9/AAD/fwAA/3////9/////f////3////9/////f////3////9/////f////3////9/////f////3//P/9//z//f/8//3//P/9//z//f/8//3//P/9//z//f/8//3//P/9/////f////3////9/////f////3////9/////f////38AAP9/AAD/fwAA/38AAP7//3////9//v//f////3//f////3////9/////f////3////9/////f////3////9/AAD/fwAA/38AAP9/AAD///9/////f////3////9/////f////3//fwAA/38AAP9/AAD/fwAA/38AAP9/AAD/fwAA/38AAP9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_46pyy")
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_dckl7"]
+height = 0.1
+radius = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hephg"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("3_mkcnl")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_de2r2"]
+material = SubResource("StandardMaterial3D_hephg")
+size = Vector2(0.4, 0.4)
+
+[node name="CogitoSpinner" type="AnimatableBody3D" unique_id=1340053332]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 0, 0)
+collision_layer = 3
+script = ExtResource("1_0b2bk")
+
+[node name="Knob" type="Node3D" parent="." unique_id=1901273853]
+
+[node name="mug" type="MeshInstance3D" parent="Knob" unique_id=1042509946]
+transform = Transform3D(-1.0467538, 4.470348e-08, 1.372652e-07, -1.4901161e-07, -0.29963875, -7.925011e-08, 1.372652e-07, -2.2685752e-08, 1.0467538, 0.006388464, -2.0680568e-10, -8.377459e-10)
+mesh = SubResource("ArrayMesh_dckl7")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1801684795]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, -0.013389409, 0)
+shape = SubResource("CylinderShape3D_dckl7")
+
+[node name="SpinnerInteraction" parent="." unique_id=609842808 node_paths=PackedStringArray("rotating_object") instance=ExtResource("2_mkcnl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.030472562, 0)
+rotating_object = NodePath("../Knob")
+spinning_axis = Vector3(0, -1, 0)
+
+[node name="ArrowGizmo" parent="SpinnerInteraction" index="0" unique_id=1512974942]
+transform = Transform3D(-1, 8.742278e-08, 0, 8.742278e-08, 1, 8.742278e-08, 7.642742e-15, 8.742278e-08, -1, 0, 0, 0)
+mesh = SubResource("PlaneMesh_de2r2")
+
+[editable path="SpinnerInteraction"]

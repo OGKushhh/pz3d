@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://c826hdmv23gt6"]
+
+[ext_resource type="Script" uid="uid://c5gn5id4mftv6" path="res://addons/cogito/Components/Interactions/lockpick_interaction.gd" id="1_kx4te"]
+[ext_resource type="PackedScene" uid="uid://c36qe573mrl5e" path="res://addons/cogito/PackedScenes/CogitoLockpickMinigame.tscn" id="2_jvb7j"]
+[ext_resource type="Resource" uid="uid://b4cp7acepe2t7" path="res://addons/cogito/InventoryPD/Items/Cogito_LockpickItem.tres" id="3_n1saw"]
+[ext_resource type="Theme" uid="uid://by44nnjeu6u4n" path="res://addons/cogito/Theme/Cogito_Theme_A.tres" id="4_kb1hq"]
+
+[node name="LockpickInteraction" type="Node3D" unique_id=333828559]
+script = ExtResource("1_kx4te")
+lockpick_minigame = ExtResource("2_jvb7j")
+required_lockpick_item = ExtResource("3_n1saw")
+input_map_action = "interact"
+interaction_text = "INTERACT_pick_lock"
+ignore_open_gui = false
+
+[node name="LockpickUI" type="Control" parent="." unique_id=1407746733]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_kb1hq")
+
+[node name="MarginContainer" type="MarginContainer" parent="LockpickUI" unique_id=193811171]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -20.0
+offset_right = 121.0
+offset_bottom = 20.0
+grow_vertical = 2
+theme_override_constants/margin_left = 50
+
+[node name="PanelContainer" type="PanelContainer" parent="LockpickUI/MarginContainer" unique_id=1119649015]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="LockpickUI/MarginContainer/PanelContainer" unique_id=899176127]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="LockpickUI/MarginContainer/PanelContainer/MarginContainer" unique_id=1653089393]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MarginContainer" type="MarginContainer" parent="LockpickUI/MarginContainer/PanelContainer/MarginContainer/HBoxContainer" unique_id=1585082176]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ItemIconTexture" type="TextureRect" parent="LockpickUI/MarginContainer/PanelContainer/MarginContainer/HBoxContainer/MarginContainer" unique_id=1641070025]
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+
+[node name="LabelLockpicks" type="Label" parent="LockpickUI/MarginContainer/PanelContainer/MarginContainer/HBoxContainer" unique_id=291149181]
+visible = false
+layout_mode = 2
+text = "Lockpicks:"
+
+[node name="AmountLockpicks" type="Label" parent="LockpickUI/MarginContainer/PanelContainer/MarginContainer/HBoxContainer" unique_id=888445797]
+layout_mode = 2
+theme_type_variation = &"PromptLabel"
+text = "00"

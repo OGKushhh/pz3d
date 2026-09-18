@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://ukmk3wjft8no"]
+
+[ext_resource type="Script" uid="uid://b8eqn2etkgo8a" path="res://addons/cogito/CogitoNPC/detection/sight_indicator.gd" id="1_805fm"]
+[ext_resource type="Texture2D" uid="uid://b0k4xgt8gfii0" path="res://addons/cogito/Assets/Graphics/eye.svg" id="2_kifri"]
+
+[node name="SightIndicator" type="Node3D" unique_id=15315927 node_paths=PackedStringArray("indicator", "value")]
+script = ExtResource("1_805fm")
+indicator = NodePath("Sight")
+value = NodePath("Value")
+
+[node name="Sight" type="Sprite3D" parent="." unique_id=1846533567]
+billboard = 2
+texture = ExtResource("2_kifri")
+
+[node name="Value" type="Label3D" parent="." unique_id=476109689]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12024465, 0.0010458231)
+pixel_size = 0.002
+billboard = 2
+text = "0"
