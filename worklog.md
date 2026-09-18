@@ -1874,3 +1874,17 @@ Stage Summary:
 - User needs to open project in Godot editor (editor does the full rescan automatically).
 - Both our systems (weapon_system, map_baker) and Cogito's systems (inventory, NPC AI, save/load, interaction) coexist in the same project.
 - Next: user opens project, tests Cogito demo scenes, then we discuss wiring Cogito player into our baked city.
+
+---
+Task ID: session-13-roadmap-deepseek-refactors-and-loops
+Agent: main (Super Z)
+Task: User wants to save DeepSeek's 3 refactors + Loop 3 + Loop 4 into roadmap for future map work. User confirmed: "i got into our map yes, and its still not playable."
+
+Work Log:
+- Saved DeepSeek's architecture proposal to roadmap as future work (Phase F — Optimization Loops)
+- User confirmed the map is "still not playable" — need to identify specific issues
+- DeepSeek's 3 refactors (shared constants → planner → renderer) saved as Phase F.0
+- Loop 3 (reference-driven generation) saved as Phase F.3
+- Loop 4 (convergence/stopping condition) saved as Phase F.4
+- Loops 1 + 2 skipped (intermediate steps, unnecessary if 3+4 work)
+- These are POST-v1 optimizations — only after the city gen produces results the user is happy with
