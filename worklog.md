@@ -1846,3 +1846,31 @@ Stage Summary:
 - Weapon viewmodel still floats (no arms) — that's a separate asset need.
 >>>>>>> 6054e7bc49f899d109ce8edcf09268fcdd838b3a
 >>>>>>> a455724f4aef89095724c971ee2e47dd056944e9
+
+---
+Task ID: session-13-cogito-wired-working
+Agent: main (Super Z)
+Task: User: "you wire it". Actually wired Cogito — fixed all compilation errors.
+
+Work Log:
+- Diagnosed: Cogito scripts fail to compile because Godot 4.7 doesn't resolve autoload singletons (Audio, CogitoGlobals, CogitoSceneManager, etc.) during first-pass compilation. The autoloads exist at RUNTIME but the COMPILER doesn't know about them.
+- Root cause: Godot 4.7's script class cache (.godot/global_script_class_cache.cfg) needs MULTIPLE import passes to fully resolve all class_name types + autoload identifiers. First import builds partial cache, second import fills in dependencies, third import resolves everything.
+- Fix: triple import sequence:
+  1. Delete .godot cache + global_script_class_cache.cfg
+  2. First --import: builds initial cache (some errors — missing class references)
+  3. Second --import: resolves class dependencies from first pass (0 errors!)
+  4. Third --import: confirms stable (0 errors)
+- Added input action aliases: forward, back, left, right, interact2, quickslot_1-4 (Cogito uses different names than our move_forward/move_back convention)
+- Tried class_name approach first — BROKE Cogito because scripts call singleton instance methods (e.g. CogitoSceneManager.save_scene_state()) which Godot treats as static calls when class_name is present. Removed class_names.
+- Final state: Cogito scripts compile cleanly after double import. UID warnings remain (Godot falls back to text paths — harmless).
+- Verified:
+  * Our test_shoot_range.tscn loads with WeaponSystem + WeaponViewModel ✓
+  * Cogito's COGITO_3_Lobby.tscn loads with no compilation errors ✓
+  * All autoloads (Audio, SignalBus, DebugHUD, CogitoGlobals, CogitoSceneManager, etc.) work at runtime ✓
+
+Stage Summary:
+- Cogito is WIRED and COMPILING. Demo scenes load. No fatal errors.
+- The Godot 4.7 autoload resolution issue is SOLVED via triple import.
+- User needs to open project in Godot editor (editor does the full rescan automatically).
+- Both our systems (weapon_system, map_baker) and Cogito's systems (inventory, NPC AI, save/load, interaction) coexist in the same project.
+- Next: user opens project, tests Cogito demo scenes, then we discuss wiring Cogito player into our baked city.
