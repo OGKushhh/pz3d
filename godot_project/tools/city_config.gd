@@ -104,98 +104,133 @@ const BIOME_GROUND_COLORS := {
 static func ground_color_for(biome: int) -> Color:
     return BIOME_GROUND_COLORS.get(biome, COLOR_GROUND)
 
-# ── DISTRICT IDENTITY (Phase A.9, 2026-09-13) ──────────────
-# Per-biome color grade + fog tint + ambient bias (GTA SA style).
-# Each biome has a distinct visual identity:
+# ── DISTRICT IDENTITY (Phase A.9, updated XIII-style per-biome palette) ───
+# Each biome has its own distinct palette, but within that biome colors stay
+# limited. This is the XIII approach — each scene has its own palette, but
+# the palette varies between scenes. The world has color variety, but each
+# scene is coherent.
+#
+# User spec for per-biome palette:
+#   Suburbia: muted browns, faded yellows, dull greens
+#   Parks: vibrant greens, warm afternoon golds
+#   Farmland: golden wheat, deep ochre, sky blue
+#   Forest: cold pines, dark teals, misty blues
+#   Commercial: neon signs, saturated reds and blues, wet asphalt
+#   Industrial: rust oranges, steel grays, sulfur yellows
+#   Wetlands: deep teals, artificial yellows (merged with Subway palette)
+#   Downtown: neon purples and pinks, sodium orange streetlights, deep blue night
+#   Military: toxic green fog, warning reds, sterile whites
+#   Coastal: bright sky blue, turquoise water, warm sand
+#
+# Each biome has:
 #   - sky_tint: overrides sky horizon color when player is in this biome
 #   - fog_tint: fog color shifts to match biome mood
 #   - ambient_tint: ambient light color shift
 #   - sun_energy_mult: brightness multiplier (Military = darker, Parks = brighter)
-# All values are TINTS (multiplied with base colors), not absolute colors.
-# The runtime applies these via WorldEnvironment when the player enters a biome.
-#
-# Design intent per biome:
-#   Suburbia: warm, nostalgic autumn light (orange tint)
-#   Parks: bright, breezy morning (slight green tint)
-#   Forest: dark, foggy, mysterious (heavy blue-gray fog)
-#   Farmland: golden hour, dusty (warm yellow)
-#   Commercial: overcast, neutral (slight gray)
-#   Industrial: smoggy, acid rain (sickly green-gray)
-#   Wetlands: misty, heavy fog (thick gray-white)
-#   Downtown: neon night, rain (dark blue + purple)
-#   Military: toxic fog, ashfall (sickly yellow-gray, very dark)
-#   Coastal Beach: bright, sea spray (sandy warm + blue sky)
-#   Water/Empty: defaults (no override)
+#   - fog_density_mult: fog density multiplier per biome
+#   - palette_primary: dominant color of the biome (for cel-shading ramp)
+#   - palette_accent: accent color for UI/HUD when in this biome
+#   - palette_name: human-readable palette description
 const DISTRICT_IDENTITY := {
     Biome.SUBURBIA: {
-        "sky_tint": Color(1.10, 1.05, 0.95),  # warm autumn
-        "fog_tint": Color(0.85, 0.80, 0.70),   # warm beige fog
-        "ambient_tint": Color(1.05, 1.00, 0.95),
-        "sun_energy_mult": 1.1,
+        "sky_tint": Color(1.08, 1.02, 0.85),  # warm faded yellow sky
+        "fog_tint": Color(0.82, 0.75, 0.60),  # muted brown-beige fog
+        "ambient_tint": Color(1.05, 0.98, 0.88),
+        "sun_energy_mult": 1.0,
         "fog_density_mult": 1.0,
+        "palette_primary": Color(0.60, 0.50, 0.35),  # muted brown
+        "palette_accent": Color(0.65, 0.55, 0.25),  # faded yellow
+        "palette_name": "muted browns, faded yellows, dull greens",
     },
     Biome.PARKS: {
-        "sky_tint": Color(0.95, 1.00, 1.05),  # bright + slight green
-        "fog_tint": Color(0.80, 0.85, 0.80),
-        "ambient_tint": Color(1.00, 1.05, 1.00),
-        "sun_energy_mult": 1.2,  # brighter (sunny park)
-        "fog_density_mult": 0.7,  # less fog (clear day)
+        "sky_tint": Color(0.95, 1.00, 0.85),  # warm afternoon gold sky
+        "fog_tint": Color(0.78, 0.88, 0.70),  # green-gold fog
+        "ambient_tint": Color(1.02, 1.08, 0.95),
+        "sun_energy_mult": 1.2,  # brighter (warm afternoon)
+        "fog_density_mult": 0.6,  # less fog (clear afternoon)
+        "palette_primary": Color(0.30, 0.55, 0.25),  # vibrant green
+        "palette_accent": Color(0.75, 0.65, 0.30),  # warm gold
+        "palette_name": "vibrant greens, warm afternoon golds",
     },
     Biome.FOREST: {
-        "sky_tint": Color(0.70, 0.75, 0.80),  # dark, cool
-        "fog_tint": Color(0.55, 0.60, 0.65),  # heavy blue-gray
-        "ambient_tint": Color(0.85, 0.90, 0.95),
-        "sun_energy_mult": 0.7,  # darker (forest canopy)
-        "fog_density_mult": 1.8,  # thick fog (mysterious)
+        "sky_tint": Color(0.65, 0.75, 0.80),  # cold misty blue sky
+        "fog_tint": Color(0.50, 0.60, 0.70),  # misty blue-gray
+        "ambient_tint": Color(0.80, 0.88, 0.95),
+        "sun_energy_mult": 0.65,  # darker (dense canopy)
+        "fog_density_mult": 1.8,  # thick mist (mysterious)
+        "palette_primary": Color(0.15, 0.35, 0.30),  # cold pine teal
+        "palette_accent": Color(0.20, 0.45, 0.55),  # misty blue
+        "palette_name": "cold pines, dark teals, misty blues",
     },
     Biome.FARMLAND: {
-        "sky_tint": Color(1.15, 1.05, 0.85),  # golden hour
-        "fog_tint": Color(0.90, 0.80, 0.60),  # dusty warm
-        "ambient_tint": Color(1.10, 1.00, 0.90),
+        "sky_tint": Color(0.90, 0.95, 1.05),  # sky blue
+        "fog_tint": Color(0.85, 0.72, 0.45),  # golden wheat dust
+        "ambient_tint": Color(1.08, 0.95, 0.75),
         "sun_energy_mult": 1.15,
-        "fog_density_mult": 0.9,
+        "fog_density_mult": 0.8,
+        "palette_primary": Color(0.65, 0.50, 0.20),  # golden wheat
+        "palette_accent": Color(0.55, 0.35, 0.10),  # deep ochre
+        "palette_name": "golden wheat, deep ochre, sky blue",
     },
     Biome.COMMERCIAL: {
-        "sky_tint": Color(0.90, 0.90, 0.95),  # overcast neutral
-        "fog_tint": Color(0.70, 0.70, 0.75),
+        "sky_tint": Color(0.85, 0.88, 0.95),  # wet asphalt overcast
+        "fog_tint": Color(0.65, 0.65, 0.72),  # urban haze
         "ambient_tint": Color(0.95, 0.95, 1.00),
-        "sun_energy_mult": 0.95,
-        "fog_density_mult": 1.2,  # slightly foggy (urban haze)
+        "sun_energy_mult": 0.9,
+        "fog_density_mult": 1.3,  # urban haze
+        "palette_primary": Color(0.35, 0.35, 0.40),  # wet asphalt gray
+        "palette_accent": Color(0.80, 0.25, 0.25),  # saturated neon red
+        "palette_name": "neon signs, saturated reds and blues, wet asphalt",
     },
     Biome.INDUSTRIAL: {
-        "sky_tint": Color(0.80, 0.85, 0.75),  # smoggy green-gray
-        "fog_tint": Color(0.55, 0.60, 0.50),  # sickly green-gray
-        "ambient_tint": Color(0.90, 0.95, 0.85),
-        "sun_energy_mult": 0.8,  # darker (industrial smog)
-        "fog_density_mult": 1.6,  # thicker fog (smog)
+        "sky_tint": Color(0.82, 0.75, 0.65),  # smoggy sulfur sky
+        "fog_tint": Color(0.55, 0.50, 0.45),  # steel gray smog
+        "ambient_tint": Color(0.92, 0.85, 0.75),
+        "sun_energy_mult": 0.75,  # darker (industrial smog)
+        "fog_density_mult": 1.6,  # thick smog
+        "palette_primary": Color(0.45, 0.38, 0.32),  # steel gray
+        "palette_accent": Color(0.65, 0.40, 0.15),  # rust orange
+        "palette_name": "rust oranges, steel grays, sulfur yellows",
     },
     Biome.WETLANDS: {
-        "sky_tint": Color(0.85, 0.88, 0.92),
-        "fog_tint": Color(0.75, 0.78, 0.82),  # misty gray-white
-        "ambient_tint": Color(0.95, 0.98, 1.00),
-        "sun_energy_mult": 0.85,
-        "fog_density_mult": 2.0,  # thickest fog (marsh mist)
+        "sky_tint": Color(0.80, 0.85, 0.88),  # cold overcast
+        "fog_tint": Color(0.60, 0.70, 0.72),  # deep teal mist
+        "ambient_tint": Color(0.88, 0.95, 0.95),
+        "sun_energy_mult": 0.8,
+        "fog_density_mult": 2.0,  # thickest mist (marsh)
+        "palette_primary": Color(0.20, 0.40, 0.38),  # deep teal
+        "palette_accent": Color(0.75, 0.70, 0.35),  # artificial yellow
+        "palette_name": "deep teals, artificial yellows, cold concrete grays",
     },
     Biome.DOWNTOWN: {
-        "sky_tint": Color(0.55, 0.50, 0.75),  # dark blue + purple (neon night)
-        "fog_tint": Color(0.45, 0.40, 0.60),  # purple-blue rain fog
-        "ambient_tint": Color(0.75, 0.70, 0.95),
-        "sun_energy_mult": 0.6,  # darkest (night-ish)
+        "sky_tint": Color(0.45, 0.35, 0.65),  # deep blue night + purple
+        "fog_tint": Color(0.35, 0.25, 0.50),  # purple-blue rain fog
+        "ambient_tint": Color(0.65, 0.55, 0.85),
+        "sun_energy_mult": 0.5,  # darkest (night neon)
         "fog_density_mult": 1.4,
+        "palette_primary": Color(0.25, 0.15, 0.40),  # deep blue night
+        "palette_accent": Color(0.80, 0.30, 0.60),  # neon purple/pink
+        "palette_name": "neon purples and pinks, sodium orange streetlights, deep blue night",
     },
     Biome.MILITARY: {
-        "sky_tint": Color(0.65, 0.70, 0.55),  # toxic yellow-gray
-        "fog_tint": Color(0.50, 0.55, 0.40),  # sickly yellow-gray ash
-        "ambient_tint": Color(0.85, 0.90, 0.75),
-        "sun_energy_mult": 0.5,  # very dark (unnatural silence)
+        "sky_tint": Color(0.55, 0.62, 0.45),  # toxic green-gray sky
+        "fog_tint": Color(0.40, 0.48, 0.35),  # toxic green fog
+        "ambient_tint": Color(0.80, 0.88, 0.72),
+        "sun_energy_mult": 0.45,  # very dark (unnatural silence)
         "fog_density_mult": 2.2,  # thickest (toxic fog + ashfall)
+        "palette_primary": Color(0.35, 0.42, 0.30),  # toxic green
+        "palette_accent": Color(0.70, 0.25, 0.20),  # warning red
+        "palette_name": "toxic green fog, warning reds, sterile whites",
     },
     Biome.COASTAL_BEACH: {
-        "sky_tint": Color(1.05, 1.00, 0.95),  # sandy warm + bright
-        "fog_tint": Color(0.85, 0.82, 0.78),
-        "ambient_tint": Color(1.05, 1.00, 0.95),
+        "sky_tint": Color(0.80, 0.90, 1.05),  # bright sky blue
+        "fog_tint": Color(0.70, 0.85, 0.90),  # sea spray mist
+        "ambient_tint": Color(1.00, 1.05, 1.05),
         "sun_energy_mult": 1.25,  # brightest (beach sun)
-        "fog_density_mult": 0.5,  # least fog (sea breeze clears it)
+        "fog_density_mult": 0.4,  # least fog (sea breeze clears it)
+        "palette_primary": Color(0.50, 0.75, 0.85),  # turquoise water
+        "palette_accent": Color(0.85, 0.78, 0.55),  # warm sand
+        "palette_name": "bright sky blue, turquoise water, warm sand",
     },
 }
 
