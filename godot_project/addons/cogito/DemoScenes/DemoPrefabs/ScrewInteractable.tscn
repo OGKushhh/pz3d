@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://ctu5r81mtd57v"]
+
+[ext_resource type="Script" uid="uid://dmeh01c5ccjqc" path="res://addons/cogito/CogitoObjects/cogito_object.gd" id="1_youcm"]
+[ext_resource type="ArrayMesh" uid="uid://63h4ef57ceq8" path="res://addons/cogito/Assets/Models/just_a_screw/just_a_screw_meshonly.tres" id="2_8t76p"]
+[ext_resource type="PackedScene" uid="uid://dj0gfxwalruly" path="res://addons/cogito/Components/Interactions/SpinnerInteraction.tscn" id="3_youcm"]
+[ext_resource type="AudioStream" uid="uid://btoufmp0rtgi" path="res://addons/cogito/Assets/Audio/Kenney/beltHandle2.ogg" id="4_8t76p"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_dckl7"]
+height = 0.010351561
+radius = 0.01953125
+
+[node name="ScrewInteractable" type="RigidBody3D" unique_id=1458886363]
+collision_layer = 3
+axis_lock_linear_x = true
+axis_lock_linear_y = true
+axis_lock_linear_z = true
+script = ExtResource("1_youcm")
+cogito_name = "ScrewInteractable"
+
+[node name="Screw" type="Node3D" parent="." unique_id=1901273853]
+
+[node name="JustAScrewMeshonly" type="MeshInstance3D" parent="Screw" unique_id=171357079]
+transform = Transform3D(0.001, 0, 0, 0, -4.371139e-11, 0.001, 0, -0.001, -4.371139e-11, 0, -0.062, 0)
+mesh = ExtResource("2_8t76p")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1801684795]
+transform = Transform3D(0.99998826, 0, 0, 0, 1, 0, 0, 0, 0.99998826, 0, 0.0038957447, 0)
+shape = SubResource("CylinderShape3D_dckl7")
+
+[node name="SpinnerInteraction" parent="." unique_id=609842808 node_paths=PackedStringArray("rotating_object") instance=ExtResource("3_youcm")]
+rotating_object = NodePath("../Screw")
+spinning_axis = Vector3(0, -1, 0)
+rise_when_rotate = 0.001
+overrotate = false
+spinner_goal_value = -50.0
+destroy_on_goal_met = true
+sound_on_goal_met = ExtResource("4_8t76p")

@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://dj0gfxwalruly"]
+
+[ext_resource type="Script" uid="uid://b5dguu0y2p57l" path="res://addons/cogito/Components/Interactions/SpinnerInteraction.gd" id="1_wdlmh"]
+[ext_resource type="Texture2D" uid="uid://cyagrdasje82c" path="res://addons/cogito/Assets/Graphics/Crosshair_Kenney/flair_arrow_3.png" id="2_o1a7p"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hephg"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("2_o1a7p")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_8ahxg"]
+material = SubResource("StandardMaterial3D_hephg")
+size = Vector2(0.25, 0.25)
+
+[node name="SpinnerInteraction" type="Node3D" unique_id=609842808 node_paths=PackedStringArray("interacting_gizmo")]
+script = ExtResource("1_wdlmh")
+interacting_gizmo = NodePath("ArrowGizmo")
+input_map_action = "interact"
+interaction_text = "Spin"
+
+[node name="ArrowGizmo" type="MeshInstance3D" parent="." unique_id=1512974942]
+transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0)
+mesh = SubResource("PlaneMesh_8ahxg")

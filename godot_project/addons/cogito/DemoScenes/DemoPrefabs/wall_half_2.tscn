@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://hkwvqyg7nmvy"]
+
+[ext_resource type="PackedScene" uid="uid://b3bkbeubh8jgt" path="res://addons/cogito/Assets/Models/Kenney/Furniture/GLTF format/wallHalf.glb" id="1_1eefl"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cibll"]
+resource_name = "_defaultMat"
+emission_enabled = true
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_3vij5"]
+points = PackedVector3Array(0, 0, -0.1, 0, 0, 0, 0, 2.57881, -0.1, 1, 0, -0.1, 1, 0, 0, 0, 2.57881, 0, 1, 2.57881, -0.1, 1, 2.57881, 0)
+
+[node name="wallHalf" type="StaticBody3D" unique_id=874087770]
+
+[node name="wallHalf(Clone)" parent="." unique_id=25621279 instance=ExtResource("1_1eefl")]
+
+[node name="wallHalf(Clone)" parent="wallHalf(Clone)" index="0" unique_id=1045308672]
+surface_material_override/2 = SubResource("StandardMaterial3D_cibll")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1225858394]
+shape = SubResource("ConvexPolygonShape3D_3vij5")
+
+[editable path="wallHalf(Clone)"]

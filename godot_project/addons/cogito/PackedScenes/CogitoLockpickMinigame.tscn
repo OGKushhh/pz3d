@@ -1,0 +1,250 @@
+[gd_scene format=3 uid="uid://c36qe573mrl5e"]
+
+[ext_resource type="Script" uid="uid://csbq1parqsxxa" path="res://addons/cogito/PackedScenes/cogito_lockpick_minigame.gd" id="1_nyp7g"]
+[ext_resource type="AudioStream" uid="uid://btoufmp0rtgi" path="res://addons/cogito/Assets/Audio/Kenney/beltHandle2.ogg" id="2_nvjsh"]
+[ext_resource type="AudioStream" uid="uid://bfmqga66x7l1k" path="res://addons/cogito/Assets/Audio/Kenney/rockHit2.ogg" id="3_m2nmj"]
+[ext_resource type="AudioStream" uid="uid://bnqnuewmntcyp" path="res://addons/cogito/Assets/Audio/Kenney/UiAudio/error_008.ogg" id="4_cseyh"]
+
+[sub_resource type="Animation" id="Animation_m2nmj"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CameraOffset/LockpickPivot/Lockpick:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CameraOffset/Keyhole/TensionWrench:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 2.2985113)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("CameraOffset:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, -0.5)]
+}
+
+[sub_resource type="Animation" id="Animation_nvjsh"]
+resource_name = "grab_new_lock"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CameraOffset/LockpickPivot/Lockpick:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.03333336, 0.43333334, 0.53333336),
+"transitions": PackedFloat32Array(1, 1.8660649, 2),
+"update": 0,
+"values": [Vector3(-2, 0, -0.029), Vector3(0, 0, -0.065), Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_cseyh"]
+resource_name = "jiggle_lock"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CameraOffset/Keyhole/TensionWrench:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.033333335, 0.1, 0.16666667, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 2.2985113), Vector3(0, -0.12217305, 2.2985985), Vector3(0, 0, 2.2985113), Vector3(0, -0.12217305, 2.2985985), Vector3(0, 0, 2.2985113)]
+}
+
+[sub_resource type="Animation" id="Animation_gyyii"]
+resource_name = "grab_new_lock"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CameraOffset/LockpickPivot/Lockpick:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.13333334, 0.4),
+"transitions": PackedFloat32Array(2, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 0, -0.065), Vector3(0, -1.5, -0.065)]
+}
+
+[sub_resource type="Animation" id="Animation_xbyet"]
+resource_name = "unlocking"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CameraOffset:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.03333336, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, -1, -0.5), Vector3(0, 0, -0.5)]
+}
+
+[sub_resource type="Animation" id="Animation_yoo14"]
+resource_name = "unlocking"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CameraOffset:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, -0.5), Vector3(0, -1, -0.5)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_cseyh"]
+_data = {
+&"RESET": SubResource("Animation_m2nmj"),
+&"grab_new_lockpick": SubResource("Animation_nvjsh"),
+&"jiggle_lock": SubResource("Animation_cseyh"),
+&"lockpick_breaks": SubResource("Animation_gyyii"),
+&"start": SubResource("Animation_xbyet"),
+&"unlocking": SubResource("Animation_yoo14")
+}
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f8sxr"]
+albedo_color = Color(0.6542321, 0.6542321, 0.654232, 1)
+metallic = 1.0
+metallic_specular = 1.0
+use_z_clip_scale = true
+z_clip_scale = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_nyp7g"]
+material = SubResource("StandardMaterial3D_f8sxr")
+size = Vector3(0.01, 0.3, 0.01)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6n2yb"]
+material = SubResource("StandardMaterial3D_f8sxr")
+size = Vector3(0.01, 0.03, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nyp7g"]
+albedo_color = Color(0.7246427, 0.7246425, 0.7246429, 1)
+use_z_clip_scale = true
+z_clip_scale = 0.9
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_nyp7g"]
+material = SubResource("StandardMaterial3D_nyp7g")
+top_radius = 0.15
+bottom_radius = 0.15
+height = 0.1
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_f8sxr"]
+material = SubResource("StandardMaterial3D_f8sxr")
+top_radius = 0.01
+bottom_radius = 0.005
+height = 0.3
+radial_segments = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nvjsh"]
+albedo_color = Color(0, 0, 0, 1)
+use_z_clip_scale = true
+z_clip_scale = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_m2nmj"]
+material = SubResource("StandardMaterial3D_nvjsh")
+size = Vector3(0.06, 0.05, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m2nmj"]
+albedo_color = Color(0.60933006, 0.6093301, 0.60933006, 1)
+metallic = 1.0
+metallic_specular = 1.0
+use_z_clip_scale = true
+z_clip_scale = 0.9
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_t5mda"]
+material = SubResource("StandardMaterial3D_m2nmj")
+top_radius = 0.17
+bottom_radius = 0.2
+height = 0.1
+radial_segments = 32
+
+[node name="CogitoLockpickMinigame" type="Node3D" unique_id=1954313578 node_paths=PackedStringArray("lockpick_pivot", "keyhole_pivot")]
+script = ExtResource("1_nyp7g")
+lockpick_pivot = NodePath("CameraOffset/LockpickPivot")
+keyhole_pivot = NodePath("CameraOffset/Keyhole")
+lockpick_damage_per_second_min = 4.0
+lockpick_damage_per_second_max = 9.0
+unlock_sound = ExtResource("2_nvjsh")
+jiggle_sound = ExtResource("3_m2nmj")
+lockpick_break_sound = ExtResource("4_cseyh")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=651594362]
+libraries/ = SubResource("AnimationLibrary_cseyh")
+
+[node name="CameraOffset" type="Node3D" parent="." unique_id=1585753853]
+transform = Transform3D(-0.99999994, 0, -8.742277e-08, 0, 1, 0, 8.742277e-08, 0, -0.99999994, 0, 0, -0.5)
+
+[node name="LockpickPivot" type="Node3D" parent="CameraOffset" unique_id=1218344812]
+
+[node name="Lockpick" type="Node3D" parent="CameraOffset/LockpickPivot" unique_id=2132313348]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CameraOffset/LockpickPivot/Lockpick" unique_id=91488603]
+transform = Transform3D(1, 0, 0, 0, 0.9970313, 0.07699745, 0, -0.07699746, 0.99703133, -4.1909516e-08, 0.14003082, -0.046403978)
+mesh = SubResource("BoxMesh_nyp7g")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="CameraOffset/LockpickPivot/Lockpick" unique_id=998718339]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1664968e-08, 0.0048229247, -0.00998953)
+mesh = SubResource("BoxMesh_6n2yb")
+skeleton = NodePath("../..")
+
+[node name="Keyhole" type="Node3D" parent="CameraOffset" unique_id=1179237300]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CameraOffset/Keyhole" unique_id=2096817788]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -6.8061434e-10, 0.03442936)
+mesh = SubResource("CylinderMesh_nyp7g")
+
+[node name="TensionWrench" type="Node3D" parent="CameraOffset/Keyhole" unique_id=1261604443]
+transform = Transform3D(-0.6651651, -0.7466963, 0, 0.7466963, -0.6651651, 0, 0, 0, 1, 0, -0.06473079, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CameraOffset/Keyhole/TensionWrench" unique_id=497539126]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, -0.1)
+visible = false
+mesh = SubResource("BoxMesh_nyp7g")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="CameraOffset/Keyhole/TensionWrench" unique_id=1381163821]
+transform = Transform3D(0.99977463, -0.019951612, -0.0072417557, 0.015061617, 0.42648995, 0.90436697, -0.014955103, -0.9042722, 0.4266944, 0.024286542, 0.047282547, -0.14971894)
+mesh = SubResource("CylinderMesh_f8sxr")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="CameraOffset/Keyhole" unique_id=884208141]
+transform = Transform3D(0.39528394, 0, 0, 0, 1.6801848, 0, 0, 0, 0.38735402, 0, -0.0102070505, 0)
+mesh = SubResource("BoxMesh_m2nmj")
+
+[node name="Lock" type="Node3D" parent="CameraOffset" unique_id=941763686]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CameraOffset/Lock" unique_id=158858695]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0.05)
+mesh = SubResource("CylinderMesh_t5mda")

@@ -1,0 +1,223 @@
+[gd_scene format=3 uid="uid://dkie3md1cmsip"]
+
+[ext_resource type="Theme" uid="uid://by44nnjeu6u4n" path="res://addons/cogito/Theme/Cogito_Theme_A.tres" id="1_1djt0"]
+[ext_resource type="Script" uid="uid://c6ls4n4b776iy" path="res://addons/cogito/EasyMenus/Scripts/pause_menu_controller.gd" id="2_473pa"]
+[ext_resource type="AudioStream" uid="uid://cr3bcp0u6w1pl" path="res://addons/cogito/Assets/Audio/Kenney/UiAudio/mouseclick1.ogg" id="3_cekij"]
+[ext_resource type="AudioStream" uid="uid://kbw2s407quul" path="res://addons/cogito/Assets/Audio/Kenney/UiAudio/click1.ogg" id="4_ccwo8"]
+[ext_resource type="Texture2D" uid="uid://tjkesqff2f4g" path="res://addons/cogito/Assets/Graphics/EmptySaveSlot.png" id="5_18sdt"]
+[ext_resource type="Script" uid="uid://bg6tmerhavxb3" path="res://addons/cogito/Theme/CogitoUiButton.gd" id="6_a8sll"]
+[ext_resource type="Shader" uid="uid://wn6mnfchf1w7" path="res://addons/cogito/Assets/Shader/BlurShader.tres" id="6_fg7i3"]
+[ext_resource type="PackedScene" uid="uid://bly6wti1q8bsu" path="res://addons/cogito/EasyMenus/Scenes/OptionsTabMenu.tscn" id="6_xdpcn"]
+[ext_resource type="PackedScene" uid="uid://0j1d1ysruqvf" path="res://addons/cogito/EasyMenus/Scenes/SaveLoadMenu.tscn" id="9_k8f0y"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8kcia"]
+shader = ExtResource("6_fg7i3")
+shader_parameter/BlurStrength = 0.7
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_gjw0g"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3a44o"]
+
+[node name="PauseMenu" type="Control" unique_id=2130341582 node_paths=PackedStringArray("nodes_to_focus")]
+process_mode = 3
+z_index = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_1djt0")
+script = ExtResource("2_473pa")
+nodes_to_focus = [NodePath("Content/GameMenu/VBoxContainer/SaveButton")]
+sound_hover = ExtResource("3_cekij")
+sound_click = ExtResource("4_ccwo8")
+empty_slot_texture = ExtResource("5_18sdt")
+
+[node name="BlurBG" type="TextureRect" parent="." unique_id=30267078]
+material = SubResource("ShaderMaterial_8kcia")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("PlaceholderTexture2D_gjw0g")
+
+[node name="Panel" type="Panel" parent="." unique_id=621510686]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Content" type="VBoxContainer" parent="." unique_id=1618428846]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 15
+
+[node name="PauseMenuLabel" type="Label" parent="Content" unique_id=612759378]
+layout_mode = 2
+theme_override_font_sizes/font_size = 45
+text = "LAB_PauseMenu"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Content" unique_id=1099880063]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="GameMenu" type="MarginContainer" parent="Content" unique_id=1989673084]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 25
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Content/GameMenu" unique_id=1300936009]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="ResumeGameButton" type="Button" parent="Content/GameMenu/VBoxContainer" unique_id=459984682]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "BTN_Resume"
+script = ExtResource("6_a8sll")
+
+[node name="HSeparator" type="HSeparator" parent="Content/GameMenu/VBoxContainer" unique_id=1108153684]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Separator_PanelContainer" type="PanelContainer" parent="Content/GameMenu/VBoxContainer" unique_id=1314287229]
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_3a44o")
+
+[node name="PanelContainer" type="PanelContainer" parent="Content/GameMenu/VBoxContainer" unique_id=935982837]
+custom_minimum_size = Vector2(130, 200)
+layout_mode = 2
+theme = ExtResource("1_1djt0")
+theme_type_variation = &"HUDPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Content/GameMenu/VBoxContainer/PanelContainer" unique_id=1785088304]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Content/GameMenu/VBoxContainer/PanelContainer/VBoxContainer" unique_id=815387107]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Content/GameMenu/VBoxContainer/PanelContainer/VBoxContainer/MarginContainer" unique_id=1767938279]
+layout_mode = 2
+alignment = 1
+
+[node name="Label_Lastsave" type="Label" parent="Content/GameMenu/VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/VBoxContainer" unique_id=746962999]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "LAB_Last_save"
+horizontal_alignment = 1
+
+[node name="Screenshot_Spot" type="TextureRect" parent="Content/GameMenu/VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/VBoxContainer" unique_id=857367619]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("5_18sdt")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label_ActiveSlot" type="Label" parent="Content/GameMenu/VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/VBoxContainer" unique_id=1975227543]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "LAB_Current Slot"
+horizontal_alignment = 1
+
+[node name="Label_SaveTime" type="Label" parent="Content/GameMenu/VBoxContainer/PanelContainer/VBoxContainer/MarginContainer/VBoxContainer" unique_id=918822642]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "YYYY-MM-DD HH:MM"
+horizontal_alignment = 1
+
+[node name="QuickLoadButton" type="Button" parent="Content/GameMenu/VBoxContainer/PanelContainer/VBoxContainer" unique_id=903038887]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "BTN_QuickLoad"
+script = ExtResource("6_a8sll")
+
+[node name="SaveButton" type="Button" parent="Content/GameMenu/VBoxContainer" unique_id=1745886400]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "BTN_Save"
+script = ExtResource("6_a8sll")
+
+[node name="LoadButton" type="Button" parent="Content/GameMenu/VBoxContainer" unique_id=1649296468]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "BTN_Load"
+script = ExtResource("6_a8sll")
+
+[node name="Separator_PanelContainer2" type="PanelContainer" parent="Content/GameMenu/VBoxContainer" unique_id=1529786161]
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_3a44o")
+
+[node name="OptionsButton" type="Button" parent="Content/GameMenu/VBoxContainer" unique_id=463734717]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "BTN_Options"
+script = ExtResource("6_a8sll")
+
+[node name="BackToMenuButton" type="Button" parent="Content/GameMenu/VBoxContainer" unique_id=762089954]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "BTN_Back_to_Menu"
+script = ExtResource("6_a8sll")
+
+[node name="QuitButton" type="Button" parent="Content/GameMenu/VBoxContainer" unique_id=1758453586]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 30
+text = "BTN_Quit"
+script = ExtResource("6_a8sll")
+
+[node name="OptionsTabMenu" parent="Content" unique_id=1402386604 instance=ExtResource("6_xdpcn")]
+visible = false
+layout_mode = 2
+
+[node name="SaveLoadMenu" parent="Content" unique_id=142870542 instance=ExtResource("9_k8f0y")]
+visible = false
+layout_mode = 2
+
+[connection signal="pressed" from="Content/GameMenu/VBoxContainer/ResumeGameButton" to="." method="_on_resume_game_button_pressed"]
+[connection signal="pressed" from="Content/GameMenu/VBoxContainer/PanelContainer/VBoxContainer/QuickLoadButton" to="." method="_on_quickload_button_pressed"]
+[connection signal="pressed" from="Content/GameMenu/VBoxContainer/SaveButton" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="Content/GameMenu/VBoxContainer/LoadButton" to="." method="_on_load_button_pressed"]
+[connection signal="pressed" from="Content/GameMenu/VBoxContainer/OptionsButton" to="." method="open_options_menu"]
+[connection signal="pressed" from="Content/GameMenu/VBoxContainer/BackToMenuButton" to="." method="_on_back_to_main_menu_pressed"]
+[connection signal="pressed" from="Content/GameMenu/VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]

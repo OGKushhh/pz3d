@@ -127,6 +127,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 5)
 script = ExtResource("1_player")
 
 [node name="Camera3D" type="Camera3D" parent="Player"]
+current = true
 fov = 75.0
 far = 500.0
 
@@ -174,13 +175,3 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_crosshair")
 
-[node name="TestCamera" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 5)
-fov = 75.0
-far = 500.0
-visible = false
-
-[node name="TestTarget" type="MeshInstance3D" parent="TestCamera"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -15)
-visible = false
-mesh = SubResource("ground_mesh")

@@ -1,0 +1,102 @@
+[gd_scene format=3 uid="uid://cg41w2fijcp4q"]
+
+[ext_resource type="Script" uid="uid://ctbvcqq71dqyb" path="res://addons/cogito/InventoryPD/UiScenes/Slot.gd" id="1_hcuh3"]
+[ext_resource type="AudioStream" uid="uid://cr3bcp0u6w1pl" path="res://addons/cogito/Assets/Audio/Kenney/UiAudio/mouseclick1.ogg" id="2_qlqw8"]
+[ext_resource type="Theme" uid="uid://by44nnjeu6u4n" path="res://addons/cogito/Theme/Cogito_Theme_A.tres" id="3_m2h1n"]
+[ext_resource type="Texture2D" uid="uid://ql5u4r1fjj6g" path="res://addons/cogito/InventoryPD/UiScenes/SlotBorder.png" id="4_303ij"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4jj7a"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_35t0l"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+
+[sub_resource type="Gradient" id="Gradient_303ij"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(1, 1, 1, 0.4)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_scuyj"]
+gradient = SubResource("Gradient_303ij")
+width = 64
+
+[sub_resource type="LabelSettings" id="LabelSettings_c2nn1"]
+font_size = 20
+
+[node name="Slot" type="PanelContainer" unique_id=1405024678]
+custom_minimum_size = Vector2(64, 64)
+offset_right = 40.0
+offset_bottom = 40.0
+focus_mode = 2
+theme = ExtResource("3_m2h1n")
+script = ExtResource("1_hcuh3")
+enable_grid_texture = true
+highlight_color = Color(1, 1, 1, 1)
+sound_highlight = ExtResource("2_qlqw8")
+
+[node name="SlotBorder" type="TextureRect" parent="." unique_id=573287767]
+visible = false
+modulate = Color(1, 1, 1, 0.39215687)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_303ij")
+
+[node name="Highlight" type="Panel" parent="." unique_id=57275599]
+visible = false
+modulate = Color(1, 1, 1, 0.4)
+layout_mode = 2
+mouse_filter = 2
+theme = ExtResource("3_m2h1n")
+theme_override_styles/panel = SubResource("StyleBoxFlat_4jj7a")
+
+[node name="Selected" type="Panel" parent="." unique_id=2060845930]
+visible = false
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_35t0l")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1164596663]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="MarginContainer" unique_id=1614587178]
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+
+[node name="Backlight" type="TextureRect" parent="MarginContainer" unique_id=330393763]
+visible = false
+layout_mode = 2
+texture = SubResource("GradientTexture1D_scuyj")
+
+[node name="QuantityLabel" type="Label" parent="." unique_id=714336464]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+theme = ExtResource("3_m2h1n")
+theme_type_variation = &"HUDLabel"
+text = "x99"
+
+[node name="ChargeLabel" type="Label" parent="." unique_id=1764963243]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme = ExtResource("3_m2h1n")
+theme_type_variation = &"HUDLabel"
+theme_override_font_sizes/font_size = 12
+text = "100%"
+label_settings = SubResource("LabelSettings_c2nn1")
+vertical_alignment = 1
+
+[connection signal="focus_entered" from="." to="." method="_on_focus_entered"]
+[connection signal="focus_exited" from="." to="." method="_on_focus_exited"]
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]
+[connection signal="hidden" from="." to="." method="_on_hidden"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

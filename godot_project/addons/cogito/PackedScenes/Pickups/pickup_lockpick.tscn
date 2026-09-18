@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://8va0ffbjsvjp"]
+
+[ext_resource type="Script" uid="uid://dmeh01c5ccjqc" path="res://addons/cogito/CogitoObjects/cogito_object.gd" id="1_mnt1l"]
+[ext_resource type="Script" uid="uid://b0a3vpjf8hylo" path="res://addons/cogito/Components/Interactions/PickupComponent.gd" id="2_3tvn7"]
+[ext_resource type="Resource" uid="uid://b4cp7acepe2t7" path="res://addons/cogito/InventoryPD/Items/Cogito_LockpickItem.tres" id="3_3tvn7"]
+[ext_resource type="Script" uid="uid://di15gqemrkk0x" path="res://addons/cogito/InventoryPD/CustomResources/InventorySlotPD.gd" id="3_sv424"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_igqyl"]
+size = Vector3(0.06992187, 0.4547058, 0.02890625)
+
+[sub_resource type="Resource" id="Resource_1c1h6"]
+resource_local_to_scene = true
+script = ExtResource("3_sv424")
+inventory_item = ExtResource("3_3tvn7")
+metadata/_custom_type_script = "uid://di15gqemrkk0x"
+
+[node name="PickupLockpick" type="RigidBody3D" unique_id=1218944633]
+script = ExtResource("1_mnt1l")
+cogito_name = "PickupLockpick"
+
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="." unique_id=1567016242]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.005654812, 0.015079021, 0)
+polygon = PackedVector2Array(-0.02, 0.1, -0.02, 0.3, 0.02, 0.3, 0.04, 0.28, 0, 0.28, 0, 0.1, 0.02, 0.1, 0.02, -0.15, -0.04, -0.15, -0.04, 0.1)
+depth = 0.02
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1593017422]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009960937, 0.08967589, -0.010546875)
+shape = SubResource("BoxShape3D_igqyl")
+
+[node name="PickupComponent" type="Node3D" parent="." unique_id=989885255]
+script = ExtResource("2_3tvn7")
+slot_data = SubResource("Resource_1c1h6")
+input_map_action = "interact"
+interaction_text = "INTERACT_Pick_up"
+metadata/_custom_type_script = "uid://b0a3vpjf8hylo"
