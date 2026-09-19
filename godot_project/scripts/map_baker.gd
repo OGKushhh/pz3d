@@ -20,6 +20,7 @@
 extends SceneTree
 
 # === Dependencies (preload) ===
+const CityGenConfig = preload("res://tools/city_gen_config.gd")
 const CityConfig = preload("res://tools/city_config.gd")
 const SpatialIndex = preload("res://tools/spatial_index.gd")
 const RoadNetwork = preload("res://tools/road_network.gd")
@@ -34,6 +35,7 @@ const TerrainHeight = preload("res://tools/terrain_height.gd")
 # === Configuration ===
 const SEED := 1337
 const OUTPUT_DIR := "res://scenes/baked_chunks/"
+var gen_config: CityGenConfig
 # Bake region: default = full 12km² map (16 cols × 12 rows).
 # Override with --bake-cols=N --bake-rows=N --bake-origin-col=N --bake-origin-row=N
 # for partial bakes (debugging).
@@ -71,43 +73,13 @@ var placed_count: int = 0
 var skipped_count: int = 0
 
 # Constants (mirrors chunk_streamer.gd)
-const FLAT_TERRAIN_V1 := true
-const Y_GROUND := 0.000
-const Y_GRASS := 0.005
-const Y_PATH := 0.010
-const Y_DRIVEWAY := 0.015
-# FIX: roads ABOVE sidewalks/paths (user: "roads should be above pavements or paths")
-# Old: road=0.020, sidewalk=0.050 (sidewalk higher than road, looks sunken)
-# New: road=0.060, sidewalk=0.040, path=0.010 (road highest, then sidewalk, then path)
-const Y_SIDEWALK := 0.040
-const Y_PARKING := 0.050
-const Y_ROAD := 0.060       # roads above sidewalks
-const Y_LANE := 0.065        # lane lines sit on top of road
-const Y_BUILDING_SLAB := 0.070
-const Y_PARK := 0.005
-const MIN_CLEARANCE_M := 2.0
-const HIGHWAY_CLEARANCE_M := 15.0
-const LOT_W := 20.0
-const LOT_D := 16.0
-const C_ROAD := Color(0.12, 0.12, 0.14, 1)
-const C_LANE := Color(0.90, 0.88, 0.82, 1)
-const C_SIDEWALK := Color(0.70, 0.68, 0.64, 1)
-const C_GRASS := Color(0.22, 0.40, 0.16, 1)
-const C_PARK := Color(0.18, 0.38, 0.14, 1)
-const C_HIGHWAY := Color(0.08, 0.08, 0.10, 1)
-const C_LOCAL := Color(0.16, 0.16, 0.18, 1)
-const C_WATER := Color(0.15, 0.30, 0.45, 0.7)
 
 # Biome density multiplier (matches chunk_streamer)
-const BIOME_DENSITY_MULT := {
-        0: 50, 1: 5, 2: 5, 3: 10, 4: 100, 5: 60, 6: 3, 7: 120, 8: 40, 9: 8, 10: 0, 11: 0
-}
-const BIOME_FOLIAGE_MULT := {
-        0: 50, 1: 200, 2: 300, 3: 80, 4: 15, 5: 20, 6: 250, 7: 10, 8: 30, 9: 150, 10: 0, 11: 0
-}
 
 # === ENTRY POINT ===
 func _init():
+        gen_config = CityGenConfig.new()
+        gen_config.seed = SEED
         print("=== MapBaker — baking city to .tscn ===")
         print("  Map size: %dm × %dm" % [CityConfig.MAP_SIZE_M.x, CityConfig.MAP_SIZE_M.y])
         print("  Chunks: %d × %d = %d total" % [BAKE_COLS, BAKE_ROWS, BAKE_COLS * BAKE_ROWS])
@@ -154,8 +126,10 @@ func _init():
         print("  Build time: %.2fs" % (build_ms / 1000.0))
 
         # Save the world scene (sky + sun + ground + player + ChunkStreamer loader)
-        _setup_player()
-        _setup_chunk_loader()
+        # Player + ChunkLoader are added via text edit after bake (avoids
+        # autoload resolution issues when running as SceneTree script)
+        # _setup_player() and _setup_chunk_loader() are skipped — see _write_player_to_tscn()
+        _write_player_to_tscn()
 
         # Set owner recursively for the world scene
         _set_owner_recursive(city_root, city_root)
@@ -215,22 +189,22 @@ func _build_road_mesh(start: Vector3, end: Vector3, width: float, kind: String):
         var center := (start + end) * 0.5
         var length := start.distance_to(end)
         var yaw := atan2(end.x - start.x, end.z - start.z)
-        var color: Color = C_LOCAL if kind == "street" else C_HIGHWAY
+        var color: Color = CityGenConfig.C_LOCAL if kind == "street" else CityGenConfig.C_HIGHWAY
         if kind == "highway":
                 width += 2.0
         # Road surface
-        _plane("Road", center, length, width, color, Y_ROAD)
+        _plane("Road", center, length, width, color, CityGenConfig.Y_ROAD)
         # Center lane line
         if length > 20.0:
-                _plane("Lane", center, length, 0.15, C_LANE, Y_LANE)
+                _plane("Lane", center, length, 0.15, CityGenConfig.C_LANE, CityGenConfig.Y_LANE)
         # Sidewalks (both sides)
         var sw_w := 1.5
         var sw_off := width * 0.5 + sw_w * 0.5
         # Sidewalk positions (perpendicular to road direction)
         var perp_x := cos(yaw)
         var perp_z := -sin(yaw)
-        _plane("Sidewalk", center + Vector3(perp_x * sw_off, 0, perp_z * sw_off), length, sw_w, C_SIDEWALK, Y_SIDEWALK)
-        _plane("Sidewalk", center - Vector3(perp_x * sw_off, 0, perp_z * sw_off), length, sw_w, C_SIDEWALK, Y_SIDEWALK)
+        _plane("Sidewalk", center + Vector3(perp_x * sw_off, 0, perp_z * sw_off), length, sw_w, CityGenConfig.C_SIDEWALK, CityGenConfig.Y_SIDEWALK)
+        _plane("Sidewalk", center - Vector3(perp_x * sw_off, 0, perp_z * sw_off), length, sw_w, CityGenConfig.C_SIDEWALK, CityGenConfig.Y_SIDEWALK)
 
 # === CHUNK BAKER (saves each chunk to its own .res file) ===
 func _bake_chunk_to_file(col: int, row: int):
@@ -310,7 +284,7 @@ func _bake_chunk_to_file(col: int, row: int):
         # Draw interior paths
         var paths: Array = BlockLayout.get_interior_paths(layout_type, origin, CityConfig.CHUNK_SIZE_M)
         for path in paths:
-                var p_center := Vector3((path["start"].x + path["end"].x) * 0.5, Y_PATH, (path["start"].z + path["end"].z) * 0.5)
+                var p_center := Vector3((path["start"].x + path["end"].x) * 0.5, CityGenConfig.Y_PATH, (path["start"].z + path["end"].z) * 0.5)
                 var p_len: float = path["start"].distance_to(path["end"])
                 var p_width: float = float(path.get("width", 3.0))
                 var p_yaw: float = atan2(path["end"].x - path["start"].x, path["end"].z - path["start"].z)
@@ -318,10 +292,10 @@ func _bake_chunk_to_file(col: int, row: int):
 
         # Density target
         var fill: float = _get_density_for_cell(grid_col, grid_row, profile)
-        var biome_mult: int = int(BIOME_DENSITY_MULT.get(biome, 50))
+        var biome_mult: int = gen_config.get_density_mult(biome)
         var target: int = int(fill * biome_mult)
         var placed := 0
-        var building_radius: float = max(LOT_W, LOT_D) * 0.4
+        var building_radius: float = max(gen_config.LOT_W, gen_config.LOT_D) * 0.4
 
         # Place buildings per parcel
         for parcel in parcels:
@@ -385,7 +359,7 @@ func _bake_chunk_to_file(col: int, row: int):
         # Foliage scatter
         var foliage: Array = profile.get("foliage", [])
         if not foliage.is_empty():
-                var foliage_mult: int = int(BIOME_FOLIAGE_MULT.get(biome, 50))
+                var foliage_mult: int = gen_config.get_foliage_mult(biome)
                 var green_count: int = int(fill * foliage_mult)
                 for i in range(green_count):
                         var pos := Vector3(
@@ -657,7 +631,7 @@ func _is_near_highway(pos: Vector3) -> bool:
                 if seg.get("kind", "street") != "highway":
                         continue
                 var d: float = roads.distance_to_road_centerline(pos, seg)
-                if d < HIGHWAY_CLEARANCE_M:
+                if d < gen_config.HIGHWAY_CLEARANCE_M:
                         return true
         return false
 
@@ -830,7 +804,7 @@ func _setup_ground():
         body.add_child(col)
         col.owner = city_root
         # Visible ground (green grass everywhere)
-        _plane("GroundMesh", Vector3(CityConfig.MAP_SIZE_M.x * 0.5, 0, CityConfig.MAP_SIZE_M.y * 0.5), CityConfig.MAP_SIZE_M.x + 100, CityConfig.MAP_SIZE_M.y + 100, C_GRASS, 0.0)
+        _plane("GroundMesh", Vector3(CityConfig.MAP_SIZE_M.x * 0.5, 0, CityConfig.MAP_SIZE_M.y * 0.5), CityConfig.MAP_SIZE_M.x + 100, CityConfig.MAP_SIZE_M.y + 100, CityGenConfig.C_GRASS, 0.0)
 
 # Recursively set owner on all descendants of root to owner_node.
 # This ensures ResourceSaver.pack() saves every node in the tree.
@@ -840,25 +814,38 @@ func _set_owner_recursive(root: Node, owner_node: Node):
                         child.owner = owner_node
                 _set_owner_recursive(child, owner_node)
 
-func _setup_player():
-        # Instance Cogito's player scene and swap script to MazarPlayer
-        var player_scene := load("res://addons/cogito/PackedScenes/cogito_player_advanced.tscn") as PackedScene
-        if player_scene == null:
-                push_error("[MapBaker] Failed to load cogito_player_advanced.tscn")
-                return
-        var player := player_scene.instantiate()
-        player.name = "Player"
-        # Swap script to MazarPlayer (extends CogitoPlayerAdvanced)
-        player.set_script(preload("res://scripts/mazar_player.gd"))
-        # Spawn in Downtown (chunk 1_1) — biome 7, 13 buildings, dense urban area.
-        # Old spawn (1600, 1500) was in Parks — 0 buildings, empty road.
-        player.position = Vector3(375, 2, 375)
-        city_root.add_child(player)
-        player.owner = city_root
-        placed_count += 1
-        print("  ✓ MazarPlayer (CogitoPlayerAdvanced) at center")
 
 # === CHUNK LOADER ===
 # No longer needed — MazarPlayer handles chunk loading internally via _refresh_chunks().
 func _setup_chunk_loader():
     pass  # MazarPlayer has built-in chunk streaming
+
+# Write Player node to baked_world.tscn as text (avoids autoload issues with SceneTree script)
+func _write_player_to_tscn() -> void:
+        # After the scene is saved, append a Player node as an instance reference
+        # This avoids needing Cogito autoloads during bake (SceneTree doesn't have them)
+        var path := "res://scenes/baked_world.tscn"
+        var f := FileAccess.open(path, FileAccess.READ)
+        if f == null:
+                push_error("[MapBaker] Can't open baked_world.tscn for player append")
+                return
+        var content := f.get_as_text()
+        f.close()
+        # Add ext_resource for Cogito player + MazarPlayer script if not already present
+        if not "cogito_player_advanced.tscn" in content:
+                content = content.replace(
+                        '[node name="BakedCity"',
+                        '[ext_resource type="PackedScene" path="res://addons/cogito/PackedScenes/cogito_player_advanced.tscn" id="cogito_player"]\n[ext_resource type="Script" path="res://scripts/mazar_player.gd" id="mazar_player_script"]\n\n[node name="BakedCity"'
+                )
+        # Add Player node at the end (if not already present)
+        if not '[node name="Player"' in content:
+                content += '\n[node name="Player" parent="." instance=ExtResource("cogito_player")]\n'
+                content += 'transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 375, 2, 375)\n'
+                content += 'script = ExtResource("mazar_player_script")\n'
+        f = FileAccess.open(path, FileAccess.WRITE)
+        if f:
+                f.store_string(content)
+                f.close()
+                print("  ✓ Player node (MazarPlayer) written to baked_world.tscn")
+        else:
+                push_error("[MapBaker] Can't write player to baked_world.tscn")
