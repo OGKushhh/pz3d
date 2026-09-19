@@ -42,9 +42,14 @@ func _ready() -> void:
         # Fix: Cogito defaults INVERT_Y_AXIS=true (inverted mouse). Most FPS players
         # expect non-inverted (push up = look up). Override to false.
         INVERT_Y_AXIS = false
+        # Spawn in Downtown (chunk 1_1) — biome 7, 13 buildings, dense urban area.
+        # Old spawn (1600, 1500) was in Parks (biome 1) — 0 buildings, empty road.
+        global_position = Vector3(375, 2, 375)
         # Add ChunkLoader as child
         _setup_chunk_loader()
-        print("[MazarPlayer] ready — CogitoPlayerAdvanced + chunk streaming + fly mode")
+        # Give player a starting weapon
+        _setup_starting_weapon()
+        print("[MazarPlayer] ready — spawn at Downtown (375, 375), weapon + chunk streaming + fly mode")
 
 func _setup_chunk_loader() -> void:
         # Create ChunkLoader as a child of the player
@@ -55,6 +60,36 @@ func _setup_chunk_loader() -> void:
         # is busy setting up children. Call_deferred waits one frame.
         call_deferred("_refresh_chunks")
         print("[MazarPlayer] chunk loader setup (deferred first load)")
+
+func _setup_starting_weapon() -> void:
+        # Create a WieldableHitscan node and attach it to the player's Wieldables container.
+        # Cogito's player has Body/Neck/Head/Wieldables as the wieldable container.
+        var wieldables := get_node_or_null("Body/Neck/Head/Wieldables")
+        if wieldables == null:
+                print("[MazarPlayer] WARNING: Wieldables node not found — can't equip weapon")
+                return
+        # Create the hitscan wieldable
+        var weapon := WieldableHitscan.new()
+        weapon.name = "Pistol_Hitscan"
+        weapon.weapon_class = "pistol"
+        # Set world root for tracers + muzzle flashes
+        weapon.world_root = get_parent()
+        # Add to wieldables container
+        wieldables.add_child(weapon)
+        # Register with PlayerInteractionComponent so action_primary fires
+        var pic := get_node_or_null("PlayerInteractionComponent")
+        if pic:
+                # Add to wieldable_nodes array
+                if "wieldable_nodes" in pic:
+                        pic.wieldable_nodes.append(weapon)
+                # Equip it
+                if weapon.has_method("equip") and pic.has_method("equip_wieldable"):
+                        # Can't equip via inventory (no item created yet) — just show the mesh
+                        weapon.equip(pic)
+        # Show the weapon mesh (if any PPS model is set)
+        if weapon.wieldable_mesh:
+                weapon.wieldable_mesh.show()
+        print("[MazarPlayer] equipped: WieldableHitscan (pistol)")
 
 func _process(_delta: float) -> void:
         pass # CogitoPlayerAdvanced has no _process

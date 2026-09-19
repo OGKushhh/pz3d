@@ -850,8 +850,9 @@ func _setup_player():
         player.name = "Player"
         # Swap script to MazarPlayer (extends CogitoPlayerAdvanced)
         player.set_script(preload("res://scripts/mazar_player.gd"))
-        # Spawn at center of map
-        player.position = Vector3(CityConfig.MAP_SIZE_M.x * 0.4, 2, CityConfig.MAP_SIZE_M.y * 0.5)
+        # Spawn in Downtown (chunk 1_1) — biome 7, 13 buildings, dense urban area.
+        # Old spawn (1600, 1500) was in Parks — 0 buildings, empty road.
+        player.position = Vector3(375, 2, 375)
         city_root.add_child(player)
         player.owner = city_root
         placed_count += 1

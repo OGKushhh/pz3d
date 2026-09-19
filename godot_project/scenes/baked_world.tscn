@@ -1,14 +1,6 @@
 [gd_scene format=4]
 
-
 [ext_resource type="PackedScene" path="res://addons/cogito/PackedScenes/cogito_player_advanced.tscn" id="1_cjrdj"]
-[ext_resource type="AudioStream" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep00.ogg" id="21_xultp"]
-[ext_resource type="AudioStream" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep01.ogg" id="22_q28bk"]
-[ext_resource type="AudioStream" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep02.ogg" id="23_bowd6"]
-[ext_resource type="AudioStream" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep03.ogg" id="24_wketu"]
-[ext_resource type="AudioStream" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep04.ogg" id="25_gtfba"]
-[ext_resource type="Script" path="res://addons/godot_state_charts/expression_guard.gd" id="68_ujr6p"]
-
 [ext_resource type="Script" path="res://scripts/mazar_player.gd" id="2_72umq"]
 [ext_resource type="PackedScene" path="res://addons/cogito/InventoryPD/CustomResources/CogtoTestCurrency.tscn" id="3_kpxpa"]
 [ext_resource type="Script" path="res://addons/cogito/InventoryPD/CustomResources/cogito_currency.gd" id="4_ienj6"]
@@ -28,6 +20,11 @@
 [ext_resource type="PackedScene" path="res://addons/cogito/Components/interaction_raycast.tscn" id="18_jy2m1"]
 [ext_resource type="Script" path="res://addons/cogito/Scripts/interaction_raycast.gd" id="19_ysd4h"]
 [ext_resource type="Script" path="res://addons/cogito/Scripts/wieldables_sway.gd" id="20_qdmil"]
+[ext_resource type="AudioStream" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep00.ogg" id="21_xultp"]
+[ext_resource type="AudioStream" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep01.ogg" id="22_q28bk"]
+[ext_resource type="AudioStream" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep02.ogg" id="23_bowd6"]
+[ext_resource type="AudioStream" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep03.ogg" id="24_wketu"]
+[ext_resource type="AudioStream" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep04.ogg" id="25_gtfba"]
 [ext_resource type="PackedScene" path="res://addons/cogito/Components/PlayerInteractionComponent.tscn" id="26_ye86l"]
 [ext_resource type="PackedScene" path="res://addons/cogito/PackedScenes/Player_HUD.tscn" id="27_6rgpv"]
 [ext_resource type="PackedScene" path="res://addons/cogito/Components/UI/UI_AttributeComponent.tscn" id="28_ah171"]
@@ -70,6 +67,7 @@
 [ext_resource type="Script" path="res://addons/godot_state_charts/parallel_state.gd" id="65_y2ox7"]
 [ext_resource type="Script" path="res://addons/godot_state_charts/compound_state.gd" id="66_q47em"]
 [ext_resource type="Script" path="res://addons/godot_state_charts/transition.gd" id="67_jl2rh"]
+[ext_resource type="Script" path="res://addons/godot_state_charts/expression_guard.gd" id="68_ujr6p"]
 [ext_resource type="Script" path="res://addons/godot_state_charts/history_state.gd" id="69_65g7m"]
 [ext_resource type="Script" path="res://addons/godot_state_charts/atomic_state.gd" id="70_wdo3c"]
 [ext_resource type="Script" path="res://addons/cogito/Scripts/player_animation_tree.gd" id="71_fcjym"]
@@ -18882,710 +18880,788 @@ bind/52/name = &"DEF-toe.R"
 bind/52/bone = -1
 bind/52/pose = Transform3D(-1, -4.08618e-08, 1.21778e-15, 4.87804e-15, -1.19209e-07, 1, -4.092e-08, 1, -2.98023e-08, -0.089, -0.1132, -0.0152)
 
-[node name="BakedCity" type="Node3D" unique_id=191520390]
+[node name="BakedCity" type="Node3D" unique_id=547668605]
 
-[node name="Road_0" type="MeshInstance3D" parent="." unique_id=1966241879]
+[node name="Road_0" type="MeshInstance3D" parent="." unique_id=789477149]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 0)
 material_override = SubResource("StandardMaterial3D_75si0")
 mesh = SubResource("PlaneMesh_fblp4")
 
-[node name="Lane_1" type="MeshInstance3D" parent="." unique_id=668515327]
+[node name="Lane_1" type="MeshInstance3D" parent="." unique_id=396976310]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 0)
 material_override = SubResource("StandardMaterial3D_cs0ii")
 mesh = SubResource("PlaneMesh_q4330")
 
-[node name="Sidewalk_2" type="MeshInstance3D" parent="." unique_id=305344415]
+[node name="Sidewalk_2" type="MeshInstance3D" parent="." unique_id=1122987606]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, -4.75)
 material_override = SubResource("StandardMaterial3D_0hci8")
 mesh = SubResource("PlaneMesh_jxvlp")
 
-[node name="Sidewalk_3" type="MeshInstance3D" parent="." unique_id=1830527320]
+[node name="Sidewalk_3" type="MeshInstance3D" parent="." unique_id=670104493]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 4.75)
 material_override = SubResource("StandardMaterial3D_rn11u")
 mesh = SubResource("PlaneMesh_upnwc")
 
-[node name="Road_4" type="MeshInstance3D" parent="." unique_id=19537587]
+[node name="Road_4" type="MeshInstance3D" parent="." unique_id=401330448]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 500)
 material_override = SubResource("StandardMaterial3D_gsvfm")
 mesh = SubResource("PlaneMesh_14b6d")
 
-[node name="Lane_5" type="MeshInstance3D" parent="." unique_id=2121385306]
+[node name="Lane_5" type="MeshInstance3D" parent="." unique_id=831955802]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 500)
 material_override = SubResource("StandardMaterial3D_lc6bi")
 mesh = SubResource("PlaneMesh_deuri")
 
-[node name="Sidewalk_6" type="MeshInstance3D" parent="." unique_id=1226939870]
+[node name="Sidewalk_6" type="MeshInstance3D" parent="." unique_id=1023749266]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 495.25)
 material_override = SubResource("StandardMaterial3D_r121o")
 mesh = SubResource("PlaneMesh_w2qmf")
 
-[node name="Sidewalk_7" type="MeshInstance3D" parent="." unique_id=1204432078]
+[node name="Sidewalk_7" type="MeshInstance3D" parent="." unique_id=964422103]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 504.75)
 material_override = SubResource("StandardMaterial3D_mwiyc")
 mesh = SubResource("PlaneMesh_73ggv")
 
-[node name="Road_8" type="MeshInstance3D" parent="." unique_id=1343524409]
+[node name="Road_8" type="MeshInstance3D" parent="." unique_id=207793604]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 1000)
 material_override = SubResource("StandardMaterial3D_5lg02")
 mesh = SubResource("PlaneMesh_23v5w")
 
-[node name="Lane_9" type="MeshInstance3D" parent="." unique_id=1237674315]
+[node name="Lane_9" type="MeshInstance3D" parent="." unique_id=406036626]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 1000)
 material_override = SubResource("StandardMaterial3D_bgaw8")
 mesh = SubResource("PlaneMesh_6t5g4")
 
-[node name="Sidewalk_10" type="MeshInstance3D" parent="." unique_id=619025234]
+[node name="Sidewalk_10" type="MeshInstance3D" parent="." unique_id=307416699]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 992.25)
 material_override = SubResource("StandardMaterial3D_lo7y5")
 mesh = SubResource("PlaneMesh_nawtr")
 
-[node name="Sidewalk_11" type="MeshInstance3D" parent="." unique_id=1088731998]
+[node name="Sidewalk_11" type="MeshInstance3D" parent="." unique_id=871728671]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 1007.75)
 material_override = SubResource("StandardMaterial3D_538of")
 mesh = SubResource("PlaneMesh_ncxwy")
 
-[node name="Road_12" type="MeshInstance3D" parent="." unique_id=1334512709]
+[node name="Road_12" type="MeshInstance3D" parent="." unique_id=288814546]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_khwjk")
 mesh = SubResource("PlaneMesh_kxw2v")
 
-[node name="Lane_13" type="MeshInstance3D" parent="." unique_id=156200184]
+[node name="Lane_13" type="MeshInstance3D" parent="." unique_id=709860081]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_d1h5j")
 mesh = SubResource("PlaneMesh_pqkuk")
 
-[node name="Sidewalk_14" type="MeshInstance3D" parent="." unique_id=994487515]
+[node name="Sidewalk_14" type="MeshInstance3D" parent="." unique_id=269615475]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 1495.25)
 material_override = SubResource("StandardMaterial3D_twten")
 mesh = SubResource("PlaneMesh_ujoko")
 
-[node name="Sidewalk_15" type="MeshInstance3D" parent="." unique_id=321658580]
+[node name="Sidewalk_15" type="MeshInstance3D" parent="." unique_id=238596293]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 1504.75)
 material_override = SubResource("StandardMaterial3D_n52h3")
 mesh = SubResource("PlaneMesh_x5cbj")
 
-[node name="Road_16" type="MeshInstance3D" parent="." unique_id=1101107816]
+[node name="Road_16" type="MeshInstance3D" parent="." unique_id=1680413225]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 2000)
 material_override = SubResource("StandardMaterial3D_ega45")
 mesh = SubResource("PlaneMesh_v5t8g")
 
-[node name="Lane_17" type="MeshInstance3D" parent="." unique_id=1916208769]
+[node name="Lane_17" type="MeshInstance3D" parent="." unique_id=1527961048]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 2000)
 material_override = SubResource("StandardMaterial3D_h2n6m")
 mesh = SubResource("PlaneMesh_vopls")
 
-[node name="Sidewalk_18" type="MeshInstance3D" parent="." unique_id=1160859572]
+[node name="Sidewalk_18" type="MeshInstance3D" parent="." unique_id=683115294]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 1995.25)
 material_override = SubResource("StandardMaterial3D_ddqkq")
 mesh = SubResource("PlaneMesh_mprom")
 
-[node name="Sidewalk_19" type="MeshInstance3D" parent="." unique_id=319375847]
+[node name="Sidewalk_19" type="MeshInstance3D" parent="." unique_id=499459142]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 2004.75)
 material_override = SubResource("StandardMaterial3D_p43pd")
 mesh = SubResource("PlaneMesh_npt7k")
 
-[node name="Road_20" type="MeshInstance3D" parent="." unique_id=1269485583]
+[node name="Road_20" type="MeshInstance3D" parent="." unique_id=835370259]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 2500)
 material_override = SubResource("StandardMaterial3D_e6n0n")
 mesh = SubResource("PlaneMesh_ppx7j")
 
-[node name="Lane_21" type="MeshInstance3D" parent="." unique_id=1516438479]
+[node name="Lane_21" type="MeshInstance3D" parent="." unique_id=1650123838]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 2500)
 material_override = SubResource("StandardMaterial3D_75apm")
 mesh = SubResource("PlaneMesh_8i7ne")
 
-[node name="Sidewalk_22" type="MeshInstance3D" parent="." unique_id=1228635371]
+[node name="Sidewalk_22" type="MeshInstance3D" parent="." unique_id=823289992]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 2495.25)
 material_override = SubResource("StandardMaterial3D_41s7r")
 mesh = SubResource("PlaneMesh_ctli6")
 
-[node name="Sidewalk_23" type="MeshInstance3D" parent="." unique_id=230789263]
+[node name="Sidewalk_23" type="MeshInstance3D" parent="." unique_id=1117209320]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 2504.75)
 material_override = SubResource("StandardMaterial3D_llju8")
 mesh = SubResource("PlaneMesh_hc4qc")
 
-[node name="Road_24" type="MeshInstance3D" parent="." unique_id=977928628]
+[node name="Road_24" type="MeshInstance3D" parent="." unique_id=457360384]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 3000)
 material_override = SubResource("StandardMaterial3D_e36e2")
 mesh = SubResource("PlaneMesh_hyocb")
 
-[node name="Lane_25" type="MeshInstance3D" parent="." unique_id=765134146]
+[node name="Lane_25" type="MeshInstance3D" parent="." unique_id=709279660]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 3000)
 material_override = SubResource("StandardMaterial3D_oxevd")
 mesh = SubResource("PlaneMesh_lja4u")
 
-[node name="Sidewalk_26" type="MeshInstance3D" parent="." unique_id=1534468959]
+[node name="Sidewalk_26" type="MeshInstance3D" parent="." unique_id=479505360]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 2995.25)
 material_override = SubResource("StandardMaterial3D_l7185")
 mesh = SubResource("PlaneMesh_n18d8")
 
-[node name="Sidewalk_27" type="MeshInstance3D" parent="." unique_id=1857443723]
+[node name="Sidewalk_27" type="MeshInstance3D" parent="." unique_id=1104818509]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 3004.75)
 material_override = SubResource("StandardMaterial3D_ny1vb")
 mesh = SubResource("PlaneMesh_qd4d7")
 
-[node name="Road_28" type="MeshInstance3D" parent="." unique_id=1148252793]
+[node name="Road_28" type="MeshInstance3D" parent="." unique_id=1735056397]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_o3nwx")
 mesh = SubResource("PlaneMesh_3x7pf")
 
-[node name="Lane_29" type="MeshInstance3D" parent="." unique_id=1700315790]
+[node name="Lane_29" type="MeshInstance3D" parent="." unique_id=1334993816]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_rva5r")
 mesh = SubResource("PlaneMesh_kc8d0")
 
-[node name="Sidewalk_30" type="MeshInstance3D" parent="." unique_id=2139661694]
+[node name="Sidewalk_30" type="MeshInstance3D" parent="." unique_id=1782479372]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_paidk")
 mesh = SubResource("PlaneMesh_mrn6b")
 
-[node name="Sidewalk_31" type="MeshInstance3D" parent="." unique_id=1035933823]
+[node name="Sidewalk_31" type="MeshInstance3D" parent="." unique_id=893165274]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_1pfbw")
 mesh = SubResource("PlaneMesh_i16ub")
 
-[node name="Road_32" type="MeshInstance3D" parent="." unique_id=2075818372]
+[node name="Road_32" type="MeshInstance3D" parent="." unique_id=1862027591]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 500, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_mx0p5")
 mesh = SubResource("PlaneMesh_rwc4n")
 
-[node name="Lane_33" type="MeshInstance3D" parent="." unique_id=1792661638]
+[node name="Lane_33" type="MeshInstance3D" parent="." unique_id=86135835]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 500, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_yd0fp")
 mesh = SubResource("PlaneMesh_i3jx8")
 
-[node name="Sidewalk_34" type="MeshInstance3D" parent="." unique_id=1407231956]
+[node name="Sidewalk_34" type="MeshInstance3D" parent="." unique_id=655395572]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 504.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_5eckq")
 mesh = SubResource("PlaneMesh_7nkhu")
 
-[node name="Sidewalk_35" type="MeshInstance3D" parent="." unique_id=1996987006]
+[node name="Sidewalk_35" type="MeshInstance3D" parent="." unique_id=1407958453]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 495.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_oko0n")
 mesh = SubResource("PlaneMesh_bdnd8")
 
-[node name="Road_36" type="MeshInstance3D" parent="." unique_id=2046229342]
+[node name="Road_36" type="MeshInstance3D" parent="." unique_id=1397176993]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1000, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_qldin")
 mesh = SubResource("PlaneMesh_cf75g")
 
-[node name="Lane_37" type="MeshInstance3D" parent="." unique_id=1390777142]
+[node name="Lane_37" type="MeshInstance3D" parent="." unique_id=253917099]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1000, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_m4vgu")
 mesh = SubResource("PlaneMesh_l7hnp")
 
-[node name="Sidewalk_38" type="MeshInstance3D" parent="." unique_id=1113170188]
+[node name="Sidewalk_38" type="MeshInstance3D" parent="." unique_id=460233611]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1004.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_c7tod")
 mesh = SubResource("PlaneMesh_yucgk")
 
-[node name="Sidewalk_39" type="MeshInstance3D" parent="." unique_id=1936633669]
+[node name="Sidewalk_39" type="MeshInstance3D" parent="." unique_id=5773068]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 995.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_y8bs3")
 mesh = SubResource("PlaneMesh_6ex6a")
 
-[node name="Road_40" type="MeshInstance3D" parent="." unique_id=672979719]
+[node name="Road_40" type="MeshInstance3D" parent="." unique_id=77809091]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1500, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_a4hyi")
 mesh = SubResource("PlaneMesh_s2dsv")
 
-[node name="Lane_41" type="MeshInstance3D" parent="." unique_id=1009922980]
+[node name="Lane_41" type="MeshInstance3D" parent="." unique_id=1062488696]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1500, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_wc037")
 mesh = SubResource("PlaneMesh_rpikx")
 
-[node name="Sidewalk_42" type="MeshInstance3D" parent="." unique_id=698962809]
+[node name="Sidewalk_42" type="MeshInstance3D" parent="." unique_id=1827953870]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1507.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_2vhsb")
 mesh = SubResource("PlaneMesh_ldmym")
 
-[node name="Sidewalk_43" type="MeshInstance3D" parent="." unique_id=1544597495]
+[node name="Sidewalk_43" type="MeshInstance3D" parent="." unique_id=425330854]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1492.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_mnwto")
 mesh = SubResource("PlaneMesh_rmqmx")
 
-[node name="Road_44" type="MeshInstance3D" parent="." unique_id=1591017480]
+[node name="Road_44" type="MeshInstance3D" parent="." unique_id=1785388624]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_1tl7k")
 mesh = SubResource("PlaneMesh_5fwpt")
 
-[node name="Lane_45" type="MeshInstance3D" parent="." unique_id=1647786476]
+[node name="Lane_45" type="MeshInstance3D" parent="." unique_id=333865194]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_kgi7l")
 mesh = SubResource("PlaneMesh_ab6m2")
 
-[node name="Sidewalk_46" type="MeshInstance3D" parent="." unique_id=716133811]
+[node name="Sidewalk_46" type="MeshInstance3D" parent="." unique_id=1756996259]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2004.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_k0733")
 mesh = SubResource("PlaneMesh_my3tk")
 
-[node name="Sidewalk_47" type="MeshInstance3D" parent="." unique_id=1811570447]
+[node name="Sidewalk_47" type="MeshInstance3D" parent="." unique_id=416961084]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1995.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_q03sw")
 mesh = SubResource("PlaneMesh_hnae6")
 
-[node name="Road_48" type="MeshInstance3D" parent="." unique_id=963153964]
+[node name="Road_48" type="MeshInstance3D" parent="." unique_id=860457433]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2500, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_dwhxt")
 mesh = SubResource("PlaneMesh_rx5ci")
 
-[node name="Lane_49" type="MeshInstance3D" parent="." unique_id=836445060]
+[node name="Lane_49" type="MeshInstance3D" parent="." unique_id=1343367211]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2500, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_fv4d8")
 mesh = SubResource("PlaneMesh_wor83")
 
-[node name="Sidewalk_50" type="MeshInstance3D" parent="." unique_id=885688273]
+[node name="Sidewalk_50" type="MeshInstance3D" parent="." unique_id=1938178671]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2504.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_hq4dq")
 mesh = SubResource("PlaneMesh_m5igt")
 
-[node name="Sidewalk_51" type="MeshInstance3D" parent="." unique_id=1125133928]
+[node name="Sidewalk_51" type="MeshInstance3D" parent="." unique_id=110485998]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2495.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_auede")
 mesh = SubResource("PlaneMesh_k264r")
 
-[node name="Road_52" type="MeshInstance3D" parent="." unique_id=1127009728]
+[node name="Road_52" type="MeshInstance3D" parent="." unique_id=134118651]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3000, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_8a5p6")
 mesh = SubResource("PlaneMesh_5tvpq")
 
-[node name="Lane_53" type="MeshInstance3D" parent="." unique_id=906127667]
+[node name="Lane_53" type="MeshInstance3D" parent="." unique_id=563292529]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3000, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_dnyn4")
 mesh = SubResource("PlaneMesh_8lcwn")
 
-[node name="Sidewalk_54" type="MeshInstance3D" parent="." unique_id=1106956786]
+[node name="Sidewalk_54" type="MeshInstance3D" parent="." unique_id=1277269145]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3004.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_w5jb0")
 mesh = SubResource("PlaneMesh_5gdng")
 
-[node name="Sidewalk_55" type="MeshInstance3D" parent="." unique_id=664203201]
+[node name="Sidewalk_55" type="MeshInstance3D" parent="." unique_id=1949829552]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2995.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_skv2f")
 mesh = SubResource("PlaneMesh_wlg65")
 
-[node name="Road_56" type="MeshInstance3D" parent="." unique_id=1587934847]
+[node name="Road_56" type="MeshInstance3D" parent="." unique_id=1481400641]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3500, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_c2khf")
 mesh = SubResource("PlaneMesh_at5jn")
 
-[node name="Lane_57" type="MeshInstance3D" parent="." unique_id=571498358]
+[node name="Lane_57" type="MeshInstance3D" parent="." unique_id=1110794095]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3500, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_uoe3b")
 mesh = SubResource("PlaneMesh_hleig")
 
-[node name="Sidewalk_58" type="MeshInstance3D" parent="." unique_id=605360313]
+[node name="Sidewalk_58" type="MeshInstance3D" parent="." unique_id=160506245]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3504.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_ujtnq")
 mesh = SubResource("PlaneMesh_btvd5")
 
-[node name="Sidewalk_59" type="MeshInstance3D" parent="." unique_id=879125894]
+[node name="Sidewalk_59" type="MeshInstance3D" parent="." unique_id=1940066120]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3495.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_d8nqx")
 mesh = SubResource("PlaneMesh_jdx3y")
 
-[node name="Road_60" type="MeshInstance3D" parent="." unique_id=1535846280]
+[node name="Road_60" type="MeshInstance3D" parent="." unique_id=1799453196]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4000, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_bw3y4")
 mesh = SubResource("PlaneMesh_3wykw")
 
-[node name="Lane_61" type="MeshInstance3D" parent="." unique_id=746703170]
+[node name="Lane_61" type="MeshInstance3D" parent="." unique_id=1345300734]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4000, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_x0rnq")
 mesh = SubResource("PlaneMesh_5vmpc")
 
-[node name="Sidewalk_62" type="MeshInstance3D" parent="." unique_id=1862810432]
+[node name="Sidewalk_62" type="MeshInstance3D" parent="." unique_id=274156480]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4004.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_3lem2")
 mesh = SubResource("PlaneMesh_jj0qn")
 
-[node name="Sidewalk_63" type="MeshInstance3D" parent="." unique_id=1055452797]
+[node name="Sidewalk_63" type="MeshInstance3D" parent="." unique_id=241412240]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3995.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_a1885")
 mesh = SubResource("PlaneMesh_bwnci")
 
-[node name="Road_64" type="MeshInstance3D" parent="." unique_id=1388398478]
+[node name="Road_64" type="MeshInstance3D" parent="." unique_id=1938261104]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 250)
 material_override = SubResource("StandardMaterial3D_8gu3f")
 mesh = SubResource("PlaneMesh_5phee")
 
-[node name="Lane_65" type="MeshInstance3D" parent="." unique_id=1970598868]
+[node name="Lane_65" type="MeshInstance3D" parent="." unique_id=1268365765]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 250)
 material_override = SubResource("StandardMaterial3D_inw8t")
 mesh = SubResource("PlaneMesh_mgy50")
 
-[node name="Sidewalk_66" type="MeshInstance3D" parent="." unique_id=1243113690]
+[node name="Sidewalk_66" type="MeshInstance3D" parent="." unique_id=2066963363]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 246.25)
 material_override = SubResource("StandardMaterial3D_n1v4p")
 mesh = SubResource("PlaneMesh_cb2yg")
 
-[node name="Sidewalk_67" type="MeshInstance3D" parent="." unique_id=1507384636]
+[node name="Sidewalk_67" type="MeshInstance3D" parent="." unique_id=1106753811]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 253.75)
 material_override = SubResource("StandardMaterial3D_j16bp")
 mesh = SubResource("PlaneMesh_kbxv5")
 
-[node name="Road_68" type="MeshInstance3D" parent="." unique_id=353550708]
+[node name="Road_68" type="MeshInstance3D" parent="." unique_id=289958227]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 750)
 material_override = SubResource("StandardMaterial3D_bb72x")
 mesh = SubResource("PlaneMesh_36w3j")
 
-[node name="Lane_69" type="MeshInstance3D" parent="." unique_id=442560860]
+[node name="Lane_69" type="MeshInstance3D" parent="." unique_id=85784541]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 750)
 material_override = SubResource("StandardMaterial3D_cgc1f")
 mesh = SubResource("PlaneMesh_hlvlh")
 
-[node name="Sidewalk_70" type="MeshInstance3D" parent="." unique_id=1776612061]
+[node name="Sidewalk_70" type="MeshInstance3D" parent="." unique_id=1315099877]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 746.25)
 material_override = SubResource("StandardMaterial3D_igpsj")
 mesh = SubResource("PlaneMesh_850cl")
 
-[node name="Sidewalk_71" type="MeshInstance3D" parent="." unique_id=35262874]
+[node name="Sidewalk_71" type="MeshInstance3D" parent="." unique_id=1777633221]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 753.75)
 material_override = SubResource("StandardMaterial3D_rckd6")
 mesh = SubResource("PlaneMesh_owobq")
 
-[node name="Road_72" type="MeshInstance3D" parent="." unique_id=1906840756]
+[node name="Road_72" type="MeshInstance3D" parent="." unique_id=1837192160]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 1250)
 material_override = SubResource("StandardMaterial3D_so5c1")
 mesh = SubResource("PlaneMesh_xa4ih")
 
-[node name="Lane_73" type="MeshInstance3D" parent="." unique_id=868617959]
+[node name="Lane_73" type="MeshInstance3D" parent="." unique_id=1526065827]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 1250)
 material_override = SubResource("StandardMaterial3D_aus0u")
 mesh = SubResource("PlaneMesh_w87q7")
 
-[node name="Sidewalk_74" type="MeshInstance3D" parent="." unique_id=1602707671]
+[node name="Sidewalk_74" type="MeshInstance3D" parent="." unique_id=1204506310]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 1246.25)
 material_override = SubResource("StandardMaterial3D_0ptwv")
 mesh = SubResource("PlaneMesh_7qmov")
 
-[node name="Sidewalk_75" type="MeshInstance3D" parent="." unique_id=1295143613]
+[node name="Sidewalk_75" type="MeshInstance3D" parent="." unique_id=1298975519]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 1253.75)
 material_override = SubResource("StandardMaterial3D_7iiqf")
 mesh = SubResource("PlaneMesh_jp6po")
 
-[node name="Road_76" type="MeshInstance3D" parent="." unique_id=644539122]
+[node name="Road_76" type="MeshInstance3D" parent="." unique_id=11088958]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 1750)
 material_override = SubResource("StandardMaterial3D_yhy8d")
 mesh = SubResource("PlaneMesh_jl61p")
 
-[node name="Lane_77" type="MeshInstance3D" parent="." unique_id=1419066721]
+[node name="Lane_77" type="MeshInstance3D" parent="." unique_id=329336043]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 1750)
 material_override = SubResource("StandardMaterial3D_rrryk")
 mesh = SubResource("PlaneMesh_m4mta")
 
-[node name="Sidewalk_78" type="MeshInstance3D" parent="." unique_id=935122728]
+[node name="Sidewalk_78" type="MeshInstance3D" parent="." unique_id=1826407081]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 1746.25)
 material_override = SubResource("StandardMaterial3D_vwu1k")
 mesh = SubResource("PlaneMesh_xly6t")
 
-[node name="Sidewalk_79" type="MeshInstance3D" parent="." unique_id=1612048874]
+[node name="Sidewalk_79" type="MeshInstance3D" parent="." unique_id=655116306]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 1753.75)
 material_override = SubResource("StandardMaterial3D_otfmp")
 mesh = SubResource("PlaneMesh_fw552")
 
-[node name="Road_80" type="MeshInstance3D" parent="." unique_id=1291859794]
+[node name="Road_80" type="MeshInstance3D" parent="." unique_id=1686600061]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 2250)
 material_override = SubResource("StandardMaterial3D_icfda")
 mesh = SubResource("PlaneMesh_c2e8q")
 
-[node name="Lane_81" type="MeshInstance3D" parent="." unique_id=335797407]
+[node name="Lane_81" type="MeshInstance3D" parent="." unique_id=1370541330]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 2250)
 material_override = SubResource("StandardMaterial3D_ni8hc")
 mesh = SubResource("PlaneMesh_h01ws")
 
-[node name="Sidewalk_82" type="MeshInstance3D" parent="." unique_id=729882265]
+[node name="Sidewalk_82" type="MeshInstance3D" parent="." unique_id=2035815212]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 2246.25)
 material_override = SubResource("StandardMaterial3D_6ah3l")
 mesh = SubResource("PlaneMesh_sq47i")
 
-[node name="Sidewalk_83" type="MeshInstance3D" parent="." unique_id=1444558203]
+[node name="Sidewalk_83" type="MeshInstance3D" parent="." unique_id=1197275698]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 2253.75)
 material_override = SubResource("StandardMaterial3D_wyfd2")
 mesh = SubResource("PlaneMesh_3oa32")
 
-[node name="Road_84" type="MeshInstance3D" parent="." unique_id=203853054]
+[node name="Road_84" type="MeshInstance3D" parent="." unique_id=124821894]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 2750)
 material_override = SubResource("StandardMaterial3D_vlccf")
 mesh = SubResource("PlaneMesh_cu281")
 
-[node name="Lane_85" type="MeshInstance3D" parent="." unique_id=226667024]
+[node name="Lane_85" type="MeshInstance3D" parent="." unique_id=207171755]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 2750)
 material_override = SubResource("StandardMaterial3D_23sau")
 mesh = SubResource("PlaneMesh_fpe50")
 
-[node name="Sidewalk_86" type="MeshInstance3D" parent="." unique_id=443317827]
+[node name="Sidewalk_86" type="MeshInstance3D" parent="." unique_id=1805392054]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 2746.25)
 material_override = SubResource("StandardMaterial3D_c37hv")
 mesh = SubResource("PlaneMesh_j5qjk")
 
-[node name="Sidewalk_87" type="MeshInstance3D" parent="." unique_id=1473940771]
+[node name="Sidewalk_87" type="MeshInstance3D" parent="." unique_id=888763925]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 2753.75)
 material_override = SubResource("StandardMaterial3D_rfgwi")
 mesh = SubResource("PlaneMesh_5r28d")
 
-[node name="Road_88" type="MeshInstance3D" parent="." unique_id=1359840364]
+[node name="Road_88" type="MeshInstance3D" parent="." unique_id=752705444]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 250, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_praya")
 mesh = SubResource("PlaneMesh_vfxqm")
 
-[node name="Lane_89" type="MeshInstance3D" parent="." unique_id=1257602126]
+[node name="Lane_89" type="MeshInstance3D" parent="." unique_id=1476198387]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 250, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_5ibb6")
 mesh = SubResource("PlaneMesh_d5byg")
 
-[node name="Sidewalk_90" type="MeshInstance3D" parent="." unique_id=1794340257]
+[node name="Sidewalk_90" type="MeshInstance3D" parent="." unique_id=2110465821]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_fsjei")
 mesh = SubResource("PlaneMesh_6u71y")
 
-[node name="Sidewalk_91" type="MeshInstance3D" parent="." unique_id=1855784048]
+[node name="Sidewalk_91" type="MeshInstance3D" parent="." unique_id=445073841]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 246.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_w7uou")
 mesh = SubResource("PlaneMesh_rtu2n")
 
-[node name="Road_92" type="MeshInstance3D" parent="." unique_id=1984394165]
+[node name="Road_92" type="MeshInstance3D" parent="." unique_id=1577306731]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 750, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_cbfuv")
 mesh = SubResource("PlaneMesh_syoky")
 
-[node name="Lane_93" type="MeshInstance3D" parent="." unique_id=1384282720]
+[node name="Lane_93" type="MeshInstance3D" parent="." unique_id=2128634024]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 750, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_2g182")
 mesh = SubResource("PlaneMesh_6vgj7")
 
-[node name="Sidewalk_94" type="MeshInstance3D" parent="." unique_id=2087825774]
+[node name="Sidewalk_94" type="MeshInstance3D" parent="." unique_id=1964966695]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 753.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_mbtx8")
 mesh = SubResource("PlaneMesh_hnqso")
 
-[node name="Sidewalk_95" type="MeshInstance3D" parent="." unique_id=1344244341]
+[node name="Sidewalk_95" type="MeshInstance3D" parent="." unique_id=1719686822]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 746.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_w8rh1")
 mesh = SubResource("PlaneMesh_mxv2w")
 
-[node name="Road_96" type="MeshInstance3D" parent="." unique_id=583913727]
+[node name="Road_96" type="MeshInstance3D" parent="." unique_id=926982310]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1250, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_bdhi8")
 mesh = SubResource("PlaneMesh_kofln")
 
-[node name="Lane_97" type="MeshInstance3D" parent="." unique_id=1384535255]
+[node name="Lane_97" type="MeshInstance3D" parent="." unique_id=1311814807]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1250, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_rayg8")
 mesh = SubResource("PlaneMesh_to8ix")
 
-[node name="Sidewalk_98" type="MeshInstance3D" parent="." unique_id=958344431]
+[node name="Sidewalk_98" type="MeshInstance3D" parent="." unique_id=466030929]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1253.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_fxcgq")
 mesh = SubResource("PlaneMesh_5mjss")
 
-[node name="Sidewalk_99" type="MeshInstance3D" parent="." unique_id=1934374294]
+[node name="Sidewalk_99" type="MeshInstance3D" parent="." unique_id=521355779]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1246.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_f4j52")
 mesh = SubResource("PlaneMesh_h14bi")
 
-[node name="Road_100" type="MeshInstance3D" parent="." unique_id=1993843079]
+[node name="Road_100" type="MeshInstance3D" parent="." unique_id=493199951]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1750, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_mbtj3")
 mesh = SubResource("PlaneMesh_h07je")
 
-[node name="Lane_101" type="MeshInstance3D" parent="." unique_id=1787936620]
+[node name="Lane_101" type="MeshInstance3D" parent="." unique_id=956161529]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1750, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_jyikx")
 mesh = SubResource("PlaneMesh_cd0od")
 
-[node name="Sidewalk_102" type="MeshInstance3D" parent="." unique_id=752263900]
+[node name="Sidewalk_102" type="MeshInstance3D" parent="." unique_id=624391218]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1753.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_ijqx0")
 mesh = SubResource("PlaneMesh_cfv5r")
 
-[node name="Sidewalk_103" type="MeshInstance3D" parent="." unique_id=113389566]
+[node name="Sidewalk_103" type="MeshInstance3D" parent="." unique_id=59388136]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1746.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_adecj")
 mesh = SubResource("PlaneMesh_y1hkr")
 
-[node name="Road_104" type="MeshInstance3D" parent="." unique_id=971435868]
+[node name="Road_104" type="MeshInstance3D" parent="." unique_id=881197952]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2250, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_1g6yb")
 mesh = SubResource("PlaneMesh_08d0c")
 
-[node name="Lane_105" type="MeshInstance3D" parent="." unique_id=207156415]
+[node name="Lane_105" type="MeshInstance3D" parent="." unique_id=1213478088]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2250, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_13phb")
 mesh = SubResource("PlaneMesh_ndtbp")
 
-[node name="Sidewalk_106" type="MeshInstance3D" parent="." unique_id=1963087064]
+[node name="Sidewalk_106" type="MeshInstance3D" parent="." unique_id=606129212]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2253.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_5haxx")
 mesh = SubResource("PlaneMesh_1yr43")
 
-[node name="Sidewalk_107" type="MeshInstance3D" parent="." unique_id=2132115222]
+[node name="Sidewalk_107" type="MeshInstance3D" parent="." unique_id=1163791240]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2246.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_m8qds")
 mesh = SubResource("PlaneMesh_3ajdq")
 
-[node name="Road_108" type="MeshInstance3D" parent="." unique_id=324735195]
+[node name="Road_108" type="MeshInstance3D" parent="." unique_id=678095652]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2750, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_nvmkp")
 mesh = SubResource("PlaneMesh_ck6bx")
 
-[node name="Lane_109" type="MeshInstance3D" parent="." unique_id=1937580817]
+[node name="Lane_109" type="MeshInstance3D" parent="." unique_id=1971845640]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2750, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_51g7a")
 mesh = SubResource("PlaneMesh_uyeua")
 
-[node name="Sidewalk_110" type="MeshInstance3D" parent="." unique_id=954739534]
+[node name="Sidewalk_110" type="MeshInstance3D" parent="." unique_id=1041517151]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2753.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_jmjy4")
 mesh = SubResource("PlaneMesh_liswu")
 
-[node name="Sidewalk_111" type="MeshInstance3D" parent="." unique_id=1456957872]
+[node name="Sidewalk_111" type="MeshInstance3D" parent="." unique_id=1348378635]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2746.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_82pn1")
 mesh = SubResource("PlaneMesh_vcnj4")
 
-[node name="Road_112" type="MeshInstance3D" parent="." unique_id=848479150]
+[node name="Road_112" type="MeshInstance3D" parent="." unique_id=950408151]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3250, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_oahkq")
 mesh = SubResource("PlaneMesh_2j1ht")
 
-[node name="Lane_113" type="MeshInstance3D" parent="." unique_id=1143846052]
+[node name="Lane_113" type="MeshInstance3D" parent="." unique_id=1176887959]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3250, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_wvltt")
 mesh = SubResource("PlaneMesh_mnxm4")
 
-[node name="Sidewalk_114" type="MeshInstance3D" parent="." unique_id=482875676]
+[node name="Sidewalk_114" type="MeshInstance3D" parent="." unique_id=745921130]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3253.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_34qfu")
 mesh = SubResource("PlaneMesh_0xix3")
 
-[node name="Sidewalk_115" type="MeshInstance3D" parent="." unique_id=774319416]
+[node name="Sidewalk_115" type="MeshInstance3D" parent="." unique_id=1532266200]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3246.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_xnt2d")
 mesh = SubResource("PlaneMesh_xbj7j")
 
-[node name="Road_116" type="MeshInstance3D" parent="." unique_id=549403718]
+[node name="Road_116" type="MeshInstance3D" parent="." unique_id=2141654003]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3750, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_etsq6")
 mesh = SubResource("PlaneMesh_odt6l")
 
-[node name="Lane_117" type="MeshInstance3D" parent="." unique_id=330714003]
+[node name="Lane_117" type="MeshInstance3D" parent="." unique_id=1444951617]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3750, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_521pu")
 mesh = SubResource("PlaneMesh_sqrwf")
 
-[node name="Sidewalk_118" type="MeshInstance3D" parent="." unique_id=778176875]
+[node name="Sidewalk_118" type="MeshInstance3D" parent="." unique_id=614559813]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3753.75, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_sogp3")
 mesh = SubResource("PlaneMesh_htitb")
 
-[node name="Sidewalk_119" type="MeshInstance3D" parent="." unique_id=2104985476]
+[node name="Sidewalk_119" type="MeshInstance3D" parent="." unique_id=207042833]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3746.25, 0.04, 1500)
 material_override = SubResource("StandardMaterial3D_mj5ug")
 mesh = SubResource("PlaneMesh_6sld0")
 
-[node name="Road_120" type="MeshInstance3D" parent="." unique_id=1826005938]
+[node name="Road_120" type="MeshInstance3D" parent="." unique_id=1721737108]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 1750)
 material_override = SubResource("StandardMaterial3D_uanr6")
 mesh = SubResource("PlaneMesh_63wy1")
 
-[node name="Lane_121" type="MeshInstance3D" parent="." unique_id=2053763089]
+[node name="Lane_121" type="MeshInstance3D" parent="." unique_id=467800631]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 1750)
 material_override = SubResource("StandardMaterial3D_ugfqc")
 mesh = SubResource("PlaneMesh_5phvg")
 
-[node name="Sidewalk_122" type="MeshInstance3D" parent="." unique_id=663731156]
+[node name="Sidewalk_122" type="MeshInstance3D" parent="." unique_id=1828180951]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 1743.25)
 material_override = SubResource("StandardMaterial3D_20ojs")
 mesh = SubResource("PlaneMesh_wppq3")
 
-[node name="Sidewalk_123" type="MeshInstance3D" parent="." unique_id=224085710]
+[node name="Sidewalk_123" type="MeshInstance3D" parent="." unique_id=1261640710]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 1756.75)
 material_override = SubResource("StandardMaterial3D_dsvx2")
 mesh = SubResource("PlaneMesh_ke07a")
 
-[node name="Road_124" type="MeshInstance3D" parent="." unique_id=1678497373]
+[node name="Road_124" type="MeshInstance3D" parent="." unique_id=1731110047]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 2250)
 material_override = SubResource("StandardMaterial3D_ltqia")
 mesh = SubResource("PlaneMesh_0gyfq")
 
-[node name="Lane_125" type="MeshInstance3D" parent="." unique_id=1986156045]
+[node name="Lane_125" type="MeshInstance3D" parent="." unique_id=159106079]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 2250)
 material_override = SubResource("StandardMaterial3D_n2myp")
 mesh = SubResource("PlaneMesh_crc6g")
 
-[node name="Sidewalk_126" type="MeshInstance3D" parent="." unique_id=1558030942]
+[node name="Sidewalk_126" type="MeshInstance3D" parent="." unique_id=992334786]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 2243.25)
 material_override = SubResource("StandardMaterial3D_pu7x2")
 mesh = SubResource("PlaneMesh_mrufi")
 
-[node name="Sidewalk_127" type="MeshInstance3D" parent="." unique_id=1990818607]
+[node name="Sidewalk_127" type="MeshInstance3D" parent="." unique_id=1591710230]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.04, 2256.75)
 material_override = SubResource("StandardMaterial3D_8a1tt")
 mesh = SubResource("PlaneMesh_yytov")
 
-[node name="Road_128" type="MeshInstance3D" parent="." unique_id=1974119547]
+[node name="Road_128" type="MeshInstance3D" parent="." unique_id=2127727942]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_pp5oi")
 mesh = SubResource("PlaneMesh_v0byq")
 
-[node name="Lane_129" type="MeshInstance3D" parent="." unique_id=1790243523]
+[node name="Lane_129" type="MeshInstance3D" parent="." unique_id=1181319350]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_hjmwn")
 mesh = SubResource("PlaneMesh_5bebd")
 
-[node name="Sidewalk_130" type="MeshInstance3D" parent="." unique_id=469915248]
+[node name="Sidewalk_130" type="MeshInstance3D" parent="." unique_id=587222874]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2003.45, 0.04, 1495.4)
 material_override = SubResource("StandardMaterial3D_uoto3")
 mesh = SubResource("PlaneMesh_mscpo")
 
-[node name="Sidewalk_131" type="MeshInstance3D" parent="." unique_id=413487480]
+[node name="Sidewalk_131" type="MeshInstance3D" parent="." unique_id=767359139]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1996.55, 0.04, 1504.6)
 material_override = SubResource("StandardMaterial3D_mbn6x")
 mesh = SubResource("PlaneMesh_bjvu8")
 
-[node name="Road_132" type="MeshInstance3D" parent="." unique_id=656327138]
+[node name="Road_132" type="MeshInstance3D" parent="." unique_id=1059324570]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.06, 1500)
 material_override = SubResource("StandardMaterial3D_8wws8")
 mesh = SubResource("PlaneMesh_4rag4")
 
-[node name="Lane_133" type="MeshInstance3D" parent="." unique_id=1608001244]
+[node name="Lane_133" type="MeshInstance3D" parent="." unique_id=1618429305]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0.065, 1500)
 material_override = SubResource("StandardMaterial3D_x5hpi")
 mesh = SubResource("PlaneMesh_w8kma")
 
-[node name="Sidewalk_134" type="MeshInstance3D" parent="." unique_id=1178499081]
+[node name="Sidewalk_134" type="MeshInstance3D" parent="." unique_id=1233902412]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1996.55, 0.04, 1495.4)
 material_override = SubResource("StandardMaterial3D_jxugs")
 mesh = SubResource("PlaneMesh_t8jjq")
 
-[node name="Sidewalk_135" type="MeshInstance3D" parent="." unique_id=2089950727]
+[node name="Sidewalk_135" type="MeshInstance3D" parent="." unique_id=67178319]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2003.45, 0.04, 1504.6)
 material_override = SubResource("StandardMaterial3D_6sbk5")
 mesh = SubResource("PlaneMesh_tbf3r")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=75272090]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1903656637]
 environment = SubResource("Environment_ns5kt")
 
-[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1289368679]
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1705870868]
 transform = Transform3D(0.70710677, 0, 0.70710677, -0.35355338, 0.8660254, 0.35355338, -0.6123724, -0.5, 0.6123724, -282.8427, 259.80762, -150)
 light_color = Color(1, 0.95, 0.8, 1)
 light_energy = 2.0
 shadow_enabled = true
 directional_shadow_max_distance = 400.0
 
-[node name="Ground" type="StaticBody3D" parent="." unique_id=657287416]
+[node name="Ground" type="StaticBody3D" parent="." unique_id=154347781]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0, 1500)
 
-[node name="@CollisionShape3D@2" type="CollisionShape3D" parent="Ground" unique_id=2140716441]
+[node name="@CollisionShape3D@2" type="CollisionShape3D" parent="Ground" unique_id=616852031]
 shape = SubResource("BoxShape3D_c6hqe")
 
-[node name="GroundMesh_136" type="MeshInstance3D" parent="." unique_id=1647060165]
+[node name="GroundMesh_136" type="MeshInstance3D" parent="." unique_id=1049809108]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 0, 1500)
 material_override = SubResource("StandardMaterial3D_8aqj8")
 mesh = SubResource("PlaneMesh_rt7f8")
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=1413948432 groups=["Player"] instance=ExtResource("1_cjrdj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1600, 2, 1500)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 375, 2, 375)
 script = ExtResource("2_72umq")
+pause_menu = null
+is_logging = null
+fall_damage = null
+fall_damage_threshold = null
+inventory_data = null
+no_pause_menu_states = null
+no_interaction_states = null
+jump_sound = null
+slide_sound = null
+swim_movement_sound = null
+swim_under_water_sound = null
+walk_volume_db = null
+sprint_volume_db = null
+crouch_volume_db = null
+walk_footstep_interval = null
+sprint_footstep_interval = null
+footstep_interval_change_velocity = null
+landing_threshold = null
+max_landing_velocity = null
+min_landing_velocity = null
+max_volume_db = null
+min_volume_db = null
+max_pitch = null
+min_pitch = null
+MIN_SPEED = null
+MAX_SPEED = null
+JUMP_VELOCITY = null
+CROUCH_JUMP_VELOCITY = null
+WALKING_SPEED = null
+SPRINTING_SPEED = null
+CROUCHING_SPEED = null
+CROUCHING_DEPTH = null
+CAN_CROUCH_JUMP = null
+MOUSE_SENS = null
+LERP_SPEED = null
+AIR_LERP_SPEED = null
+FREE_LOOK_TILT_AMOUNT = null
+SLIDING_SPEED = null
+SLIDE_JUMP_MOD = null
+disable_roll_anim = null
+CAN_BUNNYHOP = null
+BUNNY_HOP_ACCELERATION = null
+BUNNY_HOP_WALL_SLIDE_ANGLE = null
+INVERT_Y_AXIS = null
+TOGGLE_CROUCH = null
+PLAYER_PUSH_FORCE = null
+LANDING_MIN_VELOCITY = null
+LANDING_MIN_ROLL_VELOCITY = null
+FREE_FALL_MIN_VELOCITY = null
+FREE_FALL_MIN_DIE_VELOCITY = null
+HEADBOBBLE = null
+WIGGLE_ON_WALKING_INTENSITY = null
+WIGGLE_ON_WALKING_SPEED = null
+WIGGLE_ON_SPRINTING_INTENSITY = null
+WIGGLE_ON_SPRINTING_SPEED = null
+WIGGLE_ON_CROUCHING_INTENSITY = null
+WIGGLE_ON_CROUCHING_SPEED = null
+WIGGLE_ON_SWIMMING_INTENSITY = null
+WIGGLE_ON_SWIMMING_SPEED = null
+step_height_camera_lerp = null
+STEP_HEIGHT_DEFAULT = null
+STEP_MAX_SLOPE_DEGREE = null
+CAN_SPRINT_ON_LADDER = null
+LADDER_SPEED = null
+LADDER_SPRINT_SPEED = null
+LADDER_COOLDOWN = null
+CAN_CLIMB_LEDGE = null
+AUTO_STAND_AFTER_CLIMB = null
+CLIMBING_SPEED = null
+ARM_LENGTH = null
+MIN_FREE_SPACE_ABOVE_HEAD = null
+MIN_CLIMB_HEIGHT = null
+SWIMMING_SPEED = null
+WATER_GRAVITY_COEFFICIENT = null
+AUTO_STAND_AFTER_SWIM = null
+JOY_DEADZONE = null
+JOY_V_SENS = null
+JOY_H_SENS = null
 
