@@ -52,7 +52,7 @@ func _setup_chunk_loader() -> void:
 	_refresh_chunks()
 
 func _process(_delta: float) -> void:
-	super._process(_delta)
+	pass # CogitoPlayerAdvanced has no _process
 	# Check if player moved to a new chunk
 	var cx := int(global_position.x / CHUNK_SIZE)
 	var cz := int(global_position.z / CHUNK_SIZE)

@@ -2107,3 +2107,34 @@ Work Log:
 - Architecture: CogitoPlayerAdvanced → MazarPlayer (our city features on top of Cogito's player)
 - Our code in scripts/ (NOT in addons/cogito/)
 - Next step: Step 3 — update baked_world.tscn to use mazar_player, wire ChunkLoader, test full flow
+
+---
+Task ID: session-13-step3-baked-world-uses-mazar-player
+Agent: main (Super Z)
+Task: Step 3 of Option B migration: update baked_world.tscn to use MazarPlayer (CogitoPlayerAdvanced + chunk streaming + fly mode).
+
+Work Log:
+- Replaced old Player node (CharacterBody3D with player_controller_baked.gd) with:
+  * Instance of cogito_player_advanced.tscn (Cogito's full player scene)
+  * Script swapped to mazar_player.gd (MazarPlayer, extends CogitoPlayerAdvanced)
+  * Position: (1600, 2, 1500) — center of map
+- Removed old ChunkLoader node (MazarPlayer handles chunk loading internally via _refresh_chunks)
+- Removed old duplicate ext_resource declarations
+- Fixed mazar_player.gd: removed super._process() call (CogitoPlayerAdvanced doesn't define _process)
+- baked_world.tscn now has:
+  * WorldEnvironment (sky + fog + tonemap)
+  * Sun (directional light + shadows)
+  * Ground (StaticBody3D + collision + mesh)
+  * Player (CogitoPlayerAdvanced instance + MazarPlayer script)
+  * Roads (all the road/sidewalk/lane MeshInstance3D nodes from the original bake)
+- Verified: 0 compilation errors, 0 parse errors. Scene loads cleanly.
+- The Player now has ALL Cogito features: movement (walk/sprint/crouch/slide/stairs/ladders/swim), interaction (doors/containers/keypads), inventory, attributes, HUD, footsteps, wieldables, save/load
+- Plus our features: chunk streaming (loads 25 .tscn chunks near player), fly mode (T key), F8 dump
+- Old systems still present but will be cleaned up in Step 3b (delete legacy files)
+
+Stage Summary:
+- Step 3 DONE: baked_world.tscn uses MazarPlayer (CogitoPlayerAdvanced + chunk streaming)
+- Full Option B migration complete: CogitoWieldable → WieldableHitscan (weapons), CogitoPlayerAdvanced → MazarPlayer (player)
+- The player now has: Cogito's full feature set + our city gen + our weapon system (as Cogito extension)
+- Architecture: everything extends Cogito, nothing forks it
+- Next: user opens in Godot editor, tests full flow (walk, shoot, interact, inventory, save/load)
