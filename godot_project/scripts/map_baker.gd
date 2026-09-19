@@ -31,6 +31,8 @@ const PlacementValidator = preload("res://tools/placement_validator.gd")
 const PathQuery = preload("res://tools/path_query.gd")
 const RiverNetwork = preload("res://tools/river_network.gd")
 const TerrainHeight = preload("res://tools/terrain_height.gd")
+const ChunkPlanner = preload("res://tools/chunk_planner.gd")
+const ChunkRenderer = preload("res://tools/chunk_renderer.gd")
 
 # === Configuration ===
 const SEED := 1337
@@ -207,318 +209,36 @@ func _build_road_mesh(start: Vector3, end: Vector3, width: float, kind: String):
         _plane("Sidewalk", center - Vector3(perp_x * sw_off, 0, perp_z * sw_off), length, sw_w, CityGenConfig.C_SIDEWALK, CityGenConfig.Y_SIDEWALK)
 
 # === CHUNK BAKER (saves each chunk to its own .res file) ===
+# === CHUNK BAKER (uses ChunkPlanner + ChunkRenderer) ===
 func _bake_chunk_to_file(col: int, row: int):
-        var origin := Vector3(col * CityConfig.CHUNK_SIZE_M, 0, row * CityConfig.CHUNK_SIZE_M)
-        var grid_col: int = clamp(int(col * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_COLS - 1)
-        var grid_row: int = clamp(int(row * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_ROWS - 1)
-        var biome: int = CityConfig.grid_layout()[grid_row][grid_col]
-        if biome == CityConfig.Biome.WATER or biome == CityConfig.Biome.EMPTY:
-                return  # skip water/empty chunks entirely
-
-        var profile: Dictionary = CityConfig.biomes().get(biome, {})
-        if profile.is_empty():
-                return
-
-        # Per-chunk RNG
-        var crng := RandomNumberGenerator.new()
-        crng.seed = SEED + col * 1000 + row
-
-        # Per-chunk root node (will be saved as its own .res)
-        var chunk_root := Node3D.new()
-        chunk_root.name = "Chunk_%d_%d" % [col, row]
-
-        # Debug: per-biome colored ground plane (helps distinguish biomes while testing)
-        # Sits at Y=0.001 (just above ground) so roads/sidewalks render on top
-        var biome_color: Color = CityConfig.ground_color_for(biome)
-        _plane_in_parent(chunk_root, "BiomeGround", origin + Vector3(CityConfig.CHUNK_SIZE_M * 0.5, 0, CityConfig.CHUNK_SIZE_M * 0.5), CityConfig.CHUNK_SIZE_M, CityConfig.CHUNK_SIZE_M, biome_color, 0.001)
-
-        # Place POIs in this chunk
-        # FIX: POIs declared on road centerlines (e.g. at exact 500m grid intersections)
-        # are nudged OFF the road before placement. User: "a tower and a stadium on roads".
-        var poi_exclusions: Array = []
-        for poi in map_data.get("pois", []):
-                var poi_pos_arr: Array = poi.get("pos", [0, 0, 0])
-                var poi_pos := Vector3(float(poi_pos_arr[0]), 0, float(poi_pos_arr[2]))
-                if poi_pos.x < origin.x or poi_pos.x >= origin.x + CityConfig.CHUNK_SIZE_M:
-                        continue
-                if poi_pos.z < origin.z or poi_pos.z >= origin.z + CityConfig.CHUNK_SIZE_M:
-                        continue
-                var poi_asset: String = poi.get("type", "")
-                var poi_radius: float = float(poi.get("radius", 30))
-                # Nudge POI off road if too close (< 15m = on or near road)
-                poi_pos = _nudge_off_road(poi_pos, poi_radius)
-                var poi_scene := _get_asset(poi_asset)
-                if poi_scene:
-                        var poi_inst := poi_scene.instantiate()
-                        poi_inst.position = poi_pos
-                        poi_inst.name = "POI_" + poi.get("id", poi_asset)
-                        chunk_root.add_child(poi_inst)
-                        spatial.insert(poi_pos, poi_radius)
-                        poi_exclusions.append({"center": poi_pos, "radius": poi_radius})
-                        _global_poi_exclusions.append({"center": poi_pos, "radius": poi_radius})
-                        placed_count += 1
-
-        # Stamp district template
-        var template_name: String = stamper.pick_template_for_biome(biome, crng)
-        if template_name != "":
-                var anchor_pos := origin + Vector3(CityConfig.CHUNK_SIZE_M * 0.5, 0, CityConfig.CHUNK_SIZE_M * 0.5)
-                var template_rot := crng.randf_range(0, TAU)
-                var template_placed: int = stamper.stamp_template(template_name, anchor_pos, template_rot, chunk_root, crng, self)
-                if template_placed > 0:
-                        spatial.insert(anchor_pos, 75.0)
-                        poi_exclusions.append({"center": anchor_pos, "radius": 75.0})
-
-        # Generate parcels
-        var layout_type: String = BlockLayout.layout_for_biome(biome)
-        var parcels: Array = BlockLayout.generate_parcels(layout_type, origin, CityConfig.CHUNK_SIZE_M)
-        for parcel in parcels:
-                var info: Dictionary = roads.nearest_road_info(parcel.building_pos)
-                if info.get("found", false):
-                        parcel.road_edge_pos = info["point"]
-                        parcel.road_distance = info["distance"]
-                        parcel.road_dir = info["direction"]
-                        var to_road: Vector3 = info["point"] - parcel.building_pos
-                        if to_road.length() > 0.1:
-                                parcel.front_dir = to_road.normalized()
-
-        # Draw interior paths
-        var paths: Array = BlockLayout.get_interior_paths(layout_type, origin, CityConfig.CHUNK_SIZE_M)
-        for path in paths:
-                var p_center := Vector3((path["start"].x + path["end"].x) * 0.5, CityGenConfig.Y_PATH, (path["start"].z + path["end"].z) * 0.5)
-                var p_len: float = path["start"].distance_to(path["end"])
-                var p_width: float = float(path.get("width", 3.0))
-                var p_yaw: float = atan2(path["end"].x - path["start"].x, path["end"].z - path["start"].z)
-                _create_plane_mesh_rotated(chunk_root, "Path", p_center, Vector2(p_width, p_len), Color(0.25, 0.25, 0.27, 1), p_yaw)
-
-        # Density target
-        var fill: float = _get_density_for_cell(grid_col, grid_row, profile)
-        var biome_mult: int = gen_config.get_density_mult(biome)
-        var target: int = int(fill * biome_mult)
-        var placed := 0
-        var building_radius: float = max(gen_config.LOT_W, gen_config.LOT_D) * 0.4
-
-        # Place buildings per parcel
-        for parcel in parcels:
-                if placed >= target:
-                        break
-                var lot_pos: Vector3 = parcel.building_pos
-                if lot_pos.x < origin.x or lot_pos.x >= origin.x + CityConfig.CHUNK_SIZE_M:
-                        continue
-                if lot_pos.z < origin.z or lot_pos.z >= origin.z + CityConfig.CHUNK_SIZE_M:
-                        continue
-                if not spatial.is_free(lot_pos, building_radius):
-                        continue
-                if spatial.is_on_road(lot_pos):
-                        continue
-                if _is_in_poi_exclusion(lot_pos, poi_exclusions):
-                        continue
-                if _is_near_highway(lot_pos):
-                        continue
-
-                var lot_name: String = lot_stamper.pick_lot_for_biome(biome, crng)
-                if lot_name != "" and crng.randf() <= fill:
-                        var lot_placed: int = lot_stamper.stamp_lot(lot_name, parcel, chunk_root, crng, self, biome)
-                        if lot_placed > 0:
-                                spatial.insert(lot_pos, building_radius)
-                                _register_asset_position("lot_" + lot_name, lot_pos)
-                                placed += lot_placed
-                                placed_count += lot_placed
-                                continue
-
-                if crng.randf() > fill:
-                        continue
-
-                var buildings_pool: Array = profile.get("buildings", [])
-                if buildings_pool.is_empty():
-                        continue
-                var bname: String = ""
-                for _attempt in range(3):
-                        var candidate: String = buildings_pool[crng.randi() % buildings_pool.size()]
-                        var type_count: int = _get_district_type_count(biome, candidate)
-                        if type_count < 5:
-                                bname = candidate
-                                break
-                if bname == "":
-                        continue
-
-                var inst: Node3D = _spawn_building(bname, lot_pos, parcel.front_dir, crng, chunk_root)
-                if inst == null:
-                        continue
-                var new_aabb := _compute_aabb(inst)
-                new_aabb.position += inst.position
-                if _has_aabb_overlap(new_aabb, chunk_root):
-                        inst.queue_free()
-                        continue
-                inst.set_meta("parcel_id", parcel.parcel_id)
-                spatial.insert(lot_pos, building_radius)
-                _register_asset_position(bname, lot_pos)
-                _increment_district_type_count(biome, bname)
-                placed += 1
-                placed_count += 1
-
-        # Foliage scatter
-        var foliage: Array = profile.get("foliage", [])
-        if not foliage.is_empty():
-                var foliage_mult: int = gen_config.get_foliage_mult(biome)
-                var green_count: int = int(fill * foliage_mult)
-                for i in range(green_count):
-                        var pos := Vector3(
-                                origin.x + crng.randf_range(5.0, CityConfig.CHUNK_SIZE_M - 5.0),
-                                0,
-                                origin.z + crng.randf_range(5.0, CityConfig.CHUNK_SIZE_M - 5.0)
-                        )
-                        if not spatial.is_free(pos, 3.0) or spatial.is_on_road(pos):
-                                continue
-                        if _is_in_poi_exclusion(pos, poi_exclusions):
-                                continue
-                        if _path_query.is_on_path(pos, 2.0):
-                                continue
-                        var fname: String = foliage[crng.randi() % foliage.size()]
-                        var scene: PackedScene = _get_asset(fname)
-                        if scene == null:
-                                continue
-                        var finst: Node3D = scene.instantiate()
-                        finst.position = pos
-                        finst.rotation.y = crng.randf_range(0, TAU)
-                        var tree_scale: float = crng.randf_range(0.8, 1.3)
-                        finst.scale = Vector3(tree_scale, tree_scale, tree_scale)
-                        finst.name = "%s_%d" % [fname, crng.randi() % 100000]
-                        finst.set_meta("building_name", fname)
-                        chunk_root.add_child(finst)
-                        spatial.insert(pos, 3.0)
-                        placed_count += 1
-
-        # Props scatter — increased density + per-biome variety (fills empty spaces)
-        # User: "places between dense places are hella empty, we might need to put things between
-        # instead of all foliage for performance, woods stay woods of course"
-        var gap_fillers: Array = []
-        # Per-biome gap filler pool — each biome gets appropriate props for its identity
-        match biome:
-                CityConfig.Biome.SUBURBIA:
-                        # Residential: yard props + light street furniture
-                        gap_fillers = [
-                                "picket_fence", "mailbox", "trash_can", "garden_gnome",
-                                "planter_box", "fire_hydrant", "street_light", "bollard",
-                                "bench_park", "picnic_table", "water_fountain",
-                                "playground_slide", "swing_set", "seesaw",
-                                "shopping_cart", "traffic_cone"
-                        ]
-                CityConfig.Biome.COMMERCIAL:
-                        # Storefronts: parking + commercial clutter
-                        gap_fillers = [
-                                "parking_meter", "shopping_cart", "dumpster", "trash_can",
-                                "bollard", "planter_box", "street_light", "traffic_cone",
-                                "construction_barrier", "bench_park", "picnic_table",
-                                "fire_hydrant", "mailbox", "traffic_light"
-                        ]
-                CityConfig.Biome.INDUSTRIAL:
-                        # Heavy industrial: containers + barriers + machinery
-                        gap_fillers = [
-                                "shipping_container", "storage_tank", "loading_dock",
-                                "dumpster", "construction_barrier", "barrier_concrete",
-                                "guard_rail", "chain_link_fence", "barbed_wire_fence",
-                                "sandbag", "traffic_cone", "bollard", "street_light",
-                                "utility_pole", "power_pole"
-                        ]
-                CityConfig.Biome.DOWNTOWN:
-                        # Urban core: bollards + planters + street furniture
-                        gap_fillers = [
-                                "bollard", "planter_box", "trash_can", "street_light",
-                                "bench_park", "water_fountain", "parking_meter",
-                                "traffic_light", "fire_hydrant", "construction_barrier",
-                                "turnstile", "manhole_cover", "sewer_grate"
-                        ]
-                CityConfig.Biome.MILITARY:
-                        # Military: barriers + sandbags + checkpoints
-                        gap_fillers = [
-                                "barrier_concrete", "sandbag", "barbed_wire_fence",
-                                "chain_link_fence", "guard_rail", "bollard",
-                                "traffic_cone", "construction_barrier", "street_light",
-                                "shipping_container", "storage_tank"
-                        ]
-                CityConfig.Biome.FARMLAND:
-                        # Rural: fences + hay + irrigation
-                        gap_fillers = [
-                                "hay_bale", "wood_fence_post", "picket_fence",
-                                "irrigation_canal", "planter_box", "trash_can",
-                                "bench_park", "picnic_table", "fire_hydrant",
-                                "street_light", "mailbox", "garden_gnome"
-                        ]
-                CityConfig.Biome.COASTAL_BEACH:
-                        # Beach: boardwalk + benches + palms (already in foliage)
-                        gap_fillers = [
-                                "bench_park", "picnic_table", "trash_can", "planter_box",
-                                "street_light", "water_fountain", "gazebo", "park_sign",
-                                "mailbox", "traffic_cone"
-                        ]
-                CityConfig.Biome.WETLANDS:
-                        # Marsh: minimal urban props, keep natural
-                        gap_fillers = [
-                                "fallen_log", "rocks_small", "boardwalk_section",
-                                "trash_can", "park_sign"
-                        ]
-                CityConfig.Biome.PARKS:
-                        # Park: benches + playground + picnic
-                        gap_fillers = [
-                                "bench_park", "picnic_table", "playground_slide",
-                                "swing_set", "seesaw", "water_fountain", "park_sign",
-                                "planter_box", "trash_can", "garden_gnome",
-                                "fire_hydrant", "street_light"
-                        ]
-                CityConfig.Biome.FOREST:
-                        # Woods stay woods — only natural props
-                        gap_fillers = ["fallen_log", "rocks_small", "bush"]
-                _:
-                        # Default fallback
-                        gap_fillers = [
-                                "picket_fence", "planter_box", "trash_can", "mailbox",
-                                "fire_hydrant", "street_light", "bollard", "bench_park"
-                        ]
-        var valid_fillers: Array = []
-        for gf in gap_fillers:
-                if manifest.has(gf):
-                        valid_fillers.append(gf)
-        # Increased from fill*20 to fill*40 (2x more gap fillers)
-        var gap_count: int = int(fill * 40)
-        for i in range(gap_count):
-                var pos := Vector3(
-                        origin.x + crng.randf_range(15.0, CityConfig.CHUNK_SIZE_M - 15.0),
-                        0,
-                        origin.z + crng.randf_range(15.0, CityConfig.CHUNK_SIZE_M - 5.0)
-                )
-                if not spatial.is_free(pos, 2.0) or spatial.is_on_road(pos):
-                        continue
-                if _is_in_poi_exclusion(pos, poi_exclusions):
-                        continue
-                if _path_query.is_on_path(pos, 1.0):
-                        continue
-                if valid_fillers.is_empty():
-                        break
-                var fname: String = valid_fillers[crng.randi() % valid_fillers.size()]
-                var scene: PackedScene = _get_asset(fname)
-                if scene:
-                        var inst: Node3D = scene.instantiate()
-                        inst.position = pos
-                        inst.rotation.y = crng.randf_range(0, TAU)
-                        inst.name = "%s_%d" % [fname, crng.randi() % 100000]
-                        chunk_root.add_child(inst)
-                        spatial.insert(pos, 2.0)
-                        placed_count += 1
-
-        # Set owner recursively for this chunk
-        _set_owner_recursive(chunk_root, chunk_root)
-
-        # Save this chunk as its own .res file
-        var chunk_scene := PackedScene.new()
-        var pack_err := chunk_scene.pack(chunk_root)
-        if pack_err == OK:
-                var chunk_path := "%schunk_%d_%d.tscn" % [OUTPUT_DIR, col, row]
-                var save_err := ResourceSaver.save(chunk_scene, chunk_path)
-                if save_err != OK:
-                        push_warning("[MapBaker] Failed to save chunk %d_%d: %s" % [col, row, save_err])
-        # Free the chunk node (it's saved to disk, no longer needed in memory)
-        chunk_root.queue_free()
-
+    var origin := Vector3(col * CityConfig.CHUNK_SIZE_M, 0, row * CityConfig.CHUNK_SIZE_M)
+    var grid_col: int = clamp(int(col * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_COLS - 1)
+    var grid_row: int = clamp(int(row * CityConfig.CHUNK_SIZE_M / CityConfig.CELL_SIZE_M), 0, CityConfig.GRID_ROWS - 1)
+    var biome: int = CityConfig.grid_layout()[grid_row][grid_col]
+    if biome == CityConfig.Biome.WATER or biome == CityConfig.Biome.EMPTY:
+        return
+    var profile: Dictionary = CityConfig.biomes().get(biome, {})
+    if profile.is_empty():
+        return
+    var crng := RandomNumberGenerator.new()
+    crng.seed = SEED + col * 1000 + row
+    # Phase F.0: Plan → Render pipeline
+    var plan: Dictionary = ChunkPlanner.plan_chunk(col, row, gen_config, roads, spatial, _path_query, city_plan, map_data)
+    var chunk_root := Node3D.new()
+    chunk_root.name = "Chunk_%d_%d" % [col, row]
+    ChunkRenderer.render_plan(plan, chunk_root, self, crng, stamper, lot_stamper)
+    # Set owner recursively for this chunk
+    _set_owner_recursive(chunk_root, chunk_root)
+    # Save this chunk as its own .tscn file
+    var chunk_scene := PackedScene.new()
+    var pack_err := chunk_scene.pack(chunk_root)
+    if pack_err == OK:
+        var chunk_path := "%schunk_%d_%d.tscn" % [OUTPUT_DIR, col, row]
+        var save_err := ResourceSaver.save(chunk_scene, chunk_path)
+        if save_err != OK:
+            push_warning("[MapBaker] Failed to save chunk %d_%d: %s" % [col, row, save_err])
+        placed_count += plan.stats.buildings + plan.stats.foliage + plan.stats.props
+    chunk_root.queue_free()
 # === STREAMER INTERFACE (called by stampers + validator) ===
 func _get_asset(name: String) -> PackedScene:
         if name == "":

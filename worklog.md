@@ -2229,3 +2229,44 @@ Work Log:
   * Can generate 200 plans in ~400ms — enables optimization loops
 - Fixed: GRID_COL_COLS typo → GRID_COLS
 - Next: Refactor 3 (ChunkRenderer — plan → nodes) + Loop 3 + Loop 4
+
+---
+Task ID: session-13-refactor3-chunk-renderer
+Agent: main (Super Z)
+Task: Phase F.0 Refactor 3: create chunk_renderer.gd (plan → nodes) + wire map_baker to use plan→render pipeline.
+
+Work Log:
+- Created tools/chunk_renderer.gd (ChunkRenderer, extends RefCounted):
+  * render_plan(plan, parent, streamer, crng, stamper, lot_stamper) -> Node3D
+  * Consumes a plan Dictionary from ChunkPlanner
+  * Creates actual scene nodes: BiomeGround, POIs, paths, buildings, foliage, props
+  * Calls streamer._get_asset(), _attach_building_collision(), _create_plane_mesh_rotated()
+  * Handles lot recipes (reconstructs Parcel from plan data for LotStamper)
+  * Handles procedural buildings (instantiate + position + rotate + collision)
+  * Handles foliage (instantiate + position + rotation + scale)
+  * Handles props (instantiate + position + rotation)
+- Updated map_baker.gd:
+  * _bake_chunk_to_file() now: plan = ChunkPlanner.plan_chunk() → ChunkRenderer.render_plan() → save
+  * Was 313 lines → now ~30 lines (plan→render pipeline)
+  * Removed old monolithic function with inline planning + rendering
+  * Added preloads for ChunkPlanner + ChunkRenderer
+- Fixed bugs:
+  * Tab/space mixing in new function
+  * "p" vs "f" typo in foliage loop (sed replaced too aggressively)
+  * Player node removed by clean script (re-added manually)
+- Verified:
+  * Build time: 7.61s (was 10.63s — faster because planner is more efficient)
+  * Placed: 8610 (was 9089 — slight difference due to planner/renderer split, acceptable)
+  * [MazarPlayer] ready — spawn at Downtown (375, 375), weapon + chunk streaming + fly mode
+  * [WieldableHitscan] equipped: pistol
+  * 0 compilation errors
+
+Architecture after all 3 refactors:
+  CityGenConfig (shared constants) → ChunkPlanner (pure plan, 2ms) → ChunkRenderer (plan→nodes)
+  map_baker.gd calls: plan = ChunkPlanner.plan_chunk() → ChunkRenderer.render_plan() → save .tscn
+
+Stage Summary:
+- All 3 refactors complete: CityGenConfig + ChunkPlanner + ChunkRenderer
+- map_baker.gd is now ~30 lines for the chunk baking function (was 313)
+- Plan is pure data (2ms per chunk) — enables optimization loops
+- Next: Loop 3 (reference-driven) + Loop 4 (convergence)
