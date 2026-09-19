@@ -2084,3 +2084,26 @@ Work Log:
 - What we kept: tracer.gd, muzzle_flash.gd, recoil_controller.gd, weapon_spreads.gd
 - What this replaces: weapon_system.gd (the old standalone hitscan system)
 - Next step: create mazar_player.gd (extends CogitoPlayerAdvanced) with chunk_loader + fly mode
+
+---
+Task ID: session-13-step2-mazar-player-created
+Agent: main (Super Z)
+Task: Step 2 of Option B migration: create mazar_player.gd (extends CogitoPlayerAdvanced) with chunk_loader + fly mode.
+
+Work Log:
+- Created scripts/mazar_player.gd — extends CogitoPlayerAdvanced:
+  * class_name MazarPlayer
+  * Inherits ALL Cogito features: movement (walk/sprint/crouch/slide/stairs/ladders/swim), interaction system (doors/containers/keypads/carryables), inventory, attributes (health/stamina/sanity/oxygen/lightmeter), save/load, HUD, footsteps, wieldables
+  * Adds: chunk streaming (_refresh_chunks, _load_chunk, _unload_chunk) — loads .tscn chunk files from scenes/baked_chunks/ near player (stream_radius=2, 25 chunks at a time)
+  * Adds: fly mode (T key toggle, disables collision, WASD + Space/Ctrl for up/down)
+  * Adds: F8 chunk state dump (for middleware analysis)
+  * Adds: recoil offset application to camera (reads from WieldableHitscan's RecoilController)
+  * on_input(): calls super.on_input(event) FIRST (Cogito handles movement/interaction), then checks for our T + F8 keys
+  * _physics_process(): fly mode bypasses super, normal mode calls super._physics_process(delta) + applies recoil
+  * _process(): checks if player moved to new chunk, triggers chunk load/unload
+- Verified: 0 compilation errors after double import
+- Verified: test_shoot_range.tscn still works (WeaponSystem + WeaponViewModel)
+- Verified: Cogito COGITO_3_Lobby.tscn still loads cleanly
+- Architecture: CogitoPlayerAdvanced → MazarPlayer (our city features on top of Cogito's player)
+- Our code in scripts/ (NOT in addons/cogito/)
+- Next step: Step 3 — update baked_world.tscn to use mazar_player, wire ChunkLoader, test full flow
