@@ -1930,3 +1930,122 @@ DESIGN DECISION: Weapon System Architecture
    - MGP7 (shotgun) — 8× hitscan via weapon_system.gd
    - MGP7 + scope (sniper) — hitscan via weapon_system.gd
    - Future grenade launcher — projectile via Cogito's system
+
+---
+Task ID: session-13-cogito-extension-audit-and-plan
+Agent: main (Super Z)
+Task: User: "Option B" — actually extend Cogito instead of running parallel systems. Audited Cogito's architecture and found the extension path.
+
+AUDIT RESULTS:
+=============
+
+1. COGITO PLAYER ARCHITECTURE:
+   - CogitoPlayer (base, extends CharacterBody3D) — no class_name
+   - CogitoPlayerAdvanced (extends CogitoPlayer) — has class_name, 1400+ lines
+   - Node structure: CogitoPlayer → Body → Neck → Head → Eyes → Camera
+   - Camera has: InteractionRaycast, CarryablePosition, ItemDropShapeCast
+   - Wieldables: Node3D container at Body/Neck/Head (holds weapon viewmodels)
+   - Has: PlayerInteractionComponent, PlayerHUD, state machine (godot_state_charts)
+   - Has: inventory_data (CogitoInventory), attributes (health/stamina/sanity/oxygen/lightmeter)
+   - Has: footstep system, fall damage, swimming, sliding, ladder, stairs
+   - Input routing: InputRouter.push(on_input) → on_input(event) → player_interaction_component.on_input(event)
+
+2. COGITO WIELDABLE SYSTEM:
+   - CogitoWieldable (base class, extends Node3D) — weapon base
+   - action_primary(item_ref, is_released) — called on left click
+   - action_secondary(is_released) — called on right click (ADS)
+   - reload() — called on reload key
+   - equip(player_interaction_component) — called when weapon is equipped
+   - unequip() — called when weapon is unequipped
+   - Has: wieldable_mesh, animation_player, audio_stream_player_3d, current_ammo_type
+
+3. COGITO ALREADY HAS HITSCAN:
+   - wieldable_laser_rifle.gd uses hit_scan_collision() — raycast + damage + decal + laser visual
+   - wieldable_toy_pistol.gd uses projectile pool — for projectile weapons
+   - Pattern: extend CogitoWieldable, override action_primary(), implement hitscan OR projectile
+
+4. EXTENSION PATH (how to do Option B properly):
+
+   Instead of our separate player_main.gd + weapon_system.gd:
+   
+   a) Create weapons/wieldable_hitscan.gd — extends CogitoWieldable
+      - Overrides action_primary() to do hitscan raycast (our weapon_system.gd logic)
+      - Uses our tracer.gd + muzzle_flash.gd for visuals
+      - Uses our weapon_spreads.gd for spread patterns
+      - Reads ammo from CogitoInventory (not our separate ammo system)
+      - PPS weapon model as wieldable_mesh (ZC57 for pistol, MGP7 for rifle)
+   
+   b) Create weapons/wieldable_shotgun.gd — extends CogitoWieldable
+      - Overrides action_primary() to do 8x hitscan raycasts with spread
+      - Otherwise same as hitscan
+   
+   c) Create scripts/mazar_player.gd — extends CogitoPlayerAdvanced
+      - Adds: map_baker chunk loading (chunk_loader.gd logic)
+      - Adds: fly mode for map assessment
+      - Adds: F8 chunk state dump
+      - Inherits: movement, crouch, sprint, slide, stairs, ladder, swimming
+      - Inherits: interaction system (doors, containers, keypads)
+      - Inherits: inventory, attributes, save/load
+      - Inherits: HUD, footsteps, fall damage
+   
+   d) Create scenes/mazar_player.tscn — instance of cogito_player_advanced.tscn
+      - Swap script to mazar_player.gd
+      - Add: ChunkLoader as child
+      - Add: WeaponSystem-style components as needed (tracer, muzzle flash)
+      - Configure: PPS weapons as wieldable_nodes
+
+5. WHAT WE KEEP (our code, refactored to extend Cogito):
+   - weapons/tracer.gd — visual tracer line (Cogito doesn't have this for hitscan)
+   - weapons/muzzle_flash.gd — muzzle flash sprite (Cogito has impact VFX but not muzzle flash)
+   - weapons/weapon_viewmodel.gd — refactored to work as CogitoWieldable.wieldable_mesh
+   - data/weapon_spreads.gd — our spread patterns (Cogito doesn't have per-weapon spread)
+   - weapons/recoil_controller.gd — our recoil system (Cogito has view bob but not recoil)
+   - scripts/chunk_loader.gd — our baked chunk streaming (Cogito doesn't have city gen)
+
+6. WHAT WE DELETE (replaced by Cogito):
+   - weapons/weapon_system.gd — replaced by wieldable_hitscan.gd (extends CogitoWieldable)
+   - scripts/player_main.gd — replaced by mazar_player.gd (extends CogitoPlayerAdvanced)
+   - scripts/player_controller_baked.gd — replaced by mazar_player.gd
+   - scripts/test_shoot_player.gd — replaced by Cogito demo player
+   - scripts/audio_autoload.gd — replaced by Cogito's quick_audio (now that autoloads resolve)
+   - Our door/window interaction code in player_main.gd — replaced by Cogito's interaction components
+
+7. WHAT WE DON'T DELETE:
+   - scripts/map_baker.gd — city generation (Cogito doesn't have this)
+   - scripts/dump_baked_city.gd — middleware data pipeline
+   - scripts/post_bake_cleanup.gd — overlap cleanup
+   - tools/ — all city gen tools (Cogito doesn't have these)
+   - data/city_manifest.json, map_data.json, city_plan.json — city data
+
+MIGRATION PLAN (3 steps, each leaves project bootable):
+=====================================
+
+Step 1: Create wieldable_hitscan.gd (extends CogitoWieldable)
+   - Port our hitscan logic from weapon_system.gd into action_primary()
+   - Port tracer + muzzle_flash spawning
+   - Port spread pattern from weapon_spreads.gd
+   - Port recoil from recoil_controller.gd
+   - Use PPS weapon model as wieldable_mesh
+   - Read ammo from CogitoInventory (WieldableItemPD.charge_current)
+   - Test: equip in Cogito demo scene → fire → hitscan works
+
+Step 2: Create mazar_player.gd (extends CogitoPlayerAdvanced)
+   - Add chunk_loader.gd as child (baked city streaming)
+   - Add fly mode (T key toggle)
+   - Add F8 chunk state dump
+   - Remove: our movement code (CogitoPlayerAdvanced has it)
+   - Remove: our interaction code (CogitoPlayerAdvanced has it)
+   - Remove: our HUD code (CogitoPlayerAdvanced has PlayerHUD)
+   - Test: spawn in baked_world.tscn → chunks load → walk around → fire weapon → interact with doors
+
+Step 3: Update baked_world.tscn to use mazar_player.tscn
+   - Replace Player node with mazar_player instance
+   - Wire: ChunkLoader, camera, collision, wieldables
+   - Test: full game flow — spawn, walk, shoot, interact, inventory, save/load
+
+This approach:
+   - Extends Cogito (doesn't fork)
+   - Our code lives in weapons/ + scripts/ (not in addons/cogito/)
+   - Cogito updates pull clean (we don't modify addon files)
+   - We get ALL Cogito features (inventory, NPC AI, save/load, quests, menus, footsteps)
+   - We keep our unique features (city gen, map_baker, chunk_loader, weapon spreads, tracers)
