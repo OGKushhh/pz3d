@@ -1888,3 +1888,45 @@ Work Log:
 - Loop 4 (convergence/stopping condition) saved as Phase F.4
 - Loops 1 + 2 skipped (intermediate steps, unnecessary if 3+4 work)
 - These are POST-v1 optimizations — only after the city gen produces results the user is happy with
+
+---
+Task ID: session-13-weapon-system-design-decision
+Agent: main (Super Z)
+Task: User: "save this as a design decision, down the line we need to coexist with this addon and not drift away from it but extending it. to keep code organized and clean you know?"
+
+DESIGN DECISION: Weapon System Architecture
+============================================
+
+1. HITSCAN is the default firing mode for all standard weapons (pistol, rifle, sniper, shotgun).
+   - Implemented via weapon_system.gd → PhysicsRayQueryParameters3D.intersect_ray()
+   - Instant ray → hit detection → damage → tracer visual
+   - No projectile node, no physics body, no travel time
+   - Shotgun = 8 hitscan raycasts with spread (NOT a projectile)
+
+2. PROJECTILE weapons are reserved for special/future weapons only:
+   - Grenade launcher (lobbed, explodes on impact)
+   - Rocket launcher (travels, explodes)
+   - Throwable items (physics-based)
+   - Implemented via Cogito's cogito_projectile.gd OR a simple projectile spawner in weapon_system.gd
+
+3. COEXISTENCE PRINCIPLE: We extend Cogito, we don't fork it.
+   - Our weapon_system.gd handles hitscan (our implementation, not Cogito's)
+   - Cogito's wieldable system handles projectile weapons when needed
+   - Both systems coexist: our player uses WeaponSystem for hitscan, CogitoWieldable for projectiles
+   - We do NOT duplicate Cogito's code — we call into it
+   - We do NOT modify Cogito's addon files directly — we extend via subclass or composition
+   - When Cogito updates, we should be able to pull without merge conflicts
+
+4. CODE ORGANIZATION:
+   - weapons/ — our weapon code (weapon_system.gd, weapon_viewmodel.gd, tracer.gd, etc.)
+   - addons/cogito/Wieldables/ — Cogito's wieldable code (untouched)
+   - addons/cogito/CogitoObjects/cogito_projectile.gd — Cogito's projectile system (untouched)
+   - Our extensions go in weapons/ or scripts/, NOT in addons/cogito/
+   - If we need to override Cogito behavior, we subclass in our own folder
+
+5. PPS WEAPON MODELS:
+   - ZC57 (pistol) — hitscan via weapon_system.gd
+   - MGP7 (rifle) — hitscan via weapon_system.gd
+   - MGP7 (shotgun) — 8× hitscan via weapon_system.gd
+   - MGP7 + scope (sniper) — hitscan via weapon_system.gd
+   - Future grenade launcher — projectile via Cogito's system
