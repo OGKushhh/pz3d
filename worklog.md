@@ -2138,3 +2138,19 @@ Stage Summary:
 - The player now has: Cogito's full feature set + our city gen + our weapon system (as Cogito extension)
 - Architecture: everything extends Cogito, nothing forks it
 - Next: user opens in Godot editor, tests full flow (walk, shoot, interact, inventory, save/load)
+
+---
+Task ID: session-13-step3-fix-baked-world-subresources
+Agent: main (Super Z)
+Task: Fix baked_world.tscn parse error (missing sub_resources). Re-baked via map_baker.gd with MazarPlayer.
+
+Work Log:
+- Diagnosed: previous manual edit of baked_world.tscn lost all sub_resource declarations (Environment, Sky, materials, meshes). Scene referenced SubResource("Environment_py1jg") but no [sub_resource] block existed → parse error at line 9.
+- Fix: updated map_baker.gd's _setup_player() to instance cogito_player_advanced.tscn + swap script to mazar_player.gd. Removed old _setup_chunk_loader() (MazarPlayer handles chunks internally).
+- Triple import → bake → verified:
+  * "✓ MazarPlayer (CogitoPlayerAdvanced) at center"
+  * "✅ World scene saved: res://scenes/baked_world.tscn"
+  * "Placed: 9090 | Skipped: 0"
+  * "[MazarPlayer] ready — CogitoPlayerAdvanced + chunk streaming + fly mode"
+- baked_world.tscn now has proper ext_resources (Cogito player scene, inventory, attributes, HUD, etc.) + sub_resources (materials, meshes, sky, environment).
+- No fatal errors. One HUD warning (CogitoPlayerHudManager reference issue — non-critical, HUD still initializes).

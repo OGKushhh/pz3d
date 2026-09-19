@@ -841,43 +841,23 @@ func _set_owner_recursive(root: Node, owner_node: Node):
                 _set_owner_recursive(child, owner_node)
 
 func _setup_player():
-        var player := CharacterBody3D.new()
+        # Instance Cogito's player scene and swap script to MazarPlayer
+        var player_scene := load("res://addons/cogito/PackedScenes/cogito_player_advanced.tscn") as PackedScene
+        if player_scene == null:
+                push_error("[MapBaker] Failed to load cogito_player_advanced.tscn")
+                return
+        var player := player_scene.instantiate()
         player.name = "Player"
-        # Spawn at center of map, eye height
+        # Swap script to MazarPlayer (extends CogitoPlayerAdvanced)
+        player.set_script(preload("res://scripts/mazar_player.gd"))
+        # Spawn at center of map
         player.position = Vector3(CityConfig.MAP_SIZE_M.x * 0.4, 2, CityConfig.MAP_SIZE_M.y * 0.5)
-        var cam := Camera3D.new()
-        cam.name = "Camera3D"
-        cam.fov = 75.0
-        cam.near = 0.05
-        cam.far = 500.0
-        cam.position = Vector3(0, 1.65, 0)
-        player.add_child(cam)
-        cam.owner = city_root
-        var col := CollisionShape3D.new()
-        col.name = "Col"
-        var shape := CapsuleShape3D.new()
-        shape.radius = 0.4
-        shape.height = 1.8
-        col.shape = shape
-        col.position = Vector3(0, 0.9, 0)
-        player.add_child(col)
-        col.owner = city_root
-        # Use external script (embedded GDScript source doesn't save reliably)
-        player.set_script(preload("res://scripts/player_controller_baked.gd"))
         city_root.add_child(player)
         player.owner = city_root
         placed_count += 1
-        print("  ✓ Player at center, fly mode toggle (V)")
+        print("  ✓ MazarPlayer (CogitoPlayerAdvanced) at center")
 
 # === CHUNK LOADER ===
-# Runtime script that loads .res chunk files near the player and unloads distant ones.
-# This replaces the procedural chunk_streamer — loads pre-baked chunks instead.
+# No longer needed — MazarPlayer handles chunk loading internally via _refresh_chunks().
 func _setup_chunk_loader():
-    var loader := Node3D.new()
-    loader.name = "ChunkLoader"
-    # Use external script (embedded GDScript source doesn't save reliably)
-    loader.set_script(preload("res://scripts/chunk_loader.gd"))
-    city_root.add_child(loader)
-    loader.owner = city_root
-    placed_count += 1
-    print("  ✓ ChunkLoader (stream_radius=2, loads 25 chunks at a time)")
+    pass  # MazarPlayer has built-in chunk streaming
