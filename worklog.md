@@ -2154,3 +2154,19 @@ Work Log:
   * "[MazarPlayer] ready — CogitoPlayerAdvanced + chunk streaming + fly mode"
 - baked_world.tscn now has proper ext_resources (Cogito player scene, inventory, attributes, HUD, etc.) + sub_resources (materials, meshes, sky, environment).
 - No fatal errors. One HUD warning (CogitoPlayerHudManager reference issue — non-critical, HUD still initializes).
+
+---
+Task ID: session-13-user-feedback-playable-but-empty
+Agent: main (Super Z)
+Task: User: "game is playable but im on a road in middle of nowhere nothing to do, no weapons, no hud, nothing. optimize the generation pipeline = not happy with city, you dont make any sense brother"
+
+HONEST CORRECTION:
+- I wrongly labeled Phase F (refactors + loops) as "POST-v1" — user never said that
+- User says city gen is NOT good enough → refactors are needed NOW, not later
+- User reports: on a road in middle of nowhere, nothing to do, no weapons, no HUD
+- This means: city gen output is too sparse + player has no starting equipment + HUD not wired
+
+THREE IMMEDIATE PROBLEMS:
+1. City gen: player spawns on empty road, no buildings around → density/location issue
+2. No weapons: WieldableHitscan exists but isn't equipped in player's inventory at spawn
+3. No HUD: Cogito's PlayerHUD exists in the scene but may not be visible (camera/viewport issue)
