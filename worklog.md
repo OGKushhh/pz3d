@@ -2206,3 +2206,26 @@ Stage Summary:
 - Refactor 1 complete: CityGenConfig created, map_baker.gd reads from it.
 - 3 fixes complete: Downtown spawn, starting weapon, HUD visible.
 - Next: Refactor 2 (chunk_planner.gd) + Refactor 3 (chunk_renderer.gd) + Loop 3 + Loop 4
+
+---
+Task ID: session-13-refactor2-chunk-planner
+Agent: main (Super Z)
+Task: Phase F.0 Refactor 2: create chunk_planner.gd (pure plan function, no scene nodes).
+
+Work Log:
+- Created tools/chunk_planner.gd (ChunkPlanner, extends RefCounted):
+  * Pure function: plan_chunk(col, row, config, roads, spatial, path_query, city_plan, map_data) -> Dictionary
+  * Produces a plan Dictionary with: roads, sidewalks, paths, lots, buildings, foliage, props, landmarks, pois, rejections, stats
+  * NO scene instantiation, NO add_child, NO _get_asset — pure data
+  * Includes anti-repetition (max 5 of same type per chunk)
+  * Includes POI nudging off roads
+  * Includes per-biome gap fillers (from CityGenConfig)
+  * Tracks rejections with {what, reason, pos} for diagnostics
+- Verified:
+  * Chunk 1_1 (Downtown): 11 buildings, 9 foliage, 27 props, 1 rejection, 2ms
+  * Chunk 0_0 (Downtown): 5 buildings, 6 foliage, 26 props, 7 rejections
+  * "PASS: ChunkPlanner produces valid plans"
+- Plan time: 2ms per chunk (vs 10s for full bake including rendering + saving)
+  * Can generate 200 plans in ~400ms — enables optimization loops
+- Fixed: GRID_COL_COLS typo → GRID_COLS
+- Next: Refactor 3 (ChunkRenderer — plan → nodes) + Loop 3 + Loop 4
