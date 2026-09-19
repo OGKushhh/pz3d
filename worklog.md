@@ -2049,3 +2049,38 @@ This approach:
    - Cogito updates pull clean (we don't modify addon files)
    - We get ALL Cogito features (inventory, NPC AI, save/load, quests, menus, footsteps)
    - We keep our unique features (city gen, map_baker, chunk_loader, weapon spreads, tracers)
+
+---
+Task ID: session-13-step1-wieldable-hitscan-created
+Agent: main (Super Z)
+Task: Step 1 of Option B migration: create wieldable_hitscan.gd (extends CogitoWieldable) with our hitscan logic.
+
+Work Log:
+- Created weapons/wieldable_hitscan.gd — extends CogitoWieldable:
+  * class_name WieldableHitscan
+  * Overrides action_primary() to do hitscan raycast (from our weapon_system.gd)
+  * Overrides action_secondary() for ADS (aim down sights)
+  * Uses our Tracer.spawn() for visual tracer lines
+  * Uses our MuzzleFlash.spawn() for muzzle flash sprite
+  * Uses our RecoilController for recoil kick + recovery
+  * Uses our WeaponSpreads (weapon_spreads.gd) for per-weapon spread patterns
+  * Reads ammo from CogitoInventory via item_reference.charge_current
+  * Plays fire animation via Cogito's animation_player
+  * Plays sound via Cogito's audio_stream_player_3d
+  * Multi-pellet support (shotgun = 8 raycasts with spread)
+  * PPS weapon model as wieldable_mesh (set via @export in scene)
+  * Damage applies to both take_damage() AND Cogito's _on_hit() HitboxComponent
+  * Collision mask: world (1) + targets (4) = 5
+  * Excludes player from raycast (walks up parent chain)
+- Created weapons/wieldable_shotgun.gd — extends WieldableHitscan:
+  * class_name WieldableShotgun
+  * Sets weapon_class = "shotgun" which loads 8-pellet spread from weapon_spreads.gd
+  * Otherwise same as WieldableHitscan (base handles pellets_per_shot)
+- Both compile cleanly after double import (0 errors)
+- Verified: our existing test_shoot_range.tscn still works (WeaponSystem + WeaponViewModel)
+- Verified: Cogito's COGITO_3_Lobby.tscn still loads cleanly
+- Architecture: CogitoWieldable → WieldableHitscan → WieldableShotgun (inheritance chain)
+- Our code lives in weapons/ (NOT in addons/cogito/) — Cogito updates pull clean
+- What we kept: tracer.gd, muzzle_flash.gd, recoil_controller.gd, weapon_spreads.gd
+- What this replaces: weapon_system.gd (the old standalone hitscan system)
+- Next step: create mazar_player.gd (extends CogitoPlayerAdvanced) with chunk_loader + fly mode
