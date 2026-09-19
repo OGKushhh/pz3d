@@ -51,8 +51,10 @@ func _setup_chunk_loader() -> void:
         _chunk_loader = Node3D.new()
         _chunk_loader.name = "ChunkLoader"
         add_child(_chunk_loader)
-        # Force initial chunk load at player position
-        _refresh_chunks()
+        # Defer chunk loading — can't add_child() during _ready() because parent
+        # is busy setting up children. Call_deferred waits one frame.
+        call_deferred("_refresh_chunks")
+        print("[MazarPlayer] chunk loader setup (deferred first load)")
 
 func _process(_delta: float) -> void:
         pass # CogitoPlayerAdvanced has no _process
