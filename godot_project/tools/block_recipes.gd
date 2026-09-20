@@ -217,7 +217,30 @@ static func apply_recipe(recipe_name: String, block: Dictionary, seed: int) -> D
 		_:
 			_empty_block(result, min_x, min_z, w, d, center, crng)
 
+	# FALLBACK: ensure non-wilderness blocks have at least 1 building.
+	# Recipes may bail on small blocks (returning 0 buildings), which fails
+	# Loop 4's hard constraint. Place a small fallback building at center.
+	if result.buildings.is_empty():
+		var district: String = block.get("district", "")
+		if district not in WILDERNESS_DISTRICTS:
+			_add_fallback_building(result, district, center, crng)
+
 	return result
+
+# WILDERNESS_DISTRICTS = exempt from "must have at least 1 building" rule
+const WILDERNESS_DISTRICTS := ["forest", "parks", "farmland"]
+
+# Fallback building per district (small, fits anywhere)
+static func _add_fallback_building(result: Dictionary, district: String, center: Vector3, crng: RandomNumberGenerator):
+	var fallback: Dictionary = {
+		"downtown": "parking_garage",
+		"commercial": "corner_store",
+		"industrial": "utility_shed_metal",
+		"military": "watchtower",
+		"suburbia": "bungalow",
+	}
+	var bname: String = fallback.get(district, "utility_shed_metal")
+	_add_building(result, Vector3(center.x, 0, center.z), crng.randf() * 360.0, bname)
 
 # === HELPERS ===
 
@@ -603,6 +626,9 @@ static func _industrial_warehouse_block(result: Dictionary, min_x: float, min_z:
 	var usable_w: float = w - MIN_SETBACK * 2.0
 	var usable_d: float = d - MIN_SETBACK * 2.0
 	if usable_w < 40 or usable_d < 40:
+		# Block too small for warehouses — place a single utility shed as fallback
+		_add_building(result, Vector3(center.x, 0, center.z), 0.0, "utility_shed_metal")
+		_scatter_props(result, PROP_POOLS.industrial, min_x, min_z, w, d, 3, crng, MIN_SETBACK)
 		return
 	# 1-2 warehouses, placed at center with setback
 	var wh_count: int = 2 if usable_w > 100 else 1

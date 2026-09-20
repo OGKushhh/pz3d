@@ -28,6 +28,7 @@ extends SceneTree
 # === Dependencies ===
 const CityGenV2 = preload("res://tools/city_gen_v2.gd")
 const CityConfig = preload("res://tools/city_config.gd")
+const ConvLoop4V2 = preload("res://tools/conv_loop4_v2.gd")
 
 # === Output paths ===
 const OUTPUT_DIR := "res://scenes/baked_v2/"
@@ -83,6 +84,18 @@ func _init():
 		map.stats.roads, map.stats.blocks, map.stats.buildings,
 		map.stats.foliage, map.stats.props
 	])
+
+	# Step 1b: Loop 4 validation — evaluate plan before baking.
+	# Hard problems block the bake (must fix recipes first).
+	# Preferences are reported but don't block.
+	var report: Dictionary = ConvLoop4V2.report(map)
+	ConvLoop4V2.print_summary(report)
+
+	if not report.ok_to_bake:
+		printerr("  REFUSING TO BAKE — %d hard problems remain. Fix recipes in tools/block_recipes.gd and re-run." % report.hard_problems)
+		quit(1)
+		return
+	print("  ✓ All hard constraints passed — proceeding to bake")
 
 	# Step 2: Make output directory
 	DirAccess.make_dir_recursive_absolute(OUTPUT_DIR)
