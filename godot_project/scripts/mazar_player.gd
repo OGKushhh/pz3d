@@ -78,11 +78,24 @@ func _unhandled_input(event: InputEvent) -> void:
 		# - ON: stop falling/running from normal mode
 		# - OFF: don't carry fly momentum into walk mode (would launch player)
 		velocity = Vector3.ZERO
+		# main_velocity is Cogito's internal movement velocity (x/z horizontal + jump on y).
+		# Must zero it too, otherwise the state chart resumes with stale momentum.
+		if "main_velocity" in self:
+			main_velocity = Vector3.ZERO
+		if "gravity_vec" in self:
+			gravity_vec = Vector3.ZERO
 		# Toggle collision shapes (disable when flying, re-enable when walking)
 		if standing_collision_shape:
 			standing_collision_shape.set_deferred("disabled", _fly_mode)
 		if crouching_collision_shape:
 			crouching_collision_shape.set_deferred("disabled", _fly_mode)
+		# CRITICAL: Disable Cogito's state chart when flying.
+		# State chart runs _on_*_state_physics_processing callbacks independently
+		# of _physics_process — so our `return` in _physics_process doesn't stop
+		# gravity from being applied via _on_airborne_state_physics_processing.
+		# Setting process_mode to DISABLED pauses all state chart processing.
+		if state_chart:
+			state_chart.process_mode = Node.PROCESS_MODE_DISABLED if _fly_mode else Node.PROCESS_MODE_INHERIT
 		# Make sure mouse is captured (in case ESC was hit)
 		if _fly_mode:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
