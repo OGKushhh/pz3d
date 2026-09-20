@@ -1,306 +1,700 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://assets/buildings/helipad.glb" id="1_uxeb3"]
-[ext_resource type="PackedScene" path="res://assets/buildings/bunker_entrance.glb" id="2_0d4fr"]
-[ext_resource type="PackedScene" path="res://assets/buildings/fort_sarran.glb" id="3_lderi"]
-[ext_resource type="PackedScene" path="res://assets/buildings/military_checkpoint.glb" id="4_fv5xf"]
-[ext_resource type="PackedScene" path="res://assets/buildings/field_hospital_tent.glb" id="5_ro04w"]
-[ext_resource type="PackedScene" path="res://assets/environment/bollard.glb" id="6_63x34"]
-[ext_resource type="PackedScene" path="res://assets/environment/sandbag.glb" id="7_id2js"]
-[ext_resource type="PackedScene" path="res://assets/environment/barrier_concrete.glb" id="8_1rxah"]
-[ext_resource type="PackedScene" path="res://assets/environment/traffic_cone.glb" id="9_t2rv8"]
-[ext_resource type="PackedScene" path="res://assets/environment/barbed_wire_fence.glb" id="10_20gpl"]
+[ext_resource type="PackedScene" path="res://assets/buildings/fort_sarran.glb" id="1_wi6li"]
+[ext_resource type="PackedScene" path="res://assets/buildings/helipad.glb" id="2_qvdmy"]
+[ext_resource type="PackedScene" path="res://assets/buildings/field_hospital_tent.glb" id="3_uxeb3"]
+[ext_resource type="PackedScene" path="res://assets/environment/barrier_concrete.glb" id="4_0d4fr"]
+[ext_resource type="PackedScene" path="res://assets/environment/bollard.glb" id="5_lderi"]
+[ext_resource type="PackedScene" path="res://assets/environment/traffic_cone.glb" id="6_fv5xf"]
+[ext_resource type="PackedScene" path="res://assets/environment/barbed_wire_fence.glb" id="7_ro04w"]
+[ext_resource type="PackedScene" path="res://assets/environment/sandbag.glb" id="8_63x34"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rgkgj"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_id2js"]
 albedo_color = Color(0.5, 0.45, 0.35, 1)
 roughness = 0.85
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_ph00q"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_1rxah"]
 size = Vector2(200, 250)
 
-[node name="Block_136" type="Node3D" unique_id=454405144]
+[node name="Block_136" type="Node3D" unique_id=1472542951]
 
-[node name="DistrictGround_9718" type="MeshInstance3D" parent="." unique_id=601624178]
+[node name="DistrictGround_7459" type="MeshInstance3D" parent="." unique_id=1558773347]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1900, 0.01, 275)
-material_override = SubResource("StandardMaterial3D_rgkgj")
-mesh = SubResource("PlaneMesh_ph00q")
+material_override = SubResource("StandardMaterial3D_id2js")
+mesh = SubResource("PlaneMesh_1rxah")
 
-[node name="helipad_9719" type="Node3D" parent="." unique_id=129964778 instance=ExtResource("1_uxeb3")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 1830, 0, 180)
-metadata/building_name = "helipad"
-
-[node name="bunker_entrance_9720" type="Node3D" parent="." unique_id=848577343 instance=ExtResource("2_0d4fr")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 1870, 0, 180)
-metadata/building_name = "bunker_entrance"
-
-[node name="bunker_entrance_9721" type="Node3D" parent="." unique_id=1598198622 instance=ExtResource("2_0d4fr")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 1950, 0, 180)
-metadata/building_name = "bunker_entrance"
-
-[node name="fort_sarran_9722" type="Node3D" parent="." unique_id=889927587 instance=ExtResource("3_lderi")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1830, 0, 220)
+[node name="fort_sarran_7460" type="Node3D" parent="." unique_id=889927587 instance=ExtResource("1_wi6li")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1900, 0, 275)
 metadata/building_name = "fort_sarran"
 
-[node name="military_checkpoint_9723" type="Node3D" parent="." unique_id=480255314 instance=ExtResource("4_fv5xf")]
-transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 1950, 0, 220)
-metadata/building_name = "military_checkpoint"
+[node name="helipad_7461" type="Node3D" parent="." unique_id=129964778 instance=ExtResource("2_qvdmy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1930, 0, 295)
+metadata/building_name = "helipad"
 
-[node name="bunker_entrance_9724" type="Node3D" parent="." unique_id=2058347081 instance=ExtResource("2_0d4fr")]
-transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 1950, 0, 260)
-metadata/building_name = "bunker_entrance"
-
-[node name="military_checkpoint_9725" type="Node3D" parent="." unique_id=1068060835 instance=ExtResource("4_fv5xf")]
-transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 1910, 0, 300)
-metadata/building_name = "military_checkpoint"
-
-[node name="field_hospital_tent_9726" type="Node3D" parent="." unique_id=477630242 instance=ExtResource("5_ro04w")]
-transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 1950, 0, 340)
+[node name="field_hospital_tent_7462" type="Node3D" parent="." unique_id=477630242 instance=ExtResource("3_uxeb3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1875, 0, 290)
 metadata/building_name = "field_hospital_tent"
 
-[node name="bollard_9727" type="Node3D" parent="." unique_id=1500941010 instance=ExtResource("6_63x34")]
-transform = Transform3D(-0.7757646, 0, -0.63102245, 0, 1, 0, 0.63102245, 0, -0.7757646, 1887.2203, 0, 180.63855)
+[node name="barrier_concrete_7463" type="Node3D" parent="." unique_id=834820383 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.646211, 0, -0.7631588, 0, 1, 0, 0.7631588, 0, 0.646211, 1850.4463, 0, 170.1289)
+metadata/building_name = "barrier_concrete"
+
+[node name="barrier_concrete_7464" type="Node3D" parent="." unique_id=1855355397 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.79114723, 0, 0.61162573, 0, 1, 0, -0.61162573, 0, -0.79114723, 1874.5164, 0, 330.59906)
+metadata/building_name = "barrier_concrete"
+
+[node name="bollard_7465" type="Node3D" parent="." unique_id=1500941010 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.9809484, 0, 0.19426854, 0, 1, 0, -0.19426854, 0, -0.9809484, 1850.8636, 0, 278.81195)
 metadata/building_name = "bollard"
 
-[node name="sandbag_9728" type="Node3D" parent="." unique_id=97387914 instance=ExtResource("7_id2js")]
-transform = Transform3D(-0.52912134, 0, -0.8485462, 0, 1, 0, 0.8485462, 0, -0.52912134, 1950.067, 0, 174.6807)
-metadata/building_name = "sandbag"
-
-[node name="sandbag_9729" type="Node3D" parent="." unique_id=2095551200 instance=ExtResource("7_id2js")]
-transform = Transform3D(-0.51177406, 0, 0.8591201, 0, 1, 0, -0.8591201, 0, -0.51177406, 1864.8878, 0, 209.8712)
-metadata/building_name = "sandbag"
-
-[node name="barrier_concrete_9730" type="Node3D" parent="." unique_id=834820383 instance=ExtResource("8_1rxah")]
-transform = Transform3D(-0.009291797, 0, 0.99995685, 0, 1, 0, -0.99995685, 0, -0.009291797, 1987.0591, 0, 311.9039)
-metadata/building_name = "barrier_concrete"
-
-[node name="barrier_concrete_9731" type="Node3D" parent="." unique_id=1263546622 instance=ExtResource("8_1rxah")]
-transform = Transform3D(0.82207453, 0, 0.56937987, 0, 1, 0, -0.56937987, 0, 0.82207453, 1805.7303, 0, 263.12878)
-metadata/building_name = "barrier_concrete"
-
-[node name="barrier_concrete_9732" type="Node3D" parent="." unique_id=245797153 instance=ExtResource("8_1rxah")]
-transform = Transform3D(-0.90097094, 0, -0.43387946, 0, 1, 0, 0.43387946, 0, -0.90097094, 1831.0952, 0, 358.38605)
-metadata/building_name = "barrier_concrete"
-
-[node name="bollard_9733" type="Node3D" parent="." unique_id=473810118 instance=ExtResource("6_63x34")]
-transform = Transform3D(0.98099655, 0, -0.19402522, 0, 1, 0, 0.19402522, 0, 0.98099655, 1920.0969, 0, 340.90317)
-metadata/building_name = "bollard"
-
-[node name="traffic_cone_9734" type="Node3D" parent="." unique_id=1762129719 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(-0.6784302, 0, 0.73466486, 0, 1, 0, -0.73466486, 0, -0.6784302, 1829.0647, 0, 190.07353)
+[node name="traffic_cone_7466" type="Node3D" parent="." unique_id=1762129719 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.523055, 0, 0.8522989, 0, 1, 0, -0.8522989, 0, 0.523055, 1882.8933, 0, 311.61057)
 metadata/building_name = "traffic_cone"
 
-[node name="traffic_cone_9735" type="Node3D" parent="." unique_id=249525213 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(0.21342632, 0, -0.97695917, 0, 1, 0, 0.97695917, 0, 0.21342632, 1843.9672, 0, 209.30365)
+[node name="traffic_cone_7467" type="Node3D" parent="." unique_id=1737566194 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.82967186, 0, 0.55825144, 0, 1, 0, -0.55825144, 0, 0.82967186, 1858.2493, 0, 219.25688)
 metadata/building_name = "traffic_cone"
 
-[node name="barrier_concrete_9736" type="Node3D" parent="." unique_id=1476812105 instance=ExtResource("8_1rxah")]
-transform = Transform3D(0.01731567, 0, 0.9998501, 0, 1, 0, -0.9998501, 0, 0.01731567, 1959.7068, 0, 342.4091)
-metadata/building_name = "barrier_concrete"
-
-[node name="traffic_cone_9737" type="Node3D" parent="." unique_id=1449893146 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(0.079026714, 0, -0.9968725, 0, 1, 0, 0.9968725, 0, 0.079026714, 1909.7511, 0, 184.43326)
-metadata/building_name = "traffic_cone"
-
-[node name="barrier_concrete_9738" type="Node3D" parent="." unique_id=789846048 instance=ExtResource("8_1rxah")]
-transform = Transform3D(-0.538979, 0, 0.8423192, 0, 1, 0, -0.8423192, 0, -0.538979, 1936.5925, 0, 231.06409)
-metadata/building_name = "barrier_concrete"
-
-[node name="traffic_cone_9739" type="Node3D" parent="." unique_id=2115278130 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(0.8537743, 0, 0.52064323, 0, 1, 0, -0.52064323, 0, 0.8537743, 1974.5826, 0, 381.82196)
-metadata/building_name = "traffic_cone"
-
-[node name="bollard_9740" type="Node3D" parent="." unique_id=552125087 instance=ExtResource("6_63x34")]
-transform = Transform3D(-0.38938636, 0, -0.9210745, 0, 1, 0, 0.9210745, 0, -0.38938636, 1923.1135, 0, 267.48953)
-metadata/building_name = "bollard"
-
-[node name="barrier_concrete_9741" type="Node3D" parent="." unique_id=475893870 instance=ExtResource("8_1rxah")]
-transform = Transform3D(-0.61850196, 0, -0.7857833, 0, 1, 0, 0.7857833, 0, -0.61850196, 1833.673, 0, 240.49072)
-metadata/building_name = "barrier_concrete"
-
-[node name="barrier_concrete_9742" type="Node3D" parent="." unique_id=1786034204 instance=ExtResource("8_1rxah")]
-transform = Transform3D(-0.53405637, 0, -0.8454489, 0, 1, 0, 0.8454489, 0, -0.53405637, 1926.7755, 0, 234.78189)
-metadata/building_name = "barrier_concrete"
-
-[node name="barrier_concrete_9743" type="Node3D" parent="." unique_id=917510991 instance=ExtResource("8_1rxah")]
-transform = Transform3D(0.9258133, 0, 0.37798104, 0, 1, 0, -0.37798104, 0, 0.9258133, 1894.8348, 0, 151.70897)
-metadata/building_name = "barrier_concrete"
-
-[node name="traffic_cone_9744" type="Node3D" parent="." unique_id=103228547 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(-0.9588563, 0, 0.28389186, 0, 1, 0, -0.28389186, 0, -0.9588563, 1966.416, 0, 341.87665)
-metadata/building_name = "traffic_cone"
-
-[node name="bollard_9745" type="Node3D" parent="." unique_id=1430748070 instance=ExtResource("6_63x34")]
-transform = Transform3D(-0.6141299, 0, -0.78920496, 0, 1, 0, 0.78920496, 0, -0.6141299, 1851.5914, 0, 272.431)
-metadata/building_name = "bollard"
-
-[node name="barbed_wire_fence_9746" type="Node3D" parent="." unique_id=835447857 instance=ExtResource("10_20gpl")]
-transform = Transform3D(-0.16827483, 0, -0.9857401, 0, 1, 0, 0.9857401, 0, -0.16827483, 1847.7905, 0, 348.57468)
+[node name="barbed_wire_fence_7468" type="Node3D" parent="." unique_id=835447857 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.8245717, 0, -0.56575745, 0, 1, 0, 0.56575745, 0, 0.8245717, 1933.1194, 0, 341.55856)
 metadata/building_name = "barbed_wire_fence"
 
-[node name="barrier_concrete_9747" type="Node3D" parent="." unique_id=658485124 instance=ExtResource("8_1rxah")]
-transform = Transform3D(-0.46358633, 0, -0.8860518, 0, 1, 0, 0.8860518, 0, -0.46358633, 1917.9877, 0, 285.95578)
-metadata/building_name = "barrier_concrete"
-
-[node name="sandbag_9748" type="Node3D" parent="." unique_id=150087759 instance=ExtResource("7_id2js")]
-transform = Transform3D(-0.122410536, 0, -0.99247956, 0, 1, 0, 0.99247956, 0, -0.122410536, 1837.4547, 0, 311.76886)
-metadata/building_name = "sandbag"
-
-[node name="barrier_concrete_9749" type="Node3D" parent="." unique_id=1059531032 instance=ExtResource("8_1rxah")]
-transform = Transform3D(0.7249184, 0, -0.6888347, 0, 1, 0, 0.6888347, 0, 0.7249184, 1810.2782, 0, 259.687)
-metadata/building_name = "barrier_concrete"
-
-[node name="traffic_cone_9750" type="Node3D" parent="." unique_id=821011529 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(-0.15138191, 0, 0.9884753, 0, 1, 0, -0.9884753, 0, -0.15138191, 1891.9572, 0, 324.68073)
+[node name="traffic_cone_7469" type="Node3D" parent="." unique_id=545903348 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.2551135, 0, -0.96691114, 0, 1, 0, 0.96691114, 0, 0.2551135, 1975.3809, 0, 232.83533)
 metadata/building_name = "traffic_cone"
 
-[node name="sandbag_9751" type="Node3D" parent="." unique_id=986731100 instance=ExtResource("7_id2js")]
-transform = Transform3D(-0.431801, 0, 0.9019689, 0, 1, 0, -0.9019689, 0, -0.431801, 1869.286, 0, 156.56519)
-metadata/building_name = "sandbag"
-
-[node name="sandbag_9752" type="Node3D" parent="." unique_id=277032720 instance=ExtResource("7_id2js")]
-transform = Transform3D(0.97546643, 0, 0.22014827, 0, 1, 0, -0.22014827, 0, 0.97546643, 1938.0364, 0, 357.2907)
-metadata/building_name = "sandbag"
-
-[node name="bollard_9753" type="Node3D" parent="." unique_id=431254936 instance=ExtResource("6_63x34")]
-transform = Transform3D(0.68621576, 0, -0.72739804, 0, 1, 0, 0.72739804, 0, 0.68621576, 1896.2985, 0, 197.15813)
-metadata/building_name = "bollard"
-
-[node name="barrier_concrete_9754" type="Node3D" parent="." unique_id=835246179 instance=ExtResource("8_1rxah")]
-transform = Transform3D(-0.85297066, 0, 0.5219588, 0, 1, 0, -0.5219588, 0, -0.85297066, 1893.0604, 0, 326.2374)
-metadata/building_name = "barrier_concrete"
-
-[node name="barrier_concrete_9755" type="Node3D" parent="." unique_id=2018256868 instance=ExtResource("8_1rxah")]
-transform = Transform3D(-0.35980976, 0, 0.9330257, 0, 1, 0, -0.9330257, 0, -0.35980976, 1908.8824, 0, 225.12538)
-metadata/building_name = "barrier_concrete"
-
-[node name="sandbag_9756" type="Node3D" parent="." unique_id=1347115168 instance=ExtResource("7_id2js")]
-transform = Transform3D(0.8160464, 0, 0.57798636, 0, 1, 0, -0.57798636, 0, 0.8160464, 1811.3118, 0, 163.1404)
-metadata/building_name = "sandbag"
-
-[node name="traffic_cone_9757" type="Node3D" parent="." unique_id=681049444 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(-0.91056496, 0, 0.41336602, 0, 1, 0, -0.41336602, 0, -0.91056496, 1863.7563, 0, 284.82892)
-metadata/building_name = "traffic_cone"
-
-[node name="traffic_cone_9758" type="Node3D" parent="." unique_id=1648542720 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(0.92952436, 0, 0.36876076, 0, 1, 0, -0.36876076, 0, 0.92952436, 1990.9438, 0, 298.81412)
-metadata/building_name = "traffic_cone"
-
-[node name="sandbag_9759" type="Node3D" parent="." unique_id=828532237 instance=ExtResource("7_id2js")]
-transform = Transform3D(-0.47364348, 0, 0.8807167, 0, 1, 0, -0.8807167, 0, -0.47364348, 1833.0879, 0, 245.11945)
-metadata/building_name = "sandbag"
-
-[node name="barrier_concrete_9760" type="Node3D" parent="." unique_id=1762348523 instance=ExtResource("8_1rxah")]
-transform = Transform3D(0.004879531, 0, 0.9999881, 0, 1, 0, -0.9999881, 0, 0.004879531, 1800.026, 0, 169.30318)
-metadata/building_name = "barrier_concrete"
-
-[node name="barrier_concrete_9761" type="Node3D" parent="." unique_id=664363758 instance=ExtResource("8_1rxah")]
-transform = Transform3D(0.2257131, 0, -0.9741938, 0, 1, 0, 0.9741938, 0, 0.2257131, 1911.5094, 0, 171.0671)
-metadata/building_name = "barrier_concrete"
-
-[node name="sandbag_9762" type="Node3D" parent="." unique_id=1693179697 instance=ExtResource("7_id2js")]
-transform = Transform3D(-0.535378, 0, -0.8446126, 0, 1, 0, 0.8446126, 0, -0.535378, 1842.2083, 0, 378.8571)
-metadata/building_name = "sandbag"
-
-[node name="barbed_wire_fence_9763" type="Node3D" parent="." unique_id=1006944864 instance=ExtResource("10_20gpl")]
-transform = Transform3D(-0.06816371, 0, 0.99767417, 0, 1, 0, -0.99767417, 0, -0.06816371, 1996.443, 0, 261.67303)
+[node name="barbed_wire_fence_7470" type="Node3D" parent="." unique_id=1528200975 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.38503924, 0, -0.9229002, 0, 1, 0, 0.9229002, 0, 0.38503924, 1921.5803, 0, 297.0106)
 metadata/building_name = "barbed_wire_fence"
 
-[node name="sandbag_9764" type="Node3D" parent="." unique_id=220907428 instance=ExtResource("7_id2js")]
-transform = Transform3D(0.99946874, 0, 0.032591067, 0, 1, 0, -0.032591067, 0, 0.99946874, 1916.3535, 0, 389.32004)
-metadata/building_name = "sandbag"
-
-[node name="barbed_wire_fence_9765" type="Node3D" parent="." unique_id=540085694 instance=ExtResource("10_20gpl")]
-transform = Transform3D(-0.57116264, 0, -0.8208369, 0, 1, 0, 0.8208369, 0, -0.57116264, 1954.854, 0, 286.78217)
+[node name="barbed_wire_fence_7471" type="Node3D" parent="." unique_id=1819298694 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.24793386, 0, -0.96877694, 0, 1, 0, 0.96877694, 0, 0.24793386, 1919.0297, 0, 317.91614)
 metadata/building_name = "barbed_wire_fence"
 
-[node name="barbed_wire_fence_9766" type="Node3D" parent="." unique_id=1612258222 instance=ExtResource("10_20gpl")]
-transform = Transform3D(0.40382427, 0, -0.9148366, 0, 1, 0, 0.9148366, 0, 0.40382427, 1909.9313, 0, 269.82773)
-metadata/building_name = "barbed_wire_fence"
-
-[node name="sandbag_9767" type="Node3D" parent="." unique_id=1679277133 instance=ExtResource("7_id2js")]
-transform = Transform3D(0.9023495, 0, 0.4310051, 0, 1, 0, -0.4310051, 0, 0.9023495, 1890.5348, 0, 273.83975)
+[node name="sandbag_7472" type="Node3D" parent="." unique_id=97387914 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.5760518, 0, 0.8174132, 0, 1, 0, -0.8174132, 0, 0.5760518, 1840.1158, 0, 260.8929)
 metadata/building_name = "sandbag"
 
-[node name="sandbag_9768" type="Node3D" parent="." unique_id=1117481774 instance=ExtResource("7_id2js")]
-transform = Transform3D(-0.3362704, 0, 0.9417655, 0, 1, 0, -0.9417655, 0, -0.3362704, 1891.38, 0, 186.80461)
-metadata/building_name = "sandbag"
-
-[node name="sandbag_9769" type="Node3D" parent="." unique_id=1446925193 instance=ExtResource("7_id2js")]
-transform = Transform3D(0.5986878, 0, -0.8009824, 0, 1, 0, 0.8009824, 0, 0.5986878, 1949.1552, 0, 343.78256)
-metadata/building_name = "sandbag"
-
-[node name="bollard_9770" type="Node3D" parent="." unique_id=123526309 instance=ExtResource("6_63x34")]
-transform = Transform3D(-0.5845693, 0, -0.8113438, 0, 1, 0, 0.8113438, 0, -0.5845693, 1968.217, 0, 218.48215)
-metadata/building_name = "bollard"
-
-[node name="barrier_concrete_9771" type="Node3D" parent="." unique_id=1641886612 instance=ExtResource("8_1rxah")]
-transform = Transform3D(0.92442584, 0, -0.38136184, 0, 1, 0, 0.38136184, 0, 0.92442584, 1929.2404, 0, 216.0601)
+[node name="barrier_concrete_7473" type="Node3D" parent="." unique_id=1268843599 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.9951012, 0, -0.09886168, 0, 1, 0, 0.09886168, 0, -0.9951012, 1954.9052, 0, 275.3035)
 metadata/building_name = "barrier_concrete"
 
-[node name="traffic_cone_9772" type="Node3D" parent="." unique_id=383755979 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(-0.86100936, 0, 0.50858915, 0, 1, 0, -0.50858915, 0, -0.86100936, 1882.4395, 0, 187.35335)
+[node name="traffic_cone_7474" type="Node3D" parent="." unique_id=896235672 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(-0.34439737, 0, -0.938824, 0, 1, 0, 0.938824, 0, -0.34439737, 1888.2523, 0, 239.10829)
 metadata/building_name = "traffic_cone"
 
-[node name="barbed_wire_fence_9773" type="Node3D" parent="." unique_id=370204504 instance=ExtResource("10_20gpl")]
-transform = Transform3D(-0.24676406, 0, 0.96907556, 0, 1, 0, -0.96907556, 0, -0.24676406, 1837.112, 0, 392.34988)
-metadata/building_name = "barbed_wire_fence"
-
-[node name="bollard_9774" type="Node3D" parent="." unique_id=1552949994 instance=ExtResource("6_63x34")]
-transform = Transform3D(0.53786707, 0, -0.8430297, 0, 1, 0, 0.8430297, 0, 0.53786707, 1914.9447, 0, 387.1521)
-metadata/building_name = "bollard"
-
-[node name="barrier_concrete_9775" type="Node3D" parent="." unique_id=1516237964 instance=ExtResource("8_1rxah")]
-transform = Transform3D(0.300721, 0, -0.95371217, 0, 1, 0, 0.95371217, 0, 0.300721, 1839.5024, 0, 322.18973)
-metadata/building_name = "barrier_concrete"
-
-[node name="bollard_9776" type="Node3D" parent="." unique_id=280258992 instance=ExtResource("6_63x34")]
-transform = Transform3D(-0.8516041, 0, 0.52418554, 0, 1, 0, -0.52418554, 0, -0.8516041, 1966.4578, 0, 197.75557)
-metadata/building_name = "bollard"
-
-[node name="sandbag_9777" type="Node3D" parent="." unique_id=95859555 instance=ExtResource("7_id2js")]
-transform = Transform3D(-0.8658039, 0, 0.50038344, 0, 1, 0, -0.50038344, 0, -0.8658039, 1893.7233, 0, 186.45233)
+[node name="sandbag_7475" type="Node3D" parent="." unique_id=177913187 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.8517994, 0, 0.523868, 0, 1, 0, -0.523868, 0, 0.8517994, 1951.3148, 0, 226.35995)
 metadata/building_name = "sandbag"
 
-[node name="traffic_cone_9778" type="Node3D" parent="." unique_id=919911429 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(-0.5514828, 0, -0.83418626, 0, 1, 0, 0.83418626, 0, -0.5514828, 1870.4753, 0, 318.81693)
-metadata/building_name = "traffic_cone"
-
-[node name="bollard_9779" type="Node3D" parent="." unique_id=2050766011 instance=ExtResource("6_63x34")]
-transform = Transform3D(0.90762883, 0, -0.41977364, 0, 1, 0, 0.41977364, 0, 0.90762883, 1882.2057, 0, 332.68942)
-metadata/building_name = "bollard"
-
-[node name="traffic_cone_9780" type="Node3D" parent="." unique_id=395401797 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(0.2252392, 0, 0.9743035, 0, 1, 0, -0.9743035, 0, 0.2252392, 1914.3914, 0, 290.73053)
-metadata/building_name = "traffic_cone"
-
-[node name="barbed_wire_fence_9781" type="Node3D" parent="." unique_id=346892889 instance=ExtResource("10_20gpl")]
-transform = Transform3D(0.7369511, 0, 0.675946, 0, 1, 0, -0.675946, 0, 0.7369511, 1904.9634, 0, 328.96487)
-metadata/building_name = "barbed_wire_fence"
-
-[node name="barrier_concrete_9782" type="Node3D" parent="." unique_id=398960746 instance=ExtResource("8_1rxah")]
-transform = Transform3D(0.4784205, 0, -0.87813085, 0, 1, 0, 0.87813085, 0, 0.4784205, 1838.0981, 0, 167.03807)
+[node name="barrier_concrete_7476" type="Node3D" parent="." unique_id=812434722 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.39708725, 0, 0.9177809, 0, 1, 0, -0.9177809, 0, -0.39708725, 1829.7583, 0, 236.92693)
 metadata/building_name = "barrier_concrete"
 
-[node name="traffic_cone_9783" type="Node3D" parent="." unique_id=508797701 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(-0.4776571, 0, 0.87854636, 0, 1, 0, -0.87854636, 0, -0.4776571, 1865.3566, 0, 199.59027)
-metadata/building_name = "traffic_cone"
-
-[node name="bollard_9784" type="Node3D" parent="." unique_id=601802424 instance=ExtResource("6_63x34")]
-transform = Transform3D(-0.34507686, 0, -0.93857443, 0, 1, 0, 0.93857443, 0, -0.34507686, 1813.1099, 0, 320.75592)
-metadata/building_name = "bollard"
-
-[node name="traffic_cone_9785" type="Node3D" parent="." unique_id=1284177041 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(0.99385566, 0, -0.11068394, 0, 1, 0, 0.11068394, 0, 0.99385566, 1905.3857, 0, 342.95645)
-metadata/building_name = "traffic_cone"
-
-[node name="traffic_cone_9786" type="Node3D" parent="." unique_id=1373184728 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(-0.9911769, 0, 0.13254543, 0, 1, 0, -0.13254543, 0, -0.9911769, 1873.4684, 0, 173.52832)
-metadata/building_name = "traffic_cone"
-
-[node name="sandbag_9787" type="Node3D" parent="." unique_id=1025977416 instance=ExtResource("7_id2js")]
-transform = Transform3D(0.76238, 0, 0.6471296, 0, 1, 0, -0.6471296, 0, 0.76238, 1922.3568, 0, 332.49277)
+[node name="sandbag_7477" type="Node3D" parent="." unique_id=1813457165 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.42856437, 0, 0.9035112, 0, 1, 0, -0.9035112, 0, 0.42856437, 1827.9178, 0, 205.4071)
 metadata/building_name = "sandbag"
 
-[node name="traffic_cone_9788" type="Node3D" parent="." unique_id=158728518 instance=ExtResource("9_t2rv8")]
-transform = Transform3D(0.8156345, 0, -0.5785675, 0, 1, 0, 0.5785675, 0, 0.8156345, 1964.827, 0, 230.37256)
+[node name="barbed_wire_fence_7478" type="Node3D" parent="." unique_id=8212584 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.021365935, 0, -0.9997717, 0, 1, 0, 0.9997717, 0, 0.021365935, 1871.1447, 0, 303.56805)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="bollard_7479" type="Node3D" parent="." unique_id=1511593657 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.586462, 0, 0.80997676, 0, 1, 0, -0.80997676, 0, -0.586462, 1909.1022, 0, 374.14612)
+metadata/building_name = "bollard"
+
+[node name="bollard_7480" type="Node3D" parent="." unique_id=1685925796 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.41586933, 0, 0.90942436, 0, 1, 0, -0.90942436, 0, -0.41586933, 1819.8063, 0, 169.07454)
+metadata/building_name = "bollard"
+
+[node name="barbed_wire_fence_7481" type="Node3D" parent="." unique_id=33557820 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.6559797, 0, -0.75477856, 0, 1, 0, 0.75477856, 0, 0.6559797, 1852.1729, 0, 213.67941)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="bollard_7482" type="Node3D" parent="." unique_id=42093117 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.28767297, 0, -0.9577287, 0, 1, 0, 0.9577287, 0, -0.28767297, 1957.0973, 0, 293.82767)
+metadata/building_name = "bollard"
+
+[node name="barrier_concrete_7483" type="Node3D" parent="." unique_id=1401279644 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.5317739, 0, 0.84688634, 0, 1, 0, -0.84688634, 0, 0.5317739, 1973.2462, 0, 262.3912)
+metadata/building_name = "barrier_concrete"
+
+[node name="barbed_wire_fence_7484" type="Node3D" parent="." unique_id=229490187 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.4184981, 0, 0.90821767, 0, 1, 0, -0.90821767, 0, 0.4184981, 1847.0415, 0, 218.04729)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="bollard_7485" type="Node3D" parent="." unique_id=1729357061 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.16144906, 0, 0.986881, 0, 1, 0, -0.986881, 0, 0.16144906, 1853.3542, 0, 209.44887)
+metadata/building_name = "bollard"
+
+[node name="barbed_wire_fence_7486" type="Node3D" parent="." unique_id=1002537923 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.99835247, 0, -0.05737927, 0, 1, 0, 0.05737927, 0, -0.99835247, 1856.6831, 0, 301.52112)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="bollard_7487" type="Node3D" parent="." unique_id=1486165286 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.07064748, 0, -0.9975014, 0, 1, 0, 0.9975014, 0, 0.07064748, 1863.6268, 0, 256.89365)
+metadata/building_name = "bollard"
+
+[node name="bollard_7488" type="Node3D" parent="." unique_id=676560315 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.40119976, 0, 0.9159906, 0, 1, 0, -0.9159906, 0, 0.40119976, 1969.3535, 0, 277.5487)
+metadata/building_name = "bollard"
+
+[node name="barrier_concrete_7489" type="Node3D" parent="." unique_id=394918161 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.26733577, 0, 0.96360344, 0, 1, 0, -0.96360344, 0, 0.26733577, 1871.9669, 0, 237.7336)
+metadata/building_name = "barrier_concrete"
+
+[node name="barrier_concrete_7490" type="Node3D" parent="." unique_id=1089885072 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.18285288, 0, -0.9831403, 0, 1, 0, 0.9831403, 0, -0.18285288, 1826.4893, 0, 283.18777)
+metadata/building_name = "barrier_concrete"
+
+[node name="bollard_7491" type="Node3D" parent="." unique_id=590691185 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.6689394, 0, 0.7433169, 0, 1, 0, -0.7433169, 0, 0.6689394, 1922.34, 0, 215.4663)
+metadata/building_name = "bollard"
+
+[node name="sandbag_7492" type="Node3D" parent="." unique_id=1228846577 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.73124546, 0, 0.6821144, 0, 1, 0, -0.6821144, 0, -0.73124546, 1962.1423, 0, 378.23947)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7493" type="Node3D" parent="." unique_id=1011523895 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.9806916, 0, -0.1955607, 0, 1, 0, 0.1955607, 0, 0.9806916, 1887.1882, 0, 373.09586)
+metadata/building_name = "sandbag"
+
+[node name="traffic_cone_7494" type="Node3D" parent="." unique_id=1244800943 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.016919835, 0, 0.9998568, 0, 1, 0, -0.9998568, 0, 0.016919835, 1902.8556, 0, 231.57701)
 metadata/building_name = "traffic_cone"
+
+[node name="bollard_7495" type="Node3D" parent="." unique_id=1635066159 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.76611304, 0, 0.64270586, 0, 1, 0, -0.64270586, 0, 0.76611304, 1982.7987, 0, 336.07275)
+metadata/building_name = "bollard"
+
+[node name="barbed_wire_fence_7496" type="Node3D" parent="." unique_id=962345071 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.8072647, 0, 0.5901896, 0, 1, 0, -0.5901896, 0, -0.8072647, 1870.984, 0, 221.76189)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="barbed_wire_fence_7497" type="Node3D" parent="." unique_id=799698605 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.99020743, 0, -0.13960372, 0, 1, 0, 0.13960372, 0, 0.99020743, 1908.3204, 0, 191.10468)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="barrier_concrete_7498" type="Node3D" parent="." unique_id=253043960 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.9141906, 0, 0.40528458, 0, 1, 0, -0.40528458, 0, 0.9141906, 1822.1273, 0, 335.03455)
+metadata/building_name = "barrier_concrete"
+
+[node name="traffic_cone_7499" type="Node3D" parent="." unique_id=1305149565 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.6250762, 0, -0.7805638, 0, 1, 0, 0.7805638, 0, 0.6250762, 1861.2056, 0, 314.51328)
+metadata/building_name = "traffic_cone"
+
+[node name="barbed_wire_fence_7500" type="Node3D" parent="." unique_id=778133644 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.6861758, 0, 0.72743577, 0, 1, 0, -0.72743577, 0, -0.6861758, 1949.397, 0, 172.63187)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="traffic_cone_7501" type="Node3D" parent="." unique_id=1696648316 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(-0.6734356, 0, 0.7392459, 0, 1, 0, -0.7392459, 0, -0.6734356, 1882.266, 0, 182.37013)
+metadata/building_name = "traffic_cone"
+
+[node name="barrier_concrete_7502" type="Node3D" parent="." unique_id=896504864 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.70686334, 0, 0.70735013, 0, 1, 0, -0.70735013, 0, 0.70686334, 1849.7245, 0, 383.58246)
+metadata/building_name = "barrier_concrete"
+
+[node name="traffic_cone_7503" type="Node3D" parent="." unique_id=747197120 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.4227042, 0, -0.9062677, 0, 1, 0, 0.9062677, 0, 0.4227042, 1818.2478, 0, 276.56134)
+metadata/building_name = "traffic_cone"
+
+[node name="bollard_7504" type="Node3D" parent="." unique_id=129839922 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.31726718, 0, -0.9483362, 0, 1, 0, 0.9483362, 0, -0.31726718, 1912.45, 0, 215.21149)
+metadata/building_name = "bollard"
+
+[node name="bollard_7505" type="Node3D" parent="." unique_id=1637296890 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.32724178, 0, 0.9449406, 0, 1, 0, -0.9449406, 0, 0.32724178, 1938.3453, 0, 241.68987)
+metadata/building_name = "bollard"
+
+[node name="bollard_7506" type="Node3D" parent="." unique_id=428166899 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.69540435, 0, -0.7186187, 0, 1, 0, 0.7186187, 0, 0.69540435, 1879.7662, 0, 261.40842)
+metadata/building_name = "bollard"
+
+[node name="barrier_concrete_7507" type="Node3D" parent="." unique_id=1275111390 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.6889583, 0, 0.724801, 0, 1, 0, -0.724801, 0, 0.6889583, 1926.3875, 0, 219.21155)
+metadata/building_name = "barrier_concrete"
+
+[node name="traffic_cone_7508" type="Node3D" parent="." unique_id=157853315 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.40423065, 0, 0.9146571, 0, 1, 0, -0.9146571, 0, 0.40423065, 1870.6884, 0, 171.57022)
+metadata/building_name = "traffic_cone"
+
+[node name="barbed_wire_fence_7509" type="Node3D" parent="." unique_id=1298523271 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.26034322, 0, -0.96551615, 0, 1, 0, 0.96551615, 0, 0.26034322, 1821.5867, 0, 282.01932)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="traffic_cone_7510" type="Node3D" parent="." unique_id=1607606347 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.2721289, 0, -0.9622608, 0, 1, 0, 0.9622608, 0, 0.2721289, 1981.6749, 0, 234.54753)
+metadata/building_name = "traffic_cone"
+
+[node name="barbed_wire_fence_7511" type="Node3D" parent="." unique_id=1728453507 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.097397186, 0, -0.9952456, 0, 1, 0, 0.9952456, 0, 0.097397186, 1929.3632, 0, 383.52713)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="sandbag_7512" type="Node3D" parent="." unique_id=1567924487 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.1396988, 0, -0.990194, 0, 1, 0, 0.990194, 0, 0.1396988, 1960.8676, 0, 347.6187)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7513" type="Node3D" parent="." unique_id=1165981538 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.9848711, 0, -0.17328872, 0, 1, 0, 0.17328872, 0, 0.9848711, 1962.6818, 0, 172.27132)
+metadata/building_name = "sandbag"
+
+[node name="bollard_7514" type="Node3D" parent="." unique_id=1103453118 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.8329456, 0, 0.55335486, 0, 1, 0, -0.55335486, 0, -0.8329456, 1847.3391, 0, 167.70343)
+metadata/building_name = "bollard"
+
+[node name="barbed_wire_fence_7515" type="Node3D" parent="." unique_id=579135120 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.24205472, 0, -0.9702626, 0, 1, 0, 0.9702626, 0, -0.24205472, 1925.1288, 0, 186.59846)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="sandbag_7516" type="Node3D" parent="." unique_id=1830208858 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.8163467, 0, 0.5775622, 0, 1, 0, -0.5775622, 0, 0.8163467, 1845.5963, 0, 301.11273)
+metadata/building_name = "sandbag"
+
+[node name="barrier_concrete_7517" type="Node3D" parent="." unique_id=337917843 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.23135287, 0, -0.97286993, 0, 1, 0, 0.97286993, 0, -0.23135287, 1823.0632, 0, 372.05392)
+metadata/building_name = "barrier_concrete"
+
+[node name="bollard_7518" type="Node3D" parent="." unique_id=1946178301 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.9086418, 0, -0.4175764, 0, 1, 0, 0.4175764, 0, 0.9086418, 1914.627, 0, 276.02832)
+metadata/building_name = "bollard"
+
+[node name="traffic_cone_7519" type="Node3D" parent="." unique_id=1842495781 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(-0.8553404, 0, 0.51806635, 0, 1, 0, -0.51806635, 0, -0.8553404, 1877.1519, 0, 265.69806)
+metadata/building_name = "traffic_cone"
+
+[node name="bollard_7520" type="Node3D" parent="." unique_id=317272089 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.87163717, 0, 0.4901516, 0, 1, 0, -0.4901516, 0, -0.87163717, 1936.0415, 0, 307.90067)
+metadata/building_name = "bollard"
+
+[node name="barbed_wire_fence_7521" type="Node3D" parent="." unique_id=2130876207 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.04739417, 0, -0.9988763, 0, 1, 0, 0.9988763, 0, 0.04739417, 1923.9109, 0, 369.08276)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="bollard_7522" type="Node3D" parent="." unique_id=928430806 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.9287748, 0, 0.3706446, 0, 1, 0, -0.3706446, 0, -0.9287748, 1899.9503, 0, 207.76743)
+metadata/building_name = "bollard"
+
+[node name="sandbag_7523" type="Node3D" parent="." unique_id=471055048 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.9404222, 0, -0.34000906, 0, 1, 0, 0.34000906, 0, -0.9404222, 1824.5756, 0, 177.04295)
+metadata/building_name = "sandbag"
+
+[node name="bollard_7524" type="Node3D" parent="." unique_id=573923818 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.48462436, 0, 0.87472236, 0, 1, 0, -0.87472236, 0, -0.48462436, 1816.1168, 0, 217.77048)
+metadata/building_name = "bollard"
+
+[node name="traffic_cone_7525" type="Node3D" parent="." unique_id=653082865 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(-0.91271347, 0, 0.40860015, 0, 1, 0, -0.40860015, 0, -0.91271347, 1913.0244, 0, 344.03818)
+metadata/building_name = "traffic_cone"
+
+[node name="sandbag_7526" type="Node3D" parent="." unique_id=1601866337 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.8456743, 0, -0.5336994, 0, 1, 0, 0.5336994, 0, -0.8456743, 1936.3496, 0, 227.32634)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7527" type="Node3D" parent="." unique_id=909176353 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.19413516, 0, 0.9809748, 0, 1, 0, -0.9809748, 0, 0.19413516, 1817.3328, 0, 306.74344)
+metadata/building_name = "sandbag"
+
+[node name="barrier_concrete_7528" type="Node3D" parent="." unique_id=2092328582 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.962646, 0, 0.270763, 0, 1, 0, -0.270763, 0, -0.962646, 1816.4751, 0, 230.86795)
+metadata/building_name = "barrier_concrete"
+
+[node name="barrier_concrete_7529" type="Node3D" parent="." unique_id=1798634653 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.8471967, 0, 0.5312794, 0, 1, 0, -0.5312794, 0, -0.8471967, 1837.6047, 0, 341.30875)
+metadata/building_name = "barrier_concrete"
+
+[node name="traffic_cone_7530" type="Node3D" parent="." unique_id=930520544 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.6198757, 0, -0.7847, 0, 1, 0, 0.7847, 0, 0.6198757, 1830.3091, 0, 214.50063)
+metadata/building_name = "traffic_cone"
+
+[node name="sandbag_7531" type="Node3D" parent="." unique_id=346074478 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.2196933, 0, 0.975569, 0, 1, 0, -0.975569, 0, -0.2196933, 1882.6199, 0, 198.25124)
+metadata/building_name = "sandbag"
+
+[node name="barrier_concrete_7532" type="Node3D" parent="." unique_id=302364932 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.82431424, 0, -0.5661325, 0, 1, 0, 0.5661325, 0, -0.82431424, 1881.0463, 0, 312.83044)
+metadata/building_name = "barrier_concrete"
+
+[node name="barrier_concrete_7533" type="Node3D" parent="." unique_id=177890704 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.6926125, 0, 0.72130984, 0, 1, 0, -0.72130984, 0, -0.6926125, 1890.2913, 0, 186.72566)
+metadata/building_name = "barrier_concrete"
+
+[node name="bollard_7534" type="Node3D" parent="." unique_id=1301360932 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.79261804, 0, 0.6097185, 0, 1, 0, -0.6097185, 0, -0.79261804, 1956.429, 0, 284.97202)
+metadata/building_name = "bollard"
+
+[node name="bollard_7535" type="Node3D" parent="." unique_id=348027812 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.23494288, 0, 0.9720092, 0, 1, 0, -0.9720092, 0, 0.23494288, 1824.5591, 0, 366.2917)
+metadata/building_name = "bollard"
+
+[node name="barrier_concrete_7536" type="Node3D" parent="." unique_id=610596092 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.14524974, 0, 0.989395, 0, 1, 0, -0.989395, 0, 0.14524974, 1959.7281, 0, 371.80804)
+metadata/building_name = "barrier_concrete"
+
+[node name="bollard_7537" type="Node3D" parent="." unique_id=525441936 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.9917767, 0, -0.12798047, 0, 1, 0, 0.12798047, 0, 0.9917767, 1901.267, 0, 329.70688)
+metadata/building_name = "bollard"
+
+[node name="sandbag_7538" type="Node3D" parent="." unique_id=289289891 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.011163643, 0, 0.9999377, 0, 1, 0, -0.9999377, 0, -0.011163643, 1865.9614, 0, 207.40353)
+metadata/building_name = "sandbag"
+
+[node name="barrier_concrete_7539" type="Node3D" parent="." unique_id=288166460 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.61064935, 0, 0.7919011, 0, 1, 0, -0.7919011, 0, -0.61064935, 1984.458, 0, 265.8409)
+metadata/building_name = "barrier_concrete"
+
+[node name="sandbag_7540" type="Node3D" parent="." unique_id=1351194697 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.16449358, 0, -0.98637813, 0, 1, 0, 0.98637813, 0, -0.16449358, 1948.1565, 0, 361.58572)
+metadata/building_name = "sandbag"
+
+[node name="barbed_wire_fence_7541" type="Node3D" parent="." unique_id=1644290067 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.06657877, 0, 0.99778116, 0, 1, 0, -0.99778116, 0, 0.06657877, 1910.9614, 0, 207.27402)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="bollard_7542" type="Node3D" parent="." unique_id=143957126 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.56421846, 0, -0.82562554, 0, 1, 0, 0.82562554, 0, 0.56421846, 1974.9504, 0, 242.62393)
+metadata/building_name = "bollard"
+
+[node name="bollard_7543" type="Node3D" parent="." unique_id=1717119612 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.4970684, 0, -0.86771137, 0, 1, 0, 0.86771137, 0, 0.4970684, 1883.4766, 0, 259.83453)
+metadata/building_name = "bollard"
+
+[node name="bollard_7544" type="Node3D" parent="." unique_id=54841907 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.9392649, 0, 0.34319302, 0, 1, 0, -0.34319302, 0, 0.9392649, 1879.4017, 0, 195.64778)
+metadata/building_name = "bollard"
+
+[node name="barbed_wire_fence_7545" type="Node3D" parent="." unique_id=112760920 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.36485475, 0, 0.9310644, 0, 1, 0, -0.9310644, 0, -0.36485475, 1984.5884, 0, 255.2276)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="sandbag_7546" type="Node3D" parent="." unique_id=303132549 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.9851909, 0, 0.17146097, 0, 1, 0, -0.17146097, 0, 0.9851909, 1985.7587, 0, 380.25967)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7547" type="Node3D" parent="." unique_id=1304217557 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.83766574, 0, 0.5461832, 0, 1, 0, -0.5461832, 0, 0.83766574, 1852.2218, 0, 384.46387)
+metadata/building_name = "sandbag"
+
+[node name="bollard_7548" type="Node3D" parent="." unique_id=1700729284 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.09861199, 0, -0.99512595, 0, 1, 0, 0.99512595, 0, -0.09861199, 1957.3043, 0, 184.56882)
+metadata/building_name = "bollard"
+
+[node name="traffic_cone_7549" type="Node3D" parent="." unique_id=1762818950 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.44257525, 0, -0.8967314, 0, 1, 0, 0.8967314, 0, 0.44257525, 1842.282, 0, 386.4884)
+metadata/building_name = "traffic_cone"
+
+[node name="barbed_wire_fence_7550" type="Node3D" parent="." unique_id=251460027 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.9971433, 0, 0.07553287, 0, 1, 0, -0.07553287, 0, 0.9971433, 1874.774, 0, 294.64362)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="sandbag_7551" type="Node3D" parent="." unique_id=760915770 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.9985876, 0, -0.053129766, 0, 1, 0, 0.053129766, 0, -0.9985876, 1953.7135, 0, 260.56985)
+metadata/building_name = "sandbag"
+
+[node name="traffic_cone_7552" type="Node3D" parent="." unique_id=638372422 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(-0.6594967, 0, -0.75170743, 0, 1, 0, 0.75170743, 0, -0.6594967, 1859.0353, 0, 377.48404)
+metadata/building_name = "traffic_cone"
+
+[node name="barrier_concrete_7553" type="Node3D" parent="." unique_id=1492978235 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.07230447, 0, 0.9973826, 0, 1, 0, -0.9973826, 0, 0.07230447, 1986.5212, 0, 195.1648)
+metadata/building_name = "barrier_concrete"
+
+[node name="barrier_concrete_7554" type="Node3D" parent="." unique_id=1331436749 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.5883894, 0, -0.8085777, 0, 1, 0, 0.8085777, 0, 0.5883894, 1921.8152, 0, 198.50513)
+metadata/building_name = "barrier_concrete"
+
+[node name="sandbag_7555" type="Node3D" parent="." unique_id=1154117749 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.88165915, 0, -0.4718868, 0, 1, 0, 0.4718868, 0, 0.88165915, 1904.8015, 0, 248.72746)
+metadata/building_name = "sandbag"
+
+[node name="barrier_concrete_7556" type="Node3D" parent="." unique_id=1940214344 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.3614469, 0, 0.9323927, 0, 1, 0, -0.9323927, 0, 0.3614469, 1971.0938, 0, 367.31723)
+metadata/building_name = "barrier_concrete"
+
+[node name="barbed_wire_fence_7557" type="Node3D" parent="." unique_id=1951425119 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.9136024, 0, -0.40660867, 0, 1, 0, 0.40660867, 0, -0.9136024, 1979.7568, 0, 370.02994)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="barrier_concrete_7558" type="Node3D" parent="." unique_id=1797309039 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.9625607, 0, -0.27106613, 0, 1, 0, 0.27106613, 0, -0.9625607, 1931.9266, 0, 365.7547)
+metadata/building_name = "barrier_concrete"
+
+[node name="traffic_cone_7559" type="Node3D" parent="." unique_id=54450341 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.829714, 0, 0.55818874, 0, 1, 0, -0.55818874, 0, 0.829714, 1818.8318, 0, 244.49124)
+metadata/building_name = "traffic_cone"
+
+[node name="bollard_7560" type="Node3D" parent="." unique_id=902749622 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.3358359, 0, 0.9419205, 0, 1, 0, -0.9419205, 0, 0.3358359, 1864.0991, 0, 240.01175)
+metadata/building_name = "bollard"
+
+[node name="bollard_7561" type="Node3D" parent="." unique_id=1391093984 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.8594192, 0, 0.51127154, 0, 1, 0, -0.51127154, 0, -0.8594192, 1831.4285, 0, 234.38506)
+metadata/building_name = "bollard"
+
+[node name="barbed_wire_fence_7562" type="Node3D" parent="." unique_id=611059072 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.95076257, 0, 0.30992025, 0, 1, 0, -0.30992025, 0, -0.95076257, 1970.46, 0, 180.46432)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="barrier_concrete_7563" type="Node3D" parent="." unique_id=470814953 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.49972937, 0, 0.8661816, 0, 1, 0, -0.8661816, 0, 0.49972937, 1882.1128, 0, 377.79745)
+metadata/building_name = "barrier_concrete"
+
+[node name="sandbag_7564" type="Node3D" parent="." unique_id=1284587849 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.72670406, 0, 0.6869507, 0, 1, 0, -0.6869507, 0, -0.72670406, 1819.0999, 0, 321.47186)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7565" type="Node3D" parent="." unique_id=1568945963 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.9982667, 0, -0.058852326, 0, 1, 0, 0.058852326, 0, 0.9982667, 1969.5833, 0, 225.79388)
+metadata/building_name = "sandbag"
+
+[node name="barbed_wire_fence_7566" type="Node3D" parent="." unique_id=1705232039 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.94306827, 0, 0.33259928, 0, 1, 0, -0.33259928, 0, 0.94306827, 1875.1431, 0, 216.6144)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="bollard_7567" type="Node3D" parent="." unique_id=2035478244 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.81491864, 0, 0.5795754, 0, 1, 0, -0.5795754, 0, 0.81491864, 1851.8766, 0, 247.66168)
+metadata/building_name = "bollard"
+
+[node name="sandbag_7568" type="Node3D" parent="." unique_id=242390831 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.93297964, 0, 0.3599291, 0, 1, 0, -0.3599291, 0, 0.93297964, 1812.1207, 0, 281.27637)
+metadata/building_name = "sandbag"
+
+[node name="traffic_cone_7569" type="Node3D" parent="." unique_id=615910087 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.96935695, 0, -0.24565652, 0, 1, 0, 0.24565652, 0, 0.96935695, 1962.3683, 0, 338.4368)
+metadata/building_name = "traffic_cone"
+
+[node name="traffic_cone_7570" type="Node3D" parent="." unique_id=490648893 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(-0.86430126, 0, 0.50297445, 0, 1, 0, -0.50297445, 0, -0.86430126, 1824.3206, 0, 270.2512)
+metadata/building_name = "traffic_cone"
+
+[node name="sandbag_7571" type="Node3D" parent="." unique_id=1192876363 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.53449976, 0, -0.84516865, 0, 1, 0, 0.84516865, 0, 0.53449976, 1937.4152, 0, 254.90474)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7572" type="Node3D" parent="." unique_id=1713698918 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.46132404, 0, -0.8872317, 0, 1, 0, 0.8872317, 0, -0.46132404, 1822.13, 0, 293.4439)
+metadata/building_name = "sandbag"
+
+[node name="barrier_concrete_7573" type="Node3D" parent="." unique_id=550630085 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.73779804, 0, 0.6750215, 0, 1, 0, -0.6750215, 0, -0.73779804, 1845.064, 0, 333.58383)
+metadata/building_name = "barrier_concrete"
+
+[node name="barrier_concrete_7574" type="Node3D" parent="." unique_id=899786781 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.63919896, 0, -0.7690414, 0, 1, 0, 0.7690414, 0, 0.63919896, 1903.186, 0, 204.9304)
+metadata/building_name = "barrier_concrete"
+
+[node name="barrier_concrete_7575" type="Node3D" parent="." unique_id=88833405 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.49805614, 0, -0.86714476, 0, 1, 0, 0.86714476, 0, 0.49805614, 1873.1835, 0, 201.16412)
+metadata/building_name = "barrier_concrete"
+
+[node name="bollard_7576" type="Node3D" parent="." unique_id=453258854 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.06654035, 0, 0.9977837, 0, 1, 0, -0.9977837, 0, 0.06654035, 1950.1152, 0, 382.2085)
+metadata/building_name = "bollard"
+
+[node name="traffic_cone_7577" type="Node3D" parent="." unique_id=542885504 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(-0.826359, 0, 0.56314373, 0, 1, 0, -0.56314373, 0, -0.826359, 1971.6036, 0, 308.4906)
+metadata/building_name = "traffic_cone"
+
+[node name="barrier_concrete_7578" type="Node3D" parent="." unique_id=2142287941 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.36804706, 0, 0.9298072, 0, 1, 0, -0.9298072, 0, 0.36804706, 1945.2609, 0, 200.85724)
+metadata/building_name = "barrier_concrete"
+
+[node name="sandbag_7579" type="Node3D" parent="." unique_id=1325346685 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.57637125, 0, -0.81718796, 0, 1, 0, 0.81718796, 0, 0.57637125, 1880.0867, 0, 195.63211)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7580" type="Node3D" parent="." unique_id=924820074 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.19176896, 0, 0.9814401, 0, 1, 0, -0.9814401, 0, -0.19176896, 1961.7853, 0, 335.46182)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7581" type="Node3D" parent="." unique_id=1073316000 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.9763119, 0, 0.2163678, 0, 1, 0, -0.2163678, 0, -0.9763119, 1845.2964, 0, 355.92953)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7582" type="Node3D" parent="." unique_id=796014197 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.9449295, 0, -0.327274, 0, 1, 0, 0.327274, 0, -0.9449295, 1957.2466, 0, 380.2993)
+metadata/building_name = "sandbag"
+
+[node name="traffic_cone_7583" type="Node3D" parent="." unique_id=432459957 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.1404328, 0, 0.9900902, 0, 1, 0, -0.9900902, 0, 0.1404328, 1893.1122, 0, 204.29523)
+metadata/building_name = "traffic_cone"
+
+[node name="barbed_wire_fence_7584" type="Node3D" parent="." unique_id=1510918760 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.8248993, 0, -0.56527966, 0, 1, 0, 0.56527966, 0, -0.8248993, 1924.3964, 0, 359.6912)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="sandbag_7585" type="Node3D" parent="." unique_id=2087791882 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.2068274, 0, -0.97837746, 0, 1, 0, 0.97837746, 0, 0.2068274, 1901.3958, 0, 292.22546)
+metadata/building_name = "sandbag"
+
+[node name="barbed_wire_fence_7586" type="Node3D" parent="." unique_id=606258810 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.42215315, 0, -0.90652454, 0, 1, 0, 0.90652454, 0, 0.42215315, 1963.1083, 0, 241.56207)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="barbed_wire_fence_7587" type="Node3D" parent="." unique_id=1911065605 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.85283476, 0, 0.5221809, 0, 1, 0, -0.5221809, 0, -0.85283476, 1893.009, 0, 299.40555)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="barbed_wire_fence_7588" type="Node3D" parent="." unique_id=1430258451 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.78053325, 0, 0.62511426, 0, 1, 0, -0.62511426, 0, 0.78053325, 1905.5812, 0, 286.19376)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="barrier_concrete_7589" type="Node3D" parent="." unique_id=667397086 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.9984856, 0, -0.055013135, 0, 1, 0, 0.055013135, 0, -0.9984856, 1963.9058, 0, 231.70041)
+metadata/building_name = "barrier_concrete"
+
+[node name="traffic_cone_7590" type="Node3D" parent="." unique_id=1195096511 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.34505403, 0, -0.93858284, 0, 1, 0, 0.93858284, 0, 0.34505403, 1879.2147, 0, 184.18755)
+metadata/building_name = "traffic_cone"
+
+[node name="sandbag_7591" type="Node3D" parent="." unique_id=1207216195 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.7163384, 0, -0.6977531, 0, 1, 0, 0.6977531, 0, -0.7163384, 1858.1438, 0, 186.90334)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7592" type="Node3D" parent="." unique_id=1157797846 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.607639, 0, 0.79421335, 0, 1, 0, -0.79421335, 0, 0.607639, 1870.6233, 0, 324.14725)
+metadata/building_name = "sandbag"
+
+[node name="barbed_wire_fence_7593" type="Node3D" parent="." unique_id=577576061 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.621668, 0, 0.78328085, 0, 1, 0, -0.78328085, 0, 0.621668, 1853.7871, 0, 182.84729)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="barrier_concrete_7594" type="Node3D" parent="." unique_id=1030798575 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.6879783, 0, -0.72573125, 0, 1, 0, 0.72573125, 0, -0.6879783, 1850.5393, 0, 319.03345)
+metadata/building_name = "barrier_concrete"
+
+[node name="barbed_wire_fence_7595" type="Node3D" parent="." unique_id=664361004 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.95851016, 0, 0.28505844, 0, 1, 0, -0.28505844, 0, 0.95851016, 1935.1766, 0, 308.9709)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="sandbag_7596" type="Node3D" parent="." unique_id=1470110826 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.9893036, 0, 0.14587107, 0, 1, 0, -0.14587107, 0, 0.9893036, 1937.6805, 0, 183.42242)
+metadata/building_name = "sandbag"
+
+[node name="bollard_7597" type="Node3D" parent="." unique_id=1390381716 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.9283468, 0, -0.37171513, 0, 1, 0, 0.37171513, 0, 0.9283468, 1879.9602, 0, 254.97115)
+metadata/building_name = "bollard"
+
+[node name="barrier_concrete_7598" type="Node3D" parent="." unique_id=1044598839 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.6613157, 0, -0.7501077, 0, 1, 0, 0.7501077, 0, 0.6613157, 1860.0039, 0, 237.69598)
+metadata/building_name = "barrier_concrete"
+
+[node name="sandbag_7599" type="Node3D" parent="." unique_id=1938909659 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.90465885, 0, -0.4261365, 0, 1, 0, 0.4261365, 0, 0.90465885, 1920.2587, 0, 181.9785)
+metadata/building_name = "sandbag"
+
+[node name="bollard_7600" type="Node3D" parent="." unique_id=1489506596 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.9371407, 0, -0.34895173, 0, 1, 0, 0.34895173, 0, 0.9371407, 1987.2845, 0, 208.06078)
+metadata/building_name = "bollard"
+
+[node name="sandbag_7601" type="Node3D" parent="." unique_id=1281714343 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.4948714, 0, -0.8689662, 0, 1, 0, 0.8689662, 0, -0.4948714, 1823.8202, 0, 301.46426)
+metadata/building_name = "sandbag"
+
+[node name="barrier_concrete_7602" type="Node3D" parent="." unique_id=1244087412 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.9775881, 0, 0.2105267, 0, 1, 0, -0.2105267, 0, 0.9775881, 1874.353, 0, 245.18272)
+metadata/building_name = "barrier_concrete"
+
+[node name="sandbag_7603" type="Node3D" parent="." unique_id=1181147218 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.98479337, 0, -0.17372967, 0, 1, 0, 0.17372967, 0, 0.98479337, 1907.3131, 0, 261.90256)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7604" type="Node3D" parent="." unique_id=1089531093 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.22864744, 0, -0.9735093, 0, 1, 0, 0.9735093, 0, -0.22864744, 1984.9655, 0, 184.65898)
+metadata/building_name = "sandbag"
+
+[node name="barbed_wire_fence_7605" type="Node3D" parent="." unique_id=764925610 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.6993676, 0, -0.7147622, 0, 1, 0, 0.7147622, 0, 0.6993676, 1902.3607, 0, 361.87387)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="sandbag_7606" type="Node3D" parent="." unique_id=564254098 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.58548236, 0, -0.81068516, 0, 1, 0, 0.81068516, 0, -0.58548236, 1876.2274, 0, 259.8991)
+metadata/building_name = "sandbag"
+
+[node name="traffic_cone_7607" type="Node3D" parent="." unique_id=1462521762 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.6079993, 0, -0.7939375, 0, 1, 0, 0.7939375, 0, 0.6079993, 1894.9465, 0, 226.39378)
+metadata/building_name = "traffic_cone"
+
+[node name="barbed_wire_fence_7608" type="Node3D" parent="." unique_id=1364054093 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.119072184, 0, 0.9928856, 0, 1, 0, -0.9928856, 0, -0.119072184, 1930.1548, 0, 380.30386)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="sandbag_7609" type="Node3D" parent="." unique_id=1254291988 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.9999993, 0, 0.0012013036, 0, 1, 0, -0.0012013036, 0, -0.9999993, 1916.0321, 0, 375.4498)
+metadata/building_name = "sandbag"
+
+[node name="barbed_wire_fence_7610" type="Node3D" parent="." unique_id=871890672 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.66237473, 0, 0.7491727, 0, 1, 0, -0.7491727, 0, -0.66237473, 1979.7927, 0, 224.75797)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="bollard_7611" type="Node3D" parent="." unique_id=724585781 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.78701633, 0, -0.61693215, 0, 1, 0, 0.61693215, 0, -0.78701633, 1847.7363, 0, 364.1651)
+metadata/building_name = "bollard"
+
+[node name="barbed_wire_fence_7612" type="Node3D" parent="." unique_id=1166550350 instance=ExtResource("7_ro04w")]
+transform = Transform3D(-0.4500807, 0, 0.8929879, 0, 1, 0, -0.8929879, 0, -0.4500807, 1937.2074, 0, 336.68018)
+metadata/building_name = "barbed_wire_fence"
+
+[node name="sandbag_7613" type="Node3D" parent="." unique_id=575551412 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.8559793, 0, 0.5170101, 0, 1, 0, -0.5170101, 0, 0.8559793, 1930.0594, 0, 230.76086)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7614" type="Node3D" parent="." unique_id=1067060365 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.61261034, 0, -0.79038507, 0, 1, 0, 0.79038507, 0, 0.61261034, 1966.7792, 0, 365.10532)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7615" type="Node3D" parent="." unique_id=840803380 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.7956872, 0, 0.60570776, 0, 1, 0, -0.60570776, 0, 0.7956872, 1967.6863, 0, 379.75955)
+metadata/building_name = "sandbag"
+
+[node name="barrier_concrete_7616" type="Node3D" parent="." unique_id=1251960869 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.6690777, 0, 0.7431925, 0, 1, 0, -0.7431925, 0, -0.6690777, 1935.2483, 0, 249.63968)
+metadata/building_name = "barrier_concrete"
+
+[node name="barrier_concrete_7617" type="Node3D" parent="." unique_id=1231015013 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(0.811217, 0, -0.58474517, 0, 1, 0, 0.58474517, 0, 0.811217, 1873.4316, 0, 205.05173)
+metadata/building_name = "barrier_concrete"
+
+[node name="barrier_concrete_7618" type="Node3D" parent="." unique_id=1152127531 instance=ExtResource("4_0d4fr")]
+transform = Transform3D(-0.96055365, 0, 0.27809468, 0, 1, 0, -0.27809468, 0, -0.96055365, 1966.0963, 0, 328.45685)
+metadata/building_name = "barrier_concrete"
+
+[node name="bollard_7619" type="Node3D" parent="." unique_id=529153948 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.41932362, 0, -0.90783685, 0, 1, 0, 0.90783685, 0, -0.41932362, 1855.7408, 0, 229.57199)
+metadata/building_name = "bollard"
+
+[node name="sandbag_7620" type="Node3D" parent="." unique_id=2025946229 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.6004158, 0, -0.7996879, 0, 1, 0, 0.7996879, 0, -0.6004158, 1948.7561, 0, 228.29625)
+metadata/building_name = "sandbag"
+
+[node name="traffic_cone_7621" type="Node3D" parent="." unique_id=1405598266 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.48744792, 0, 0.8731521, 0, 1, 0, -0.8731521, 0, 0.48744792, 1865.0449, 0, 385.43506)
+metadata/building_name = "traffic_cone"
+
+[node name="traffic_cone_7622" type="Node3D" parent="." unique_id=1414169243 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(0.95040953, 0, 0.3110011, 0, 1, 0, -0.3110011, 0, 0.95040953, 1852.9758, 0, 347.08752)
+metadata/building_name = "traffic_cone"
+
+[node name="bollard_7623" type="Node3D" parent="." unique_id=1025455952 instance=ExtResource("5_lderi")]
+transform = Transform3D(0.06198693, 0, 0.998077, 0, 1, 0, -0.998077, 0, 0.06198693, 1850.3899, 0, 183.45088)
+metadata/building_name = "bollard"
+
+[node name="sandbag_7624" type="Node3D" parent="." unique_id=1771281528 instance=ExtResource("8_63x34")]
+transform = Transform3D(0.3864541, 0, 0.9223086, 0, 1, 0, -0.9223086, 0, 0.3864541, 1962.0153, 0, 346.91165)
+metadata/building_name = "sandbag"
+
+[node name="sandbag_7625" type="Node3D" parent="." unique_id=925471414 instance=ExtResource("8_63x34")]
+transform = Transform3D(-0.69197375, 0, -0.72192264, 0, 1, 0, 0.72192264, 0, -0.69197375, 1821.3308, 0, 289.07336)
+metadata/building_name = "sandbag"
+
+[node name="traffic_cone_7626" type="Node3D" parent="." unique_id=314842714 instance=ExtResource("6_fv5xf")]
+transform = Transform3D(-0.7125676, 0, 0.7016035, 0, 1, 0, -0.7016035, 0, -0.7125676, 1963.6443, 0, 303.12943)
+metadata/building_name = "traffic_cone"
+
+[node name="bollard_7627" type="Node3D" parent="." unique_id=1544747615 instance=ExtResource("5_lderi")]
+transform = Transform3D(-0.82768255, 0, 0.5611966, 0, 1, 0, -0.5611966, 0, -0.82768255, 1985.5486, 0, 376.11093)
+metadata/building_name = "bollard"
+
+[node name="barbed_wire_fence_7628" type="Node3D" parent="." unique_id=1085160006 instance=ExtResource("7_ro04w")]
+transform = Transform3D(0.21524929, 0, -0.97655916, 0, 1, 0, 0.97655916, 0, 0.21524929, 1941.0197, 0, 332.87814)
+metadata/building_name = "barbed_wire_fence"

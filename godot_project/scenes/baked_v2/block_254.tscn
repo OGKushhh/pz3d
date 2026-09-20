@@ -1,383 +1,1285 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://assets/environment/loading_dock.glb" id="1_3r7ym"]
-[ext_resource type="PackedScene" path="res://assets/buildings/warehouse_large.glb" id="2_x4xog"]
-[ext_resource type="PackedScene" path="res://assets/buildings/warehouse.glb" id="3_8m4it"]
-[ext_resource type="PackedScene" path="res://assets/buildings/utility_shed_metal.glb" id="4_rr1mh"]
-[ext_resource type="PackedScene" path="res://assets/environment/storage_tank.glb" id="5_6p746"]
-[ext_resource type="PackedScene" path="res://assets/buildings/factory_small.glb" id="6_42p0y"]
-[ext_resource type="PackedScene" path="res://assets/environment/dumpster.glb" id="7_1q48h"]
-[ext_resource type="PackedScene" path="res://assets/environment/guard_rail.glb" id="8_na08i"]
-[ext_resource type="PackedScene" path="res://assets/environment/chain_link_fence.glb" id="9_n2lr5"]
-[ext_resource type="PackedScene" path="res://assets/environment/construction_barrier.glb" id="10_7seos"]
-[ext_resource type="PackedScene" path="res://assets/environment/shipping_container.glb" id="11_sdmis"]
+[ext_resource type="PackedScene" path="res://assets/environment/shipping_container.glb" id="1_i1uwx"]
+[ext_resource type="PackedScene" path="res://assets/environment/guard_rail.glb" id="2_qi6by"]
+[ext_resource type="PackedScene" path="res://assets/environment/dumpster.glb" id="3_xj6w4"]
+[ext_resource type="PackedScene" path="res://assets/environment/chain_link_fence.glb" id="4_683xw"]
+[ext_resource type="PackedScene" path="res://assets/environment/construction_barrier.glb" id="5_tcgup"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xmas8"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jkib4"]
 albedo_color = Color(0.35, 0.33, 0.3, 1)
 roughness = 0.85
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_fc8jc"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_3r7ym"]
 size = Vector2(250, 250)
 
-[node name="Block_254" type="Node3D" unique_id=328188422]
+[node name="Block_254" type="Node3D" unique_id=1745448545]
 
-[node name="DistrictGround_19689" type="MeshInstance3D" parent="." unique_id=1994335502]
+[node name="DistrictGround_13477" type="MeshInstance3D" parent="." unique_id=340798404]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3325, 0.01, 2675)
-material_override = SubResource("StandardMaterial3D_xmas8")
-mesh = SubResource("PlaneMesh_fc8jc")
+material_override = SubResource("StandardMaterial3D_jkib4")
+mesh = SubResource("PlaneMesh_3r7ym")
 
-[node name="loading_dock_19690" type="Node3D" parent="." unique_id=1986905817 instance=ExtResource("1_3r7ym")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 3280, 0, 2575)
-metadata/building_name = "loading_dock"
+[node name="shipping_container_13478" type="Node3D" parent="." unique_id=480272578 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.98826844, 0, 0.15272684, 0, 1, 0, -0.15272684, 0, -0.98826844, 3395.9077, 0, 2591.106)
+metadata/building_name = "shipping_container"
 
-[node name="warehouse_large_19691" type="Node3D" parent="." unique_id=694280760 instance=ExtResource("2_x4xog")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 3330, 0, 2575)
-metadata/building_name = "warehouse_large"
+[node name="guard_rail_13479" type="Node3D" parent="." unique_id=530027119 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.686284, 0, 0.72733366, 0, 1, 0, -0.72733366, 0, -0.686284, 3372.692, 0, 2693.5352)
+metadata/building_name = "guard_rail"
 
-[node name="warehouse_19692" type="Node3D" parent="." unique_id=725411970 instance=ExtResource("3_8m4it")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 3380, 0, 2575)
-metadata/building_name = "warehouse"
+[node name="guard_rail_13480" type="Node3D" parent="." unique_id=1636871851 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.48553613, 0, 0.8742166, 0, 1, 0, -0.8742166, 0, 0.48553613, 3246.6997, 0, 2629.94)
+metadata/building_name = "guard_rail"
 
-[node name="utility_shed_metal_19693" type="Node3D" parent="." unique_id=717996845 instance=ExtResource("4_rr1mh")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 3330, 0, 2615)
-metadata/building_name = "utility_shed_metal"
-
-[node name="storage_tank_19694" type="Node3D" parent="." unique_id=1542830988 instance=ExtResource("5_6p746")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 3380, 0, 2615)
-metadata/building_name = "storage_tank"
-
-[node name="warehouse_large_19695" type="Node3D" parent="." unique_id=715642025 instance=ExtResource("2_x4xog")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3230, 0, 2695)
-metadata/building_name = "warehouse_large"
-
-[node name="utility_shed_metal_19696" type="Node3D" parent="." unique_id=1737621759 instance=ExtResource("4_rr1mh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3330, 0, 2695)
-metadata/building_name = "utility_shed_metal"
-
-[node name="loading_dock_19697" type="Node3D" parent="." unique_id=1532858121 instance=ExtResource("1_3r7ym")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3230, 0, 2735)
-metadata/building_name = "loading_dock"
-
-[node name="factory_small_19698" type="Node3D" parent="." unique_id=828668684 instance=ExtResource("6_42p0y")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3280, 0, 2735)
-metadata/building_name = "factory_small"
-
-[node name="warehouse_large_19699" type="Node3D" parent="." unique_id=48635976 instance=ExtResource("2_x4xog")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3230, 0, 2775)
-metadata/building_name = "warehouse_large"
-
-[node name="loading_dock_19700" type="Node3D" parent="." unique_id=1237028532 instance=ExtResource("1_3r7ym")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3280, 0, 2775)
-metadata/building_name = "loading_dock"
-
-[node name="dumpster_19701" type="Node3D" parent="." unique_id=1696713097 instance=ExtResource("7_1q48h")]
-transform = Transform3D(0.8818944, 0, 0.47144693, 0, 1, 0, -0.47144693, 0, 0.8818944, 3320.6433, 0, 2672.8528)
+[node name="dumpster_13481" type="Node3D" parent="." unique_id=1696713097 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.08990151, 0, -0.99595064, 0, 1, 0, 0.99595064, 0, 0.08990151, 3355.6287, 0, 2751.9807)
 metadata/building_name = "dumpster"
 
-[node name="guard_rail_19702" type="Node3D" parent="." unique_id=530027119 instance=ExtResource("8_na08i")]
-transform = Transform3D(-0.9863436, 0, 0.16470045, 0, 1, 0, -0.16470045, 0, -0.9863436, 3344.947, 0, 2770.2988)
-metadata/building_name = "guard_rail"
-
-[node name="chain_link_fence_19703" type="Node3D" parent="." unique_id=1021657924 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(0.95518345, 0, -0.29601446, 0, 1, 0, 0.29601446, 0, 0.95518345, 3301.9746, 0, 2587.582)
+[node name="chain_link_fence_13482" type="Node3D" parent="." unique_id=1021657924 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.9242026, 0, 0.38190252, 0, 1, 0, -0.38190252, 0, -0.9242026, 3280.7078, 0, 2761.4243)
 metadata/building_name = "chain_link_fence"
 
-[node name="chain_link_fence_19704" type="Node3D" parent="." unique_id=1654981444 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(-0.055374883, 0, -0.99846566, 0, 1, 0, 0.99846566, 0, -0.055374883, 3424.491, 0, 2771.3381)
-metadata/building_name = "chain_link_fence"
-
-[node name="construction_barrier_19705" type="Node3D" parent="." unique_id=1144923032 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.45426115, 0, 0.89086854, 0, 1, 0, -0.89086854, 0, 0.45426115, 3319.328, 0, 2568.3794)
-metadata/building_name = "construction_barrier"
-
-[node name="construction_barrier_19706" type="Node3D" parent="." unique_id=1164362133 instance=ExtResource("10_7seos")]
-transform = Transform3D(-0.9852038, 0, 0.17138699, 0, 1, 0, -0.17138699, 0, -0.9852038, 3426.1108, 0, 2657.2556)
-metadata/building_name = "construction_barrier"
-
-[node name="guard_rail_19707" type="Node3D" parent="." unique_id=1274182375 instance=ExtResource("8_na08i")]
-transform = Transform3D(0.6619068, 0, 0.74958616, 0, 1, 0, -0.74958616, 0, 0.6619068, 3344.5286, 0, 2607.7168)
+[node name="guard_rail_13483" type="Node3D" parent="." unique_id=427526353 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.082077585, 0, -0.99662596, 0, 1, 0, 0.99662596, 0, 0.082077585, 3432.335, 0, 2743.1895)
 metadata/building_name = "guard_rail"
 
-[node name="shipping_container_19708" type="Node3D" parent="." unique_id=480272578 instance=ExtResource("11_sdmis")]
-transform = Transform3D(-0.12217154, 0, -0.992509, 0, 1, 0, 0.992509, 0, -0.12217154, 3305.8086, 0, 2576.6301)
-metadata/building_name = "shipping_container"
-
-[node name="shipping_container_19709" type="Node3D" parent="." unique_id=221908894 instance=ExtResource("11_sdmis")]
-transform = Transform3D(0.4865998, 0, 0.873625, 0, 1, 0, -0.873625, 0, 0.4865998, 3323.604, 0, 2691.272)
-metadata/building_name = "shipping_container"
-
-[node name="shipping_container_19710" type="Node3D" parent="." unique_id=573378828 instance=ExtResource("11_sdmis")]
-transform = Transform3D(-0.9859094, 0, -0.16728026, 0, 1, 0, 0.16728026, 0, -0.9859094, 3363.8608, 0, 2564.6033)
-metadata/building_name = "shipping_container"
-
-[node name="construction_barrier_19711" type="Node3D" parent="." unique_id=1797153388 instance=ExtResource("10_7seos")]
-transform = Transform3D(-0.297489, 0, 0.95472527, 0, 1, 0, -0.95472527, 0, -0.297489, 3289.308, 0, 2555.0725)
-metadata/building_name = "construction_barrier"
-
-[node name="chain_link_fence_19712" type="Node3D" parent="." unique_id=740410703 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(-0.4893173, 0, -0.87210584, 0, 1, 0, 0.87210584, 0, -0.4893173, 3309.756, 0, 2717.334)
-metadata/building_name = "chain_link_fence"
-
-[node name="shipping_container_19713" type="Node3D" parent="." unique_id=2001827983 instance=ExtResource("11_sdmis")]
-transform = Transform3D(0.748841, 0, -0.6627497, 0, 1, 0, 0.6627497, 0, 0.748841, 3287.1138, 0, 2637.895)
-metadata/building_name = "shipping_container"
-
-[node name="guard_rail_19714" type="Node3D" parent="." unique_id=1394967244 instance=ExtResource("8_na08i")]
-transform = Transform3D(-0.018544013, 0, 0.99982804, 0, 1, 0, -0.99982804, 0, -0.018544013, 3429.3745, 0, 2630.3628)
-metadata/building_name = "guard_rail"
-
-[node name="construction_barrier_19715" type="Node3D" parent="." unique_id=1166466807 instance=ExtResource("10_7seos")]
-transform = Transform3D(-0.13864349, 0, 0.9903424, 0, 1, 0, -0.9903424, 0, -0.13864349, 3304.3088, 0, 2610.1003)
-metadata/building_name = "construction_barrier"
-
-[node name="construction_barrier_19716" type="Node3D" parent="." unique_id=1225238498 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.47099227, 0, 0.88213736, 0, 1, 0, -0.88213736, 0, 0.47099227, 3207.1208, 0, 2672.5125)
-metadata/building_name = "construction_barrier"
-
-[node name="guard_rail_19717" type="Node3D" parent="." unique_id=1966395629 instance=ExtResource("8_na08i")]
-transform = Transform3D(0.9798208, 0, 0.19987798, 0, 1, 0, -0.19987798, 0, 0.9798208, 3203.6064, 0, 2738.8428)
-metadata/building_name = "guard_rail"
-
-[node name="guard_rail_19718" type="Node3D" parent="." unique_id=1989739899 instance=ExtResource("8_na08i")]
-transform = Transform3D(0.4363434, 0, 0.8997802, 0, 1, 0, -0.8997802, 0, 0.4363434, 3369.3726, 0, 2605.8513)
-metadata/building_name = "guard_rail"
-
-[node name="construction_barrier_19719" type="Node3D" parent="." unique_id=532184405 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.09665018, 0, -0.9953184, 0, 1, 0, 0.9953184, 0, 0.09665018, 3330.5105, 0, 2766.9019)
-metadata/building_name = "construction_barrier"
-
-[node name="shipping_container_19720" type="Node3D" parent="." unique_id=758932861 instance=ExtResource("11_sdmis")]
-transform = Transform3D(-0.9187644, 0, -0.39480624, 0, 1, 0, 0.39480624, 0, -0.9187644, 3223.0928, 0, 2765.2043)
-metadata/building_name = "shipping_container"
-
-[node name="construction_barrier_19721" type="Node3D" parent="." unique_id=58999112 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.598765, 0, 0.8009248, 0, 1, 0, -0.8009248, 0, 0.598765, 3200.2432, 0, 2765.3547)
-metadata/building_name = "construction_barrier"
-
-[node name="dumpster_19722" type="Node3D" parent="." unique_id=1668049310 instance=ExtResource("7_1q48h")]
-transform = Transform3D(0.63998586, 0, 0.7683867, 0, 1, 0, -0.7683867, 0, 0.63998586, 3385.78, 0, 2758.1814)
+[node name="dumpster_13484" type="Node3D" parent="." unique_id=1697856621 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.99678695, 0, -0.08009886, 0, 1, 0, 0.08009886, 0, 0.99678695, 3262.0703, 0, 2598.4775)
 metadata/building_name = "dumpster"
 
-[node name="chain_link_fence_19723" type="Node3D" parent="." unique_id=1058803969 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(0.30414668, 0, 0.9526252, 0, 1, 0, -0.9526252, 0, 0.30414668, 3424.3691, 0, 2626.9053)
+[node name="chain_link_fence_13485" type="Node3D" parent="." unique_id=125725653 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.92442274, 0, 0.3813694, 0, 1, 0, -0.3813694, 0, -0.92442274, 3216.2566, 0, 2783.6013)
 metadata/building_name = "chain_link_fence"
 
-[node name="shipping_container_19724" type="Node3D" parent="." unique_id=1815906195 instance=ExtResource("11_sdmis")]
-transform = Transform3D(-0.9772629, 0, 0.21203102, 0, 1, 0, -0.21203102, 0, -0.9772629, 3322.9097, 0, 2630.0273)
+[node name="shipping_container_13486" type="Node3D" parent="." unique_id=1447180153 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.9985442, 0, 0.053939052, 0, 1, 0, -0.053939052, 0, -0.9985442, 3288.3071, 0, 2661.9878)
 metadata/building_name = "shipping_container"
 
-[node name="construction_barrier_19725" type="Node3D" parent="." unique_id=979330598 instance=ExtResource("10_7seos")]
-transform = Transform3D(-0.99249053, 0, -0.12232143, 0, 1, 0, 0.12232143, 0, -0.99249053, 3219.2903, 0, 2658.0884)
+[node name="chain_link_fence_13487" type="Node3D" parent="." unique_id=1669053489 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.734089, 0, -0.67905325, 0, 1, 0, 0.67905325, 0, 0.734089, 3350.8733, 0, 2593.73)
+metadata/building_name = "chain_link_fence"
+
+[node name="construction_barrier_13488" type="Node3D" parent="." unique_id=1144923032 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.5861161, 0, 0.8102271, 0, 1, 0, -0.8102271, 0, 0.5861161, 3253.6047, 0, 2760.8713)
 metadata/building_name = "construction_barrier"
 
-[node name="construction_barrier_19726" type="Node3D" parent="." unique_id=663145526 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.85666215, 0, -0.51587784, 0, 1, 0, 0.51587784, 0, 0.85666215, 3313.3557, 0, 2625.2385)
-metadata/building_name = "construction_barrier"
-
-[node name="guard_rail_19727" type="Node3D" parent="." unique_id=162877213 instance=ExtResource("8_na08i")]
-transform = Transform3D(-0.99906164, 0, 0.043310355, 0, 1, 0, -0.043310355, 0, -0.99906164, 3430.9048, 0, 2696.767)
-metadata/building_name = "guard_rail"
-
-[node name="guard_rail_19728" type="Node3D" parent="." unique_id=1053767045 instance=ExtResource("8_na08i")]
-transform = Transform3D(0.13855562, 0, -0.99035466, 0, 1, 0, 0.99035466, 0, 0.13855562, 3323.378, 0, 2729.6145)
-metadata/building_name = "guard_rail"
-
-[node name="dumpster_19729" type="Node3D" parent="." unique_id=19660678 instance=ExtResource("7_1q48h")]
-transform = Transform3D(-0.15801305, 0, 0.987437, 0, 1, 0, -0.987437, 0, -0.15801305, 3424.6611, 0, 2608.2017)
+[node name="dumpster_13489" type="Node3D" parent="." unique_id=1845771752 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.7515726, 0, -0.6596503, 0, 1, 0, 0.6596503, 0, 0.7515726, 3329.3894, 0, 2692.7166)
 metadata/building_name = "dumpster"
 
-[node name="dumpster_19730" type="Node3D" parent="." unique_id=335253445 instance=ExtResource("7_1q48h")]
-transform = Transform3D(0.9829221, 0, 0.18402213, 0, 1, 0, -0.18402213, 0, 0.9829221, 3343.9536, 0, 2759.5999)
+[node name="chain_link_fence_13490" type="Node3D" parent="." unique_id=1098198189 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.89519614, 0, 0.44567236, 0, 1, 0, -0.44567236, 0, 0.89519614, 3427.1204, 0, 2771.2368)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13491" type="Node3D" parent="." unique_id=1354390741 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.90219474, 0, 0.4313289, 0, 1, 0, -0.4313289, 0, -0.90219474, 3359.0034, 0, 2751.006)
+metadata/building_name = "guard_rail"
+
+[node name="dumpster_13492" type="Node3D" parent="." unique_id=1573269418 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.119926386, 0, 0.9927828, 0, 1, 0, -0.9927828, 0, 0.119926386, 3438.4016, 0, 2626.157)
 metadata/building_name = "dumpster"
 
-[node name="guard_rail_19731" type="Node3D" parent="." unique_id=70135240 instance=ExtResource("8_na08i")]
-transform = Transform3D(-0.9333718, 0, 0.35891098, 0, 1, 0, -0.35891098, 0, -0.9333718, 3265.761, 0, 2560.4111)
-metadata/building_name = "guard_rail"
-
-[node name="construction_barrier_19732" type="Node3D" parent="." unique_id=1358527474 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.9911358, 0, -0.13285278, 0, 1, 0, 0.13285278, 0, 0.9911358, 3276.346, 0, 2668.0972)
+[node name="construction_barrier_13493" type="Node3D" parent="." unique_id=145141556 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.78426325, 0, 0.6204282, 0, 1, 0, -0.6204282, 0, 0.78426325, 3285.175, 0, 2570.7024)
 metadata/building_name = "construction_barrier"
 
-[node name="guard_rail_19733" type="Node3D" parent="." unique_id=675407054 instance=ExtResource("8_na08i")]
-transform = Transform3D(-0.2642862, 0, 0.9644443, 0, 1, 0, -0.9644443, 0, -0.2642862, 3325.0488, 0, 2742.5444)
-metadata/building_name = "guard_rail"
+[node name="dumpster_13494" type="Node3D" parent="." unique_id=1245323047 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.9175346, 0, -0.39765593, 0, 1, 0, 0.39765593, 0, -0.9175346, 3257.3484, 0, 2738.076)
+metadata/building_name = "dumpster"
 
-[node name="chain_link_fence_19734" type="Node3D" parent="." unique_id=1619269054 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(0.9504486, 0, 0.31088185, 0, 1, 0, -0.31088185, 0, 0.9504486, 3373.2314, 0, 2669.5413)
-metadata/building_name = "chain_link_fence"
-
-[node name="chain_link_fence_19735" type="Node3D" parent="." unique_id=33704420 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(0.79127115, 0, 0.6114654, 0, 1, 0, -0.6114654, 0, 0.79127115, 3258.674, 0, 2572.0393)
-metadata/building_name = "chain_link_fence"
-
-[node name="construction_barrier_19736" type="Node3D" parent="." unique_id=1516274403 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.46929693, 0, -0.8830404, 0, 1, 0, 0.8830404, 0, 0.46929693, 3423.3027, 0, 2690.5105)
+[node name="construction_barrier_13495" type="Node3D" parent="." unique_id=1290345982 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.9334015, 0, 0.35883367, 0, 1, 0, -0.35883367, 0, 0.9334015, 3294.281, 0, 2762.4739)
 metadata/building_name = "construction_barrier"
 
-[node name="chain_link_fence_19737" type="Node3D" parent="." unique_id=537465330 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(-0.0846839, 0, -0.99640787, 0, 1, 0, 0.99640787, 0, -0.0846839, 3439.0442, 0, 2658.2168)
-metadata/building_name = "chain_link_fence"
+[node name="dumpster_13496" type="Node3D" parent="." unique_id=444674609 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.9918848, 0, 0.12713973, 0, 1, 0, -0.12713973, 0, 0.9918848, 3266.1309, 0, 2755.5217)
+metadata/building_name = "dumpster"
 
-[node name="guard_rail_19738" type="Node3D" parent="." unique_id=292346923 instance=ExtResource("8_na08i")]
-transform = Transform3D(0.85575336, 0, -0.517384, 0, 1, 0, 0.517384, 0, 0.85575336, 3371.5564, 0, 2685.61)
-metadata/building_name = "guard_rail"
-
-[node name="construction_barrier_19739" type="Node3D" parent="." unique_id=395603801 instance=ExtResource("10_7seos")]
-transform = Transform3D(-0.9303795, 0, -0.36659783, 0, 1, 0, 0.36659783, 0, -0.9303795, 3328.4116, 0, 2586.5862)
+[node name="construction_barrier_13497" type="Node3D" parent="." unique_id=492485985 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.48540753, 0, -0.874288, 0, 1, 0, 0.874288, 0, -0.48540753, 3389.3909, 0, 2580.4685)
 metadata/building_name = "construction_barrier"
 
-[node name="construction_barrier_19740" type="Node3D" parent="." unique_id=825385213 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.6283289, 0, -0.7779478, 0, 1, 0, 0.7779478, 0, 0.6283289, 3386.3372, 0, 2560.1873)
-metadata/building_name = "construction_barrier"
-
-[node name="guard_rail_19741" type="Node3D" parent="." unique_id=544039761 instance=ExtResource("8_na08i")]
-transform = Transform3D(0.99965703, 0, 0.026188046, 0, 1, 0, -0.026188046, 0, 0.99965703, 3327.7825, 0, 2776.2002)
-metadata/building_name = "guard_rail"
-
-[node name="shipping_container_19742" type="Node3D" parent="." unique_id=31457663 instance=ExtResource("11_sdmis")]
-transform = Transform3D(-0.6578901, 0, -0.7531139, 0, 1, 0, 0.7531139, 0, -0.6578901, 3270.472, 0, 2603.5598)
+[node name="shipping_container_13498" type="Node3D" parent="." unique_id=1237964994 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.59578574, 0, 0.80314344, 0, 1, 0, -0.80314344, 0, -0.59578574, 3411.853, 0, 2615.3174)
 metadata/building_name = "shipping_container"
 
-[node name="chain_link_fence_19743" type="Node3D" parent="." unique_id=400435057 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(0.9730623, 0, 0.2305424, 0, 1, 0, -0.2305424, 0, 0.9730623, 3384.8447, 0, 2591.192)
+[node name="chain_link_fence_13499" type="Node3D" parent="." unique_id=1446485908 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.43401185, 0, 0.90090716, 0, 1, 0, -0.90090716, 0, -0.43401185, 3249.7463, 0, 2751.89)
 metadata/building_name = "chain_link_fence"
 
-[node name="construction_barrier_19744" type="Node3D" parent="." unique_id=1389412299 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.53914714, 0, -0.8422116, 0, 1, 0, 0.8422116, 0, 0.53914714, 3269.8257, 0, 2756.491)
-metadata/building_name = "construction_barrier"
-
-[node name="dumpster_19745" type="Node3D" parent="." unique_id=980707924 instance=ExtResource("7_1q48h")]
-transform = Transform3D(0.929231, 0, -0.36949942, 0, 1, 0, 0.36949942, 0, 0.929231, 3288.807, 0, 2654.0525)
-metadata/building_name = "dumpster"
-
-[node name="chain_link_fence_19746" type="Node3D" parent="." unique_id=676230622 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(-0.5471033, 0, 0.8370651, 0, 1, 0, -0.8370651, 0, -0.5471033, 3368.4802, 0, 2668.2537)
-metadata/building_name = "chain_link_fence"
-
-[node name="chain_link_fence_19747" type="Node3D" parent="." unique_id=1255007897 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(0.77258927, 0, -0.6349061, 0, 1, 0, 0.6349061, 0, 0.77258927, 3414.3481, 0, 2733.763)
-metadata/building_name = "chain_link_fence"
-
-[node name="dumpster_19748" type="Node3D" parent="." unique_id=834816596 instance=ExtResource("7_1q48h")]
-transform = Transform3D(0.4295547, 0, 0.9030408, 0, 1, 0, -0.9030408, 0, 0.4295547, 3397.0315, 0, 2744.4583)
-metadata/building_name = "dumpster"
-
-[node name="construction_barrier_19749" type="Node3D" parent="." unique_id=1309671977 instance=ExtResource("10_7seos")]
-transform = Transform3D(-0.45132473, 0, -0.8923598, 0, 1, 0, 0.8923598, 0, -0.45132473, 3215.8967, 0, 2594.6855)
-metadata/building_name = "construction_barrier"
-
-[node name="guard_rail_19750" type="Node3D" parent="." unique_id=579768759 instance=ExtResource("8_na08i")]
-transform = Transform3D(0.19604023, 0, 0.9805958, 0, 1, 0, -0.9805958, 0, 0.19604023, 3399.7212, 0, 2672.4194)
+[node name="guard_rail_13500" type="Node3D" parent="." unique_id=2098262090 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.060276262, 0, 0.99818176, 0, 1, 0, -0.99818176, 0, 0.060276262, 3407.0935, 0, 2772.3218)
 metadata/building_name = "guard_rail"
 
-[node name="chain_link_fence_19751" type="Node3D" parent="." unique_id=1692174619 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(0.29258415, 0, 0.95623976, 0, 1, 0, -0.95623976, 0, 0.29258415, 3418.0178, 0, 2798.356)
-metadata/building_name = "chain_link_fence"
-
-[node name="guard_rail_19752" type="Node3D" parent="." unique_id=2130351321 instance=ExtResource("8_na08i")]
-transform = Transform3D(0.9808422, 0, 0.19480404, 0, 1, 0, -0.19480404, 0, 0.9808422, 3339.402, 0, 2627.324)
-metadata/building_name = "guard_rail"
-
-[node name="chain_link_fence_19753" type="Node3D" parent="." unique_id=625771698 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(-0.8664446, 0, -0.4992732, 0, 1, 0, 0.4992732, 0, -0.8664446, 3321.8767, 0, 2553.987)
-metadata/building_name = "chain_link_fence"
-
-[node name="chain_link_fence_19754" type="Node3D" parent="." unique_id=984511753 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(0.99875844, 0, -0.049815357, 0, 1, 0, 0.049815357, 0, 0.99875844, 3236.8647, 0, 2613.6028)
-metadata/building_name = "chain_link_fence"
-
-[node name="construction_barrier_19755" type="Node3D" parent="." unique_id=1064715031 instance=ExtResource("10_7seos")]
-transform = Transform3D(-0.939086, 0, -0.34368223, 0, 1, 0, 0.34368223, 0, -0.939086, 3390.6238, 0, 2563.664)
-metadata/building_name = "construction_barrier"
-
-[node name="shipping_container_19756" type="Node3D" parent="." unique_id=119052883 instance=ExtResource("11_sdmis")]
-transform = Transform3D(0.16324142, 0, -0.98658615, 0, 1, 0, 0.98658615, 0, 0.16324142, 3203.2622, 0, 2641.0444)
-metadata/building_name = "shipping_container"
-
-[node name="chain_link_fence_19757" type="Node3D" parent="." unique_id=643527125 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(0.16601637, 0, -0.986123, 0, 1, 0, 0.986123, 0, 0.16601637, 3239.886, 0, 2671.9482)
-metadata/building_name = "chain_link_fence"
-
-[node name="dumpster_19758" type="Node3D" parent="." unique_id=102783431 instance=ExtResource("7_1q48h")]
-transform = Transform3D(0.27940428, 0, 0.96017355, 0, 1, 0, -0.96017355, 0, 0.27940428, 3398.2217, 0, 2697.2976)
+[node name="dumpster_13501" type="Node3D" parent="." unique_id=484597224 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.99804634, 0, 0.06247779, 0, 1, 0, -0.06247779, 0, -0.99804634, 3264.7378, 0, 2564.6086)
 metadata/building_name = "dumpster"
 
-[node name="construction_barrier_19759" type="Node3D" parent="." unique_id=561842477 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.6580912, 0, 0.7529382, 0, 1, 0, -0.7529382, 0, 0.6580912, 3289.817, 0, 2794.0383)
-metadata/building_name = "construction_barrier"
-
-[node name="guard_rail_19760" type="Node3D" parent="." unique_id=197577780 instance=ExtResource("8_na08i")]
-transform = Transform3D(0.14588201, 0, 0.989302, 0, 1, 0, -0.989302, 0, 0.14588201, 3408.392, 0, 2759.6965)
-metadata/building_name = "guard_rail"
-
-[node name="shipping_container_19761" type="Node3D" parent="." unique_id=1636079586 instance=ExtResource("11_sdmis")]
-transform = Transform3D(-0.3402071, 0, 0.94035053, 0, 1, 0, -0.94035053, 0, -0.3402071, 3324.7412, 0, 2725.6992)
-metadata/building_name = "shipping_container"
-
-[node name="dumpster_19762" type="Node3D" parent="." unique_id=822244668 instance=ExtResource("7_1q48h")]
-transform = Transform3D(0.8508091, 0, 0.5254749, 0, 1, 0, -0.5254749, 0, 0.8508091, 3435.9978, 0, 2773.909)
-metadata/building_name = "dumpster"
-
-[node name="chain_link_fence_19763" type="Node3D" parent="." unique_id=1591436188 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(0.9914236, 0, -0.13068745, 0, 1, 0, 0.13068745, 0, 0.9914236, 3395.6643, 0, 2672.3665)
+[node name="chain_link_fence_13502" type="Node3D" parent="." unique_id=1886591362 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.03373985, 0, -0.99943066, 0, 1, 0, 0.99943066, 0, 0.03373985, 3378.537, 0, 2587.1277)
 metadata/building_name = "chain_link_fence"
 
-[node name="guard_rail_19764" type="Node3D" parent="." unique_id=608890969 instance=ExtResource("8_na08i")]
-transform = Transform3D(-0.025600962, 0, -0.99967223, 0, 1, 0, 0.99967223, 0, -0.025600962, 3449.958, 0, 2739.4124)
+[node name="construction_barrier_13503" type="Node3D" parent="." unique_id=431937150 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.16632524, 0, 0.98607093, 0, 1, 0, -0.98607093, 0, 0.16632524, 3333.2534, 0, 2559.551)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13504" type="Node3D" parent="." unique_id=1060279193 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.6735116, 0, -0.73917663, 0, 1, 0, 0.73917663, 0, 0.6735116, 3368.1855, 0, 2602.169)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13505" type="Node3D" parent="." unique_id=1155427493 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.64137316, 0, -0.7672291, 0, 1, 0, 0.7672291, 0, 0.64137316, 3288.8599, 0, 2624.3584)
 metadata/building_name = "guard_rail"
 
-[node name="construction_barrier_19765" type="Node3D" parent="." unique_id=1524629521 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.38307697, 0, -0.9237164, 0, 1, 0, 0.9237164, 0, 0.38307697, 3285.7612, 0, 2697.3228)
-metadata/building_name = "construction_barrier"
-
-[node name="construction_barrier_19766" type="Node3D" parent="." unique_id=30373475 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.9556463, 0, -0.29451695, 0, 1, 0, 0.29451695, 0, 0.9556463, 3381.7964, 0, 2795.824)
-metadata/building_name = "construction_barrier"
-
-[node name="dumpster_19767" type="Node3D" parent="." unique_id=718951116 instance=ExtResource("7_1q48h")]
-transform = Transform3D(0.57139844, 0, 0.8206728, 0, 1, 0, -0.8206728, 0, 0.57139844, 3332.4712, 0, 2788.1064)
+[node name="dumpster_13506" type="Node3D" parent="." unique_id=211661871 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.64426935, 0, -0.7647987, 0, 1, 0, 0.7647987, 0, 0.64426935, 3208.8928, 0, 2675.2126)
 metadata/building_name = "dumpster"
 
-[node name="shipping_container_19768" type="Node3D" parent="." unique_id=1281253117 instance=ExtResource("11_sdmis")]
-transform = Transform3D(0.6176222, 0, -0.78647494, 0, 1, 0, 0.78647494, 0, 0.6176222, 3259.9214, 0, 2575.213)
-metadata/building_name = "shipping_container"
-
-[node name="shipping_container_19769" type="Node3D" parent="." unique_id=1259147196 instance=ExtResource("11_sdmis")]
-transform = Transform3D(0.34354177, 0, -0.9391374, 0, 1, 0, 0.9391374, 0, 0.34354177, 3236.9065, 0, 2699.6956)
-metadata/building_name = "shipping_container"
-
-[node name="construction_barrier_19770" type="Node3D" parent="." unique_id=1749971011 instance=ExtResource("10_7seos")]
-transform = Transform3D(-0.35706487, 0, -0.9340796, 0, 1, 0, 0.9340796, 0, -0.35706487, 3222.8445, 0, 2590.6196)
-metadata/building_name = "construction_barrier"
-
-[node name="construction_barrier_19771" type="Node3D" parent="." unique_id=1998278510 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.037670292, 0, -0.9992902, 0, 1, 0, 0.9992902, 0, 0.037670292, 3235.2112, 0, 2550.481)
-metadata/building_name = "construction_barrier"
-
-[node name="guard_rail_19772" type="Node3D" parent="." unique_id=973951227 instance=ExtResource("8_na08i")]
-transform = Transform3D(-0.60601836, 0, 0.7954506, 0, 1, 0, -0.7954506, 0, -0.60601836, 3436.889, 0, 2621.7273)
+[node name="guard_rail_13507" type="Node3D" parent="." unique_id=461368805 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.49669144, 0, -0.8679272, 0, 1, 0, 0.8679272, 0, 0.49669144, 3369.5051, 0, 2754.646)
 metadata/building_name = "guard_rail"
 
-[node name="construction_barrier_19773" type="Node3D" parent="." unique_id=535941299 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.996707, 0, 0.081087194, 0, 1, 0, -0.081087194, 0, 0.996707, 3356.5466, 0, 2726.5168)
-metadata/building_name = "construction_barrier"
-
-[node name="dumpster_19774" type="Node3D" parent="." unique_id=79496376 instance=ExtResource("7_1q48h")]
-transform = Transform3D(0.6597358, 0, 0.7514976, 0, 1, 0, -0.7514976, 0, 0.6597358, 3394.928, 0, 2607.375)
-metadata/building_name = "dumpster"
-
-[node name="shipping_container_19775" type="Node3D" parent="." unique_id=793804451 instance=ExtResource("11_sdmis")]
-transform = Transform3D(-0.7896824, 0, 0.6135159, 0, 1, 0, -0.6135159, 0, -0.7896824, 3281.7534, 0, 2744.1838)
-metadata/building_name = "shipping_container"
-
-[node name="shipping_container_19776" type="Node3D" parent="." unique_id=378964583 instance=ExtResource("11_sdmis")]
-transform = Transform3D(0.99758935, 0, 0.069393925, 0, 1, 0, -0.069393925, 0, 0.99758935, 3398.2268, 0, 2797.1738)
-metadata/building_name = "shipping_container"
-
-[node name="chain_link_fence_19777" type="Node3D" parent="." unique_id=706286226 instance=ExtResource("9_n2lr5")]
-transform = Transform3D(-0.05093258, 0, 0.9987021, 0, 1, 0, -0.9987021, 0, -0.05093258, 3272.5981, 0, 2718.5652)
+[node name="chain_link_fence_13508" type="Node3D" parent="." unique_id=1848902034 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.35418904, 0, 0.93517387, 0, 1, 0, -0.93517387, 0, -0.35418904, 3361.9575, 0, 2751.6377)
 metadata/building_name = "chain_link_fence"
 
-[node name="construction_barrier_19778" type="Node3D" parent="." unique_id=1108978435 instance=ExtResource("10_7seos")]
-transform = Transform3D(0.76759225, 0, 0.6409385, 0, 1, 0, -0.6409385, 0, 0.76759225, 3258.8286, 0, 2686.989)
+[node name="dumpster_13509" type="Node3D" parent="." unique_id=293527159 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.42640123, 0, 0.9045341, 0, 1, 0, -0.9045341, 0, -0.42640123, 3381.4702, 0, 2651.355)
+metadata/building_name = "dumpster"
+
+[node name="chain_link_fence_13510" type="Node3D" parent="." unique_id=733465317 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.9110248, 0, 0.4123515, 0, 1, 0, -0.4123515, 0, -0.9110248, 3395.316, 0, 2704.1697)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13511" type="Node3D" parent="." unique_id=849308083 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.3147123, 0, 0.9491871, 0, 1, 0, -0.9491871, 0, -0.3147123, 3440.9749, 0, 2562.9514)
+metadata/building_name = "chain_link_fence"
+
+[node name="shipping_container_13512" type="Node3D" parent="." unique_id=101738883 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.85405564, 0, -0.5201817, 0, 1, 0, 0.5201817, 0, -0.85405564, 3269.661, 0, 2677.5974)
+metadata/building_name = "shipping_container"
+
+[node name="shipping_container_13513" type="Node3D" parent="." unique_id=426460087 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.19689107, 0, -0.98042536, 0, 1, 0, 0.98042536, 0, -0.19689107, 3422.3813, 0, 2661.5396)
+metadata/building_name = "shipping_container"
+
+[node name="dumpster_13514" type="Node3D" parent="." unique_id=591727730 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.107818134, 0, 0.9941706, 0, 1, 0, -0.9941706, 0, 0.107818134, 3364.7605, 0, 2630.9568)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13515" type="Node3D" parent="." unique_id=1802623573 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.52730745, 0, -0.8496746, 0, 1, 0, 0.8496746, 0, 0.52730745, 3420.8706, 0, 2566.0647)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13516" type="Node3D" parent="." unique_id=1662900430 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.96596146, 0, 0.25868598, 0, 1, 0, -0.25868598, 0, 0.96596146, 3329.1384, 0, 2666.2104)
 metadata/building_name = "construction_barrier"
+
+[node name="shipping_container_13517" type="Node3D" parent="." unique_id=550841076 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.9849891, 0, 0.1726165, 0, 1, 0, -0.1726165, 0, -0.9849891, 3436.5479, 0, 2661.0283)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13518" type="Node3D" parent="." unique_id=730941576 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.12644306, 0, -0.9919739, 0, 1, 0, 0.9919739, 0, 0.12644306, 3322.9639, 0, 2620.2656)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13519" type="Node3D" parent="." unique_id=1025063982 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.9906036, 0, 0.1367641, 0, 1, 0, -0.1367641, 0, -0.9906036, 3236.1824, 0, 2573.564)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13520" type="Node3D" parent="." unique_id=166748060 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.8504745, 0, 0.52601635, 0, 1, 0, -0.52601635, 0, 0.8504745, 3336.9976, 0, 2636.208)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13521" type="Node3D" parent="." unique_id=567033933 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.9249762, 0, -0.38002497, 0, 1, 0, 0.38002497, 0, -0.9249762, 3344.553, 0, 2737.8103)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13522" type="Node3D" parent="." unique_id=480182858 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.91235065, 0, 0.4094097, 0, 1, 0, -0.4094097, 0, -0.91235065, 3280.7798, 0, 2713.452)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13523" type="Node3D" parent="." unique_id=1214943096 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.96465594, 0, -0.26351264, 0, 1, 0, 0.26351264, 0, -0.96465594, 3386.3528, 0, 2614.1)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13524" type="Node3D" parent="." unique_id=1311782870 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.6062092, 0, 0.7953052, 0, 1, 0, -0.7953052, 0, 0.6062092, 3389.2175, 0, 2735.5544)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13525" type="Node3D" parent="." unique_id=1822487094 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.9674019, 0, 0.25324595, 0, 1, 0, -0.25324595, 0, 0.9674019, 3276.8557, 0, 2567.7466)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13526" type="Node3D" parent="." unique_id=1385856910 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.8263766, 0, -0.56311786, 0, 1, 0, 0.56311786, 0, 0.8263766, 3415.904, 0, 2777.9634)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13527" type="Node3D" parent="." unique_id=968981258 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.22280478, 0, 0.9748631, 0, 1, 0, -0.9748631, 0, 0.22280478, 3236.9524, 0, 2570.5908)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13528" type="Node3D" parent="." unique_id=2062386502 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.5102978, 0, 0.8599978, 0, 1, 0, -0.8599978, 0, 0.5102978, 3227.5632, 0, 2607.0251)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13529" type="Node3D" parent="." unique_id=60460110 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.45937768, 0, -0.88824105, 0, 1, 0, 0.88824105, 0, 0.45937768, 3271.521, 0, 2581.445)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13530" type="Node3D" parent="." unique_id=2007883869 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.86458594, 0, 0.502485, 0, 1, 0, -0.502485, 0, -0.86458594, 3229.3538, 0, 2764.2573)
+metadata/building_name = "dumpster"
+
+[node name="chain_link_fence_13531" type="Node3D" parent="." unique_id=354538750 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.9856602, 0, 0.16874243, 0, 1, 0, -0.16874243, 0, -0.9856602, 3366.9119, 0, 2716.7568)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13532" type="Node3D" parent="." unique_id=907868634 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.0937822, 0, -0.9955927, 0, 1, 0, 0.9955927, 0, -0.0937822, 3419.619, 0, 2614.2405)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13533" type="Node3D" parent="." unique_id=142024753 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.17399001, 0, -0.9847474, 0, 1, 0, 0.9847474, 0, 0.17399001, 3264.4236, 0, 2667.0427)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13534" type="Node3D" parent="." unique_id=101955569 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.4329191, 0, 0.90143275, 0, 1, 0, -0.90143275, 0, 0.4329191, 3358.8708, 0, 2690.5554)
+metadata/building_name = "guard_rail"
+
+[node name="dumpster_13535" type="Node3D" parent="." unique_id=1312187401 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.9978974, 0, 0.06481384, 0, 1, 0, -0.06481384, 0, -0.9978974, 3266.9255, 0, 2775.0068)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13536" type="Node3D" parent="." unique_id=1375393887 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.9991465, 0, -0.04130649, 0, 1, 0, 0.04130649, 0, 0.9991465, 3358.1428, 0, 2657.3474)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13537" type="Node3D" parent="." unique_id=770003493 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.36400884, 0, 0.9313955, 0, 1, 0, -0.9313955, 0, -0.36400884, 3357.5076, 0, 2686.5212)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13538" type="Node3D" parent="." unique_id=743369546 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.9949833, 0, 0.10004084, 0, 1, 0, -0.10004084, 0, 0.9949833, 3237.7185, 0, 2667.5679)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13539" type="Node3D" parent="." unique_id=758523800 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.0277148, 0, 0.99961585, 0, 1, 0, -0.99961585, 0, -0.0277148, 3372.068, 0, 2577.7732)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13540" type="Node3D" parent="." unique_id=1771714881 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.94160944, 0, 0.3367071, 0, 1, 0, -0.3367071, 0, 0.94160944, 3287.7507, 0, 2631.8398)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13541" type="Node3D" parent="." unique_id=1563559143 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.65742826, 0, 0.7535171, 0, 1, 0, -0.7535171, 0, -0.65742826, 3284.086, 0, 2564.5151)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13542" type="Node3D" parent="." unique_id=1852206194 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.9970603, 0, 0.07662114, 0, 1, 0, -0.07662114, 0, -0.9970603, 3255.459, 0, 2719.4822)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13543" type="Node3D" parent="." unique_id=1459572509 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.8470435, 0, -0.5315235, 0, 1, 0, 0.5315235, 0, -0.8470435, 3243.1208, 0, 2700.1118)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13544" type="Node3D" parent="." unique_id=1797368045 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.98879623, 0, -0.14927162, 0, 1, 0, 0.14927162, 0, 0.98879623, 3212.016, 0, 2758.582)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13545" type="Node3D" parent="." unique_id=567433535 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.5293714, 0, -0.8483902, 0, 1, 0, 0.8483902, 0, 0.5293714, 3288.7007, 0, 2765.2852)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13546" type="Node3D" parent="." unique_id=1095025282 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.29225746, 0, -0.95633966, 0, 1, 0, 0.95633966, 0, -0.29225746, 3363.0647, 0, 2647.3733)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13547" type="Node3D" parent="." unique_id=764315877 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.7925978, 0, -0.60974485, 0, 1, 0, 0.60974485, 0, 0.7925978, 3259.4216, 0, 2752.1528)
+metadata/building_name = "guard_rail"
+
+[node name="dumpster_13548" type="Node3D" parent="." unique_id=602930993 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.99781036, 0, 0.06613993, 0, 1, 0, -0.06613993, 0, -0.99781036, 3342.474, 0, 2790.378)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13549" type="Node3D" parent="." unique_id=1403572117 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.048042882, 0, -0.9988453, 0, 1, 0, 0.9988453, 0, 0.048042882, 3410.699, 0, 2681.3064)
+metadata/building_name = "shipping_container"
+
+[node name="dumpster_13550" type="Node3D" parent="." unique_id=759954387 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.8467056, 0, -0.53206164, 0, 1, 0, 0.53206164, 0, -0.8467056, 3253.4473, 0, 2764.79)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13551" type="Node3D" parent="." unique_id=1822731116 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.99449724, 0, -0.10476291, 0, 1, 0, 0.10476291, 0, 0.99449724, 3414.3384, 0, 2758.713)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13552" type="Node3D" parent="." unique_id=1866269315 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.9556555, 0, -0.29448688, 0, 1, 0, 0.29448688, 0, 0.9556555, 3225.517, 0, 2648.6995)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13553" type="Node3D" parent="." unique_id=980286523 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.8058621, 0, 0.5921032, 0, 1, 0, -0.5921032, 0, 0.8058621, 3382.5046, 0, 2732.604)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13554" type="Node3D" parent="." unique_id=597802809 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.8134911, 0, -0.58157736, 0, 1, 0, 0.58157736, 0, -0.8134911, 3427.9639, 0, 2708.3484)
+metadata/building_name = "shipping_container"
+
+[node name="dumpster_13555" type="Node3D" parent="." unique_id=698671841 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.52261364, 0, 0.85256964, 0, 1, 0, -0.85256964, 0, 0.52261364, 3296.277, 0, 2626.624)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13556" type="Node3D" parent="." unique_id=766073381 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.9999269, 0, 0.01208981, 0, 1, 0, -0.01208981, 0, 0.9999269, 3403.2598, 0, 2600.7888)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13557" type="Node3D" parent="." unique_id=820877511 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.22983232, 0, 0.97323024, 0, 1, 0, -0.97323024, 0, -0.22983232, 3282.6206, 0, 2700.12)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13558" type="Node3D" parent="." unique_id=1645527741 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.27254412, 0, -0.9621433, 0, 1, 0, 0.9621433, 0, -0.27254412, 3399.731, 0, 2759.6387)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13559" type="Node3D" parent="." unique_id=1487911652 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.12844653, 0, 0.99171644, 0, 1, 0, -0.99171644, 0, 0.12844653, 3328.0767, 0, 2635.9092)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13560" type="Node3D" parent="." unique_id=50790969 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.16719556, 0, -0.98592377, 0, 1, 0, 0.98592377, 0, 0.16719556, 3380.4011, 0, 2735.637)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13561" type="Node3D" parent="." unique_id=1744031162 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.9974787, 0, -0.070966445, 0, 1, 0, 0.070966445, 0, 0.9974787, 3299.8796, 0, 2748.4597)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13562" type="Node3D" parent="." unique_id=1554414696 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.4581265, 0, -0.88888705, 0, 1, 0, 0.88888705, 0, -0.4581265, 3267.3518, 0, 2602.3591)
+metadata/building_name = "shipping_container"
+
+[node name="chain_link_fence_13563" type="Node3D" parent="." unique_id=1322383582 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.95494723, 0, -0.2967757, 0, 1, 0, 0.2967757, 0, -0.95494723, 3218.103, 0, 2562.5298)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13564" type="Node3D" parent="." unique_id=125748734 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.9891585, 0, -0.14685172, 0, 1, 0, 0.14685172, 0, -0.9891585, 3240.2205, 0, 2649.7263)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13565" type="Node3D" parent="." unique_id=557626151 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.009698728, 0, -0.999953, 0, 1, 0, 0.999953, 0, 0.009698728, 3316.6736, 0, 2623.4277)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13566" type="Node3D" parent="." unique_id=594048454 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.024456458, 0, -0.9997009, 0, 1, 0, 0.9997009, 0, 0.024456458, 3321.232, 0, 2783.3274)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13567" type="Node3D" parent="." unique_id=578303772 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.26683024, 0, -0.96374357, 0, 1, 0, 0.96374357, 0, 0.26683024, 3319.9463, 0, 2738.4358)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13568" type="Node3D" parent="." unique_id=422927233 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.99922293, 0, -0.039415464, 0, 1, 0, 0.039415464, 0, 0.99922293, 3277.776, 0, 2739.4448)
+metadata/building_name = "shipping_container"
+
+[node name="dumpster_13569" type="Node3D" parent="." unique_id=497806540 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.8828135, 0, -0.46972367, 0, 1, 0, 0.46972367, 0, -0.8828135, 3422.1252, 0, 2649.5327)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13570" type="Node3D" parent="." unique_id=1995435597 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.9772334, 0, -0.21216702, 0, 1, 0, 0.21216702, 0, -0.9772334, 3381.9258, 0, 2637.234)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13571" type="Node3D" parent="." unique_id=1163444392 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.33193707, 0, 0.94330156, 0, 1, 0, -0.94330156, 0, 0.33193707, 3209.4136, 0, 2618.2817)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13572" type="Node3D" parent="." unique_id=1194974011 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.99767345, 0, 0.06817405, 0, 1, 0, -0.06817405, 0, -0.99767345, 3418.7358, 0, 2787.2256)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13573" type="Node3D" parent="." unique_id=2052337408 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.31419784, 0, 0.9493575, 0, 1, 0, -0.9493575, 0, -0.31419784, 3239.5747, 0, 2562.776)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13574" type="Node3D" parent="." unique_id=217175461 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.04909876, 0, -0.9987939, 0, 1, 0, 0.9987939, 0, -0.04909876, 3289.4734, 0, 2621.1306)
+metadata/building_name = "shipping_container"
+
+[node name="chain_link_fence_13575" type="Node3D" parent="." unique_id=1839654429 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.39982197, 0, -0.91659284, 0, 1, 0, 0.91659284, 0, 0.39982197, 3208.1123, 0, 2565.5127)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13576" type="Node3D" parent="." unique_id=1219645360 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.7695844, 0, -0.6385451, 0, 1, 0, 0.6385451, 0, -0.7695844, 3243.6047, 0, 2577.556)
+metadata/building_name = "guard_rail"
+
+[node name="dumpster_13577" type="Node3D" parent="." unique_id=26456844 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.9989175, 0, -0.04651662, 0, 1, 0, 0.04651662, 0, 0.9989175, 3335.9814, 0, 2659.073)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13578" type="Node3D" parent="." unique_id=85674307 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.8125342, 0, 0.5829135, 0, 1, 0, -0.5829135, 0, -0.8125342, 3301.2668, 0, 2760.624)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13579" type="Node3D" parent="." unique_id=890763495 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.7346772, 0, -0.67841685, 0, 1, 0, 0.67841685, 0, -0.7346772, 3211.8892, 0, 2680.9446)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13580" type="Node3D" parent="." unique_id=180232738 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.004102207, 0, -0.9999916, 0, 1, 0, 0.9999916, 0, -0.004102207, 3222.051, 0, 2770.9966)
+metadata/building_name = "construction_barrier"
+
+[node name="shipping_container_13581" type="Node3D" parent="." unique_id=1335408173 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.9510467, 0, 0.30904728, 0, 1, 0, -0.30904728, 0, 0.9510467, 3383.2688, 0, 2719.2705)
+metadata/building_name = "shipping_container"
+
+[node name="chain_link_fence_13582" type="Node3D" parent="." unique_id=179180466 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.9751412, 0, 0.22158432, 0, 1, 0, -0.22158432, 0, 0.9751412, 3294.2397, 0, 2634.0188)
+metadata/building_name = "chain_link_fence"
+
+[node name="construction_barrier_13583" type="Node3D" parent="." unique_id=1418599536 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.3979356, 0, -0.91741335, 0, 1, 0, 0.91741335, 0, -0.3979356, 3252.7388, 0, 2729.2139)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13584" type="Node3D" parent="." unique_id=1247882518 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.2034807, 0, -0.97907895, 0, 1, 0, 0.97907895, 0, -0.2034807, 3348.865, 0, 2720.0999)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13585" type="Node3D" parent="." unique_id=149714091 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.8863775, 0, -0.46296313, 0, 1, 0, 0.46296313, 0, -0.8863775, 3336.4812, 0, 2664.7512)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13586" type="Node3D" parent="." unique_id=1247925409 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.15999496, 0, -0.9871178, 0, 1, 0, 0.9871178, 0, 0.15999496, 3405.1445, 0, 2730.7112)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13587" type="Node3D" parent="." unique_id=1820436639 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.7057371, 0, 0.70847374, 0, 1, 0, -0.70847374, 0, 0.7057371, 3292.3, 0, 2632.277)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13588" type="Node3D" parent="." unique_id=1150644615 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.81068903, 0, -0.585477, 0, 1, 0, 0.585477, 0, -0.81068903, 3245.8176, 0, 2687.6692)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13589" type="Node3D" parent="." unique_id=1396306729 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.46052292, 0, 0.8876478, 0, 1, 0, -0.8876478, 0, -0.46052292, 3438.797, 0, 2597.3972)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13590" type="Node3D" parent="." unique_id=746429439 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.9675405, 0, 0.2527161, 0, 1, 0, -0.2527161, 0, 0.9675405, 3396.825, 0, 2602.7534)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13591" type="Node3D" parent="." unique_id=1849299561 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.115811706, 0, -0.9932712, 0, 1, 0, 0.9932712, 0, -0.115811706, 3334.504, 0, 2679.239)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13592" type="Node3D" parent="." unique_id=1055325589 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.98295504, 0, -0.18384603, 0, 1, 0, 0.18384603, 0, -0.98295504, 3270.4004, 0, 2671.2405)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13593" type="Node3D" parent="." unique_id=1727764618 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.45327958, 0, 0.8913684, 0, 1, 0, -0.8913684, 0, 0.45327958, 3263.2603, 0, 2645.5989)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13594" type="Node3D" parent="." unique_id=1106001007 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.084661126, 0, -0.9964098, 0, 1, 0, 0.9964098, 0, 0.084661126, 3283.5183, 0, 2748.4043)
+metadata/building_name = "guard_rail"
+
+[node name="dumpster_13595" type="Node3D" parent="." unique_id=1983368761 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.3978856, 0, 0.91743505, 0, 1, 0, -0.91743505, 0, 0.3978856, 3432.3645, 0, 2680.669)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13596" type="Node3D" parent="." unique_id=1057988731 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.89078707, 0, 0.45442092, 0, 1, 0, -0.45442092, 0, 0.89078707, 3253.2969, 0, 2747.7415)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13597" type="Node3D" parent="." unique_id=90874998 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.5215718, 0, 0.8532074, 0, 1, 0, -0.8532074, 0, -0.5215718, 3361.8638, 0, 2648.6125)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13598" type="Node3D" parent="." unique_id=1012934414 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.8654887, 0, -0.5009284, 0, 1, 0, 0.5009284, 0, -0.8654887, 3215.4182, 0, 2708.8882)
+metadata/building_name = "shipping_container"
+
+[node name="shipping_container_13599" type="Node3D" parent="." unique_id=128707835 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.98572785, 0, 0.16834667, 0, 1, 0, -0.16834667, 0, 0.98572785, 3385.204, 0, 2618.2827)
+metadata/building_name = "shipping_container"
+
+[node name="chain_link_fence_13600" type="Node3D" parent="." unique_id=2058665108 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.9817975, 0, 0.18993077, 0, 1, 0, -0.18993077, 0, 0.9817975, 3366.952, 0, 2707.4822)
+metadata/building_name = "chain_link_fence"
+
+[node name="construction_barrier_13601" type="Node3D" parent="." unique_id=163855516 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.74253595, 0, 0.6698062, 0, 1, 0, -0.6698062, 0, 0.74253595, 3236.8167, 0, 2704.2395)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13602" type="Node3D" parent="." unique_id=1646493213 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.49840963, 0, -0.8669417, 0, 1, 0, 0.8669417, 0, 0.49840963, 3349.4563, 0, 2590.0515)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13603" type="Node3D" parent="." unique_id=1075349428 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.14618215, 0, 0.9892577, 0, 1, 0, -0.9892577, 0, 0.14618215, 3430.15, 0, 2746.0671)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13604" type="Node3D" parent="." unique_id=1429587022 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.36535302, 0, -0.93086904, 0, 1, 0, 0.93086904, 0, 0.36535302, 3269.2925, 0, 2631.6467)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13605" type="Node3D" parent="." unique_id=925849504 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.04020038, 0, -0.99919164, 0, 1, 0, 0.99919164, 0, 0.04020038, 3340.2107, 0, 2646.4192)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13606" type="Node3D" parent="." unique_id=338481870 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.97153056, 0, -0.2369143, 0, 1, 0, 0.2369143, 0, 0.97153056, 3398.3362, 0, 2783.759)
+metadata/building_name = "guard_rail"
+
+[node name="dumpster_13607" type="Node3D" parent="." unique_id=810764822 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.8921753, 0, 0.45168927, 0, 1, 0, -0.45168927, 0, -0.8921753, 3393.191, 0, 2604.7668)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13608" type="Node3D" parent="." unique_id=1348997382 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.9341844, 0, -0.35679057, 0, 1, 0, 0.35679057, 0, -0.9341844, 3219.7764, 0, 2624.2063)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13609" type="Node3D" parent="." unique_id=1251565374 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.9013401, 0, -0.43311203, 0, 1, 0, 0.43311203, 0, -0.9013401, 3289.2205, 0, 2601.0427)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13610" type="Node3D" parent="." unique_id=800790102 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.8614485, 0, 0.50784487, 0, 1, 0, -0.50784487, 0, 0.8614485, 3229.4377, 0, 2676.3179)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13611" type="Node3D" parent="." unique_id=1802640389 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.21926636, 0, 0.97566503, 0, 1, 0, -0.97566503, 0, -0.21926636, 3379.7695, 0, 2573.099)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13612" type="Node3D" parent="." unique_id=731664404 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.87105393, 0, -0.49118736, 0, 1, 0, 0.49118736, 0, 0.87105393, 3422.7388, 0, 2635.1455)
+metadata/building_name = "dumpster"
+
+[node name="chain_link_fence_13613" type="Node3D" parent="." unique_id=580120096 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.8989832, 0, -0.43798316, 0, 1, 0, 0.43798316, 0, -0.8989832, 3285.0813, 0, 2697.3823)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13614" type="Node3D" parent="." unique_id=930067744 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.96689373, 0, -0.2551793, 0, 1, 0, 0.2551793, 0, -0.96689373, 3322.0125, 0, 2712.3823)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13615" type="Node3D" parent="." unique_id=210369783 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.7190671, 0, 0.6949407, 0, 1, 0, -0.6949407, 0, -0.7190671, 3422.7688, 0, 2677.2944)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13616" type="Node3D" parent="." unique_id=986560807 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.8815155, 0, 0.4721551, 0, 1, 0, -0.4721551, 0, -0.8815155, 3367.3984, 0, 2669.5288)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13617" type="Node3D" parent="." unique_id=482738710 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.6001136, 0, 0.79991484, 0, 1, 0, -0.79991484, 0, -0.6001136, 3312.282, 0, 2760.424)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13618" type="Node3D" parent="." unique_id=715609888 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.9329341, 0, 0.3600472, 0, 1, 0, -0.3600472, 0, -0.9329341, 3401.2144, 0, 2561.6758)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13619" type="Node3D" parent="." unique_id=190209412 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.13124686, 0, -0.9913497, 0, 1, 0, 0.9913497, 0, 0.13124686, 3347.8354, 0, 2790.2756)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13620" type="Node3D" parent="." unique_id=4481103 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.8979422, 0, -0.44011346, 0, 1, 0, 0.44011346, 0, 0.8979422, 3396.0894, 0, 2666.5776)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13621" type="Node3D" parent="." unique_id=505401920 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.99749845, 0, 0.07068805, 0, 1, 0, -0.07068805, 0, -0.99749845, 3274.6658, 0, 2608.8467)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13622" type="Node3D" parent="." unique_id=426731079 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.3861378, 0, -0.9224411, 0, 1, 0, 0.9224411, 0, -0.3861378, 3369.8066, 0, 2684.029)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13623" type="Node3D" parent="." unique_id=1483136681 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.9856415, 0, -0.16885164, 0, 1, 0, 0.16885164, 0, -0.9856415, 3287.7312, 0, 2664.8184)
+metadata/building_name = "construction_barrier"
+
+[node name="shipping_container_13624" type="Node3D" parent="." unique_id=837855082 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.95223695, 0, 0.30536002, 0, 1, 0, -0.30536002, 0, 0.95223695, 3222.77, 0, 2692.304)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13625" type="Node3D" parent="." unique_id=1753821021 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.2878136, 0, -0.9576864, 0, 1, 0, 0.9576864, 0, -0.2878136, 3361.163, 0, 2678.6213)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13626" type="Node3D" parent="." unique_id=1614672423 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.49263683, 0, -0.870235, 0, 1, 0, 0.870235, 0, 0.49263683, 3388.668, 0, 2640.1753)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13627" type="Node3D" parent="." unique_id=853936864 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.21994962, 0, 0.97551125, 0, 1, 0, -0.97551125, 0, -0.21994962, 3338.1875, 0, 2590.3257)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13628" type="Node3D" parent="." unique_id=1138036071 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.6059757, 0, 0.7954832, 0, 1, 0, -0.7954832, 0, -0.6059757, 3209.4683, 0, 2597.7302)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13629" type="Node3D" parent="." unique_id=455513934 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.21834603, 0, 0.9758714, 0, 1, 0, -0.9758714, 0, -0.21834603, 3219.824, 0, 2747.4187)
+metadata/building_name = "shipping_container"
+
+[node name="dumpster_13630" type="Node3D" parent="." unique_id=1281599804 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.5199586, 0, -0.8541914, 0, 1, 0, 0.8541914, 0, -0.5199586, 3316.3616, 0, 2698.0454)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13631" type="Node3D" parent="." unique_id=1527983895 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.8953363, 0, 0.44539082, 0, 1, 0, -0.44539082, 0, -0.8953363, 3407.1565, 0, 2571.7463)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13632" type="Node3D" parent="." unique_id=1701609467 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.9716849, 0, 0.23628053, 0, 1, 0, -0.23628053, 0, 0.9716849, 3309.1746, 0, 2715.3696)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13633" type="Node3D" parent="." unique_id=602524138 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.99024576, 0, 0.13933183, 0, 1, 0, -0.13933183, 0, -0.99024576, 3367.2664, 0, 2722.9558)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13634" type="Node3D" parent="." unique_id=1789993113 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.9842029, 0, 0.17704397, 0, 1, 0, -0.17704397, 0, 0.9842029, 3422.1626, 0, 2614.6895)
+metadata/building_name = "chain_link_fence"
+
+[node name="construction_barrier_13635" type="Node3D" parent="." unique_id=229506341 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.86749154, 0, -0.49745196, 0, 1, 0, 0.49745196, 0, -0.86749154, 3369.5913, 0, 2571.4407)
+metadata/building_name = "construction_barrier"
+
+[node name="shipping_container_13636" type="Node3D" parent="." unique_id=311038045 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.19204682, 0, 0.98138577, 0, 1, 0, -0.98138577, 0, -0.19204682, 3249.799, 0, 2680.5105)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13637" type="Node3D" parent="." unique_id=1529291608 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.4645253, 0, -0.88555986, 0, 1, 0, 0.88555986, 0, -0.4645253, 3216.0151, 0, 2651.6372)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13638" type="Node3D" parent="." unique_id=667875256 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.30193406, 0, -0.9533288, 0, 1, 0, 0.9533288, 0, 0.30193406, 3395.1533, 0, 2697.4158)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13639" type="Node3D" parent="." unique_id=1080448590 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.6710662, 0, -0.7413974, 0, 1, 0, 0.7413974, 0, -0.6710662, 3441.8206, 0, 2563.6458)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13640" type="Node3D" parent="." unique_id=1904420834 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.9976104, 0, -0.06909044, 0, 1, 0, 0.06909044, 0, -0.9976104, 3340.7273, 0, 2566.6194)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13641" type="Node3D" parent="." unique_id=1372704624 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.89512193, 0, -0.44582146, 0, 1, 0, 0.44582146, 0, 0.89512193, 3253.6401, 0, 2791.5486)
+metadata/building_name = "guard_rail"
+
+[node name="dumpster_13642" type="Node3D" parent="." unique_id=2133029209 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.6232428, 0, -0.7820284, 0, 1, 0, 0.7820284, 0, 0.6232428, 3254.534, 0, 2767.9353)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13643" type="Node3D" parent="." unique_id=1254123989 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.8049993, 0, 0.5932758, 0, 1, 0, -0.5932758, 0, 0.8049993, 3215.138, 0, 2767.5674)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13644" type="Node3D" parent="." unique_id=227591720 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.6438629, 0, 0.7651409, 0, 1, 0, -0.7651409, 0, -0.6438629, 3257.2114, 0, 2767.096)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13645" type="Node3D" parent="." unique_id=572741329 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.27098924, 0, 0.96258235, 0, 1, 0, -0.96258235, 0, 0.27098924, 3297.8137, 0, 2649.5798)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13646" type="Node3D" parent="." unique_id=1863752795 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.94902676, 0, -0.31519544, 0, 1, 0, 0.31519544, 0, -0.94902676, 3338.0635, 0, 2662.9883)
+metadata/building_name = "shipping_container"
+
+[node name="chain_link_fence_13647" type="Node3D" parent="." unique_id=2022894559 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.48568815, 0, 0.87413216, 0, 1, 0, -0.87413216, 0, 0.48568815, 3323.1912, 0, 2695.8936)
+metadata/building_name = "chain_link_fence"
+
+[node name="shipping_container_13648" type="Node3D" parent="." unique_id=154206556 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.3452174, 0, -0.93852276, 0, 1, 0, 0.93852276, 0, 0.3452174, 3216.7253, 0, 2559.2275)
+metadata/building_name = "shipping_container"
+
+[node name="guard_rail_13649" type="Node3D" parent="." unique_id=1483574619 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.99330723, 0, -0.115502045, 0, 1, 0, 0.115502045, 0, -0.99330723, 3349.3953, 0, 2627.2935)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13650" type="Node3D" parent="." unique_id=496413749 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.9451046, 0, -0.32676795, 0, 1, 0, 0.32676795, 0, -0.9451046, 3394.7063, 0, 2557.9302)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13651" type="Node3D" parent="." unique_id=1851755827 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.7069745, 0, -0.70723903, 0, 1, 0, 0.70723903, 0, 0.7069745, 3353.5835, 0, 2586.6733)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13652" type="Node3D" parent="." unique_id=277118914 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.7324304, 0, -0.68084186, 0, 1, 0, 0.68084186, 0, -0.7324304, 3323.6753, 0, 2573.2668)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13653" type="Node3D" parent="." unique_id=471044526 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.3279459, 0, -0.9446965, 0, 1, 0, 0.9446965, 0, 0.3279459, 3246.154, 0, 2636.16)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13654" type="Node3D" parent="." unique_id=387188958 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.831898, 0, -0.55492866, 0, 1, 0, 0.55492866, 0, -0.831898, 3224.956, 0, 2681.066)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13655" type="Node3D" parent="." unique_id=675668820 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.5760291, 0, 0.8174292, 0, 1, 0, -0.8174292, 0, 0.5760291, 3441.084, 0, 2596.4995)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13656" type="Node3D" parent="." unique_id=603399107 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.6808898, 0, 0.7323859, 0, 1, 0, -0.7323859, 0, -0.6808898, 3410.3713, 0, 2664.5593)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13657" type="Node3D" parent="." unique_id=984430278 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.16420998, 0, -0.9864254, 0, 1, 0, 0.9864254, 0, 0.16420998, 3438.4148, 0, 2779.8047)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13658" type="Node3D" parent="." unique_id=1578791001 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.7856813, 0, -0.6186314, 0, 1, 0, 0.6186314, 0, 0.7856813, 3408.9104, 0, 2619.339)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13659" type="Node3D" parent="." unique_id=726506890 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.26073682, 0, -0.96540993, 0, 1, 0, 0.96540993, 0, -0.26073682, 3431.5166, 0, 2654.2637)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13660" type="Node3D" parent="." unique_id=1396359641 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.26321888, 0, 0.96473616, 0, 1, 0, -0.96473616, 0, -0.26321888, 3298.7786, 0, 2626.825)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13661" type="Node3D" parent="." unique_id=1052426485 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.8911013, 0, -0.4538044, 0, 1, 0, 0.4538044, 0, 0.8911013, 3301.9136, 0, 2729.3738)
+metadata/building_name = "shipping_container"
+
+[node name="guard_rail_13662" type="Node3D" parent="." unique_id=1936409942 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.6615631, 0, 0.7498895, 0, 1, 0, -0.7498895, 0, -0.6615631, 3429.1426, 0, 2588.4646)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13663" type="Node3D" parent="." unique_id=1773491144 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.3755497, 0, 0.9268023, 0, 1, 0, -0.9268023, 0, 0.3755497, 3303.4202, 0, 2765.4927)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13664" type="Node3D" parent="." unique_id=670807289 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.5575122, 0, 0.8301687, 0, 1, 0, -0.8301687, 0, 0.5575122, 3354.5115, 0, 2708.284)
+metadata/building_name = "shipping_container"
+
+[node name="guard_rail_13665" type="Node3D" parent="." unique_id=475442642 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.11116558, 0, -0.9938019, 0, 1, 0, 0.9938019, 0, -0.11116558, 3330.4795, 0, 2614.831)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13666" type="Node3D" parent="." unique_id=1645034386 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.49804586, 0, 0.8671507, 0, 1, 0, -0.8671507, 0, 0.49804586, 3323.6565, 0, 2710.0715)
+metadata/building_name = "construction_barrier"
+
+[node name="guard_rail_13667" type="Node3D" parent="." unique_id=755313530 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.81193006, 0, 0.5837548, 0, 1, 0, -0.5837548, 0, -0.81193006, 3416.7693, 0, 2697.3938)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13668" type="Node3D" parent="." unique_id=1853724957 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.43185282, 0, 0.9019441, 0, 1, 0, -0.9019441, 0, 0.43185282, 3360.5718, 0, 2730.2246)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13669" type="Node3D" parent="." unique_id=1781506492 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.5111361, 0, 0.85949975, 0, 1, 0, -0.85949975, 0, 0.5111361, 3395.821, 0, 2747.6433)
+metadata/building_name = "chain_link_fence"
+
+[node name="construction_barrier_13670" type="Node3D" parent="." unique_id=1370564380 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.31528088, 0, -0.9489984, 0, 1, 0, 0.9489984, 0, 0.31528088, 3427.5574, 0, 2785.7307)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13671" type="Node3D" parent="." unique_id=1021603073 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.6138913, 0, -0.78939056, 0, 1, 0, 0.78939056, 0, -0.6138913, 3319.4316, 0, 2762.7314)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13672" type="Node3D" parent="." unique_id=1256755027 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.9424388, 0, 0.33437866, 0, 1, 0, -0.33437866, 0, -0.9424388, 3329.8489, 0, 2592.2002)
+metadata/building_name = "shipping_container"
+
+[node name="shipping_container_13673" type="Node3D" parent="." unique_id=634717270 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.373315, 0, -0.92770463, 0, 1, 0, 0.92770463, 0, -0.373315, 3422.3525, 0, 2718.0684)
+metadata/building_name = "shipping_container"
+
+[node name="guard_rail_13674" type="Node3D" parent="." unique_id=1466660688 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.25405675, 0, 0.9671893, 0, 1, 0, -0.9671893, 0, -0.25405675, 3219.4229, 0, 2747.2854)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13675" type="Node3D" parent="." unique_id=1193184495 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.9400735, 0, 0.34097195, 0, 1, 0, -0.34097195, 0, -0.9400735, 3301.516, 0, 2736.5715)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13676" type="Node3D" parent="." unique_id=542974072 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.95224816, 0, 0.30532515, 0, 1, 0, -0.30532515, 0, 0.95224816, 3354.9526, 0, 2773.9253)
+metadata/building_name = "dumpster"
+
+[node name="chain_link_fence_13677" type="Node3D" parent="." unique_id=667057811 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.59086657, 0, -0.8067693, 0, 1, 0, 0.8067693, 0, -0.59086657, 3229.2234, 0, 2560.813)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13678" type="Node3D" parent="." unique_id=137067459 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.9751096, 0, 0.22172359, 0, 1, 0, -0.22172359, 0, -0.9751096, 3260.1414, 0, 2585.6406)
+metadata/building_name = "dumpster"
+
+[node name="chain_link_fence_13679" type="Node3D" parent="." unique_id=2044691397 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.8142256, 0, -0.5805485, 0, 1, 0, 0.5805485, 0, 0.8142256, 3331.0205, 0, 2598.3647)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13680" type="Node3D" parent="." unique_id=554003225 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.9922189, 0, 0.12450574, 0, 1, 0, -0.12450574, 0, -0.9922189, 3417.643, 0, 2767.2166)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13681" type="Node3D" parent="." unique_id=282245549 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.9051999, 0, -0.42498612, 0, 1, 0, 0.42498612, 0, 0.9051999, 3421.7996, 0, 2688.9417)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13682" type="Node3D" parent="." unique_id=2093284225 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.2573745, 0, 0.96631175, 0, 1, 0, -0.96631175, 0, 0.2573745, 3208.5535, 0, 2752.2913)
+metadata/building_name = "shipping_container"
+
+[node name="chain_link_fence_13683" type="Node3D" parent="." unique_id=1277578479 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.2569032, 0, 0.96643716, 0, 1, 0, -0.96643716, 0, 0.2569032, 3337.4492, 0, 2776.8013)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13684" type="Node3D" parent="." unique_id=141505514 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.9961852, 0, 0.08726466, 0, 1, 0, -0.08726466, 0, -0.9961852, 3356.9932, 0, 2745.0835)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13685" type="Node3D" parent="." unique_id=971493457 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.64385897, 0, -0.76514417, 0, 1, 0, 0.76514417, 0, 0.64385897, 3208.545, 0, 2669.936)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13686" type="Node3D" parent="." unique_id=1857344380 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.9976045, 0, 0.069175415, 0, 1, 0, -0.069175415, 0, -0.9976045, 3383.267, 0, 2683.789)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13687" type="Node3D" parent="." unique_id=409941397 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.9640407, 0, 0.26575473, 0, 1, 0, -0.26575473, 0, 0.9640407, 3442.848, 0, 2728.7488)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13688" type="Node3D" parent="." unique_id=196068145 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.37207073, 0, -0.92820436, 0, 1, 0, 0.92820436, 0, -0.37207073, 3309.624, 0, 2784.8142)
+metadata/building_name = "chain_link_fence"
+
+[node name="shipping_container_13689" type="Node3D" parent="." unique_id=1840737780 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.6050665, 0, 0.79617494, 0, 1, 0, -0.79617494, 0, -0.6050665, 3230.5063, 0, 2757.9417)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13690" type="Node3D" parent="." unique_id=1824430054 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.54513943, 0, 0.8383454, 0, 1, 0, -0.8383454, 0, 0.54513943, 3250.2656, 0, 2571.3135)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13691" type="Node3D" parent="." unique_id=697304063 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.88826436, 0, -0.45933264, 0, 1, 0, 0.45933264, 0, -0.88826436, 3283.2808, 0, 2648.6758)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13692" type="Node3D" parent="." unique_id=305542297 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.88130754, 0, -0.47254318, 0, 1, 0, 0.47254318, 0, -0.88130754, 3407.512, 0, 2692.21)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13693" type="Node3D" parent="." unique_id=1059026749 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.96102035, 0, -0.27647758, 0, 1, 0, 0.27647758, 0, 0.96102035, 3282.4648, 0, 2747.7512)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13694" type="Node3D" parent="." unique_id=334915711 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.5333398, 0, -0.8459011, 0, 1, 0, 0.8459011, 0, 0.5333398, 3346.6863, 0, 2688.6533)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13695" type="Node3D" parent="." unique_id=1504001067 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.9904793, 0, -0.13766168, 0, 1, 0, 0.13766168, 0, -0.9904793, 3340.0728, 0, 2650.2366)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13696" type="Node3D" parent="." unique_id=1470875356 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.8061488, 0, -0.59171283, 0, 1, 0, 0.59171283, 0, 0.8061488, 3394.1548, 0, 2655.907)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13697" type="Node3D" parent="." unique_id=1325988349 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.91116, 0, 0.41205278, 0, 1, 0, -0.41205278, 0, 0.91116, 3233.674, 0, 2662.6238)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13698" type="Node3D" parent="." unique_id=1805555306 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.9963311, 0, -0.08558217, 0, 1, 0, 0.08558217, 0, 0.9963311, 3300.0464, 0, 2722.963)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13699" type="Node3D" parent="." unique_id=914562256 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.28593573, 0, -0.9582488, 0, 1, 0, 0.9582488, 0, -0.28593573, 3354.2175, 0, 2739.5496)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13700" type="Node3D" parent="." unique_id=1371580581 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.99402356, 0, 0.10916591, 0, 1, 0, -0.10916591, 0, 0.99402356, 3290.2847, 0, 2609.832)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13701" type="Node3D" parent="." unique_id=1508752059 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.64982814, 0, 0.7600812, 0, 1, 0, -0.7600812, 0, -0.64982814, 3373.466, 0, 2764.7969)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13702" type="Node3D" parent="." unique_id=1018687322 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.9900018, 0, 0.14105463, 0, 1, 0, -0.14105463, 0, -0.9900018, 3415.904, 0, 2776.7156)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13703" type="Node3D" parent="." unique_id=1947667572 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.88568, 0, -0.46429607, 0, 1, 0, 0.46429607, 0, -0.88568, 3273.8726, 0, 2604.8596)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13704" type="Node3D" parent="." unique_id=301531035 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.82650787, 0, 0.5629252, 0, 1, 0, -0.5629252, 0, 0.82650787, 3218.737, 0, 2637.9556)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13705" type="Node3D" parent="." unique_id=873189554 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.41101223, 0, 0.9116298, 0, 1, 0, -0.9116298, 0, 0.41101223, 3326.6343, 0, 2582.578)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13706" type="Node3D" parent="." unique_id=738365016 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.5899849, 0, 0.8074143, 0, 1, 0, -0.8074143, 0, 0.5899849, 3249.929, 0, 2704.5535)
+metadata/building_name = "shipping_container"
+
+[node name="shipping_container_13707" type="Node3D" parent="." unique_id=253276677 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.878143, 0, 0.47839823, 0, 1, 0, -0.47839823, 0, 0.878143, 3214.7813, 0, 2693.176)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13708" type="Node3D" parent="." unique_id=2016179629 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.05319487, 0, 0.99858415, 0, 1, 0, -0.99858415, 0, 0.05319487, 3429.9697, 0, 2638.986)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13709" type="Node3D" parent="." unique_id=944266154 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.3811844, 0, 0.92449903, 0, 1, 0, -0.92449903, 0, -0.3811844, 3401.7544, 0, 2688.1082)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13710" type="Node3D" parent="." unique_id=701422764 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.9151853, 0, 0.40303338, 0, 1, 0, -0.40303338, 0, -0.9151853, 3370.329, 0, 2644.1572)
+metadata/building_name = "shipping_container"
+
+[node name="guard_rail_13711" type="Node3D" parent="." unique_id=905635817 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.35219583, 0, -0.9359263, 0, 1, 0, 0.9359263, 0, 0.35219583, 3248.941, 0, 2671.745)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13712" type="Node3D" parent="." unique_id=148240241 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.24534744, 0, -0.9694352, 0, 1, 0, 0.9694352, 0, -0.24534744, 3343.3357, 0, 2703.4575)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13713" type="Node3D" parent="." unique_id=1332728301 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.58087647, 0, 0.8139917, 0, 1, 0, -0.8139917, 0, -0.58087647, 3329.2727, 0, 2657.1838)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13714" type="Node3D" parent="." unique_id=207830708 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.9859936, 0, 0.16678303, 0, 1, 0, -0.16678303, 0, 0.9859936, 3330.0313, 0, 2761.998)
+metadata/building_name = "construction_barrier"
+
+[node name="shipping_container_13715" type="Node3D" parent="." unique_id=917983022 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.5620047, 0, -0.827134, 0, 1, 0, 0.827134, 0, 0.5620047, 3214.244, 0, 2785.9258)
+metadata/building_name = "shipping_container"
+
+[node name="guard_rail_13716" type="Node3D" parent="." unique_id=1791720386 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.6558976, 0, -0.75484985, 0, 1, 0, 0.75484985, 0, 0.6558976, 3300.4143, 0, 2560.9788)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13717" type="Node3D" parent="." unique_id=205821125 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.45219678, 0, 0.8919182, 0, 1, 0, -0.8919182, 0, 0.45219678, 3231.3594, 0, 2779.61)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13718" type="Node3D" parent="." unique_id=245082756 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.23657118, 0, -0.9716142, 0, 1, 0, 0.9716142, 0, -0.23657118, 3220.8347, 0, 2701.348)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13719" type="Node3D" parent="." unique_id=182353951 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.30020618, 0, 0.95387435, 0, 1, 0, -0.95387435, 0, -0.30020618, 3241.9563, 0, 2627.631)
+metadata/building_name = "shipping_container"
+
+[node name="chain_link_fence_13720" type="Node3D" parent="." unique_id=158322873 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.5301745, 0, 0.8478886, 0, 1, 0, -0.8478886, 0, -0.5301745, 3401.845, 0, 2617.202)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13721" type="Node3D" parent="." unique_id=843359675 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.8936997, 0, 0.44866568, 0, 1, 0, -0.44866568, 0, 0.8936997, 3441.3254, 0, 2792.6125)
+metadata/building_name = "chain_link_fence"
+
+[node name="shipping_container_13722" type="Node3D" parent="." unique_id=1252445061 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.15477738, 0, 0.9879494, 0, 1, 0, -0.9879494, 0, -0.15477738, 3229.6716, 0, 2774.389)
+metadata/building_name = "shipping_container"
+
+[node name="guard_rail_13723" type="Node3D" parent="." unique_id=2094989044 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.9999865, 0, 0.005185191, 0, 1, 0, -0.005185191, 0, 0.9999865, 3318.2454, 0, 2742.7312)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13724" type="Node3D" parent="." unique_id=901232023 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.9730593, 0, -0.23055497, 0, 1, 0, 0.23055497, 0, -0.9730593, 3209.4407, 0, 2639.3164)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13725" type="Node3D" parent="." unique_id=1441531120 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.51644444, 0, -0.8563207, 0, 1, 0, 0.8563207, 0, -0.51644444, 3270.034, 0, 2682.5088)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13726" type="Node3D" parent="." unique_id=276474399 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.8961956, 0, -0.44365913, 0, 1, 0, 0.44365913, 0, 0.8961956, 3441.2124, 0, 2790.132)
+metadata/building_name = "chain_link_fence"
+
+[node name="construction_barrier_13727" type="Node3D" parent="." unique_id=1782194695 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.3630913, 0, -0.9317536, 0, 1, 0, 0.9317536, 0, 0.3630913, 3410.695, 0, 2562.2527)
+metadata/building_name = "construction_barrier"
+
+[node name="shipping_container_13728" type="Node3D" parent="." unique_id=1293432234 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.4619038, 0, 0.88693005, 0, 1, 0, -0.88693005, 0, 0.4619038, 3437.8057, 0, 2638.7673)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13729" type="Node3D" parent="." unique_id=1368496293 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.3872816, 0, -0.9219615, 0, 1, 0, 0.9219615, 0, 0.3872816, 3375.3403, 0, 2732.5837)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13730" type="Node3D" parent="." unique_id=364212934 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.9690495, 0, 0.24686642, 0, 1, 0, -0.24686642, 0, 0.9690495, 3338.764, 0, 2586.4954)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13731" type="Node3D" parent="." unique_id=1201890781 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.32920378, 0, 0.9442589, 0, 1, 0, -0.9442589, 0, -0.32920378, 3404.1765, 0, 2760.8481)
+metadata/building_name = "guard_rail"
+
+[node name="construction_barrier_13732" type="Node3D" parent="." unique_id=959821221 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.92870784, 0, 0.37081224, 0, 1, 0, -0.37081224, 0, -0.92870784, 3250.8918, 0, 2598.606)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13733" type="Node3D" parent="." unique_id=372194886 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.2846922, 0, -0.958619, 0, 1, 0, 0.958619, 0, 0.2846922, 3274.7964, 0, 2605.0486)
+metadata/building_name = "dumpster"
+
+[node name="dumpster_13734" type="Node3D" parent="." unique_id=1209003069 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.17866723, 0, -0.98390955, 0, 1, 0, 0.98390955, 0, 0.17866723, 3433.1208, 0, 2586.1826)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13735" type="Node3D" parent="." unique_id=1109063139 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.6794289, 0, -0.73374134, 0, 1, 0, 0.73374134, 0, 0.6794289, 3279.3442, 0, 2770.1948)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13736" type="Node3D" parent="." unique_id=831731615 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.07658936, 0, -0.99706274, 0, 1, 0, 0.99706274, 0, -0.07658936, 3263.249, 0, 2778.039)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13737" type="Node3D" parent="." unique_id=1604300978 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.9851912, 0, 0.17145933, 0, 1, 0, -0.17145933, 0, -0.9851912, 3423.4612, 0, 2672.9822)
+metadata/building_name = "chain_link_fence"
+
+[node name="construction_barrier_13738" type="Node3D" parent="." unique_id=1731248087 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.9524373, 0, -0.30473462, 0, 1, 0, 0.30473462, 0, 0.9524373, 3334.6504, 0, 2564.956)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13739" type="Node3D" parent="." unique_id=1461283016 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.604781, 0, -0.79639184, 0, 1, 0, 0.79639184, 0, 0.604781, 3420.0088, 0, 2677.3774)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13740" type="Node3D" parent="." unique_id=1593160908 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.5392881, 0, -0.84212136, 0, 1, 0, 0.84212136, 0, -0.5392881, 3361.6265, 0, 2622.8022)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13741" type="Node3D" parent="." unique_id=128197368 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.9760465, 0, -0.21756192, 0, 1, 0, 0.21756192, 0, -0.9760465, 3317.93, 0, 2599.7014)
+metadata/building_name = "shipping_container"
+
+[node name="dumpster_13742" type="Node3D" parent="." unique_id=1087887040 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.8752462, 0, 0.4836777, 0, 1, 0, -0.4836777, 0, -0.8752462, 3315.3276, 0, 2725.0754)
+metadata/building_name = "dumpster"
+
+[node name="construction_barrier_13743" type="Node3D" parent="." unique_id=1905031381 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.8359382, 0, -0.5488236, 0, 1, 0, 0.5488236, 0, 0.8359382, 3337.4807, 0, 2754.5935)
+metadata/building_name = "construction_barrier"
+
+[node name="shipping_container_13744" type="Node3D" parent="." unique_id=27508173 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.20353162, 0, -0.9790684, 0, 1, 0, 0.9790684, 0, 0.20353162, 3275.1653, 0, 2558.828)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13745" type="Node3D" parent="." unique_id=46467888 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.90159416, 0, -0.43258286, 0, 1, 0, 0.43258286, 0, 0.90159416, 3288.1304, 0, 2768.2566)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13746" type="Node3D" parent="." unique_id=194305462 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.10040504, 0, -0.99494666, 0, 1, 0, 0.99494666, 0, 0.10040504, 3357.762, 0, 2733.6284)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13747" type="Node3D" parent="." unique_id=1275761142 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.50818104, 0, 0.8612503, 0, 1, 0, -0.8612503, 0, -0.50818104, 3227.836, 0, 2644.2969)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13748" type="Node3D" parent="." unique_id=100516382 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.6730965, 0, -0.7395547, 0, 1, 0, 0.7395547, 0, -0.6730965, 3401.8745, 0, 2601.6755)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13749" type="Node3D" parent="." unique_id=1847819867 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.9405652, 0, -0.33961308, 0, 1, 0, 0.33961308, 0, -0.9405652, 3286.874, 0, 2559.167)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13750" type="Node3D" parent="." unique_id=348497168 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.53251404, 0, 0.8464212, 0, 1, 0, -0.8464212, 0, 0.53251404, 3264.4211, 0, 2747.672)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13751" type="Node3D" parent="." unique_id=1992482557 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.76098764, 0, -0.6487664, 0, 1, 0, 0.6487664, 0, -0.76098764, 3299.993, 0, 2766.8774)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13752" type="Node3D" parent="." unique_id=1688321264 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.58941865, 0, 0.8078277, 0, 1, 0, -0.8078277, 0, 0.58941865, 3349.0034, 0, 2643.2424)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13753" type="Node3D" parent="." unique_id=148118252 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.5769478, 0, -0.816781, 0, 1, 0, 0.816781, 0, -0.5769478, 3257.926, 0, 2698.0085)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13754" type="Node3D" parent="." unique_id=1495996865 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.85671973, 0, -0.51578224, 0, 1, 0, 0.51578224, 0, 0.85671973, 3360.0793, 0, 2605.234)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13755" type="Node3D" parent="." unique_id=1039016066 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.99621505, 0, -0.08692279, 0, 1, 0, 0.08692279, 0, 0.99621505, 3355.3718, 0, 2618.0513)
+metadata/building_name = "shipping_container"
+
+[node name="dumpster_13756" type="Node3D" parent="." unique_id=2052042850 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(0.8747573, 0, -0.4845613, 0, 1, 0, 0.4845613, 0, 0.8747573, 3345.1194, 0, 2557.2798)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13757" type="Node3D" parent="." unique_id=651397584 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.65987253, 0, 0.7513776, 0, 1, 0, -0.7513776, 0, 0.65987253, 3259.5762, 0, 2714.712)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13758" type="Node3D" parent="." unique_id=350078948 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.9915814, 0, -0.12948518, 0, 1, 0, 0.12948518, 0, -0.9915814, 3270.868, 0, 2573.2869)
+metadata/building_name = "chain_link_fence"
+
+[node name="construction_barrier_13759" type="Node3D" parent="." unique_id=515005911 instance=ExtResource("5_tcgup")]
+transform = Transform3D(-0.9999872, 0, -0.0050626458, 0, 1, 0, 0.0050626458, 0, -0.9999872, 3271.3394, 0, 2655.0198)
+metadata/building_name = "construction_barrier"
+
+[node name="construction_barrier_13760" type="Node3D" parent="." unique_id=1224287804 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.89589226, 0, -0.4442714, 0, 1, 0, 0.4442714, 0, 0.89589226, 3303.7205, 0, 2634.996)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13761" type="Node3D" parent="." unique_id=751386006 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.045768317, 0, 0.9989521, 0, 1, 0, -0.9989521, 0, 0.045768317, 3335.8757, 0, 2742.8208)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13762" type="Node3D" parent="." unique_id=1531119313 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.20119861, 0, -0.9795505, 0, 1, 0, 0.9795505, 0, -0.20119861, 3264.8916, 0, 2715.0496)
+metadata/building_name = "chain_link_fence"
+
+[node name="construction_barrier_13763" type="Node3D" parent="." unique_id=507060905 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.59621805, 0, -0.80282253, 0, 1, 0, 0.80282253, 0, 0.59621805, 3351.2612, 0, 2581.8518)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13764" type="Node3D" parent="." unique_id=1921790904 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.9218424, 0, -0.387565, 0, 1, 0, 0.387565, 0, -0.9218424, 3219.9453, 0, 2764.2048)
+metadata/building_name = "dumpster"
+
+[node name="chain_link_fence_13765" type="Node3D" parent="." unique_id=1569487023 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.092834115, 0, -0.9956816, 0, 1, 0, 0.9956816, 0, -0.092834115, 3224.9043, 0, 2715.654)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13766" type="Node3D" parent="." unique_id=996938326 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.99940926, 0, -0.034368247, 0, 1, 0, 0.034368247, 0, 0.99940926, 3249.2446, 0, 2567.7937)
+metadata/building_name = "chain_link_fence"
+
+[node name="shipping_container_13767" type="Node3D" parent="." unique_id=868231220 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.08893026, 0, -0.99603784, 0, 1, 0, 0.99603784, 0, -0.08893026, 3406.459, 0, 2730.805)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13768" type="Node3D" parent="." unique_id=1179368395 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.34673494, 0, -0.9379631, 0, 1, 0, 0.9379631, 0, 0.34673494, 3221.553, 0, 2687.3767)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13769" type="Node3D" parent="." unique_id=884666402 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.9376261, 0, 0.34764528, 0, 1, 0, -0.34764528, 0, -0.9376261, 3307.9814, 0, 2613.917)
+metadata/building_name = "chain_link_fence"
+
+[node name="construction_barrier_13770" type="Node3D" parent="." unique_id=655973257 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.025578765, 0, 0.99967283, 0, 1, 0, -0.99967283, 0, 0.025578765, 3276.2185, 0, 2583.515)
+metadata/building_name = "construction_barrier"
+
+[node name="dumpster_13771" type="Node3D" parent="." unique_id=1985236449 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.9864063, 0, 0.16432464, 0, 1, 0, -0.16432464, 0, -0.9864063, 3251.187, 0, 2781.7253)
+metadata/building_name = "dumpster"
+
+[node name="guard_rail_13772" type="Node3D" parent="." unique_id=1009940278 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.9747808, 0, -0.22316445, 0, 1, 0, 0.22316445, 0, -0.9747808, 3311.926, 0, 2689.7122)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13773" type="Node3D" parent="." unique_id=137734949 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.87996405, 0, 0.4750403, 0, 1, 0, -0.4750403, 0, 0.87996405, 3226.5313, 0, 2683.0718)
+metadata/building_name = "shipping_container"
+
+[node name="dumpster_13774" type="Node3D" parent="." unique_id=1689605402 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.4521287, 0, 0.8919527, 0, 1, 0, -0.8919527, 0, -0.4521287, 3311.8896, 0, 2677.526)
+metadata/building_name = "dumpster"
+
+[node name="chain_link_fence_13775" type="Node3D" parent="." unique_id=155076485 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.41660103, 0, -0.90908945, 0, 1, 0, 0.90908945, 0, -0.41660103, 3317.5413, 0, 2788.2014)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13776" type="Node3D" parent="." unique_id=1929501280 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.29201823, 0, 0.95641273, 0, 1, 0, -0.95641273, 0, 0.29201823, 3291.5142, 0, 2738.3552)
+metadata/building_name = "guard_rail"
+
+[node name="dumpster_13777" type="Node3D" parent="." unique_id=654938147 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.938289, 0, 0.34585226, 0, 1, 0, -0.34585226, 0, -0.938289, 3421.9019, 0, 2755.9749)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13778" type="Node3D" parent="." unique_id=1771303901 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.93957, 0, -0.34235686, 0, 1, 0, 0.34235686, 0, 0.93957, 3305.098, 0, 2637.854)
+metadata/building_name = "shipping_container"
+
+[node name="guard_rail_13779" type="Node3D" parent="." unique_id=577343179 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.35371983, 0, -0.93535143, 0, 1, 0, 0.93535143, 0, -0.35371983, 3211.7476, 0, 2673.3809)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13780" type="Node3D" parent="." unique_id=1024590838 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.28394398, 0, 0.95884085, 0, 1, 0, -0.95884085, 0, -0.28394398, 3386.496, 0, 2782.7295)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13781" type="Node3D" parent="." unique_id=141123584 instance=ExtResource("2_qi6by")]
+transform = Transform3D(0.98496044, 0, 0.17278011, 0, 1, 0, -0.17278011, 0, 0.98496044, 3352.5764, 0, 2567.7532)
+metadata/building_name = "guard_rail"
+
+[node name="guard_rail_13782" type="Node3D" parent="." unique_id=87527099 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.24968924, 0, 0.96832603, 0, 1, 0, -0.96832603, 0, -0.24968924, 3401.6565, 0, 2588.1865)
+metadata/building_name = "guard_rail"
+
+[node name="chain_link_fence_13783" type="Node3D" parent="." unique_id=285133719 instance=ExtResource("4_683xw")]
+transform = Transform3D(-0.5784086, 0, -0.8157472, 0, 1, 0, 0.8157472, 0, -0.5784086, 3356.716, 0, 2661.8064)
+metadata/building_name = "chain_link_fence"
+
+[node name="dumpster_13784" type="Node3D" parent="." unique_id=2094826516 instance=ExtResource("3_xj6w4")]
+transform = Transform3D(-0.11642686, 0, 0.9931993, 0, 1, 0, -0.9931993, 0, -0.11642686, 3419.208, 0, 2605.094)
+metadata/building_name = "dumpster"
+
+[node name="shipping_container_13785" type="Node3D" parent="." unique_id=1799737747 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(-0.99950445, 0, -0.031477343, 0, 1, 0, 0.031477343, 0, -0.99950445, 3377.7053, 0, 2736.8655)
+metadata/building_name = "shipping_container"
+
+[node name="chain_link_fence_13786" type="Node3D" parent="." unique_id=714235680 instance=ExtResource("4_683xw")]
+transform = Transform3D(0.47912124, 0, 0.8777487, 0, 1, 0, -0.8777487, 0, 0.47912124, 3301.299, 0, 2698.7703)
+metadata/building_name = "chain_link_fence"
+
+[node name="guard_rail_13787" type="Node3D" parent="." unique_id=926077884 instance=ExtResource("2_qi6by")]
+transform = Transform3D(-0.9864116, 0, 0.16429313, 0, 1, 0, -0.16429313, 0, -0.9864116, 3395.8552, 0, 2790.0012)
+metadata/building_name = "guard_rail"
+
+[node name="shipping_container_13788" type="Node3D" parent="." unique_id=1135233586 instance=ExtResource("1_i1uwx")]
+transform = Transform3D(0.97233963, 0, -0.2335714, 0, 1, 0, 0.2335714, 0, 0.97233963, 3344.3706, 0, 2667.7642)
+metadata/building_name = "shipping_container"
+
+[node name="construction_barrier_13789" type="Node3D" parent="." unique_id=219463693 instance=ExtResource("5_tcgup")]
+transform = Transform3D(0.9231141, 0, 0.38452607, 0, 1, 0, -0.38452607, 0, 0.9231141, 3323.1763, 0, 2779.4707)
+metadata/building_name = "construction_barrier"
+
+[node name="chain_link_fence_13790" type="Node3D" parent="." unique_id=1173017808 instance=ExtResource("4_683xw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3207, 0, 2557)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13791" type="Node3D" parent="." unique_id=1302864663 instance=ExtResource("4_683xw")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3443, 0, 2557)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13792" type="Node3D" parent="." unique_id=643578911 instance=ExtResource("4_683xw")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3207, 0, 2793)
+metadata/building_name = "chain_link_fence"
+
+[node name="chain_link_fence_13793" type="Node3D" parent="." unique_id=1015341793 instance=ExtResource("4_683xw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3443, 0, 2793)
+metadata/building_name = "chain_link_fence"
