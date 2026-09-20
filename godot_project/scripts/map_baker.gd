@@ -144,10 +144,10 @@ func _init():
                 quit(1)
                 return
         var save_flags := ResourceSaver.FLAG_COMPRESS
-        var err := ResourceSaver.save(scene, "res://scenes/baked_world.tscn")
+        var err := ResourceSaver.save(scene, "res://scenes/main.tscn")
         if err == OK:
                 var save_ms := Time.get_ticks_msec() - save_start
-                print("✅ World scene saved: res://scenes/baked_world.tscn")
+                print("✅ World scene saved: res://scenes/main.tscn")
                 print("   Placed: %d | Skipped: %d | Save time: %.2fs" % [placed_count, skipped_count, save_ms / 1000.0])
         else:
                 print("❌ Save failed: ", err)
@@ -540,14 +540,14 @@ func _set_owner_recursive(root: Node, owner_node: Node):
 func _setup_chunk_loader():
     pass  # MazarPlayer has built-in chunk streaming
 
-# Write Player node to baked_world.tscn as text (avoids autoload issues with SceneTree script)
+# Write Player node to main.tscn as text (avoids autoload issues with SceneTree script)
 func _write_player_to_tscn() -> void:
         # After the scene is saved, append a Player node as an instance reference
         # This avoids needing Cogito autoloads during bake (SceneTree doesn't have them)
-        var path := "res://scenes/baked_world.tscn"
+        var path := "res://scenes/main.tscn"
         var f := FileAccess.open(path, FileAccess.READ)
         if f == null:
-                push_error("[MapBaker] Can't open baked_world.tscn for player append")
+                push_error("[MapBaker] Can't open main.tscn for player append")
                 return
         var content := f.get_as_text()
         f.close()
@@ -566,6 +566,6 @@ func _write_player_to_tscn() -> void:
         if f:
                 f.store_string(content)
                 f.close()
-                print("  ✓ Player node (MazarPlayer) written to baked_world.tscn")
+                print("  ✓ Player node (MazarPlayer) written to main.tscn")
         else:
-                push_error("[MapBaker] Can't write player to baked_world.tscn")
+                push_error("[MapBaker] Can't write player to main.tscn")
