@@ -2,22 +2,22 @@
 #
 # Phase F.3: Foundation for Loop 3 (reference-driven) + Loop 4 (convergence).
 # Given a plan Dictionary from ChunkPlanner, computes metrics that can be:
-#   - Compared to reference profiles (Loop 3)
-#   - Checked against hard constraints (Loop 4)
+#	- Compared to reference profiles (Loop 3)
+#	- Checked against hard constraints (Loop 4)
 #
 # Metrics computed:
-#   density: buildings per 1000m² (buildings / chunk_area * 1000)
-#   diversity: unique asset types / total buildings (0..1, higher = more varied)
-#   foliage_coverage: foliage count / chunk_area * 1000
-#   prop_density: props per 1000m²
-#   walkability: lots with road access / total lots (0..1)
-#   rejection_rate: rejections / (buildings + rejections) (0..1, lower = better)
-#   fill_ratio: buildings / target (how close to density target)
-#   type_distribution: {asset_name: count} for diversity analysis
+#	density: buildings per 1000m² (buildings / chunk_area * 1000)
+#	diversity: unique asset types / total buildings (0..1, higher = more varied)
+#	foliage_coverage: foliage count / chunk_area * 1000
+#	prop_density: props per 1000m²
+#	walkability: lots with road access / total lots (0..1)
+#	rejection_rate: rejections / (buildings + rejections) (0..1, lower = better)
+#	fill_ratio: buildings / target (how close to density target)
+#	type_distribution: {asset_name: count} for diversity analysis
 #
 # Usage:
-#   var metrics = PlanMetrics.evaluate(plan)
-#   print("density:", metrics.density, "diversity:", metrics.diversity)
+#	var metrics = PlanMetrics.evaluate(plan)
+#	print("density:", metrics.density, "diversity:", metrics.diversity)
 
 class_name PlanMetrics
 extends RefCounted

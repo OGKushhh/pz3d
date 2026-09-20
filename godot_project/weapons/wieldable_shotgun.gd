@@ -5,10 +5,10 @@
 # so this class just sets the weapon_class and overrides spread behavior.
 #
 # Each pellet gets:
-#   - Random spread within a 5° cone (from weapon_spreads.gd)
-#   - Individual raycast + tracer
-#   - Individual damage on hit
-#   - Single muzzle flash (not 8)
+#	- Random spread within a 5° cone (from weapon_spreads.gd)
+#	- Individual raycast + tracer
+#	- Individual damage on hit
+#	- Single muzzle flash (not 8)
 #
 # This extends Cogito, not forks it — subclasses WieldableHitscan which subclasses CogitoWieldable.
 

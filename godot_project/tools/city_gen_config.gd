@@ -4,10 +4,10 @@
 # so both drivers read from ONE place. Per-biome tuning moves here.
 #
 # Usage:
-#   var config = CityGenConfig.new()
-#   config.seed = 1337
-#   var density = config.get_density_mult(CityConfig.Biome.SUBURBIA)
-#   var foliage = config.get_foliage_mult(CityConfig.Biome.FOREST)
+#	var config = CityGenConfig.new()
+#	config.seed = 1337
+#	var density = config.get_density_mult(CityConfig.Biome.SUBURBIA)
+#	var foliage = config.get_foliage_mult(CityConfig.Biome.FOREST)
 
 class_name CityGenConfig
 extends RefCounted

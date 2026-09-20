@@ -4,11 +4,11 @@
 # sweep config parameters to find the closest match.
 #
 # Usage:
-#   var result = RefLoop3.sweep(config, roads, spatial, path_query, city_plan, map_data, target_profile)
-#   # result = {best_config, best_distance, all_results}
+#	var result = RefLoop3.sweep(config, roads, spatial, path_query, city_plan, map_data, target_profile)
+#	# result = {best_config, best_distance, all_results}
 #
 # The target_profile is a PackedFloat32Array from PlanMetrics.profile():
-#   [density, diversity, foliage_coverage, prop_density, walkability, fill_ratio]
+#	[density, diversity, foliage_coverage, prop_density, walkability, fill_ratio]
 #
 # You provide it by analyzing reference images or specifying desired values.
 
@@ -50,7 +50,7 @@ static func sweep_biome(
 	var best_config: Dictionary = {}
 	
 	# Sweep: density_mult from 0.5 to 2.0 in steps of 0.25 (7 values)
-	#        foliage_mult from 0.5 to 2.0 in steps of 0.25 (7 values)
+	#		 foliage_mult from 0.5 to 2.0 in steps of 0.25 (7 values)
 	# Total: 49 combinations per biome
 	var density_mults: Array = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
 	var foliage_mults: Array = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
