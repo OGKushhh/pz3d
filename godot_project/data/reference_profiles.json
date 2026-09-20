@@ -1,154 +1,175 @@
 {
+  "_meta": {
+    "source": "Hand-crafted design targets (NOT VLM extraction)",
+    "purpose": "Intentional profiles describing what each district SHOULD look like. Loop 3 measures distance from generated plan to these targets.",
+    "method": "Each value chosen based on what makes the district BELIEVABLE as a real-world place, not what a VLM guessed from a photo.",
+    "normalization": {
+      "density": "buildings per 1000m², normalized by MAX_DENSITY=5.0",
+      "foliage": "foliage per 1000m², normalized by MAX_FOLIAGE=30.0",
+      "prop_density": "props per 1000m², normalized by MAX_PROP_DENSITY=20.0",
+      "diversity": "unique asset types / total buildings (already 0..1)",
+      "height_proxy": "avg footprint size in m², normalized by MAX_HEIGHT_PROXY=100.0",
+      "road_coverage": "0..1, fraction of block covered by roads (estimated)"
+    }
+  },
+
   "downtown": {
-    "source": "GTA San Andreas — Downtown Los Santos (concrete jungle: fewer trees, more urban props)",
+    "source": "Design target — concrete jungle, very dense, towers, no trees, lots of street furniture",
     "blocks_in_reference": 1,
     "raw": {
       "density": 4.5,
-      "foliage": 2.0,
+      "foliage": 1.0,
       "prop_density": 18.0,
-      "diversity": 0.8,
-      "height_proxy": 90.0
+      "diversity": 0.85,
+      "height_proxy": 95.0
     },
     "normalized": {
       "density": 0.9,
-      "foliage": 0.067,
+      "foliage": 0.033,
       "prop_density": 0.9,
-      "diversity": 0.8,
-      "height_proxy": 0.9,
-      "road_coverage": 0.7
+      "diversity": 0.85,
+      "height_proxy": 0.95,
+      "road_coverage": 0.75
     }
   },
+
   "commercial": {
-    "source": "Project Zomboid — Rosewood (commercial downtown)",
+    "source": "Design target — storefronts with parking lots, moderate density, few trees, signage clutter",
     "blocks_in_reference": 1,
     "raw": {
       "density": 3.0,
-      "foliage": 8.0,
-      "prop_density": 9.0,
-      "diversity": 0.75,
-      "height_proxy": 55.0
+      "foliage": 2.0,
+      "prop_density": 12.0,
+      "diversity": 0.7,
+      "height_proxy": 60.0
     },
     "normalized": {
       "density": 0.6,
-      "foliage": 0.267,
-      "prop_density": 0.45,
-      "diversity": 0.75,
-      "height_proxy": 0.55,
+      "foliage": 0.067,
+      "prop_density": 0.6,
+      "diversity": 0.7,
+      "height_proxy": 0.6,
       "road_coverage": 0.65
     }
   },
+
   "suburbia": {
-    "source": "Project Zomboid — Muldraugh/Brandenburg/West Point (suburban towns)",
+    "source": "Design target — single family houses, big yards with trees, mailboxes, sparse props",
     "blocks_in_reference": 1,
     "raw": {
-      "density": 2.5,
-      "foliage": 10.0,
-      "prop_density": 7.0,
+      "density": 2.0,
+      "foliage": 12.0,
+      "prop_density": 4.0,
       "diversity": 0.6,
-      "height_proxy": 40.0
+      "height_proxy": 35.0
     },
     "normalized": {
-      "density": 0.5,
-      "foliage": 0.333,
-      "prop_density": 0.35,
+      "density": 0.4,
+      "foliage": 0.4,
+      "prop_density": 0.2,
       "diversity": 0.6,
-      "height_proxy": 0.4,
-      "road_coverage": 0.55
+      "height_proxy": 0.35,
+      "road_coverage": 0.5
     }
   },
+
   "industrial": {
-    "source": "Project Zomboid — Industrial areas (factory + warehouse blocks)",
-    "blocks_in_reference": 1,
-    "raw": {
-      "density": 3.5,
-      "foliage": 1.0,
-      "prop_density": 15.0,
-      "diversity": 0.4,
-      "height_proxy": 100.0
-    },
-    "normalized": {
-      "density": 0.7,
-      "foliage": 0.033,
-      "prop_density": 0.75,
-      "diversity": 0.4,
-      "height_proxy": 1.0,
-      "road_coverage": 0.65
-    }
-  },
-  "farmland": {
-    "source": "Project Zomboid — Rural farmland (Ekron area)",
+    "source": "Design target — warehouses + factories, large footprint, low diversity, no trees, container clutter",
     "blocks_in_reference": 1,
     "raw": {
       "density": 1.8,
-      "foliage": 12.0,
-      "prop_density": 5.0,
+      "foliage": 0.5,
+      "prop_density": 10.0,
+      "diversity": 0.35,
+      "height_proxy": 90.0
+    },
+    "normalized": {
+      "density": 0.36,
+      "foliage": 0.017,
+      "prop_density": 0.5,
+      "diversity": 0.35,
+      "height_proxy": 0.9,
+      "road_coverage": 0.6
+    }
+  },
+
+  "farmland": {
+    "source": "Design target — sparse farmhouses, barns, fields, scattered trees on property lines",
+    "blocks_in_reference": 1,
+    "raw": {
+      "density": 1.2,
+      "foliage": 8.0,
+      "prop_density": 2.0,
+      "diversity": 0.4,
+      "height_proxy": 50.0
+    },
+    "normalized": {
+      "density": 0.24,
+      "foliage": 0.267,
+      "prop_density": 0.1,
+      "diversity": 0.4,
+      "height_proxy": 0.5,
+      "road_coverage": 0.3
+    }
+  },
+
+  "forest": {
+    "source": "Design target — dense trees, occasional cabin, no props, walking trails only",
+    "blocks_in_reference": 1,
+    "raw": {
+      "density": 0.3,
+      "foliage": 28.0,
+      "prop_density": 0.5,
+      "diversity": 0.15,
+      "height_proxy": 12.0
+    },
+    "normalized": {
+      "density": 0.06,
+      "foliage": 0.933,
+      "prop_density": 0.025,
+      "diversity": 0.15,
+      "height_proxy": 0.12,
+      "road_coverage": 0.15
+    }
+  },
+
+  "parks": {
+    "source": "Design target — open green space, benches + playgrounds, scattered trees for shade",
+    "blocks_in_reference": 1,
+    "raw": {
+      "density": 0.2,
+      "foliage": 18.0,
+      "prop_density": 6.0,
       "diversity": 0.4,
       "height_proxy": 25.0
     },
     "normalized": {
-      "density": 0.36,
-      "foliage": 0.4,
-      "prop_density": 0.25,
+      "density": 0.04,
+      "foliage": 0.6,
+      "prop_density": 0.3,
       "diversity": 0.4,
       "height_proxy": 0.25,
-      "road_coverage": 0.3
-    }
-  },
-  "forest": {
-    "source": "Project Zomboid — Wilderness (between towns, dense trees)",
-    "blocks_in_reference": 1,
-    "raw": {
-      "density": 0.5,
-      "foliage": 28.0,
-      "prop_density": 1.0,
-      "diversity": 0.1,
-      "height_proxy": 15.0
-    },
-    "normalized": {
-      "density": 0.1,
-      "foliage": 0.933,
-      "prop_density": 0.05,
-      "diversity": 0.1,
-      "height_proxy": 0.15,
       "road_coverage": 0.2
     }
   },
-  "parks": {
-    "source": "Project Zomboid — Park/green spaces",
-    "blocks_in_reference": 1,
-    "raw": {
-      "density": 0.3,
-      "foliage": 20.0,
-      "prop_density": 5.0,
-      "diversity": 0.4,
-      "height_proxy": 30.0
-    },
-    "normalized": {
-      "density": 0.06,
-      "foliage": 0.667,
-      "prop_density": 0.25,
-      "diversity": 0.4,
-      "height_proxy": 0.3,
-      "road_coverage": 0.3
-    }
-  },
+
   "military": {
-    "source": "GTA San Andreas — Military/Airfield (Area 69) — gated, structured, low density",
+    "source": "Design target — gated checkpoint, low density, structured layout, barriers, no trees",
     "blocks_in_reference": 1,
     "raw": {
-      "density": 1.5,
-      "foliage": 4.0,
-      "prop_density": 8.0,
+      "density": 1.2,
+      "foliage": 1.0,
+      "prop_density": 9.0,
       "diversity": 0.3,
-      "height_proxy": 60.0
+      "height_proxy": 55.0
     },
     "normalized": {
-      "density": 0.3,
-      "foliage": 0.133,
-      "prop_density": 0.4,
+      "density": 0.24,
+      "foliage": 0.033,
+      "prop_density": 0.45,
       "diversity": 0.3,
-      "height_proxy": 0.6,
-      "road_coverage": 0.5
+      "height_proxy": 0.55,
+      "road_coverage": 0.4
     }
   }
 }
