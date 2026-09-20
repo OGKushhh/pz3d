@@ -2360,3 +2360,32 @@ Task: User: "first i want you to separate cogito own level with our main map, le
 Two tasks:
 1. Separate Cogito demo levels from our main map (they share mechanics but are independent scenes)
 2. Remake city gen from scratch (top-down, road-first, block-based, no river/wetlands)
+
+Task 1: Cogito separation — ALREADY CLEAN
+- Cogito demos: addons/cogito/DemoScenes/ (use CogitoPlayerAdvanced directly)
+- Our game: scenes/main.tscn (uses MazarPlayer, extends CogitoPlayerAdvanced)
+- Neither references the other's scripts
+- Both share: Cogito autoloads, inventory, interaction, WieldableHitscan
+- No changes needed — separation is structural
+
+Task 2: City gen remake from scratch — STARTING NOW
+Architecture:
+1. Road network generator (entire map, graph-based)
+2. Block definition (area enclosed by roads)
+3. District assignment (proximity to anchors, organic)
+4. Block planner (recipe per block, not random scatter)
+5. Block renderer (plan → nodes)
+6. 8 biomes, no river, no wetlands
+
+Task 2: City gen remake — CityGenV2 created + plan saved
+- tools/city_gen_v2.gd: road-first, block-based, top-down city gen
+  * 37 road segments (2 highways + arterials + local streets)
+  * 300 blocks (areas enclosed by roads)
+  * 8 organic districts (proximity to anchors, not grid cells)
+  * Anti-repetition (max 3 per type per block)
+  * Buildings face nearest road edge
+  * 36ms plan time for entire map (was 384ms per-chunk)
+- scripts/save_city_plan.gd: saves plan as JSON (2.8MB)
+- data/city_plan_v2.json: the complete map plan
+- scripts/city_gen_v2_renderer.gd: renderer (too slow for 5000+ objects, needs runtime streaming)
+- Next: update MazarPlayer to load city_plan_v2.json + stream blocks at runtime
