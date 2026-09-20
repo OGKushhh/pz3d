@@ -2,30 +2,31 @@
 #
 # Phase F.4 (Loop 4) foundation. Given a plan Dictionary from CityGenV2.plan_block,
 # computes metrics that can be:
-#	- Checked against hard constraints (ConvLoop4V2)
-#	- Compared to reference profiles (future Loop 3)
+#       - Checked against hard constraints (ConvLoop4V2)
+#       - Compared to reference profiles (future Loop 3)
 #
 # Metrics computed per block:
-#	buildings: count of buildings placed
-#	foliage: count of foliage placed
-#	props: count of props placed
-#	density: buildings per 1000m² (buildings / block_area * 1000)
-#	diversity: unique asset types / total buildings (0..1, higher = more varied)
-#	repetition: max single asset type / total buildings (0..1, lower = better)
-#	prop_density: props per 1000m²
-#	foliage_coverage: foliage per 1000m²
-#	type_distribution: {asset_name: count} for diversity analysis
-#	road_clearance: 1.0 if no buildings within MIN_SETBACK of block edge, 0.0 if violated
+#       buildings: count of buildings placed
+#       foliage: count of foliage placed
+#       props: count of props placed
+#       density: buildings per 1000m² (buildings / block_area * 1000)
+#       diversity: unique asset types / total buildings (0..1, higher = more varied)
+#       repetition: max single asset type / total buildings (0..1, lower = better)
+#       prop_density: props per 1000m²
+#       foliage_coverage: foliage per 1000m²
+#       type_distribution: {asset_name: count} for diversity analysis
+#       road_clearance: 1.0 if no buildings within MIN_SETBACK of block edge, 0.0 if violated
 #
 # Usage:
-#	var metrics = PlanMetricsV2.evaluate(plan)
-#	print("density:", metrics.density, "diversity:", metrics.diversity)
+#       var metrics = PlanMetricsV2.evaluate(plan)
+#       print("density:", metrics.density, "diversity:", metrics.diversity)
 
 class_name PlanMetricsV2
 extends RefCounted
 
 # Minimum setback from block edge (matches BlockRecipes.MIN_SETBACK)
-const MIN_SETBACK := 7.0
+# Was 7m, bumped to 10m to clear highways (12m wide) + sidewalk + buffer
+const MIN_SETBACK := 10.0
 
 static func evaluate(plan: Dictionary) -> Dictionary:
 	var buildings: Array = plan.get("buildings", [])

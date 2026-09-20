@@ -24,8 +24,11 @@ extends RefCounted
 # Roads have width 6-12m. Half-width = 3-6m.
 # Sidewalk = 1.5m on each side.
 # Buffer = 2m (no building should touch the sidewalk edge).
-# MIN_SETBACK = road_half + sidewalk + buffer = 3 + 1.5 + 2 = 6.5
-const MIN_SETBACK := 7.0  # rounded up for safety
+# MIN_SETBACK = road_half_max + sidewalk + buffer = 6 + 1.5 + 2 = 9.5
+# Was 7m but that only cleared local roads (3m half).
+# Arterials (4m half) + highways (6m half) put sidewalks/props on road surface.
+# Bumped to 10m for safe clearance from any road type.
+const MIN_SETBACK := 10.0  # safe clearance for highways (12m wide) + sidewalk + buffer
 
 # === RECIPE REGISTRY ===
 # Maps district -> array of recipe names.
