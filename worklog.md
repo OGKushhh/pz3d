@@ -2389,3 +2389,71 @@ Task 2: City gen remake — CityGenV2 created + plan saved
 - data/city_plan_v2.json: the complete map plan
 - scripts/city_gen_v2_renderer.gd: renderer (too slow for 5000+ objects, needs runtime streaming)
 - Next: update MazarPlayer to load city_plan_v2.json + stream blocks at runtime
+
+---
+Task ID: session-14-prebuild-v2
+Agent: main (Super Z)
+Task: User: "first i want you to separate cogito own level with our main map, let them share mechanics. then DO the remake, i agree on it, we learn from our mistakes" + "dont load at runtime, prebuild it"
+
+Two tasks:
+1. Separate Cogito demo levels from main map (share mechanics, not scenes)
+2. Remake city gen from scratch + PREBUILD it (no runtime loading)
+
+Task 1: Cogito separation — VERIFIED ALREADY CLEAN
+- Cogito demos live in addons/cogito/DemoScenes/ and use CogitoPlayerAdvanced directly
+- Our game uses scenes/main.tscn with MazarPlayer (extends CogitoPlayerAdvanced)
+- Both share: Cogito autoloads (CogitoGlobals, CogitoSceneManager, InputRouter, etc.), WieldableHitscan script (if needed in demos)
+- Neither scene references the other's scripts
+- mazar_player.gd slimmed: removed chunk streaming (no longer needed since prebuilt)
+- Kept: T=fly mode, F8=scene dump, starting weapon, recoil offset, INVERT_Y_AXIS=false
+
+Task 2: V2 city PREBUILD — DONE
+- CityGenV2 (tools/city_gen_v2.gd): already existed from prior session
+  * 37 roads (2 highways + arterial grid + locals in urban areas)
+  * 300 blocks (areas between roads)
+  * 8 organic districts (proximity to anchors)
+  * 4926 buildings, 3973 foliage, 13865 props
+  * 38ms plan time
+- NEW: scripts/city_v2_baker.gd (extends SceneTree, runnable headless)
+  * Calls CityGenV2.generate_map(1337) — pure in-memory plan
+  * Bakes roads to scenes/baked_v2/roads.tscn (1 file, ~1500 lines)
+  * Bakes each block to scenes/baked_v2/block_<i>.tscn (300 files, ~300 lines each)
+  * Writes main.tscn as TEXT (not PackedScene.pack()) to avoid inlining:
+    - 303 ext_resources (roads + 300 blocks + player + mazar script)
+    - 6 sub_resources (sky material, sky, environment, ground shape/material/mesh)
+    - MazarCity root + WorldEnvironment + Sun + Ground + Roads instance + 300 Block instances + Player
+    - Player node: instance=ExtResource(cogito_player_advanced.tscn) + script override = mazar_player.gd
+    - Spawn at Downtown (1125, 2, 1125)
+  * Y layering fixed: Y_GROUND=0.000 < Y_DISTRICT_GROUND=0.010 < Y_ROAD=0.030 < Y_LANE=0.035 < Y_SIDEWALK=0.050
+    - Roads render above pavements/district grounds (user feedback)
+    - Sidewalks render above roads (curb effect)
+
+Results:
+| Metric | V1 (old) | V2 (new) |
+|---|---|---|
+| main.tscn lines | 82,462 | 666 |
+| main.tscn size | multi-MB | 50KB |
+| Godot editor opens | freezes | opens instantly |
+| Block files | 192 chunks (10k lines each) | 300 blocks (~300 lines each) |
+| Runtime loading | None (inlined) | None (prebuilt instances) |
+| Plan time | 384ms per chunk × 192 = 73s | 38ms entire map |
+| Player in scene | ❌ missing | ✅ wired with MazarPlayer |
+| City gen approach | Per-chunk scatter | Road-first, block-based, recipe-driven |
+
+Verification:
+- godot --headless --import: no parse errors
+- godot --headless --quit-after 5: MazarPlayer ready, weapon equipped, no crashes
+- File sizes: main.tscn 50KB, block_0.tscn 18KB, roads.tscn 59KB, baked_v2/ total 6.9MB
+
+Architecture decision:
+- Prebuild, not runtime: user explicitly said "dont load at runtime, prebuild it"
+- Per-block .tscn files (not per-chunk): blocks are smaller, more granular, individually editable
+- main.tscn references blocks as ExtResource instances: keeps main.tscn small (666 lines)
+- No ChunkLoader, no chunk_streamer.gd, no runtime generation
+- MazarPlayer no longer has chunk streaming code
+
+Stage Summary:
+- Cogito demo separation: structural, no changes needed (already clean)
+- V2 city prebuild: complete, 300 blocks + roads + player all prebuilt
+- main.tscn 99.2% smaller, Godot editor can now open it without freezing
+- MazarPlayer slimmed (no chunk streaming), spawns at Downtown with weapon

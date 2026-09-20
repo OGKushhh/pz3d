@@ -1,6 +1,6 @@
 # STATUS — what's current vs deprecated
 
-> **Last updated:** 2026-09-19 (session 13 — Cogito + style guide + weapon refactor)
+> **Last updated:** 2026-09-20 (session 14 — Cogito separation + V2 city prebuild)
 
 ## Canonical docs (current truth)
 
@@ -42,17 +42,26 @@
 | M.A.V.S (vehicles) | `godot_project/addons/M.A.V.S/` |
 | Style mood references | `docs/style/` |
 
-## Baked city files
+## Baked city files (V2 — current)
 
 | What | Where |
 |---|---|
-| World scene (sky + sun + ground + player + ChunkLoader) | `godot_project/scenes/baked_world.tscn` |
-| Chunk files (192 × .tscn) | `godot_project/scenes/baked_chunks/chunk_X_Y.tscn` |
-| Chunk state dump (for middleware) | `godot_project/chunk_states_baked.json` |
-| Baker script | `godot_project/scripts/map_baker.gd` |
-| Dumper script | `godot_project/scripts/dump_baked_city.gd` |
-| Cleanup script | `godot_project/scripts/post_bake_cleanup.gd` |
-| Chunk loader script | `godot_project/scripts/chunk_loader.gd` |
+| World scene (sky + sun + ground + Roads + 300 Block instances + Player) | `godot_project/scenes/main.tscn` |
+| Roads scene (37 road meshes + sidewalks + lane lines) | `godot_project/scenes/baked_v2/roads.tscn` |
+| Block scenes (300 × .tscn — each = ground + buildings + foliage + props) | `godot_project/scenes/baked_v2/block_<i>.tscn` |
+| V2 plan generator | `godot_project/tools/city_gen_v2.gd` |
+| V2 baker script | `godot_project/scripts/city_v2_baker.gd` |
+| Saved V2 plan (JSON, for inspection) | `godot_project/data/city_plan_v2.json` |
+
+## Baked city files (V1 — archived, not used)
+
+| What | Where |
+|---|---|
+| Old world scene (monolithic 82k lines, INLINED — freezes Godot editor) | `godot_project/scenes/baked_chunks/` (kept for reference, do NOT load) |
+| Old chunk files (192 × .tscn) | `godot_project/scenes/baked_chunks/chunk_X_Y.tscn` |
+| Old baker (V1, per-chunk, inlined main.tscn) | `godot_project/scripts/map_baker.gd` |
+| Old dumper script | `godot_project/scripts/dump_baked_city.gd` |
+| Old cleanup script | `godot_project/scripts/post_bake_cleanup.gd` |
 
 ## Weapon system architecture
 

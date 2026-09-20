@@ -1,33 +1,33 @@
 # MAZAR — Roadmap
 
-> **Last updated:** 2026-09-19 (session 13 — Cogito integration + style guide + weapon refactor)
+> **Last updated:** 2026-09-20 (session 14 — Cogito separation + V2 city prebuild)
 > **Map:** LOCKED at 12 km² (4km × 3km). See GDD §4.1.
-> **Architecture:** Baked .tscn chunks + Cogito immersive sim framework (extends, not forks).
+> **Architecture:** Prebuilt block-based .tscn (V2) + Cogito immersive sim framework (extends, not forks).
 
 ---
 
-## CURRENT STATE (2026-09-19)
+## CURRENT STATE (2026-09-20)
 
 ### What's done this session
-- ✅ City gen: map_baker.gd produces 192 chunk .tscn files + baked_world.tscn
-- ✅ Post-bake cleanup: 99.9% overlaps removed
-- ✅ Per-biome debug ground colors (XIII-style palette)
-- ✅ POI nudging off roads
-- ✅ Per-biome gap filler variety (10 biome-specific prop pools)
-- ✅ PPS Shooter Essentials integrated (ZC57 pistol + MGP7 rifle + attachments)
-- ✅ Quality FPS Controller addon installed (addons/fpc/)
-- ✅ Camera feel: head bob, crouch, sprint FOV, land dip (procedural)
-- ✅ Cogito integrated (4 addons, 214 scripts, MIT license)
-- ✅ Cogito autoloads working (triple import fix for Godot 4.7)
-- ✅ WieldableHitscan (extends CogitoWieldable) — our hitscan on Cogito's base
-- ✅ Visual style guide (3 mood references → 12-section STYLE_GUIDE.md)
-- ✅ XIII-style per-biome palettes (palette_primary + palette_accent per biome)
-- ✅ Weapon system design decision: hitscan default, projectiles for special weapons only
-- ✅ Coexistence principle: extend Cogito, don't fork it
+- ✅ Cogito demo separation verified (Cogito demos in addons/cogito/DemoScenes/ use their own player; our main.tscn uses MazarPlayer — they share autoloads + WieldableHitscan but are independent scenes)
+- ✅ MazarPlayer slimmed (removed chunk streaming — prebuilt now); keeps: fly mode (T), F8 scene dump, starting weapon, recoil offset
+- ✅ City gen V2 from scratch (CityGenV2 in tools/city_gen_v2.gd): road-first, block-based, recipe-driven, 8 biomes (no river, no wetlands)
+  * 37 road segments (2 highways + arterials + local streets in urban areas)
+  * 300 blocks (areas enclosed by roads)
+  * 8 organic districts (proximity to anchors, not grid cells)
+  * Anti-repetition (max 3 of same type per block)
+  * Buildings face nearest road edge
+  * 38ms plan time for entire map
+- ✅ city_v2_baker.gd: prebuilds V2 city to static .tscn files (no runtime generation, no streaming)
+  * `scenes/baked_v2/roads.tscn` (37 road meshes + sidewalks + lane lines)
+  * `scenes/baked_v2/block_<i>.tscn` × 300 (each block = ground + buildings + foliage + props)
+  * `scenes/main.tscn` instances all 300 blocks + Roads + Player
+  * **main.tscn: 666 lines (was 82,462 with V1 inlining) — 99.2% reduction**
+- ✅ Player wired into main.tscn (CogitoPlayerAdvanced instance + mazar_player.gd script override, spawn at Downtown 1125,2,1125)
+- ✅ Roads layered above pavements/ground (Y_ROAD=0.030 > Y_DISTRICT_GROUND=0.010; Y_SIDEWALK=0.050 > Y_ROAD for curb effect)
 
 ### What's in progress
-- 🔄 Step 2: mazar_player.gd (extends CogitoPlayerAdvanced) with chunk_loader + fly mode
-- 🔄 Step 3: Update baked_world.tscn to use mazar_player
+- (nothing pending from session 14)
 
 ### What's NOT done yet
 - ❌ Toon shader (cel-shading + inverted-hull outlines) — style guide priority #1
@@ -72,8 +72,29 @@
 - Autoload resolution fixed (triple import for Godot 4.7) — ✓
 - Input actions merged (forward/back/left/right + Cogito actions) — ✓
 - Step 1: WieldableHitscan created (extends CogitoWieldable) — ✓
-- Step 2: mazar_player.gd (extends CogitoPlayerAdvanced) — 🔄 pending
-- Step 3: baked_world.tscn updated to use mazar_player — 🔄 pending
+- Step 2: mazar_player.gd (extends CogitoPlayerAdvanced) — ✓ done session 14
+- Step 3: main.tscn wires Player node with script override — ✓ done session 14
+- Demo separation verified (Cogito demos in addons/cogito/DemoScenes/ independent from main.tscn) — ✓ done session 14
+
+### Phase V2 — City Gen From Scratch (2026-09-20)
+- CityGenV2 (tools/city_gen_v2.gd): road-first, block-based, recipe-driven — ✓
+  * 8 biomes (no river, no wetlands): Downtown, Commercial, Industrial, Suburbia, Farmland, Forest, Parks, Military
+  * 2 highways + arterial grid + local streets (only in urban areas)
+  * 300 blocks (areas enclosed by roads)
+  * 8 organic district anchors → blocks inherit nearest district
+  * Anti-repetition (max 3 same type per block)
+  * Buildings face nearest road edge
+  * Plan time: 38ms entire map (was 384ms per-chunk in V1)
+- city_v2_baker.gd (scripts/city_v2_baker.gd): prebuilds city to static .tscn — ✓
+  * `scenes/baked_v2/roads.tscn` (37 segments + sidewalks + lane lines)
+  * `scenes/baked_v2/block_<i>.tscn` × 300 (ground + buildings + foliage + props)
+  * `scenes/main.tscn` instances all blocks + Roads + Player
+  * main.tscn: 666 lines (was 82,462 with V1 inlining — 99.2% reduction)
+  * No runtime generation, no runtime streaming, no chunk loader
+  * Y layering: roads above district grounds, sidewalks above roads (curb effect)
+- MazarPlayer slimmed: removed chunk streaming (no longer needed since prebuilt)
+  * Keeps: fly mode (T), F8 scene dump, starting weapon, recoil offset
+  * Spawns at Downtown (1125, 2, 1125)
 
 ### Phase Style — Visual Identity (2026-09-19)
 - 3 mood reference images analyzed via VLM — ✓
