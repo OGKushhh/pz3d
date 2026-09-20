@@ -92,6 +92,26 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_F8:
 		_dump_scene_state()
 
+	# F9 = block loader debug (loaded count + fps + position)
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F9:
+		_dump_block_loader_state()
+
+	# F10 = increase stream radius (+50m)
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F10:
+		var bl := get_node_or_null("../BlockLoader")
+		if bl:
+			bl.stream_radius_m += 50.0
+			bl.unload_radius_m = bl.stream_radius_m + 100.0
+			print("[MazarPlayer] stream radius -> %.0fm (unload %.0fm)" % [bl.stream_radius_m, bl.unload_radius_m])
+
+	# F11 = decrease stream radius (-50m, min 100m)
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F11:
+		var bl := get_node_or_null("../BlockLoader")
+		if bl:
+			bl.stream_radius_m = maxf(100.0, bl.stream_radius_m - 50.0)
+			bl.unload_radius_m = bl.stream_radius_m + 100.0
+			print("[MazarPlayer] stream radius -> %.0fm (unload %.0fm)" % [bl.stream_radius_m, bl.unload_radius_m])
+
 func _physics_process(delta: float) -> void:
 	if _fly_mode:
 		# Fly mode: free 3D movement using CAMERA basis (not body basis).
@@ -154,3 +174,26 @@ func _dump_scene_state() -> void:
 	print("  Total nodes: %d" % total)
 	for k in counts:
 		print("    %s: %d" % [k, counts[k]])
+
+func _dump_block_loader_state() -> void:
+	# F9 — print current block loader state for live tuning
+	var bl := get_node_or_null("../BlockLoader")
+	if bl == null:
+		print("[MazarPlayer] F9 — BlockLoader not found")
+		return
+	var loaded_count: int = bl.get_loaded_count()
+	var total_count: int = bl.get_total_count()
+	var fps: float = bl.get_current_fps()
+	var blocks_root := get_node_or_null("../Blocks")
+	var mesh_count: int = 0
+	if blocks_root:
+		for child in blocks_root.find_children("*", "MeshInstance3D", true, false):
+			mesh_count += 1
+	print("[MazarPlayer] F9 — BlockLoader state:")
+	print("  Loaded: %d/%d blocks" % [loaded_count, total_count])
+	print("  Stream radius: %.0fm, unload: %.0fm, max: %d" % [
+		bl.stream_radius_m, bl.unload_radius_m, bl.max_loaded_blocks
+	])
+	print("  FPS (smoothed): %.0f" % fps)
+	print("  MeshInstance3D count in Blocks: %d" % mesh_count)
+	print("  Player pos: %s" % global_position)
