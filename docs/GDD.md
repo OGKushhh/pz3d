@@ -1,7 +1,7 @@
 # MAZAR — UNIFIED GAME DESIGN DOCUMENT
 
 > **Version:** 2.0
-> **Status:** Pre-production → vertical slice. Lore semi-locked. Path B locked. Tier 1 production: 216 active GLBs. Terrain system operational (Terrain3D v1.0.2). City gen pipeline fine-tuned (lot-based placement, per-biome density, POI system).
+> **Status:** Pre-production → vertical slice. Lore semi-locked. Path B locked. Tier 1 production: 216 active GLBs. City gen V2 (recipe-driven, road-first, block-based) with hand-crafted believable reference profiles. 8 biomes (no river, no wetlands — removed 2026-09-21). Map Y×Y placeholder (size 12 km² locked, dimensions TBD).
 > **Repo location:** `/home/z/my-project/docs/GDD.md` (canonical — see `STATUS.md` for what's current vs archived)
 > **Working title:** *Mazar*
 > **Engine:** Godot 4.7.2 (glTF 2.0 native, Compatibility renderer default for Low preset)
@@ -14,7 +14,7 @@
 > | Version | Date | Changes |
 > |---|---|---|
 > | 2.0 | 2026-09-13 | Shell split architecture: buildings separated into shell GLB (walls with holes) + interactive component GLBs (doors, windows, garage doors). 6 buildings processed. Component manifests define positions, rotations, and gameplay flags (can_open, can_lock, can_break, can_climb). mogen reinstalled (v0.1.12). Forward+ renderer. City gen v7 (data-driven map, visible roads, gap filler, interior greenery, parks). |
-> | 1.9 | 2026-09-12 | Terrain3D plugin + multi-region bake, unified Y via get_height(), road flattening (B.4), bridge placement (B.5), water surface (Phase D), NavMesh hooks (Phase E), POI system with 6 landmarks (Phase F), O(1) road-facing (G.1), MultiMesh batching stub (G.2), SpatialIndex AABB (G.3), city gen pipeline fine-tune (lot-based placement, per-biome density, v3 rules applied), §4.6 World Layering Model locked (3-layer: Baked/Per-run/Delta), CityMeta terrain hash, test suite (9 tests, all PASS), frame budget (1 chunk/frame), repo restructure (docs/archive/STATUS/README), v3 extraction applied, 216 GLBs across all biomes, River 25%→12.5% + Coastal Beach, Subway-as-layer |
+> | 1.9 | 2026-09-12 | Terrain3D plugin + multi-region bake, unified Y via get_height(), road flattening (B.4), bridge placement (B.5), water surface (Phase D), NavMesh hooks (Phase E), POI system with 6 landmarks (Phase F), O(1) road-facing (G.1), MultiMesh batching stub (G.2), SpatialIndex AABB (G.3), city gen pipeline fine-tune (lot-based placement, per-biome density, v3 rules applied), §4.6 World Layering Model locked (3-layer: Baked/Per-run/Delta), CityMeta terrain hash, test suite (9 tests, all PASS), frame budget (1 chunk/frame), repo restructure (docs/archive/STATUS/README), v3 extraction applied, 216 GLBs across all biomes, River 25%→12.5% + Coastal Beach, Subway-as-layer *(Note: River + Coastal Beach later REMOVED 2026-09-21 — see §10.5)* |
 > | 1.8 | 2026-09-11 | Merged GDD v8 + lore v1.2 + poly_budget v3 + furniture_decision. 28 approved assets + 5 retired. Kitchen modular (4 pieces). Biome profiles wired. |
 > | 1.7 | 2026-09-11 | Batch 006 (10 new assets, 28 total). |
 > | 1.6 | 2026-09-11 | Kitchen counter split into 4 modular pieces. |
@@ -31,11 +31,11 @@
 
 ## 1.1 Vision
 
-I am building a first-person survival game with the soul of Project Zomboid but in real 3D. The world is the National City of Mazar — a fictional coastal city divided by the Sarran River, where a 300-year monarchy ended in a quiet coup 70 years ago, where a military junta sold the nation to a foreign Border Enemy, where Operation Living Troop created a supersoldier serum that killed its subjects and raised them as the undead.
+I am building a first-person survival game with the soul of Project Zomboid but in real 3D. The world is the National City of Mazar — a fictional city where a 300-year monarchy ended in a quiet coup 70 years ago, where a military junta sold the nation to a foreign Border Enemy, where Operation Living Troop created a supersoldier serum that killed its subjects and raised them as the undead.
 
 The city is fixed, persistent, hand-crafted. Every building enterable. Every run, the city persists but the loot, zombie spawns, and locked doors reset. You die, you lose your consumables, but your weapons, your base upgrades, your story progress, and your meta-upgrades carry forward. Sandbox first; story mode later.
 
-Travel is exploration, not optimization. The map uses draw-distance fog, non-trivial road networks, the Sarran River as a real obstacle, bridges as chokepoints, landmarks far apart. The fastest path on the GPS is rarely the safest path.
+Travel is exploration, not optimization. The map uses draw-distance fog, non-trivial road networks, landmarks far apart. The fastest path on the GPS is rarely the safest path.
 
 No place is safe.
 
@@ -44,10 +44,10 @@ No place is safe.
 1. **Authored skeleton, procedural flesh.** Landmarks, roads, and POIs are hand-placed. Buildings and props fill the authored skeleton procedurally. Procedural interiors provide replayability; the exterior shell is fixed. 🧪 *(under testing — see §10.1 + §10.6)*
 2. **Sound is gameplay.** Zombies hear you. Gunshots draw them. Stealth matters. Generators hum. Footsteps echo.
 3. **Roguelite progression.** Permadeath in sandbox; meta-upgrades persist. Find your old body, loot your old loot.
-4. **Biome identity.** Each of the 10 biomes has loot focus, difficulty, vibe, weather, time-cycle identity.
-5. **Travel as exploration.** Not optimization. Sarran River blocks. Forest hides. Bridges force chokepoints.
+4. **Biome identity.** Each of the 8 biomes has loot focus, difficulty, vibe, weather, time-cycle identity.
+5. **Travel as exploration.** Not optimization. Forest hides. Roads force detours.
 6. **All three combat modes.** Stealth, guns, melee — all viable, all situational. Shooting is the addictive hook (Valorant-feel).
-7. **Civic, not sacred.** Mazar's landmarks are civic (lighthouse, water tower, grain silo, hospital, government palace). No religious buildings. Faith lives in the people, not the skyline.
+7. **Civic, not sacred.** Mazar's landmarks are civic (water tower, grain silo, hospital, government palace). No religious buildings. Faith lives in the people, not the skyline.
 8. **Runs on millions of PCs.** Low preset baseline: 2GB VRAM / 4GB RAM / 1080p / 60 FPS. High preset scales up.
 9. **Furniture is interactive + modular.** Static fixtures merge for performance. Dynamic furniture is separate RigidBody3D. Kitchen counter is split into modular pieces (PZ-style).
 
@@ -59,15 +59,14 @@ No place is safe.
 
 ## 2.1 The Nation
 
-The Republic of Mazar is a coastal nation on the edge of a forgotten sea. Its capital, the National City of Mazar, sits on a wide bay where the Sarran River meets the ocean. The nation is small — you can drive across it in a day — but it was once one of the most prosperous places in the region. People came from around the world to live here, to work, to study, to find shelter. It was a nation of trade, of education, of faith, of stability. That was a long time ago.
+The Republic of Mazar is a small nation on the edge of a forgotten region. Its capital, the National City of Mazar, sits in a wide valley bordered by forests and farmland. The nation is small — you can drive across it in a day — but it was once one of the most prosperous places in the region. People came from around the world to live here, to work, to study, to find shelter. It was a nation of trade, of education, of faith, of stability. That was a long time ago.
 
-The Mazarani people are conservative and religious. Their faith shaped their culture, their laws, and their daily rhythms. But religion in Mazar was never a spectacle — there were no grand monuments to it. It was quiet, personal, woven into the fabric of ordinary life. The nation's landmarks were civic, not sacred: the lighthouse, the water tower, the grain silo, the hospital, the government palace, the stadium, the railway station, the grand bazaar. Those were the places that defined Mazar. The faith lived in the people, not in the skyline.
+The Mazarani people are conservative and religious. Their faith shaped their culture, their laws, and their daily rhythms. But religion in Mazar was never a spectacle — there were no grand monuments to it. It was quiet, personal, woven into the fabric of ordinary life. The nation's landmarks were civic, not sacred: the water tower, the grain silo, the hospital, the government palace, the stadium, the railway station, the grand bazaar. Those were the places that defined Mazar. The faith lived in the people, not in the skyline.
 
 **Sarran** is an old Mazarani name, preserved in the city's streets and districts:
 - **Sarran Street** — the main road through Old Town
 - **Sarran District** — the historic quarter, once the heart of the monarchy
-- **Sarran Bay** — the water west of the city, where the old fishing fleet moored
-- **Sarran Bridge** — the main crossing between the east and west banks of the river
+- **Sarran Bridge** — main overpass connecting districts (historical name, no river)
 
 ## 2.2 The Long Peace — 300 Years of Monarchy
 
@@ -121,7 +120,7 @@ The Border Enemy knew. The junta knew. The public did not.
 
 ## 2.8 The Leak — 2 Weeks Ago
 
-The experiment ended in an explosion. The lab at Fort Sarran — a naval fort on the eastern edge of the city — breached containment. The liquid leaked into the facility's drainage system. It entered the city's sewer network. It contaminated the drinking water supply and the river. People drank it. They bathed in it. They cooked with it. They watered their crops with it.
+The experiment ended in an explosion. The lab at Fort Sarran — a military fort on the eastern edge of the city — breached containment. The liquid leaked into the facility's drainage system. It entered the city's sewer network. It contaminated the drinking water supply. People drank it. They bathed in it. They cooked with it. They watered their crops with it.
 
 The fog that rolled in that week was just fog. The rain that fell was just rain. But the water was poison. And the poison killed.
 
@@ -159,43 +158,46 @@ And somewhere in the city, buried in the ruins of the old royal palace, or hidde
 |---|---|---|
 | **Voice of Mazar** | Mazar Republic | Coded messages, election plans, anti-junta propaganda |
 | **Radio Junta** | Junta Remnants | Curfews, false safety, martial law announcements |
-| **Free Bay FM** | Survivors | Distress calls, supply tips, safe route warnings |
+| **Free Mazar FM** | Survivors | Distress calls, supply tips, safe route warnings |
 | **The Border Signal** | Border Enemy | Foreign language, jamming, encrypted transmissions |
 
 ## 2.12 The City — Geography
 
-The city is divided by the Sarran River, which flows from the northern forest through the farmland and into Sarran Bay. The bay splits the city into east and west. Bridges are chokepoints. Water is a barrier.
+The city is a single contiguous urban area surrounded by forest and farmland. Roads connect all districts; no water barriers. Travel between any two districts is via road networks (highway → arterial → local).
 
-**West Side:**
+**Inner districts:**
+- **Downtown** — the capital district: hospital, police HQ, government buildings
+- **Commercial Strip** — once-bustling bazaars and shops, now looted
+- **Industrial Park** — manufacturing and rail, outposts here
+
+**Outer districts:**
 - **Suburbia** — middle-class homes from the Long Peace, now empty
 - **Parks & Greenways** — old public gardens, walking trails, playgrounds
-- **Commercial Strip** — once-bustling bazaars and shops, now looted
 - **Farmland** — Mazar's food basket: olive groves, wheat, irrigation canals
 - **Forest** — the border region, enemy infiltration routes, hidden bunkers
 
-**East Side:**
-- **Industrial Park** — manufacturing and rail, outposts here
-- **River & Wetlands / Coastal Beach** — fishing villages, smuggling routes, the bay, the lighthouse
-- **Downtown** — the capital district: hospital, police HQ, government buildings
+**Restricted:**
 - **Military Zone / Quarantine** — ground zero, the lab, Fort Sarran
 
 **Underground:**
 - **Subway** — public transit + secret military transport tunnels
 
-## 2.13 The 10 Biomes
+## 2.13 The 8 Biomes
+
+> **UPDATED 2026-09-21.** Removed River & Wetlands + Coastal Beach (no river, no water in v1). Subway moved out of biome list (kept as underground layer, not a surface biome). 8 surface biomes total.
 
 | # | Biome | Lore Role | Loot Focus | Difficulty | Zombie Density | Weather | POIs | Base Potential |
 |---|---|---|---|---|---|---|---|---|
 | **1** | Suburbia | Middle-class homes from the Long Peace. Now empty. | Food, clothes, tools, batteries, basic meds, family cars | Low | Low–Medium | Mild autumn, overcast, light rain | Houses, school, corner store, gas station, cul-de-sacs | **High** — starter base |
-| **2** | Parks & Greenways | Old public gardens, walking trails, playgrounds. | Water, snacks, gardening tools, seeds, meds | Low | Low | Sunny, breezy, morning mist | Playground, botanical garden, picnic area, pond, trailhead | Low–Medium |
-| **3** | Forest | Border region. Enemy infiltration routes. Hidden bunkers. | Wood, herbs, hunting gear, camp supplies | Medium | Low | Fog, cold rain, early dusk | Ranger station, hunting cabins, campsite, cave, logging camp | Medium–High |
+| **2** | Commercial Strip | Once-bustling bazaars and shops. Now looted. | Meds, food, fuel, weapons, electronics, clothing | Medium–High | Medium–High | Overcast, rain, blackouts | Diner, motel, pharmacy, supermarket, gun store, bazaar | Medium |
+| **3** | Industrial Park | Manufacturing and rail. Outposts here. | Metal, tools, generators, fuel, chemicals | Medium | Medium | Industrial smog, acid rain, cold drizzle | Warehouses, factories, rail depot, water tower, outposts | **High** |
 | **4** | Farmland | Mazar's food basket. Olive groves, wheat, irrigation canals. | Crops, seeds, canned goods, fuel, animals | Low–Medium | Low | Heat waves, dust, thunderstorms | Farms, orchards, barns, grain silos, windmill | **High** |
-| **5** | Commercial Strip | Once-bustling bazaars and shops. Now looted. | Meds, food, fuel, weapons, electronics, clothing | Medium–High | Medium–High | Overcast, rain, blackouts | Diner, motel, pharmacy, supermarket, gun store, bazaar | Medium |
-| **6** | Industrial Park | Manufacturing and rail. Outposts here. | Metal, tools, generators, fuel, chemicals | Medium | Medium | Industrial smog, acid rain, cold drizzle | Warehouses, factories, rail depot, water tower, outposts | **High** |
-| **7** | River & Wetlands / Coastal Beach | Fishing villages, smuggling routes, the bay, the lighthouse. | Fish, clean water, boat fuel, herbs, fishing gear | Medium | Low–Medium | Mist, heavy rain, flooding, fog | Bridges, houseboats, fishing huts, pier, lighthouse | Low–Medium |
-| **8** | Subway | Public transit + secret military transport tunnels. | Electronics, non-perishable food, batteries, rare lore | Medium–High | Medium–High (clustered) | Damp, dripping, stale air | Stations, platforms, maintenance tunnels, secret cargo rooms | Low–Medium |
-| **9** | Downtown | Capital district. Hospital, police HQ, government buildings. | Best meds, guns, ammo, armor, electronics, intel | High–Very High | Very High | Neon night, rain, smog, blackouts | Hospital, police HQ, government palace, stadium, apartments | **Low** — death trap |
-| **10** | Military Zone / Quarantine | Ground zero. Operation Living Troop lab. Fort Sarran. | Military gear, MREs, hazmat suits, radios, advanced meds, weapons | Extreme | Extreme | Toxic fog, ashfall, cold wind, unnatural silence | Naval fort, field hospital, hazmat tents, convoy wrecks, bunker entrance | None — endgame raid only |
+| **5** | Forest | Border region. Enemy infiltration routes. Hidden bunkers. | Wood, herbs, hunting gear, camp supplies | Medium | Low | Fog, cold rain, early dusk | Ranger station, hunting cabins, campsite, cave, logging camp | Medium–High |
+| **6** | Parks & Greenways | Old public gardens, walking trails, playgrounds. | Water, snacks, gardening tools, seeds, meds | Low | Low | Sunny, breezy, morning mist | Playground, botanical garden, picnic area, pond, trailhead | Low–Medium |
+| **7** | Downtown | Capital district. Hospital, police HQ, government buildings. | Best meds, guns, ammo, armor, electronics, intel | High–Very High | Very High | Neon night, rain, smog, blackouts | Hospital, police HQ, government palace, stadium, apartments | **Low** — death trap |
+| **8** | Military Zone / Quarantine | Ground zero. Operation Living Troop lab. Fort Sarran. | Military gear, MREs, hazmat suits, radios, advanced meds, weapons | Extreme | Extreme | Toxic fog, ashfall, cold wind, unnatural silence | Military fort, field hospital, hazmat tents, convoy wrecks, bunker entrance | None — endgame raid only |
+
+**Subway (underground layer):** Public transit + secret military transport tunnels. Electronics, non-perishable food, batteries, rare lore. Medium–High difficulty, clustered zombies. Stations, platforms, maintenance tunnels, secret cargo rooms. Low–Medium base potential.
 
 **Military Zone placement:** eastern edge of the city (Fort Sarran is on the eastern edge per lore). Gated by keycard/quest/radio rumor. One road in, one road out. 1-2 city blocks or one fenced compound. High risk/reward side exploration.
 
@@ -203,18 +205,17 @@ The city is divided by the Sarran River, which flows from the northern forest th
 
 No religious buildings. The nation's landmarks are civic:
 
-1. The Lighthouse (River & Wetlands / Coastal Beach)
-2. The Water Tower (Industrial Park)
-3. The Grain Silo (Farmland)
-4. The Hospital (Downtown)
-5. The Police HQ (Downtown)
-6. The Government Palace — now junta HQ (Downtown)
-7. The Stadium (Downtown)
-8. The Old Royal Palace — abandoned, sealed (Downtown or Suburbia edge)
-9. The Naval Fort — Fort Sarran (Military Zone)
-10. The Broadcast Tower (Downtown or Industrial)
-11. The Railway Station (Industrial Park)
-12. The Grand Bazaar / Souq (Commercial Strip)
+1. The Water Tower (Industrial Park)
+2. The Grain Silo (Farmland)
+3. The Hospital (Downtown)
+4. The Police HQ (Downtown)
+5. The Government Palace — now junta HQ (Downtown)
+6. The Stadium (Downtown)
+7. The Old Royal Palace — abandoned, sealed (Downtown or Suburbia edge)
+8. The Fort — Fort Sarran (Military Zone)
+9. The Broadcast Tower (Downtown or Industrial)
+10. The Railway Station (Industrial Park)
+11. The Grand Bazaar / Souq (Commercial Strip)
 
 ## 2.15 Zombies
 
@@ -233,10 +234,10 @@ No religious buildings. The nation's landmarks are civic:
 - King's Way, Coup Avenue, Martyrs' Road, Unity Boulevard, Harbor Street, Olive Lane, Bunker Road, Sarran Street
 
 **Districts:**
-- Al-Salam (Peace), Al-Nour (Light), Al-Minar (Lighthouse), Old Town, New Town, New Mazar, Fort Quarter, Sarran District
+- Al-Salam (Peace), Al-Nour (Light), Old Town, New Town, New Mazar, Fort Quarter, Sarran District
 
 **Radio:**
-- Voice of Mazar, Radio Junta, Free Bay FM, The Border Signal
+- Voice of Mazar, Radio Junta, Free Mazar FM, The Border Signal
 
 **Key figures:**
 - King Amir of House Mazar (last monarch, exiled, fate unknown)
@@ -244,9 +245,7 @@ No religious buildings. The nation's landmarks are civic:
 
 **Key locations:**
 - Fort Sarran (the lab, outbreak origin, Military Zone)
-- Sarran Bay (west of city)
-- Sarran River (divides city east/west)
-- Sarran Bridge (main crossing)
+- Sarran Bridge (main overpass — historical name, no river)
 - The Old Royal Palace (abandoned, sealed — lore fragment location)
 
 ## 2.17 Timeline
@@ -256,7 +255,7 @@ No religious buildings. The nation's landmarks are civic:
 - **68-60 years ago:** General Karim's principled regime, then rot. He was placed under house arrest by his own officers.
 - **13 years ago:** The Border Enemy (northern neighbor) bought the latest junta leader. Mazar became a staging ground.
 - **10 years ago:** Operation Living Troop began. Secret military experiment to create supersoldiers. The liquid worked — but it killed subjects and raised them as undead.
-- **2 weeks ago:** The lab at Fort Sarran exploded. Liquid leaked into drainage, sewer, drinking water, river. The fog rolled in. The rain fell. The water was poison.
+- **2 weeks ago:** The lab at Fort Sarran exploded. Liquid leaked into drainage, sewer, drinking water. The fog rolled in. The rain fell. The water was poison.
 - **Day 0 = now:** The city is silent. The dead walk. The immune (including the player) are alive for reasons no one understands.
 
 ## 2.18 Lore Fragments
@@ -334,7 +333,7 @@ Resources to spend: scrap, blood, electronics.
 
 ## 3.5 Radio Rumor System 🔒
 
-One run modifier per run. Overrides a specific biome's rules. Sources: the 4 locked radio stations (Voice of Mazar, Radio Junta, Free Bay FM, The Border Signal).
+One run modifier per run. Overrides a specific biome's rules. Sources: the 4 locked radio stations (Voice of Mazar, Radio Junta, Free Mazar FM, The Border Signal).
 
 Example: "Quarantine lifted in Industrial Park — zombie density doubled, rare loot doubled." One per run. Huge replay value for low dev cost.
 
@@ -364,7 +363,7 @@ Per-district fixed loot table. Within the table, rarity is random:
 - Uncommon — 30%
 - Rare — 10%
 
-### All 10 biome tables:
+### All 8 biome tables:
 
 | District | Common (60%) | Uncommon (30%) | Rare (10%) |
 |---|---|---|---|
@@ -372,7 +371,6 @@ Per-district fixed loot table. Within the table, rarity is random:
 | Police HQ (Downtown) | Pistol Ammo | Shotgun Ammo | Tier 2 Armor |
 | Industrial Park | Scrap Metal, Canned Food | Noise Grenade Parts | Rare Crafting Component |
 | Subway | Flashlight Battery, Clean Water | Electronics | Lore Fragment (story item) |
-| River & Wetlands | Fish, Driftwood | Boat Fuel | Hermetic Container (rare storage) |
 | Suburbia | Canned Food, Batteries | Household Tools | Car Keys (random vehicle) |
 | Parks & Greenways | Snacks, Water | Seeds | Fishing Rod |
 | Forest | Wood, Herbs | Hunting Gear | Animal Trap |
@@ -386,15 +384,15 @@ Per-district fixed loot table. Within the table, rarity is random:
 
 ## 4.1 Map Dimensions 🔒
 
-> **LOCKED 2026-09-14.** Map size is fixed at 12 km² for v1. The 30 km² beta + 100 km² v1 plans are DELETED. If city gen keeps struggling, we LOWER below 12 km² (density over area), not expand.
+> **LOCKED 2026-09-14, UPDATED 2026-09-21.** Map area is fixed at 12 km² for v1. Dimensions Y×Y are a placeholder — exact width × depth (4×3 vs 3×4 vs 6×2 vs square ~3.46×3.46) will be decided when district placement is locked.
 
-**4.0 km × 3.0 km = 12 km² of playable area** (locked for v1).
+**12 km² of playable area** (locked for v1).
 
 - Reference: GTA San Andreas ≈ 30 km² (we're ~40% of that)
 - Los Santos + Red County + Flint County ≈ 42% of GTA SA ≈ 12.7 km²
-- Rounded to 4 × 3 km = 12 km²
+- Rounded to 12 km²
 
-**Grid:** 8 × 6 cells of 500m × 500m. Each cell = 0.25 km². Total 48 cells.
+**Grid:** Placeholder — current working assumption is 8 × 6 cells of 500m × 500m (48 cells, 12 km²). May change to a more square aspect (e.g. 7 × 7 = 12.25 km²) when district placement is finalized. Y×Y = TBD.
 
 **Player traversal times** (corner-to-corner, ~5 km diagonal):
 - Walking (5 km/h): ~60 min (too long — hence vehicles)
@@ -408,13 +406,12 @@ Per-district fixed loot table. Within the table, rarity is random:
 1. **Draw distance fog** — lore-justified (fog rolled in after the leak). Hides streaming.
 2. **Non-trivial road network** — highways connect regions but require merges, turns, detours. No trivial ring road.
 3. **GPS not always fastest** — GPS picks a "safe" path; player knows faster dangerous routes.
-4. **Sarran River as obstacle** — water creates real barriers. Bridges are chokepoints.
-5. **Landmarks far apart** — placed in opposite corners to sell scale.
-6. **Every town has a reason to stop** — no filler towns.
-7. **Unique color/weather/time per biome** — each biome has its own identity.
-8. **Free-roam interiors** — every building enterable.
-9. **Technical limits as creative constraints** — fog, draw distance, streaming budget all become gameplay.
-10. **Travel = exploration, not optimization.**
+4. **Landmarks far apart** — placed in opposite corners to sell scale.
+5. **Every town has a reason to stop** — no filler towns.
+6. **Unique color/weather/time per biome** — each biome has its own identity.
+7. **Free-roam interiors** — every building enterable.
+8. **Technical limits as creative constraints** — fog, draw distance, streaming budget all become gameplay.
+9. **Travel = exploration, not optimization.**
 
 ## 4.3 Persistent Map + Per-run Reset 🔒
 
@@ -532,9 +529,9 @@ After baking, the middleware moves to the BAKE STEP, not runtime. `map_baker.gd`
 
 ## 4.5 Alpha Build Order 🔒
 
-1. Suburbia → 2. Parks & Greenways → 3. Farmland → 4. Forest → 5. Commercial Strip → 6. Industrial Park → 7. River & Wetlands → 8. Subway → 9. Downtown → 10. Military Zone.
+1. Suburbia → 2. Commercial Strip → 3. Parks & Greenways → 4. Farmland → 5. Forest → 6. Industrial Park → 7. Downtown → 8. Military Zone.
 
-**Logic:** safe rural → risky commercial → industrial → underground → urban endgame → military endgame.
+**Logic:** safe rural → risky commercial → industrial → urban endgame → military endgame. (Subway is parallel content, not in the build order — it's an underground layer accessible from any district.)
 
 ## 4.6 World Layering Model 🔒
 
@@ -691,7 +688,6 @@ Worst-case tris on screen at once, with v3 Low budgets + 30 zombie cap:
 | Farmland | 2×2.5k=5k | 2k | 30 trees + 100 bushes=25k | 3×3k=9k | **41k** ✅ |
 | Commercial Strip | 8 shops×1k=8k | 50 props×250=12.5k | 5 trees=3k | 10×3k=30k | **53.5k** ✅ |
 | Industrial Park | 4 warehouses×3k=12k | 30 props=6k | 0 | 8×3k=24k | **42k** ✅ |
-| River & Wetlands | 3 houseboats×1.5k=4.5k | 2k | 50 reeds multimesh=2k | 4×3k=12k | **20.5k** ✅ |
 | Subway (tunnel view) | 0 | 15 props×250=3.75k | 0 | 8×3k=24k | **27.75k** ✅ |
 | Downtown | 10 BG×500=5k + 2 hero×8k=16k → 21k | 25 props=6.25k | 3 trees=1.5k | 15×3k=45k | **73.75k** ✅ |
 | Military Zone | 6 structures×2k=12k | 15 props=3.75k | 0 | 15×3k=45k | **60.75k** ✅ |
@@ -1011,7 +1007,7 @@ Final assets committed to `/home/z/my-project/assets/<category>/` and backed up 
 
 **What's flat:** All surface placement (buildings, roads, props, foliage, sidewalks, driveways, landmarks, decay layer). Everything sits at Y=0.
 
-**What's NOT flat:** Bridges remain elevated +3m (they cross the river, so elevation is structural). Subway tunnels are underground (their own Y coordinate system, independent of surface terrain).
+**What's NOT flat:** Subway tunnels are underground (their own Y coordinate system, independent of surface terrain).
 
 **Why flat for v1:**
 - Simplifies placement math — no height queries, no terrain following
@@ -1086,24 +1082,28 @@ Implementation status: `Biome.SUBWAY` value removed from `city_config.gd` enum. 
 | COASTAL_BEACH | -1.0 | 8.0m | 0.020 | rolling cliff coastline — lighthouse territory |
 | WATER | -2.0 | 0.0 | — | ocean/lake (sea level) |
 
-## 10.5 River redesign (Phase A.2 — done 2026-09-12)
+## 10.5 River redesign (Phase A.2 — done 2026-09-12) — SUPERSEDED
+
+> **UPDATED 2026-09-21:** River + Wetlands + Coastal Beach are REMOVED for v1. The entire water system (river, bay, beaches, houseboats, piers, lighthouse) is cut. City is now a single contiguous landmass. Section below preserved as historical reference only.
 
 **Was:** River = 2 columns × 6 rows = 12 cells = 25% of map = 3km² water. Player walks endless water.
 
-**Now:** River = 1 column × 6 rows = 6 cells = 12.5% of map. Freed column (col 5) is now `COASTAL_BEACH` (12.5%). Player walks along coast with fishing huts, piers, lighthouse.
+**Then:** River = 1 column × 6 rows = 6 cells = 12.5% of map. Freed column (col 5) became `COASTAL_BEACH` (12.5%). Player walks along coast with fishing huts, piers, lighthouse.
 
-Grid layout before/after:
+**Now (2026-09-21):** No river, no coast, no wetlands. 8 biomes total (Suburbia, Commercial, Industrial, Farmland, Forest, Parks, Downtown, Military). Subway kept as underground layer, not a surface biome. Lore updated: city is no longer coastal, no Sarran River, no Sarran Bay. "Sarran" survives as a historical name in streets + districts only.
+
+Grid layout evolution:
 ```
-Was:                                Now:
-[F, F, FA, FA, RI, RI, IN, IN]     [F, F, FA, FA, RI, CB, IN, IN]
-[F, FA, FA, FA, RI, RI, IN, MI]    [F, FA, FA, FA, RI, CB, IN, MI]
-[SU,SU,FA, PA, RI, RI, DT, MI]     [SU,SU,FA, PA, RI, CB, DT, MI]
-[SU,SU,CO, PA, RI, RI, DT, IN]     [SU,SU,CO, PA, RI, CB, DT, IN]
-[SU,PA,CO, CO, RI, RI, DT, IN]     [SU,PA,CO, CO, RI, CB, DT, IN]
-[PA,SU,SU, CO, RI, RI, IN, IN]     [PA,SU,SU, CO, RI, CB, IN, IN]
+v0 (2026-09-11):                    v1 (2026-09-12):                    v2 (2026-09-21):
+[F, F, FA,FA, RI, RI, IN, IN]      [F, F, FA,FA, RI, CB, IN, IN]      (no water column)
+[F, FA, FA,FA, RI, RI, IN, MI]     [F, FA, FA,FA, RI, CB, IN, MI]     (no coastal beach)
+[SU,SU,FA,PA, RI, RI, DT, MI]      [SU,SU,FA,PA, RI, CB, DT, MI]      (8 surface biomes only)
+[SU,SU,CO,PA, RI, RI, DT, IN]      [SU,SU,CO,PA, RI, CB, DT, IN]      (subway = underground layer)
+[SU,PA,CO,CO, RI, RI, DT, IN]      [SU,PA,CO,CO, RI, CB, DT, IN]
+[PA,SU,SU,CO, RI, RI, IN, IN]      [PA,SU,SU,CO, RI, CB, IN, IN]
 ```
 
-Bridges updated: `from_col=3, to_col=5` (spans 1 river column + 1 bank on each side; was 4-column span over 2 river columns).
+**Why cut:** river/wetlands added complexity (bridges, water shaders, swimming, naval assets) for low gameplay value. Project Zomboid reference map (user-provided) doesn't have a major river — it's all land with towns separated by forest. Removing water also simplifies pathfinding, collision, and streaming.
 
 ## 10.6 Landmark system (Phase F — not yet implemented)
 
