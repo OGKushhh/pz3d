@@ -227,6 +227,7 @@ static func plan_block(block: Dictionary, seed: int, neighbor_recipes: Array = [
 		"buildings": [],
 		"foliage": [],
 		"props": [],
+		"internal_roads": [],
 		"recipe": "",
 		"is_transition": false,
 		"transition_pair": "",
@@ -247,12 +248,13 @@ static func plan_block(block: Dictionary, seed: int, neighbor_recipes: Array = [
 	plan["is_transition"] = is_transition
 	plan["transition_pair"] = transition_partner
 
-	# Apply the recipe — returns {buildings, foliage, props} with exact placements
+	# Apply the recipe — returns {buildings, foliage, props, internal_roads} with exact placements
 	var result: Dictionary = BlockRecipes.apply_recipe(recipe_name, block, seed)
 
 	plan["buildings"] = result.get("buildings", [])
 	plan["foliage"] = result.get("foliage", [])
 	plan["props"] = result.get("props", [])
+	plan["internal_roads"] = result.get("internal_roads", [])
 
 	return plan
 

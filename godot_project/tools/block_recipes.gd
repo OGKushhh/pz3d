@@ -242,7 +242,7 @@ static func apply_recipe(recipe_name: String, block: Dictionary, seed: int) -> D
 	var crng := RandomNumberGenerator.new()
 	crng.seed = seed + int(center.x) * 31 + int(center.z) * 17
 
-	var result := {"buildings": [], "foliage": [], "props": []}
+	var result := {"buildings": [], "foliage": [], "props": [], "internal_roads": []}
 
 	match recipe_name:
 		"downtown_tower_block":
@@ -372,6 +372,17 @@ static func _add_foliage(result: Dictionary, pos: Vector3, rot_y: float, name: S
 
 static func _add_prop(result: Dictionary, pos: Vector3, rot_y: float, name: String):
 	result["props"].append({"pos": pos, "rot_y": rot_y, "asset_name": name})
+
+# Add an internal subdivision road to this block's plan.
+# These are rendered as road mesh planes by the baker (in addition to main roads).
+# road_type: "local" (6m, dark grey), "arterial" (8m, darker), "path" (3m, light)
+static func _add_internal_road(result: Dictionary, start: Vector3, end: Vector3, road_type: String = "local"):
+	result["internal_roads"].append({
+		"start": start,
+		"end": end,
+		"kind": road_type,
+		"width": 6.0 if road_type == "local" else (8.0 if road_type == "arterial" else 3.0),
+	})
 
 static func _scatter_foliage(result: Dictionary, pool: Array, min_x: float, min_z: float, w: float, d: float, count: int, crng: RandomNumberGenerator, inset: float = MIN_SETBACK):
 	if pool.is_empty() or count <= 0:
@@ -594,11 +605,37 @@ static func _suburb_house_grid(result: Dictionary, min_x: float, min_z: float, w
 		_add_prop(result, Vector3(bx, 0, fy_s_z), 0.0, "mailbox")
 		_add_foliage(result, Vector3(bx - lot_w * 0.3, 0, fy_s_z - 1), crng.randf() * 360.0, _pick(FOLIAGE_POOLS.suburbia, crng), crng.randf_range(0.9, 1.2))
 
-	# Backyard: scatter bushes + trees (between the two rows, away from roads)
+	# Backyard: now has an internal subdivision road running east-west between the two house rows.
+	# Layout cross-section:
+	#   N_house | small_backyard_strip | INTERNAL_ROAD | small_backyard_strip | S_house
+	#
+	# Backyard_total = backyard (e.g. ~100m if block is deep).
+	# We use: 5m strip + 6m road + 5m strip = 16m for the central road area.
+	# Remaining backyard area gets scattered bushes (avoiding the road).
 	var backyard_center_z: float = (north_z + south_z) * 0.5
 	var backyard_w: float = row_w
-	var backyard_d: float = abs(south_z - north_z) - house_depth
-	_scatter_foliage_in_area(result, FOLIAGE_POOLS.suburbia, min_x + MIN_SETBACK + row_offset_x, backyard_center_z - backyard_d * 0.5, backyard_w, backyard_d, int(backyard_w * backyard_d / 300.0), crng)
+	var backyard_total_d: float = abs(south_z - north_z) - house_depth
+
+	# Internal subdivision road (east-west, length = row_w)
+	var road_start_x: float = min_x + MIN_SETBACK + row_offset_x
+	var road_end_x: float = road_start_x + row_w
+	var road_z: float = backyard_center_z
+	_add_internal_road(result, Vector3(road_start_x, 0, road_z), Vector3(road_end_x, 0, road_z), "local")
+
+	# Scatter bushes in backyard strips (above and below the internal road),
+	# avoiding the road itself (5m buffer on each side).
+	var road_buffer: float = 5.0  # 5m green strip between houses and internal road
+	if backyard_total_d > (road_buffer * 2.0 + 8.0):
+		# North backyard strip (between north houses and internal road)
+		var n_strip_z: float = north_z + house_depth * 0.5
+		var n_strip_d: float = road_z - road_buffer - n_strip_z
+		if n_strip_d > 0:
+			_scatter_foliage_in_area(result, FOLIAGE_POOLS.suburbia, road_start_x, n_strip_z, row_w, n_strip_d, int(row_w * n_strip_d / 400.0), crng)
+		# South backyard strip (between internal road and south houses)
+		var s_strip_z: float = road_z + road_buffer
+		var s_strip_d: float = south_z - house_depth * 0.5 - s_strip_z
+		if s_strip_d > 0:
+			_scatter_foliage_in_area(result, FOLIAGE_POOLS.suburbia, road_start_x, s_strip_z, row_w, s_strip_d, int(row_w * s_strip_d / 400.0), crng)
 
 	# Street lights at block corners
 	_add_prop(result, Vector3(min_x + MIN_SETBACK, 0, min_z + MIN_SETBACK), 0.0, "street_light")

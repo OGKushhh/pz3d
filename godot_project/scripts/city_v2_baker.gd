@@ -284,6 +284,23 @@ func _bake_block(plan: Dictionary, idx: int):
 	for p in plan.props:
 		_place_asset(root, p.asset_name, p.pos, p.rot_y, 1.0)
 
+	# Internal subdivision roads (e.g. between house rows in suburbia)
+	# These are rendered as road mesh planes (same as main roads, just inside blocks)
+	for r in plan.get("internal_roads", []):
+		var r_start: Vector3 = r.start
+		var r_end: Vector3 = r.end
+		var r_kind: String = r.get("kind", "local")
+		var r_width: float = float(r.get("width", 6.0))
+		var r_center := (r_start + r_end) * 0.5
+		var r_length: float = r_start.distance_to(r_end)
+		var r_yaw: float = atan2(r_end.x - r_start.x, r_end.z - r_start.z)
+		var r_color: Color = C_LOCAL
+		match r_kind:
+			"highway": r_color = C_HIGHWAY
+			"arterial": r_color = C_ARTERIAL
+			"path": r_color = C_SIDEWALK  # paths look like sidewalk surface
+		_plane(root, "InternalRoad", r_center, r_length, r_width, r_color, Y_ROAD, r_yaw)
+
 	# Save block to its own file
 	_set_owner_recursive(root, root)
 	var scene := PackedScene.new()
