@@ -1,15 +1,15 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://assets/foliage/fallen_log.glb" id="1_v106y"]
-[ext_resource type="PackedScene" path="res://assets/foliage/pine_tree.glb" id="2_hfrhd"]
-[ext_resource type="PackedScene" path="res://assets/foliage/rocks_small.glb" id="3_p8qgw"]
+[ext_resource type="PackedScene" path="res://assets/buildings/deer_stand.glb" id="1_v106y"]
+[ext_resource type="PackedScene" path="res://assets/buildings/camping_tent.glb" id="2_hfrhd"]
+[ext_resource type="PackedScene" path="res://assets/foliage/fallen_log.glb" id="3_p8qgw"]
 [ext_resource type="PackedScene" path="res://assets/foliage/bush.glb" id="4_snjv7"]
-[ext_resource type="PackedScene" path="res://assets/foliage/birch_tree.glb" id="5_pj78e"]
-[ext_resource type="PackedScene" path="res://assets/foliage/mushrooms.glb" id="6_a413q"]
+[ext_resource type="PackedScene" path="res://assets/foliage/oak_tree.glb" id="5_pj78e"]
+[ext_resource type="PackedScene" path="res://assets/foliage/pine_tree.glb" id="6_a413q"]
 [ext_resource type="PackedScene" path="res://assets/foliage/fern.glb" id="7_w5e5v"]
-[ext_resource type="PackedScene" path="res://assets/foliage/oak_tree.glb" id="8_2qxwp"]
-[ext_resource type="PackedScene" path="res://assets/environment/bench_park.glb" id="9_pwvaq"]
-[ext_resource type="PackedScene" path="res://assets/environment/park_sign.glb" id="10_qpj4p"]
+[ext_resource type="PackedScene" path="res://assets/foliage/rocks_small.glb" id="8_2qxwp"]
+[ext_resource type="PackedScene" path="res://assets/foliage/birch_tree.glb" id="9_pwvaq"]
+[ext_resource type="PackedScene" path="res://assets/foliage/mushrooms.glb" id="10_qpj4p"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0nym6"]
 albedo_color = Color(0.2, 0.35, 0.15, 1)
@@ -18,1157 +18,713 @@ roughness = 0.85
 [sub_resource type="PlaneMesh" id="PlaneMesh_3sl42"]
 size = Vector2(150, 250)
 
-[node name="Block_274" type="Node3D" unique_id=1827963555]
+[node name="Block_274" type="Node3D" unique_id=1724129541]
 
-[node name="DistrictGround_15852" type="MeshInstance3D" parent="." unique_id=1974357554]
+[node name="DistrictGround_15710" type="MeshInstance3D" parent="." unique_id=1541833003]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3675, 0.01, 925)
 material_override = SubResource("StandardMaterial3D_0nym6")
 mesh = SubResource("PlaneMesh_3sl42")
 
-[node name="fallen_log_15853" type="Node3D" parent="." unique_id=1960342915 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.07347846, 0, 0.9710889, 0, 0.9738648, 0, -0.9710889, 0, 0.07347846, 3715.487, 0, 847.68066)
+[node name="deer_stand_15711" type="Node3D" parent="." unique_id=1424483544 instance=ExtResource("1_v106y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3665, 0, 925)
+metadata/building_name = "deer_stand"
+
+[node name="camping_tent_15712" type="Node3D" parent="." unique_id=2002749839 instance=ExtResource("2_hfrhd")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 3685, 0, 925)
+metadata/building_name = "camping_tent"
+
+[node name="fallen_log_15713" type="Node3D" parent="." unique_id=1960342915 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-0.45970437, 0, -0.85598254, 0, 0.97161424, 0, 0.85598254, 0, -0.45970437, 3630.443, 0, 834.49603)
 metadata/building_name = "fallen_log"
 
-[node name="pine_tree_15854" type="Node3D" parent="." unique_id=389898196 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(1.0530521, 0, -0.5499424, 0, 1.1880047, 0, 0.5499424, 0, 1.0530521, 3653.679, 0, 876.34)
-metadata/building_name = "pine_tree"
-
-[node name="rocks_small_15855" type="Node3D" parent="." unique_id=971875793 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.23244889, 0, 1.0351518, 0, 1.0609297, 0, -1.0351518, 0, 0.23244889, 3677.0925, 0, 937.61786)
-metadata/building_name = "rocks_small"
-
-[node name="rocks_small_15856" type="Node3D" parent="." unique_id=360077834 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.26923788, 0, 0.9406098, 0, 0.9783843, 0, -0.9406098, 0, 0.26923788, 3631.7285, 0, 920.5247)
-metadata/building_name = "rocks_small"
-
-[node name="fallen_log_15857" type="Node3D" parent="." unique_id=8029142 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.74096864, 0, 0.50619286, 0, 0.89736605, 0, -0.50619286, 0, 0.74096864, 3717.4563, 0, 834.7852)
+[node name="fallen_log_15714" type="Node3D" parent="." unique_id=1696967920 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-0.78152156, 0, 0.7126979, 0, 1.0576929, 0, -0.7126979, 0, -0.78152156, 3646.9587, 0, 1040.5829)
 metadata/building_name = "fallen_log"
 
-[node name="bush_15858" type="Node3D" parent="." unique_id=564319108 instance=ExtResource("4_snjv7")]
-transform = Transform3D(0.9616756, 0, -0.4507548, 0, 1.0620733, 0, 0.4507548, 0, 0.9616756, 3693.3196, 0, 934.1201)
+[node name="bush_15715" type="Node3D" parent="." unique_id=564319108 instance=ExtResource("4_snjv7")]
+transform = Transform3D(-0.13486822, 0, -0.88064665, 0, 0.8909141, 0, 0.88064665, 0, -0.13486822, 3682.2712, 0, 993.7474)
 metadata/building_name = "bush"
 
-[node name="birch_tree_15859" type="Node3D" parent="." unique_id=820401252 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.964893, 0, -0.8124954, 0, 1.2614148, 0, 0.8124954, 0, -0.964893, 3739.439, 0, 831.0533)
-metadata/building_name = "birch_tree"
-
-[node name="birch_tree_15860" type="Node3D" parent="." unique_id=858498358 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.5253136, 0, -0.6388922, 0, 0.8271261, 0, 0.6388922, 0, 0.5253136, 3692.3457, 0, 987.5161)
-metadata/building_name = "birch_tree"
-
-[node name="mushrooms_15861" type="Node3D" parent="." unique_id=825840323 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.01754819, 0, 1.2297357, 0, 1.2298609, 0, -1.2297357, 0, -0.01754819, 3712.484, 0, 948.1531)
-metadata/building_name = "mushrooms"
-
-[node name="fallen_log_15862" type="Node3D" parent="." unique_id=1063585047 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.44662347, 0, -0.81464934, 0, 0.9290458, 0, 0.81464934, 0, 0.44662347, 3699.276, 0, 965.4006)
-metadata/building_name = "fallen_log"
-
-[node name="fallen_log_15863" type="Node3D" parent="." unique_id=276917854 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.11121643, 0, 1.1035786, 0, 1.1091685, 0, -1.1035786, 0, -0.11121643, 3699.9412, 0, 934.86523)
-metadata/building_name = "fallen_log"
-
-[node name="bush_15864" type="Node3D" parent="." unique_id=1767639770 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-0.54444355, 0, -0.6035952, 0, 0.81286275, 0, 0.6035952, 0, -0.54444355, 3697.742, 0, 833.95435)
+[node name="bush_15716" type="Node3D" parent="." unique_id=2008227657 instance=ExtResource("4_snjv7")]
+transform = Transform3D(-0.22607782, 0, -1.1847113, 0, 1.2060896, 0, 1.1847113, 0, -0.22607782, 3672.4211, 0, 995.06683)
 metadata/building_name = "bush"
 
-[node name="pine_tree_15865" type="Node3D" parent="." unique_id=977419562 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.7197774, 0, -0.67626315, 0, 0.9876292, 0, 0.67626315, 0, -0.7197774, 3741.6338, 0, 889.71436)
+[node name="oak_tree_15717" type="Node3D" parent="." unique_id=2115474487 instance=ExtResource("5_pj78e")]
+transform = Transform3D(-0.29961404, 0, 1.076432, 0, 1.1173515, 0, -1.076432, 0, -0.29961404, 3623.0117, 0, 973.6113)
+metadata/building_name = "oak_tree"
+
+[node name="pine_tree_15718" type="Node3D" parent="." unique_id=389898196 instance=ExtResource("6_a413q")]
+transform = Transform3D(1.2755016, 0, 0.17095897, 0, 1.2869077, 0, -0.17095897, 0, 1.2755016, 3680.2556, 0, 985.7124)
 metadata/building_name = "pine_tree"
 
-[node name="mushrooms_15866" type="Node3D" parent="." unique_id=1367284358 instance=ExtResource("6_a413q")]
-transform = Transform3D(-1.0412587, 0, 0.5088813, 0, 1.1589563, 0, -0.5088813, 0, -1.0412587, 3669.9531, 0, 859.0106)
-metadata/building_name = "mushrooms"
-
-[node name="fallen_log_15867" type="Node3D" parent="." unique_id=878864089 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.30458325, 0, -0.7855978, 0, 0.8425763, 0, 0.7855978, 0, -0.30458325, 3720.386, 0, 840.2994)
-metadata/building_name = "fallen_log"
-
-[node name="rocks_small_15868" type="Node3D" parent="." unique_id=747214455 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.8678476, 0, -0.8172677, 0, 1.1920931, 0, 0.8172677, 0, -0.8678476, 3639.9612, 0, 878.1085)
-metadata/building_name = "rocks_small"
-
-[node name="fern_15869" type="Node3D" parent="." unique_id=1652863939 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.9815417, 0, -0.6442782, 0, 1.1741033, 0, 0.6442782, 0, 0.9815417, 3707.0571, 0, 942.03125)
+[node name="fern_15719" type="Node3D" parent="." unique_id=1652863939 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(0.5033248, 0, -0.99355394, 0, 1.1137707, 0, 0.99355394, 0, 0.5033248, 3620.8613, 0, 903.2649)
 metadata/building_name = "fern"
 
-[node name="mushrooms_15870" type="Node3D" parent="." unique_id=1833609153 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.6604673, 0, -1.0972654, 0, 1.2807062, 0, 1.0972654, 0, -0.6604673, 3618.1982, 0, 915.96436)
-metadata/building_name = "mushrooms"
-
-[node name="oak_tree_15871" type="Node3D" parent="." unique_id=2115474487 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-0.4817271, 0, 0.8186916, 0, 0.94990367, 0, -0.8186916, 0, -0.4817271, 3732.9265, 0, 926.3113)
-metadata/building_name = "oak_tree"
-
-[node name="rocks_small_15872" type="Node3D" parent="." unique_id=1559104748 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.88588065, 0, 0.14621094, 0, 0.89786536, 0, -0.14621094, 0, -0.88588065, 3629.1284, 0, 921.15576)
+[node name="rocks_small_15720" type="Node3D" parent="." unique_id=971875793 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.48754102, 0, -1.0831401, 0, 1.1878084, 0, 1.0831401, 0, -0.48754102, 3711.0264, 0, 838.5873)
 metadata/building_name = "rocks_small"
 
-[node name="fallen_log_15873" type="Node3D" parent="." unique_id=461571671 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.58696455, 0, -0.7685063, 0, 0.9670208, 0, 0.7685063, 0, -0.58696455, 3640.4875, 0, 968.63824)
-metadata/building_name = "fallen_log"
-
-[node name="rocks_small_15874" type="Node3D" parent="." unique_id=1767293345 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.07601872, 0, 0.91906047, 0, 0.922199, 0, -0.91906047, 0, -0.07601872, 3665.3289, 0, 915.365)
+[node name="rocks_small_15721" type="Node3D" parent="." unique_id=1605291148 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.055911392, 0, 1.09879, 0, 1.1002116, 0, -1.09879, 0, -0.055911392, 3634.026, 0, 955.54736)
 metadata/building_name = "rocks_small"
 
-[node name="pine_tree_15875" type="Node3D" parent="." unique_id=1488748886 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.7396153, 0, -0.6485526, 0, 0.98369265, 0, 0.6485526, 0, 0.7396153, 3625.5386, 0, 961.9269)
-metadata/building_name = "pine_tree"
-
-[node name="rocks_small_15876" type="Node3D" parent="." unique_id=1725001059 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.8316107, 0, -0.09898709, 0, 0.8374812, 0, 0.09898709, 0, -0.8316107, 3729.7117, 0, 862.6805)
-metadata/building_name = "rocks_small"
-
-[node name="birch_tree_15877" type="Node3D" parent="." unique_id=450848469 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.7707246, 0, -0.98972255, 0, 1.2544191, 0, 0.98972255, 0, 0.7707246, 3647.5938, 0, 977.3717)
+[node name="birch_tree_15722" type="Node3D" parent="." unique_id=820401252 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(-0.60122126, 0, -0.55287707, 0, 0.8167864, 0, 0.55287707, 0, -0.60122126, 3628.362, 0, 815.2543)
 metadata/building_name = "birch_tree"
 
-[node name="mushrooms_15878" type="Node3D" parent="." unique_id=1253279932 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.0552088, 0, -1.0789369, 0, 1.0803485, 0, 1.0789369, 0, -0.0552088, 3731.5547, 0, 847.0271)
-metadata/building_name = "mushrooms"
-
-[node name="oak_tree_15879" type="Node3D" parent="." unique_id=826223521 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.8089357, 0, -0.8815906, 0, 1.1964861, 0, 0.8815906, 0, 0.8089357, 3730.7476, 0, 852.221)
-metadata/building_name = "oak_tree"
-
-[node name="pine_tree_15880" type="Node3D" parent="." unique_id=70034620 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(1.0488635, 0, -0.52774125, 0, 1.1741488, 0, 0.52774125, 0, 1.0488635, 3638.2788, 0, 1014.3637)
+[node name="pine_tree_15723" type="Node3D" parent="." unique_id=1374220172 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.86834043, 0, -0.054877732, 0, 0.8700728, 0, 0.054877732, 0, 0.86834043, 3610.4988, 0, 956.4336)
 metadata/building_name = "pine_tree"
 
-[node name="bush_15881" type="Node3D" parent="." unique_id=2145280138 instance=ExtResource("4_snjv7")]
-transform = Transform3D(0.832109, 0, -0.7507667, 0, 1.120739, 0, 0.7507667, 0, 0.832109, 3609.635, 0, 816.8774)
+[node name="pine_tree_15724" type="Node3D" parent="." unique_id=392129972 instance=ExtResource("6_a413q")]
+transform = Transform3D(-1.0366403, 0, 0.24619153, 0, 1.0654733, 0, -0.24619153, 0, -1.0366403, 3658.0352, 0, 953.32965)
+metadata/building_name = "pine_tree"
+
+[node name="bush_15725" type="Node3D" parent="." unique_id=786055279 instance=ExtResource("4_snjv7")]
+transform = Transform3D(0.6492385, 0, -1.1182303, 0, 1.293039, 0, 1.1182303, 0, 0.6492385, 3704.6362, 0, 907.92566)
 metadata/building_name = "bush"
 
-[node name="oak_tree_15882" type="Node3D" parent="." unique_id=258761792 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(1.0878862, 0, -0.19125707, 0, 1.1045704, 0, 0.19125707, 0, 1.0878862, 3649.8164, 0, 897.4344)
-metadata/building_name = "oak_tree"
-
-[node name="oak_tree_15883" type="Node3D" parent="." unique_id=1010310359 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(1.0602466, 0, 0.114851445, 0, 1.066449, 0, -0.114851445, 0, 1.0602466, 3697.4106, 0, 919.4039)
-metadata/building_name = "oak_tree"
-
-[node name="pine_tree_15884" type="Node3D" parent="." unique_id=1158473499 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.9098612, 0, -0.55058295, 0, 1.0634797, 0, 0.55058295, 0, -0.9098612, 3672.12, 0, 832.3265)
-metadata/building_name = "pine_tree"
-
-[node name="mushrooms_15885" type="Node3D" parent="." unique_id=318509872 instance=ExtResource("6_a413q")]
-transform = Transform3D(0.3536611, 0, 0.9899506, 0, 1.0512271, 0, -0.9899506, 0, 0.3536611, 3653.7534, 0, 953.25555)
-metadata/building_name = "mushrooms"
-
-[node name="fern_15886" type="Node3D" parent="." unique_id=784385687 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.9618001, 0, 0.7353982, 0, 1.2107311, 0, -0.7353982, 0, 0.9618001, 3665.134, 0, 1021.6079)
-metadata/building_name = "fern"
-
-[node name="fallen_log_15887" type="Node3D" parent="." unique_id=531459741 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.8912254, 0, 0.7950248, 0, 1.1942978, 0, -0.7950248, 0, -0.8912254, 3645.021, 0, 982.51904)
-metadata/building_name = "fallen_log"
-
-[node name="birch_tree_15888" type="Node3D" parent="." unique_id=853739040 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.6860327, 0, 0.9314668, 0, 1.1568367, 0, -0.9314668, 0, -0.6860327, 3657.6614, 0, 898.5315)
-metadata/building_name = "birch_tree"
-
-[node name="birch_tree_15889" type="Node3D" parent="." unique_id=1956786874 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.98656476, 0, -0.07498079, 0, 0.98941, 0, 0.07498079, 0, -0.98656476, 3708.046, 0, 892.41376)
-metadata/building_name = "birch_tree"
-
-[node name="fern_15890" type="Node3D" parent="." unique_id=661050702 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(1.2198297, 0, 0.24645166, 0, 1.2444769, 0, -0.24645166, 0, 1.2198297, 3702.7402, 0, 944.6624)
-metadata/building_name = "fern"
-
-[node name="birch_tree_15891" type="Node3D" parent="." unique_id=646821551 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.3705967, 0, 0.79503626, 0, 0.8771685, 0, -0.79503626, 0, 0.3705967, 3696.8276, 0, 907.7529)
-metadata/building_name = "birch_tree"
-
-[node name="fern_15892" type="Node3D" parent="." unique_id=156760386 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.57638764, 0, -0.57253915, 0, 0.81241846, 0, 0.57253915, 0, 0.57638764, 3693.3728, 0, 855.3859)
-metadata/building_name = "fern"
-
-[node name="oak_tree_15893" type="Node3D" parent="." unique_id=2023792657 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.4977869, 0, -0.8988833, 0, 1.027513, 0, 0.8988833, 0, 0.4977869, 3677.4146, 0, 833.09485)
-metadata/building_name = "oak_tree"
-
-[node name="fallen_log_15894" type="Node3D" parent="." unique_id=548055643 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.6562534, 0, -0.5695581, 0, 0.8689447, 0, 0.5695581, 0, -0.6562534, 3691.2058, 0, 934.54517)
-metadata/building_name = "fallen_log"
-
-[node name="oak_tree_15895" type="Node3D" parent="." unique_id=345342220 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-0.00988626, 0, 1.2588009, 0, 1.2588396, 0, -1.2588009, 0, -0.00988626, 3646.7202, 0, 993.7831)
-metadata/building_name = "oak_tree"
-
-[node name="fallen_log_15896" type="Node3D" parent="." unique_id=1064725370 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.7098159, 0, -1.0003489, 0, 1.2265955, 0, 1.0003489, 0, 0.7098159, 3611.46, 0, 959.60913)
-metadata/building_name = "fallen_log"
-
-[node name="bush_15897" type="Node3D" parent="." unique_id=1820786976 instance=ExtResource("4_snjv7")]
-transform = Transform3D(0.7733791, 0, -0.7803986, 0, 1.0986979, 0, 0.7803986, 0, 0.7733791, 3665.0496, 0, 863.37195)
+[node name="bush_15726" type="Node3D" parent="." unique_id=570410726 instance=ExtResource("4_snjv7")]
+transform = Transform3D(0.040963322, 0, 0.8529413, 0, 0.8539244, 0, -0.8529413, 0, 0.040963322, 3618.5808, 0, 970.1076)
 metadata/building_name = "bush"
 
-[node name="fern_15898" type="Node3D" parent="." unique_id=1249609038 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(-0.2706231, 0, -0.8093803, 0, 0.85342443, 0, 0.8093803, 0, -0.2706231, 3665.9788, 0, 930.76373)
-metadata/building_name = "fern"
-
-[node name="birch_tree_15899" type="Node3D" parent="." unique_id=2097450912 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.6298984, 0, -0.9028748, 0, 1.1008883, 0, 0.9028748, 0, 0.6298984, 3700.5999, 0, 974.11163)
-metadata/building_name = "birch_tree"
-
-[node name="fern_15900" type="Node3D" parent="." unique_id=407112463 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.59736705, 0, -0.7396932, 0, 0.9507857, 0, 0.7396932, 0, 0.59736705, 3732.837, 0, 857.6657)
-metadata/building_name = "fern"
-
-[node name="rocks_small_15901" type="Node3D" parent="." unique_id=1460733588 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-1.056453, 0, -0.2562448, 0, 1.0870852, 0, 0.2562448, 0, -1.056453, 3711.573, 0, 912.44855)
+[node name="rocks_small_15727" type="Node3D" parent="." unique_id=1864288558 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.09888031, 0, -1.0986733, 0, 1.103114, 0, 1.0986733, 0, -0.09888031, 3713.6494, 0, 953.3729)
 metadata/building_name = "rocks_small"
 
-[node name="birch_tree_15902" type="Node3D" parent="." unique_id=1965287586 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.39263046, 0, 1.237266, 0, 1.29807, 0, -1.237266, 0, -0.39263046, 3699.0203, 0, 856.2993)
-metadata/building_name = "birch_tree"
-
-[node name="fallen_log_15903" type="Node3D" parent="." unique_id=1977258951 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.8817052, 0, 0.5121772, 0, 1.0196713, 0, -0.5121772, 0, -0.8817052, 3670.5618, 0, 1014.368)
-metadata/building_name = "fallen_log"
-
-[node name="oak_tree_15904" type="Node3D" parent="." unique_id=472671867 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.49282, 0, -0.693076, 0, 0.85042685, 0, 0.693076, 0, 0.49282, 3719.179, 0, 903.1769)
-metadata/building_name = "oak_tree"
-
-[node name="pine_tree_15905" type="Node3D" parent="." unique_id=849812876 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.29851142, 0, 1.1697433, 0, 1.2072318, 0, -1.1697433, 0, 0.29851142, 3639.485, 0, 872.8597)
+[node name="pine_tree_15728" type="Node3D" parent="." unique_id=261830264 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.820426, 0, 0.46686637, 0, 0.9439613, 0, -0.46686637, 0, 0.820426, 3708.756, 0, 1021.1827)
 metadata/building_name = "pine_tree"
 
-[node name="birch_tree_15906" type="Node3D" parent="." unique_id=1758856011 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.971636, 0, -0.26930004, 0, 1.0082654, 0, 0.26930004, 0, 0.971636, 3718.509, 0, 1033.4084)
-metadata/building_name = "birch_tree"
-
-[node name="oak_tree_15907" type="Node3D" parent="." unique_id=1696251291 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-0.90612626, 0, 0.18015145, 0, 0.9238611, 0, -0.18015145, 0, -0.90612626, 3707.6602, 0, 855.57465)
-metadata/building_name = "oak_tree"
-
-[node name="rocks_small_15908" type="Node3D" parent="." unique_id=1108943198 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.6752478, 0, -0.75439435, 0, 1.0124576, 0, 0.75439435, 0, 0.6752478, 3697.4792, 0, 876.4696)
-metadata/building_name = "rocks_small"
-
-[node name="rocks_small_15909" type="Node3D" parent="." unique_id=870084740 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.18120582, 0, -0.83494836, 0, 0.8543853, 0, 0.83494836, 0, -0.18120582, 3624.475, 0, 969.1151)
-metadata/building_name = "rocks_small"
-
-[node name="pine_tree_15910" type="Node3D" parent="." unique_id=1809800360 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(1.033045, 0, -0.14937925, 0, 1.0437894, 0, 0.14937925, 0, 1.033045, 3651.693, 0, 851.53424)
-metadata/building_name = "pine_tree"
-
-[node name="mushrooms_15911" type="Node3D" parent="." unique_id=34551388 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.6736793, 0, 0.6568318, 0, 0.9408888, 0, -0.6568318, 0, -0.6736793, 3679.3774, 0, 972.57263)
-metadata/building_name = "mushrooms"
-
-[node name="birch_tree_15912" type="Node3D" parent="." unique_id=1801840045 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.55398774, 0, 0.76529825, 0, 0.9447665, 0, -0.76529825, 0, -0.55398774, 3685.346, 0, 975.8674)
-metadata/building_name = "birch_tree"
-
-[node name="fallen_log_15913" type="Node3D" parent="." unique_id=585010749 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.84544736, 0, 0.88211787, 0, 1.2218482, 0, -0.88211787, 0, -0.84544736, 3663.2197, 0, 913.8004)
-metadata/building_name = "fallen_log"
-
-[node name="pine_tree_15914" type="Node3D" parent="." unique_id=1775186521 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.84544796, 0, 0.73366135, 0, 1.1193932, 0, -0.73366135, 0, 0.84544796, 3670.7998, 0, 992.93976)
-metadata/building_name = "pine_tree"
-
-[node name="oak_tree_15915" type="Node3D" parent="." unique_id=546605402 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-0.44956347, 0, -0.81999254, 0, 0.9351444, 0, 0.81999254, 0, -0.44956347, 3659.6106, 0, 1009.4098)
-metadata/building_name = "oak_tree"
-
-[node name="birch_tree_15916" type="Node3D" parent="." unique_id=272715346 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.23559754, 0, -0.90738523, 0, 0.9374722, 0, 0.90738523, 0, -0.23559754, 3706.3271, 0, 1041.9121)
-metadata/building_name = "birch_tree"
-
-[node name="pine_tree_15917" type="Node3D" parent="." unique_id=1634756715 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.9177206, 0, 0.6984189, 0, 1.1532563, 0, -0.6984189, 0, -0.9177206, 3637.032, 0, 1021.8484)
-metadata/building_name = "pine_tree"
-
-[node name="rocks_small_15918" type="Node3D" parent="." unique_id=896887497 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.0419181, 0, -1.1495705, 0, 1.1503345, 0, 1.1495705, 0, -0.0419181, 3649.4465, 0, 1006.3346)
-metadata/building_name = "rocks_small"
-
-[node name="fern_15919" type="Node3D" parent="." unique_id=429393359 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(-0.81244016, 0, 0.69662553, 0, 1.0702084, 0, -0.69662553, 0, -0.81244016, 3633.799, 0, 1016.1171)
-metadata/building_name = "fern"
-
-[node name="pine_tree_15920" type="Node3D" parent="." unique_id=885588504 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.26060537, 0, -0.9217211, 0, 0.9578544, 0, 0.9217211, 0, 0.26060537, 3719.4727, 0, 911.745)
-metadata/building_name = "pine_tree"
-
-[node name="bush_15921" type="Node3D" parent="." unique_id=300224839 instance=ExtResource("4_snjv7")]
-transform = Transform3D(0.8815755, 0, 0.3183628, 0, 0.9372995, 0, -0.3183628, 0, 0.8815755, 3724.0813, 0, 868.5761)
+[node name="bush_15729" type="Node3D" parent="." unique_id=103982514 instance=ExtResource("4_snjv7")]
+transform = Transform3D(1.1128788, 0, -0.55887204, 0, 1.2453262, 0, 0.55887204, 0, 1.1128788, 3737.752, 0, 963.6485)
 metadata/building_name = "bush"
 
-[node name="pine_tree_15922" type="Node3D" parent="." unique_id=727250663 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.95201206, 0, 0.5581744, 0, 1.1035786, 0, -0.5581744, 0, -0.95201206, 3683.735, 0, 906.2191)
-metadata/building_name = "pine_tree"
+[node name="mushrooms_15730" type="Node3D" parent="." unique_id=825840323 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(0.51354676, 0, 0.84049857, 0, 0.98497117, 0, -0.84049857, 0, 0.51354676, 3647.7737, 0, 885.97675)
+metadata/building_name = "mushrooms"
 
-[node name="oak_tree_15923" type="Node3D" parent="." unique_id=1043341597 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.81424093, 0, -0.32234395, 0, 0.8757248, 0, 0.32234395, 0, 0.81424093, 3699.2786, 0, 1016.5225)
-metadata/building_name = "oak_tree"
+[node name="rocks_small_15731" type="Node3D" parent="." unique_id=972058134 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(0.025849825, 0, 1.0919032, 0, 1.0922092, 0, -1.0919032, 0, 0.025849825, 3633.6194, 0, 918.8562)
+metadata/building_name = "rocks_small"
 
-[node name="oak_tree_15924" type="Node3D" parent="." unique_id=1693997944 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-0.41309384, 0, 1.1078947, 0, 1.1824031, 0, -1.1078947, 0, -0.41309384, 3649.873, 0, 843.4045)
-metadata/building_name = "oak_tree"
-
-[node name="fallen_log_15925" type="Node3D" parent="." unique_id=784628558 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.8121285, 0, -0.94466907, 0, 1.2457738, 0, 0.94466907, 0, -0.8121285, 3700.2432, 0, 846.1658)
-metadata/building_name = "fallen_log"
-
-[node name="bush_15926" type="Node3D" parent="." unique_id=444641098 instance=ExtResource("4_snjv7")]
-transform = Transform3D(0.048002478, 0, -0.8612401, 0, 0.8625768, 0, 0.8612401, 0, 0.048002478, 3669.256, 0, 945.98376)
+[node name="bush_15732" type="Node3D" parent="." unique_id=1342201000 instance=ExtResource("4_snjv7")]
+transform = Transform3D(-0.86458606, 0, 0.41424012, 0, 0.95869905, 0, -0.41424012, 0, -0.86458606, 3652.4297, 0, 959.5008)
 metadata/building_name = "bush"
 
-[node name="pine_tree_15927" type="Node3D" parent="." unique_id=657801638 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.18621626, 0, 0.9081984, 0, 0.9270927, 0, -0.9081984, 0, -0.18621626, 3610.3423, 0, 1001.8284)
+[node name="pine_tree_15733" type="Node3D" parent="." unique_id=1526280080 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.5677632, 0, 0.654818, 0, 0.8666843, 0, -0.654818, 0, 0.5677632, 3640.238, 0, 869.09973)
 metadata/building_name = "pine_tree"
 
-[node name="oak_tree_15928" type="Node3D" parent="." unique_id=177423406 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-0.6407909, 0, 1.0386574, 0, 1.2204189, 0, -1.0386574, 0, -0.6407909, 3683.641, 0, 870.44226)
+[node name="oak_tree_15734" type="Node3D" parent="." unique_id=1054320333 instance=ExtResource("5_pj78e")]
+transform = Transform3D(0.9212446, 0, -0.6492674, 0, 1.1270491, 0, 0.6492674, 0, 0.9212446, 3656.9644, 0, 1015.96045)
 metadata/building_name = "oak_tree"
 
-[node name="fallen_log_15929" type="Node3D" parent="." unique_id=1608579383 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.628114, 0, 0.5940335, 0, 0.8645247, 0, -0.5940335, 0, -0.628114, 3678.6804, 0, 972.52954)
-metadata/building_name = "fallen_log"
-
-[node name="rocks_small_15930" type="Node3D" parent="." unique_id=338213125 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.27291122, 0, 0.9911914, 0, 1.0280763, 0, -0.9911914, 0, -0.27291122, 3705.903, 0, 940.4592)
-metadata/building_name = "rocks_small"
-
-[node name="oak_tree_15931" type="Node3D" parent="." unique_id=494430900 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.80852777, 0, -0.38043368, 0, 0.8935586, 0, 0.38043368, 0, 0.80852777, 3622.356, 0, 853.8813)
+[node name="oak_tree_15735" type="Node3D" parent="." unique_id=403474507 instance=ExtResource("5_pj78e")]
+transform = Transform3D(-0.36729, 0, 1.1681602, 0, 1.2245408, 0, -1.1681602, 0, -0.36729, 3617.1948, 0, 929.4499)
 metadata/building_name = "oak_tree"
 
-[node name="oak_tree_15932" type="Node3D" parent="." unique_id=155303348 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.5389064, 0, -1.0978161, 0, 1.2229556, 0, 1.0978161, 0, 0.5389064, 3690.168, 0, 853.69684)
-metadata/building_name = "oak_tree"
-
-[node name="fern_15933" type="Node3D" parent="." unique_id=1860604608 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(-1.0066236, 0, -0.41223872, 0, 1.0877646, 0, 0.41223872, 0, -1.0066236, 3714.2031, 0, 876.11615)
+[node name="fern_15736" type="Node3D" parent="." unique_id=1243195591 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(1.1101061, 0, -0.6485976, 0, 1.285696, 0, 0.6485976, 0, 1.1101061, 3730.602, 0, 1008.8514)
 metadata/building_name = "fern"
 
-[node name="pine_tree_15934" type="Node3D" parent="." unique_id=1579466587 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.50807583, 0, 0.71620244, 0, 0.8781156, 0, -0.71620244, 0, 0.50807583, 3711.2153, 0, 951.02795)
-metadata/building_name = "pine_tree"
-
-[node name="fern_15935" type="Node3D" parent="." unique_id=1907607671 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.90958107, 0, -0.2969185, 0, 0.95681673, 0, 0.2969185, 0, 0.90958107, 3614.8003, 0, 982.7014)
-metadata/building_name = "fern"
-
-[node name="oak_tree_15936" type="Node3D" parent="." unique_id=79221192 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-0.41540593, 0, -0.7702897, 0, 0.8751619, 0, 0.7702897, 0, -0.41540593, 3701.768, 0, 948.3682)
+[node name="oak_tree_15737" type="Node3D" parent="." unique_id=970503950 instance=ExtResource("5_pj78e")]
+transform = Transform3D(1.0139526, 0, -0.64429283, 0, 1.201338, 0, 0.64429283, 0, 1.0139526, 3683.255, 0, 982.0797)
 metadata/building_name = "oak_tree"
 
-[node name="mushrooms_15937" type="Node3D" parent="." unique_id=965214868 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.6291548, 0, 0.838715, 0, 1.0484649, 0, -0.838715, 0, -0.6291548, 3673.878, 0, 807.096)
-metadata/building_name = "mushrooms"
-
-[node name="fallen_log_15938" type="Node3D" parent="." unique_id=1121864070 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.17954525, 0, 0.9786471, 0, 0.99498075, 0, -0.9786471, 0, -0.17954525, 3662.4365, 0, 969.18085)
-metadata/building_name = "fallen_log"
-
-[node name="birch_tree_15939" type="Node3D" parent="." unique_id=603000983 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-1.1686335, 0, 0.3885225, 0, 1.2315251, 0, -0.3885225, 0, -1.1686335, 3695.7756, 0, 942.3241)
-metadata/building_name = "birch_tree"
-
-[node name="birch_tree_15940" type="Node3D" parent="." unique_id=1734337573 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.19577578, 0, 1.0321916, 0, 1.050594, 0, -1.0321916, 0, -0.19577578, 3725.8984, 0, 1019.5747)
-metadata/building_name = "birch_tree"
-
-[node name="birch_tree_15941" type="Node3D" parent="." unique_id=2082673556 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.33808097, 0, -1.0343732, 0, 1.0882218, 0, 1.0343732, 0, 0.33808097, 3620.146, 0, 951.066)
-metadata/building_name = "birch_tree"
-
-[node name="fallen_log_15942" type="Node3D" parent="." unique_id=693385454 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.58526546, 0, -0.6223365, 0, 0.8543058, 0, 0.6223365, 0, 0.58526546, 3685.2588, 0, 889.2505)
-metadata/building_name = "fallen_log"
-
-[node name="mushrooms_15943" type="Node3D" parent="." unique_id=1627499554 instance=ExtResource("6_a413q")]
-transform = Transform3D(-1.0648202, 0, -0.2684729, 0, 1.0981438, 0, 0.2684729, 0, -1.0648202, 3682.6973, 0, 905.92346)
-metadata/building_name = "mushrooms"
-
-[node name="rocks_small_15944" type="Node3D" parent="." unique_id=1423888746 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.69403154, 0, 0.70965344, 0, 0.99261665, 0, -0.70965344, 0, 0.69403154, 3648.6384, 0, 811.31976)
-metadata/building_name = "rocks_small"
-
-[node name="fallen_log_15945" type="Node3D" parent="." unique_id=1172117494 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.0039786673, 0, 1.0370276, 0, 1.0370352, 0, -1.0370276, 0, 0.0039786673, 3608.3953, 0, 1000.85394)
-metadata/building_name = "fallen_log"
-
-[node name="birch_tree_15946" type="Node3D" parent="." unique_id=467479357 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.7601204, 0, 0.84194803, 0, 1.1343101, 0, -0.84194803, 0, 0.7601204, 3735.3015, 0, 890.10126)
-metadata/building_name = "birch_tree"
-
-[node name="oak_tree_15947" type="Node3D" parent="." unique_id=1206515941 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.9894166, 0, -0.2161881, 0, 1.0127598, 0, 0.2161881, 0, 0.9894166, 3705.184, 0, 1032.1571)
-metadata/building_name = "oak_tree"
-
-[node name="oak_tree_15948" type="Node3D" parent="." unique_id=756264490 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-1.0671724, 0, -0.23820116, 0, 1.0934334, 0, 0.23820116, 0, -1.0671724, 3733.4146, 0, 991.43475)
-metadata/building_name = "oak_tree"
-
-[node name="birch_tree_15949" type="Node3D" parent="." unique_id=1056026966 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.44905913, 0, 1.2086021, 0, 1.2893305, 0, -1.2086021, 0, 0.44905913, 3680.1519, 0, 833.21875)
-metadata/building_name = "birch_tree"
-
-[node name="bush_15950" type="Node3D" parent="." unique_id=2084191257 instance=ExtResource("4_snjv7")]
-transform = Transform3D(0.06755003, 0, -1.0338491, 0, 1.0360537, 0, 1.0338491, 0, 0.06755003, 3717.398, 0, 911.49243)
+[node name="bush_15738" type="Node3D" parent="." unique_id=1522133312 instance=ExtResource("4_snjv7")]
+transform = Transform3D(0.12991361, 0, 1.0279326, 0, 1.0361096, 0, -1.0279326, 0, 0.12991361, 3714.8442, 0, 1011.8867)
 metadata/building_name = "bush"
 
-[node name="mushrooms_15951" type="Node3D" parent="." unique_id=27728937 instance=ExtResource("6_a413q")]
-transform = Transform3D(1.0166972, 0, -0.29625648, 0, 1.0589812, 0, 0.29625648, 0, 1.0166972, 3643.6892, 0, 952.06244)
+[node name="oak_tree_15739" type="Node3D" parent="." unique_id=1157092078 instance=ExtResource("5_pj78e")]
+transform = Transform3D(1.2816918, 0, 0.1568024, 0, 1.2912477, 0, -0.1568024, 0, 1.2816918, 3708.7686, 0, 1025.4905)
+metadata/building_name = "oak_tree"
+
+[node name="mushrooms_15740" type="Node3D" parent="." unique_id=1349940176 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-0.48147374, 0, 1.1159734, 0, 1.2154067, 0, -1.1159734, 0, -0.48147374, 3694.241, 0, 1015.4285)
 metadata/building_name = "mushrooms"
 
-[node name="birch_tree_15952" type="Node3D" parent="." unique_id=3169282 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.89189637, 0, 0.65069646, 0, 1.1040312, 0, -0.65069646, 0, -0.89189637, 3643.4216, 0, 928.8439)
-metadata/building_name = "birch_tree"
-
-[node name="fallen_log_15953" type="Node3D" parent="." unique_id=1744521773 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.7098743, 0, -0.87826467, 0, 1.1292787, 0, 0.87826467, 0, -0.7098743, 3657.878, 0, 1039.5037)
+[node name="fallen_log_15741" type="Node3D" parent="." unique_id=1067733717 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-0.5255452, 0, -0.8859057, 0, 1.0300615, 0, 0.8859057, 0, -0.5255452, 3689.8433, 0, 1036.4634)
 metadata/building_name = "fallen_log"
 
-[node name="rocks_small_15954" type="Node3D" parent="." unique_id=1810580768 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.8851383, 0, -0.24671277, 0, 0.9188781, 0, 0.24671277, 0, -0.8851383, 3610.9473, 0, 870.98895)
-metadata/building_name = "rocks_small"
+[node name="pine_tree_15742" type="Node3D" parent="." unique_id=1551317543 instance=ExtResource("6_a413q")]
+transform = Transform3D(-1.0284711, 0, 0.13764818, 0, 1.0376415, 0, -0.13764818, 0, -1.0284711, 3679.474, 0, 811.053)
+metadata/building_name = "pine_tree"
 
-[node name="bush_15955" type="Node3D" parent="." unique_id=751948975 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-0.5498087, 0, -0.6720322, 0, 0.86828387, 0, 0.6720322, 0, -0.5498087, 3634.4775, 0, 841.1247)
+[node name="bush_15743" type="Node3D" parent="." unique_id=90761345 instance=ExtResource("4_snjv7")]
+transform = Transform3D(-0.6268335, 0, 0.64260155, 0, 0.89769536, 0, -0.64260155, 0, -0.6268335, 3653.7534, 0, 953.25555)
 metadata/building_name = "bush"
 
-[node name="oak_tree_15956" type="Node3D" parent="." unique_id=1836376595 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-0.7887758, 0, 0.33503634, 0, 0.8569811, 0, -0.33503634, 0, -0.7887758, 3633.0264, 0, 826.41174)
+[node name="fallen_log_15744" type="Node3D" parent="." unique_id=1800618106 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-0.4656765, 0, -0.71341354, 0, 0.8519469, 0, 0.71341354, 0, -0.4656765, 3665.134, 0, 1021.6079)
+metadata/building_name = "fallen_log"
+
+[node name="fallen_log_15745" type="Node3D" parent="." unique_id=372564600 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-0.8544534, 0, 0.5040266, 0, 0.992035, 0, -0.5040266, 0, -0.8544534, 3645.021, 0, 982.51904)
+metadata/building_name = "fallen_log"
+
+[node name="fallen_log_15746" type="Node3D" parent="." unique_id=1410633202 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-0.9651228, 0, 0.1420231, 0, 0.97551656, 0, -0.1420231, 0, -0.9651228, 3657.6614, 0, 898.5315)
+metadata/building_name = "fallen_log"
+
+[node name="mushrooms_15747" type="Node3D" parent="." unique_id=1962095135 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(0.9293913, 0, -0.5014427, 0, 1.0560365, 0, 0.5014427, 0, 0.9293913, 3708.046, 0, 892.41376)
+metadata/building_name = "mushrooms"
+
+[node name="oak_tree_15748" type="Node3D" parent="." unique_id=8001321 instance=ExtResource("5_pj78e")]
+transform = Transform3D(0.74256516, 0, 0.33798105, 0, 0.8158641, 0, -0.33798105, 0, 0.74256516, 3702.7402, 0, 944.6624)
 metadata/building_name = "oak_tree"
 
-[node name="pine_tree_15957" type="Node3D" parent="." unique_id=103190908 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.72302735, 0, -0.4933459, 0, 0.8753049, 0, 0.4933459, 0, -0.72302735, 3646.8118, 0, 847.25336)
-metadata/building_name = "pine_tree"
-
-[node name="fallen_log_15958" type="Node3D" parent="." unique_id=1316995526 instance=ExtResource("1_v106y")]
-transform = Transform3D(-1.2695032, 0, -0.06528454, 0, 1.2711807, 0, 0.06528454, 0, -1.2695032, 3639.1174, 0, 839.3351)
+[node name="fallen_log_15749" type="Node3D" parent="." unique_id=1967342063 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(0.49072266, 0, 0.7428361, 0, 0.89028883, 0, -0.7428361, 0, 0.49072266, 3696.8276, 0, 907.7529)
 metadata/building_name = "fallen_log"
 
-[node name="rocks_small_15959" type="Node3D" parent="." unique_id=1206524962 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.46983945, 0, -1.0184307, 0, 1.1215838, 0, 1.0184307, 0, -0.46983945, 3706.8618, 0, 874.8328)
-metadata/building_name = "rocks_small"
-
-[node name="fern_15960" type="Node3D" parent="." unique_id=973860222 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.76728237, 0, -0.8605872, 0, 1.1529669, 0, 0.8605872, 0, 0.76728237, 3649.061, 0, 835.3098)
-metadata/building_name = "fern"
-
-[node name="mushrooms_15961" type="Node3D" parent="." unique_id=141535431 instance=ExtResource("6_a413q")]
-transform = Transform3D(0.82252985, 0, 0.70042574, 0, 1.0803479, 0, -0.70042574, 0, 0.82252985, 3683.2432, 0, 826.644)
-metadata/building_name = "mushrooms"
-
-[node name="mushrooms_15962" type="Node3D" parent="." unique_id=1753614799 instance=ExtResource("6_a413q")]
-transform = Transform3D(0.9400526, 0, 0.14955601, 0, 0.951875, 0, -0.14955601, 0, 0.9400526, 3718.8184, 0, 1040.107)
-metadata/building_name = "mushrooms"
-
-[node name="rocks_small_15963" type="Node3D" parent="." unique_id=2041830087 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.81627, 0, 0.79339814, 0, 1.1383221, 0, -0.79339814, 0, 0.81627, 3655.8455, 0, 856.7712)
-metadata/building_name = "rocks_small"
-
-[node name="fallen_log_15964" type="Node3D" parent="." unique_id=1727027397 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.012341117, 0, 0.8650387, 0, 0.8651267, 0, -0.8650387, 0, -0.012341117, 3689.3987, 0, 893.34503)
-metadata/building_name = "fallen_log"
-
-[node name="pine_tree_15965" type="Node3D" parent="." unique_id=923459851 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-1.1390772, 0, -0.6114375, 0, 1.292808, 0, 0.6114375, 0, -1.1390772, 3620.1042, 0, 1035.5321)
-metadata/building_name = "pine_tree"
-
-[node name="rocks_small_15966" type="Node3D" parent="." unique_id=423417473 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.79193395, 0, 0.8833119, 0, 1.1863387, 0, -0.8833119, 0, -0.79193395, 3691.7441, 0, 870.67035)
-metadata/building_name = "rocks_small"
-
-[node name="fallen_log_15967" type="Node3D" parent="." unique_id=1355380943 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.3881423, 0, -0.84023863, 0, 0.9255568, 0, 0.84023863, 0, -0.3881423, 3717.4492, 0, 922.9427)
-metadata/building_name = "fallen_log"
-
-[node name="pine_tree_15968" type="Node3D" parent="." unique_id=765698676 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(1.1312896, 0, -0.08669145, 0, 1.1346064, 0, 0.08669145, 0, 1.1312896, 3716.0454, 0, 836.7211)
-metadata/building_name = "pine_tree"
-
-[node name="bush_15969" type="Node3D" parent="." unique_id=1779347834 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-0.8064721, 0, -0.029172504, 0, 0.8069996, 0, 0.029172504, 0, -0.8064721, 3618.9673, 0, 975.0483)
+[node name="bush_15750" type="Node3D" parent="." unique_id=577919082 instance=ExtResource("4_snjv7")]
+transform = Transform3D(-1.2163855, 0, -0.22906813, 0, 1.2377665, 0, 0.22906813, 0, -1.2163855, 3693.3728, 0, 855.3859)
 metadata/building_name = "bush"
 
-[node name="fern_15970" type="Node3D" parent="." unique_id=1651256601 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(-0.67940325, 0, 0.92184263, 0, 1.1451561, 0, -0.92184263, 0, -0.67940325, 3694.9814, 0, 1025.7009)
-metadata/building_name = "fern"
-
-[node name="oak_tree_15971" type="Node3D" parent="." unique_id=123067182 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.1174589, 0, 0.9006573, 0, 0.9082842, 0, -0.9006573, 0, 0.1174589, 3655.1611, 0, 862.7582)
-metadata/building_name = "oak_tree"
-
-[node name="pine_tree_15972" type="Node3D" parent="." unique_id=1616112703 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.1526043, 0, 1.2505723, 0, 1.259849, 0, -1.2505723, 0, -0.1526043, 3721.4927, 0, 808.9883)
-metadata/building_name = "pine_tree"
-
-[node name="birch_tree_15973" type="Node3D" parent="." unique_id=482384643 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.45101184, 0, 0.7599249, 0, 0.88368404, 0, -0.7599249, 0, 0.45101184, 3621.449, 0, 1006.89606)
-metadata/building_name = "birch_tree"
-
-[node name="rocks_small_15974" type="Node3D" parent="." unique_id=581039994 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.9152181, 0, -0.18811154, 0, 0.93435013, 0, 0.18811154, 0, 0.9152181, 3679.4512, 0, 976.83136)
-metadata/building_name = "rocks_small"
-
-[node name="mushrooms_15975" type="Node3D" parent="." unique_id=534083711 instance=ExtResource("6_a413q")]
-transform = Transform3D(-1.2452431, 0, -0.021407623, 0, 1.2454271, 0, 0.021407623, 0, -1.2452431, 3617.8538, 0, 837.99567)
+[node name="mushrooms_15751" type="Node3D" parent="." unique_id=2076707456 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-1.0326488, 0, 0.6406704, 0, 1.2152457, 0, -0.6406704, 0, -1.0326488, 3677.4146, 0, 833.09485)
 metadata/building_name = "mushrooms"
 
-[node name="fallen_log_15976" type="Node3D" parent="." unique_id=23914079 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.55169874, 0, 0.6647543, 0, 0.863869, 0, -0.6647543, 0, 0.55169874, 3707.8005, 0, 915.365)
-metadata/building_name = "fallen_log"
-
-[node name="birch_tree_15977" type="Node3D" parent="." unique_id=1680863861 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.09576921, 0, -1.2885176, 0, 1.2920717, 0, 1.2885176, 0, -0.09576921, 3656.048, 0, 992.31824)
-metadata/building_name = "birch_tree"
-
-[node name="pine_tree_15978" type="Node3D" parent="." unique_id=4130492 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(1.0285649, 0, -0.24184519, 0, 1.0566149, 0, 0.24184519, 0, 1.0285649, 3733.3872, 0, 1040.0879)
-metadata/building_name = "pine_tree"
-
-[node name="rocks_small_15979" type="Node3D" parent="." unique_id=14854082 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.19344601, 0, 1.0360016, 0, 1.0539073, 0, -1.0360016, 0, -0.19344601, 3620.116, 0, 995.74084)
-metadata/building_name = "rocks_small"
-
-[node name="pine_tree_15980" type="Node3D" parent="." unique_id=1001203733 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.6670621, 0, 1.1037005, 0, 1.2896227, 0, -1.1037005, 0, 0.6670621, 3671.6907, 0, 842.5046)
-metadata/building_name = "pine_tree"
-
-[node name="mushrooms_15981" type="Node3D" parent="." unique_id=538973525 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.67270315, 0, 0.67103714, 0, 0.9501686, 0, -0.67103714, 0, -0.67270315, 3663.2583, 0, 857.7134)
-metadata/building_name = "mushrooms"
-
-[node name="fern_15982" type="Node3D" parent="." unique_id=984595193 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(-0.9901621, 0, -0.33280334, 0, 1.0445951, 0, 0.33280334, 0, -0.9901621, 3652.7559, 0, 927.67737)
+[node name="fern_15752" type="Node3D" parent="." unique_id=1093741472 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(0.7415327, 0, -0.9380256, 0, 1.1957269, 0, 0.9380256, 0, 0.7415327, 3632.451, 0, 815.13837)
 metadata/building_name = "fern"
 
-[node name="rocks_small_15983" type="Node3D" parent="." unique_id=655235166 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.85076874, 0, 0.6075761, 0, 1.0454454, 0, -0.6075761, 0, 0.85076874, 3611.0857, 0, 832.34705)
+[node name="mushrooms_15753" type="Node3D" parent="." unique_id=910732375 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(1.1232256, 0, 0.014901618, 0, 1.1233244, 0, -0.014901618, 0, 1.1232256, 3731.358, 0, 995.84436)
+metadata/building_name = "mushrooms"
+
+[node name="rocks_small_15754" type="Node3D" parent="." unique_id=1597522813 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(0.9154529, 0, -0.08544881, 0, 0.91943216, 0, 0.08544881, 0, 0.9154529, 3730.5684, 0, 869.16785)
 metadata/building_name = "rocks_small"
 
-[node name="birch_tree_15984" type="Node3D" parent="." unique_id=145889590 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.84170693, 0, -0.9287033, 0, 1.2533796, 0, 0.9287033, 0, 0.84170693, 3722.4338, 0, 863.45026)
-metadata/building_name = "birch_tree"
+[node name="rocks_small_15755" type="Node3D" parent="." unique_id=237050665 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.96317506, 0, 0.44786903, 0, 1.0622113, 0, -0.44786903, 0, -0.96317506, 3652.4678, 0, 1037.8158)
+metadata/building_name = "rocks_small"
 
-[node name="bush_15985" type="Node3D" parent="." unique_id=647775041 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-0.7207736, 0, -0.6610422, 0, 0.97800374, 0, 0.6610422, 0, -0.7207736, 3623.9495, 0, 1023.4059)
+[node name="bush_15756" type="Node3D" parent="." unique_id=2106548794 instance=ExtResource("4_snjv7")]
+transform = Transform3D(0.12198834, 0, 1.1475847, 0, 1.1540501, 0, -1.1475847, 0, 0.12198834, 3626.4316, 0, 967.15906)
 metadata/building_name = "bush"
 
-[node name="rocks_small_15986" type="Node3D" parent="." unique_id=957120345 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.9593662, 0, 0.73564905, 0, 1.2089512, 0, -0.73564905, 0, 0.9593662, 3629.5789, 0, 843.99335)
-metadata/building_name = "rocks_small"
+[node name="mushrooms_15757" type="Node3D" parent="." unique_id=943538197 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-0.69839346, 0, 0.5792386, 0, 0.9073427, 0, -0.5792386, 0, -0.69839346, 3676.0435, 0, 836.1816)
+metadata/building_name = "mushrooms"
 
-[node name="birch_tree_15987" type="Node3D" parent="." unique_id=116927209 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.9342709, 0, -0.6590075, 0, 1.1433079, 0, 0.6590075, 0, 0.9342709, 3721.535, 0, 976.26794)
-metadata/building_name = "birch_tree"
+[node name="fallen_log_15758" type="Node3D" parent="." unique_id=1934228591 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-0.80028653, 0, 0.6378913, 0, 1.0234079, 0, -0.6378913, 0, -0.80028653, 3724.85, 0, 975.558)
+metadata/building_name = "fallen_log"
 
-[node name="rocks_small_15988" type="Node3D" parent="." unique_id=383642572 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.02714076, 0, 1.1933482, 0, 1.1936567, 0, -1.1933482, 0, -0.02714076, 3683.913, 0, 1018.1207)
-metadata/building_name = "rocks_small"
-
-[node name="fern_15989" type="Node3D" parent="." unique_id=2001601884 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(1.2175028, 0, -0.1506859, 0, 1.2267923, 0, 0.1506859, 0, 1.2175028, 3691.4592, 0, 1031.165)
+[node name="fern_15759" type="Node3D" parent="." unique_id=981489515 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.79752535, 0, -0.4265899, 0, 0.9044477, 0, 0.4265899, 0, -0.79752535, 3617.1653, 0, 823.8603)
 metadata/building_name = "fern"
 
-[node name="birch_tree_15990" type="Node3D" parent="." unique_id=1585599540 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.902164, 0, 0.7948671, 0, 1.2023783, 0, -0.7948671, 0, 0.902164, 3626.84, 0, 966.4992)
-metadata/building_name = "birch_tree"
-
-[node name="birch_tree_15991" type="Node3D" parent="." unique_id=1818193668 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.2423301, 0, 0.8288607, 0, 0.8635589, 0, -0.8288607, 0, 0.2423301, 3712.2559, 0, 860.3183)
-metadata/building_name = "birch_tree"
-
-[node name="mushrooms_15992" type="Node3D" parent="." unique_id=2026911733 instance=ExtResource("6_a413q")]
-transform = Transform3D(0.0041074, 0, -1.084039, 0, 1.0840467, 0, 1.084039, 0, 0.0041074, 3665.9646, 0, 828.18414)
-metadata/building_name = "mushrooms"
-
-[node name="birch_tree_15993" type="Node3D" parent="." unique_id=1039894542 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.830647, 0, -0.7828078, 0, 1.1413863, 0, 0.7828078, 0, -0.830647, 3623.0723, 0, 869.6855)
-metadata/building_name = "birch_tree"
-
-[node name="pine_tree_15994" type="Node3D" parent="." unique_id=1533516332 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.42570713, 0, 0.8646848, 0, 0.9637979, 0, -0.8646848, 0, -0.42570713, 3668.1816, 0, 1022.6413)
-metadata/building_name = "pine_tree"
-
-[node name="rocks_small_15995" type="Node3D" parent="." unique_id=267520695 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.8092125, 0, 0.8922813, 0, 1.2045708, 0, -0.8922813, 0, -0.8092125, 3742.7102, 0, 1015.7884)
-metadata/building_name = "rocks_small"
-
-[node name="mushrooms_15996" type="Node3D" parent="." unique_id=153606634 instance=ExtResource("6_a413q")]
-transform = Transform3D(0.942904, 0, -0.15708217, 0, 0.95589894, 0, 0.15708217, 0, 0.942904, 3658.1272, 0, 814.23706)
-metadata/building_name = "mushrooms"
-
-[node name="fallen_log_15997" type="Node3D" parent="." unique_id=187836603 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.83479667, 0, -0.05921987, 0, 0.8368945, 0, 0.05921987, 0, 0.83479667, 3631.2668, 0, 1020.70776)
-metadata/building_name = "fallen_log"
-
-[node name="fallen_log_15998" type="Node3D" parent="." unique_id=212845796 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.4193591, 0, -0.82129467, 0, 0.9221643, 0, 0.82129467, 0, 0.4193591, 3629.1812, 0, 1031.5946)
-metadata/building_name = "fallen_log"
-
-[node name="pine_tree_15999" type="Node3D" parent="." unique_id=904610551 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(1.1833727, 0, -0.26982036, 0, 1.2137438, 0, 0.26982036, 0, 1.1833727, 3694.4036, 0, 872.1841)
-metadata/building_name = "pine_tree"
-
-[node name="pine_tree_16000" type="Node3D" parent="." unique_id=690025265 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.8933112, 0, 0.22084855, 0, 0.92020595, 0, -0.22084855, 0, 0.8933112, 3674.2375, 0, 957.40485)
-metadata/building_name = "pine_tree"
-
-[node name="birch_tree_16001" type="Node3D" parent="." unique_id=781436114 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.09115772, 0, -1.1902254, 0, 1.1937112, 0, 1.1902254, 0, 0.09115772, 3742.9116, 0, 977.6111)
-metadata/building_name = "birch_tree"
-
-[node name="bush_16002" type="Node3D" parent="." unique_id=567120924 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-0.84875405, 0, -0.6871729, 0, 1.0920577, 0, 0.6871729, 0, -0.84875405, 3687.2788, 0, 863.25305)
+[node name="bush_15760" type="Node3D" parent="." unique_id=1374976306 instance=ExtResource("4_snjv7")]
+transform = Transform3D(1.1729474, 0, -0.40019417, 0, 1.2393389, 0, 0.40019417, 0, 1.1729474, 3663.355, 0, 1012.21783)
 metadata/building_name = "bush"
 
-[node name="birch_tree_16003" type="Node3D" parent="." unique_id=1895582097 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.77204424, 0, 0.8362279, 0, 1.1381254, 0, -0.8362279, 0, 0.77204424, 3733.8418, 0, 919.51465)
-metadata/building_name = "birch_tree"
+[node name="fern_15761" type="Node3D" parent="." unique_id=1737214430 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.45926848, 0, 0.89253324, 0, 1.0037645, 0, -0.89253324, 0, -0.45926848, 3741.7268, 0, 924.12634)
+metadata/building_name = "fern"
 
-[node name="pine_tree_16004" type="Node3D" parent="." unique_id=289238014 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.68914896, 0, -0.6536553, 0, 0.9498376, 0, 0.6536553, 0, -0.68914896, 3649.082, 0, 924.7998)
-metadata/building_name = "pine_tree"
-
-[node name="oak_tree_16005" type="Node3D" parent="." unique_id=1131903116 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.7123141, 0, 0.923536, 0, 1.1663233, 0, -0.923536, 0, 0.7123141, 3728.5444, 0, 862.625)
-metadata/building_name = "oak_tree"
-
-[node name="rocks_small_16006" type="Node3D" parent="." unique_id=62898597 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(1.1227427, 0, -0.5747782, 0, 1.2613173, 0, 0.5747782, 0, 1.1227427, 3724.5723, 0, 856.86237)
+[node name="rocks_small_15762" type="Node3D" parent="." unique_id=790385394 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.3235358, 0, -0.88206995, 0, 0.9395333, 0, 0.88206995, 0, -0.3235358, 3685.9087, 0, 1011.9391)
 metadata/building_name = "rocks_small"
 
-[node name="fern_16007" type="Node3D" parent="." unique_id=211993554 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(-1.0565289, 0, -0.6392797, 0, 1.2348814, 0, 0.6392797, 0, -1.0565289, 3713.1807, 0, 1000.54584)
-metadata/building_name = "fern"
+[node name="pine_tree_15763" type="Node3D" parent="." unique_id=815885106 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.5058459, 0, -1.1754564, 0, 1.2796788, 0, 1.1754564, 0, 0.5058459, 3636.5984, 0, 886.1156)
+metadata/building_name = "pine_tree"
 
-[node name="bush_16008" type="Node3D" parent="." unique_id=1279399928 instance=ExtResource("4_snjv7")]
-transform = Transform3D(0.2992033, 0, 0.8670868, 0, 0.91725796, 0, -0.8670868, 0, 0.2992033, 3672.9956, 0, 1026.8411)
-metadata/building_name = "bush"
-
-[node name="oak_tree_16009" type="Node3D" parent="." unique_id=510460002 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.8097421, 0, -0.7875577, 0, 1.1295705, 0, 0.7875577, 0, 0.8097421, 3702.308, 0, 906.18933)
+[node name="oak_tree_15764" type="Node3D" parent="." unique_id=1490010158 instance=ExtResource("5_pj78e")]
+transform = Transform3D(-0.57020766, 0, 0.70008147, 0, 0.90291244, 0, -0.70008147, 0, -0.57020766, 3734.8962, 0, 1035.426)
 metadata/building_name = "oak_tree"
 
-[node name="rocks_small_16010" type="Node3D" parent="." unique_id=2132801308 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-1.1971953, 0, 0.44809523, 0, 1.2783059, 0, -0.44809523, 0, -1.1971953, 3672.7644, 0, 941.6089)
+[node name="mushrooms_15765" type="Node3D" parent="." unique_id=589517423 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(0.053187832, 0, -0.9456869, 0, 0.9471814, 0, 0.9456869, 0, 0.053187832, 3656.3325, 0, 908.363)
+metadata/building_name = "mushrooms"
+
+[node name="fern_15766" type="Node3D" parent="." unique_id=584276363 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(0.34724012, 0, 0.9407917, 0, 1.0028284, 0, -0.9407917, 0, 0.34724012, 3697.1472, 0, 1005.29254)
+metadata/building_name = "fern"
+
+[node name="fern_15767" type="Node3D" parent="." unique_id=953103508 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(0.51384145, 0, -0.89005953, 0, 1.0277349, 0, 0.89005953, 0, 0.51384145, 3709.2986, 0, 847.69446)
+metadata/building_name = "fern"
+
+[node name="oak_tree_15768" type="Node3D" parent="." unique_id=135686803 instance=ExtResource("5_pj78e")]
+transform = Transform3D(0.5368659, 0, 1.177285, 0, 1.2939184, 0, -1.177285, 0, 0.5368659, 3654.653, 0, 819.59564)
+metadata/building_name = "oak_tree"
+
+[node name="mushrooms_15769" type="Node3D" parent="." unique_id=920027960 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-0.1497335, 0, -1.2427027, 0, 1.251691, 0, 1.2427027, 0, -0.1497335, 3654.7986, 0, 1025.2799)
+metadata/building_name = "mushrooms"
+
+[node name="pine_tree_15770" type="Node3D" parent="." unique_id=1729766283 instance=ExtResource("6_a413q")]
+transform = Transform3D(1.0730425, 0, -0.5040133, 0, 1.1855166, 0, 0.5040133, 0, 1.0730425, 3634.0586, 0, 904.38885)
+metadata/building_name = "pine_tree"
+
+[node name="mushrooms_15771" type="Node3D" parent="." unique_id=15855302 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-0.3053573, 0, 1.0492121, 0, 1.0927439, 0, -1.0492121, 0, -0.3053573, 3740.5667, 0, 973.449)
+metadata/building_name = "mushrooms"
+
+[node name="mushrooms_15772" type="Node3D" parent="." unique_id=105922760 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-0.22739328, 0, 0.784678, 0, 0.8169622, 0, -0.784678, 0, -0.22739328, 3660.9558, 0, 899.04846)
+metadata/building_name = "mushrooms"
+
+[node name="oak_tree_15773" type="Node3D" parent="." unique_id=1645160638 instance=ExtResource("5_pj78e")]
+transform = Transform3D(0.017704384, 0, -0.8225252, 0, 0.8227157, 0, 0.8225252, 0, 0.017704384, 3631.5054, 0, 840.51587)
+metadata/building_name = "oak_tree"
+
+[node name="fallen_log_15774" type="Node3D" parent="." unique_id=36989892 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-0.7139041, 0, 0.5478236, 0, 0.89987206, 0, -0.5478236, 0, -0.7139041, 3702.6387, 0, 892.8888)
+metadata/building_name = "fallen_log"
+
+[node name="rocks_small_15775" type="Node3D" parent="." unique_id=1121658096 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.9110404, 0, 0.038634118, 0, 0.9118592, 0, -0.038634118, 0, -0.9110404, 3667.7246, 0, 826.17395)
 metadata/building_name = "rocks_small"
 
-[node name="fern_16011" type="Node3D" parent="." unique_id=424265496 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.43349978, 0, -0.67604506, 0, 0.8030934, 0, 0.67604506, 0, 0.43349978, 3649.0547, 0, 839.8537)
-metadata/building_name = "fern"
+[node name="fallen_log_15776" type="Node3D" parent="." unique_id=2097594206 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(0.74729, 0, -0.3506618, 0, 0.82547325, 0, 0.3506618, 0, 0.74729, 3692.6104, 0, 882.7965)
+metadata/building_name = "fallen_log"
 
-[node name="birch_tree_16012" type="Node3D" parent="." unique_id=144775490 instance=ExtResource("5_pj78e")]
-transform = Transform3D(1.0635018, 0, -0.07628862, 0, 1.0662346, 0, 0.07628862, 0, 1.0635018, 3696.9058, 0, 838.352)
-metadata/building_name = "birch_tree"
-
-[node name="bush_16013" type="Node3D" parent="." unique_id=473308280 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-0.53033936, 0, 0.7616374, 0, 0.92809016, 0, -0.7616374, 0, -0.53033936, 3731.133, 0, 973.6807)
-metadata/building_name = "bush"
-
-[node name="pine_tree_16014" type="Node3D" parent="." unique_id=1215834947 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.13112837, 0, 1.2095014, 0, 1.2165887, 0, -1.2095014, 0, 0.13112837, 3728.0193, 0, 857.4119)
-metadata/building_name = "pine_tree"
-
-[node name="bush_16015" type="Node3D" parent="." unique_id=397862909 instance=ExtResource("4_snjv7")]
-transform = Transform3D(0.6432423, 0, -0.6884016, 0, 0.9421557, 0, 0.6884016, 0, 0.6432423, 3650.0542, 0, 985.0394)
-metadata/building_name = "bush"
-
-[node name="mushrooms_16016" type="Node3D" parent="." unique_id=1837080229 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.13881043, 0, 1.0973976, 0, 1.1061418, 0, -1.0973976, 0, -0.13881043, 3609.1475, 0, 1005.9722)
-metadata/building_name = "mushrooms"
-
-[node name="rocks_small_16017" type="Node3D" parent="." unique_id=163219844 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.42905432, 0, -0.8281099, 0, 0.93265945, 0, 0.8281099, 0, 0.42905432, 3729.332, 0, 843.8013)
+[node name="rocks_small_15777" type="Node3D" parent="." unique_id=1142612021 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(0.32420838, 0, -1.1466751, 0, 1.191627, 0, 1.1466751, 0, 0.32420838, 3642.5952, 0, 881.50726)
 metadata/building_name = "rocks_small"
 
-[node name="bush_16018" type="Node3D" parent="." unique_id=457062062 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-1.2100916, 0, 0.312644, 0, 1.2498271, 0, -0.312644, 0, -1.2100916, 3678.504, 0, 947.6521)
+[node name="birch_tree_15778" type="Node3D" parent="." unique_id=171288010 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(1.181363, 0, 0.42662483, 0, 1.2560363, 0, -0.42662483, 0, 1.181363, 3695.228, 0, 871.80536)
+metadata/building_name = "birch_tree"
+
+[node name="mushrooms_15779" type="Node3D" parent="." unique_id=1024137539 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-0.7608236, 0, 0.44607863, 0, 0.88195163, 0, -0.44607863, 0, -0.7608236, 3686.4087, 0, 950.2891)
+metadata/building_name = "mushrooms"
+
+[node name="fallen_log_15780" type="Node3D" parent="." unique_id=1723913775 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(0.8231566, 0, -0.32587352, 0, 0.8853137, 0, 0.32587352, 0, 0.8231566, 3729.2244, 0, 842.74207)
+metadata/building_name = "fallen_log"
+
+[node name="birch_tree_15781" type="Node3D" parent="." unique_id=1154042380 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(-0.30824763, 0, 0.82670295, 0, 0.8823006, 0, -0.82670295, 0, -0.30824763, 3622.4788, 0, 987.4943)
+metadata/building_name = "birch_tree"
+
+[node name="bush_15782" type="Node3D" parent="." unique_id=117414134 instance=ExtResource("4_snjv7")]
+transform = Transform3D(-0.73083353, 0, -0.8501067, 0, 1.1210705, 0, 0.8501067, 0, -0.73083353, 3693.299, 0, 1017.4052)
 metadata/building_name = "bush"
 
-[node name="pine_tree_16019" type="Node3D" parent="." unique_id=1293064545 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.34942698, 0, 0.83739924, 0, 0.90737903, 0, -0.83739924, 0, 0.34942698, 3718.249, 0, 965.74164)
+[node name="pine_tree_15783" type="Node3D" parent="." unique_id=1911954498 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.07091902, 0, -1.272399, 0, 1.2743738, 0, 1.272399, 0, 0.07091902, 3721.9907, 0, 836.53625)
 metadata/building_name = "pine_tree"
 
-[node name="birch_tree_16020" type="Node3D" parent="." unique_id=2015121273 instance=ExtResource("5_pj78e")]
-transform = Transform3D(1.2160434, 0, 0.3770017, 0, 1.2731425, 0, -0.3770017, 0, 1.2160434, 3618.5513, 0, 924.4327)
-metadata/building_name = "birch_tree"
+[node name="fern_15784" type="Node3D" parent="." unique_id=1993288787 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.17086048, 0, 0.83330643, 0, 0.8506426, 0, -0.83330643, 0, -0.17086048, 3680.6135, 0, 866.98773)
+metadata/building_name = "fern"
 
-[node name="mushrooms_16021" type="Node3D" parent="." unique_id=506992832 instance=ExtResource("6_a413q")]
-transform = Transform3D(0.5505576, 0, 0.74086183, 0, 0.923033, 0, -0.74086183, 0, 0.5505576, 3649.1277, 0, 845.5042)
+[node name="pine_tree_15785" type="Node3D" parent="." unique_id=1321381372 instance=ExtResource("6_a413q")]
+transform = Transform3D(-0.62942135, 0, 1.0202286, 0, 1.198765, 0, -1.0202286, 0, -0.62942135, 3706.8755, 0, 1005.43774)
+metadata/building_name = "pine_tree"
+
+[node name="fern_15786" type="Node3D" parent="." unique_id=1013979639 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.6618862, 0, 0.6259733, 0, 0.9110082, 0, -0.6259733, 0, -0.6618862, 3729.006, 0, 837.4557)
+metadata/building_name = "fern"
+
+[node name="oak_tree_15787" type="Node3D" parent="." unique_id=620633344 instance=ExtResource("5_pj78e")]
+transform = Transform3D(0.2833263, 0, 0.84745103, 0, 0.8935586, 0, -0.84745103, 0, 0.2833263, 3646.8157, 0, 833.6469)
+metadata/building_name = "oak_tree"
+
+[node name="oak_tree_15788" type="Node3D" parent="." unique_id=1998421510 instance=ExtResource("5_pj78e")]
+transform = Transform3D(0.39346084, 0, 1.157933, 0, 1.2229556, 0, -1.157933, 0, 0.39346084, 3733.4807, 0, 951.32086)
+metadata/building_name = "oak_tree"
+
+[node name="fern_15789" type="Node3D" parent="." unique_id=534763995 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.2894375, 0, 1.0485504, 0, 1.0877646, 0, -1.0485504, 0, -0.2894375, 3718.8774, 0, 993.029)
+metadata/building_name = "fern"
+
+[node name="pine_tree_15790" type="Node3D" parent="." unique_id=1246128420 instance=ExtResource("6_a413q")]
+transform = Transform3D(-0.6755863, 0, -0.5609547, 0, 0.8781156, 0, 0.5609547, 0, -0.6755863, 3683.4133, 0, 987.8444)
+metadata/building_name = "pine_tree"
+
+[node name="fern_15791" type="Node3D" parent="." unique_id=423740955 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.033073954, 0, -0.95624495, 0, 0.95681673, 0, 0.95624495, 0, -0.033073954, 3627.6448, 0, 820.53577)
+metadata/building_name = "fern"
+
+[node name="oak_tree_15792" type="Node3D" parent="." unique_id=2123391755 instance=ExtResource("5_pj78e")]
+transform = Transform3D(-0.71118194, 0, -0.51002806, 0, 0.8751619, 0, 0.51002806, 0, -0.71118194, 3736.1704, 0, 971.4504)
+metadata/building_name = "oak_tree"
+
+[node name="mushrooms_15793" type="Node3D" parent="." unique_id=1067729591 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(0.43201822, 0, -0.9060888, 0, 1.0038111, 0, 0.9060888, 0, 0.43201822, 3607.0554, 0, 919.2483)
 metadata/building_name = "mushrooms"
 
-[node name="birch_tree_16022" type="Node3D" parent="." unique_id=511968112 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-1.043573, 0, 0.45937848, 0, 1.1402075, 0, -0.45937848, 0, -1.043573, 3741.0503, 0, 1026.6284)
-metadata/building_name = "birch_tree"
-
-[node name="fallen_log_16023" type="Node3D" parent="." unique_id=1191549508 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.9018083, 0, -0.41360143, 0, 0.99213123, 0, 0.41360143, 0, -0.9018083, 3720.9644, 0, 878.2959)
-metadata/building_name = "fallen_log"
-
-[node name="pine_tree_16024" type="Node3D" parent="." unique_id=758312958 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.1853635, 0, -1.2516097, 0, 1.2652614, 0, 1.2516097, 0, 0.1853635, 3617.0234, 0, 818.48724)
+[node name="pine_tree_15794" type="Node3D" parent="." unique_id=570397018 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.18516956, 0, -1.1110561, 0, 1.1263807, 0, 1.1110561, 0, 0.18516956, 3700.4602, 0, 1030.946)
 metadata/building_name = "pine_tree"
 
-[node name="fallen_log_16025" type="Node3D" parent="." unique_id=1086936583 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.9844261, 0, -0.5816223, 0, 1.1434069, 0, 0.5816223, 0, 0.9844261, 3665.9402, 0, 835.21094)
+[node name="mushrooms_15795" type="Node3D" parent="." unique_id=2113166024 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(1.236223, 0, -0.047265254, 0, 1.2371262, 0, 0.047265254, 0, 1.236223, 3684.9834, 0, 1016.10895)
+metadata/building_name = "mushrooms"
+
+[node name="fallen_log_15796" type="Node3D" parent="." unique_id=1754638275 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(0.7753695, 0, -0.34419018, 0, 0.84833056, 0, 0.34419018, 0, 0.7753695, 3729.5007, 0, 978.5197)
 metadata/building_name = "fallen_log"
 
-[node name="oak_tree_16026" type="Node3D" parent="." unique_id=820764359 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-0.4123912, 0, -0.8983743, 0, 0.98850536, 0, 0.8983743, 0, -0.4123912, 3697.4883, 0, 870.81287)
-metadata/building_name = "oak_tree"
+[node name="rocks_small_15797" type="Node3D" parent="." unique_id=1884697066 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(0.99303854, 0, -0.44384706, 0, 1.0877159, 0, 0.44384706, 0, 0.99303854, 3690.021, 0, 881.52655)
+metadata/building_name = "rocks_small"
 
-[node name="oak_tree_16027" type="Node3D" parent="." unique_id=819332700 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-1.0578282, 0, 0.046480816, 0, 1.0588489, 0, -0.046480816, 0, -1.0578282, 3688.8818, 0, 1024.7695)
-metadata/building_name = "oak_tree"
+[node name="fern_15798" type="Node3D" parent="." unique_id=684093379 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(0.8825647, 0, -0.6195222, 0, 1.0782988, 0, 0.6195222, 0, 0.8825647, 3654.3987, 0, 840.678)
+metadata/building_name = "fern"
 
-[node name="bush_16028" type="Node3D" parent="." unique_id=1182480998 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-1.1326683, 0, -0.12466605, 0, 1.1395082, 0, 0.12466605, 0, -1.1326683, 3647.6863, 0, 958.23785)
+[node name="rocks_small_15799" type="Node3D" parent="." unique_id=317922164 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(0.86780554, 0, 0.39405558, 0, 0.9530825, 0, -0.39405558, 0, 0.86780554, 3664.0068, 0, 883.57526)
+metadata/building_name = "rocks_small"
+
+[node name="bush_15800" type="Node3D" parent="." unique_id=811655370 instance=ExtResource("4_snjv7")]
+transform = Transform3D(-0.48294246, 0, 0.64420563, 0, 0.80513, 0, -0.64420563, 0, -0.48294246, 3609.4893, 0, 1001.371)
 metadata/building_name = "bush"
 
-[node name="pine_tree_16029" type="Node3D" parent="." unique_id=1636203942 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.7038264, 0, -0.41915148, 0, 0.8191823, 0, 0.41915148, 0, -0.7038264, 3654.3777, 0, 890.7691)
-metadata/building_name = "pine_tree"
+[node name="rocks_small_15801" type="Node3D" parent="." unique_id=958414195 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.48695678, 0, 1.1747708, 0, 1.271697, 0, -1.1747708, 0, -0.48695678, 3718.7124, 0, 1029.5061)
+metadata/building_name = "rocks_small"
 
-[node name="oak_tree_16030" type="Node3D" parent="." unique_id=1048034330 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-0.8192686, 0, -0.49188733, 0, 0.95559096, 0, 0.49188733, 0, -0.8192686, 3661.961, 0, 993.69965)
-metadata/building_name = "oak_tree"
-
-[node name="birch_tree_16031" type="Node3D" parent="." unique_id=1446029385 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-1.0189759, 0, -0.47828117, 0, 1.1256397, 0, 0.47828117, 0, -1.0189759, 3735.8665, 0, 816.2871)
-metadata/building_name = "birch_tree"
-
-[node name="fern_16032" type="Node3D" parent="." unique_id=202082928 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.7963953, 0, -0.12890851, 0, 0.8067607, 0, 0.12890851, 0, 0.7963953, 3659.348, 0, 950.05347)
-metadata/building_name = "fern"
-
-[node name="mushrooms_16033" type="Node3D" parent="." unique_id=558089009 instance=ExtResource("6_a413q")]
-transform = Transform3D(0.6156712, 0, -0.9342947, 0, 1.1189091, 0, 0.9342947, 0, 0.6156712, 3672.7153, 0, 986.9993)
-metadata/building_name = "mushrooms"
-
-[node name="birch_tree_16034" type="Node3D" parent="." unique_id=17681294 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.7918265, 0, -0.19795468, 0, 0.81619555, 0, 0.19795468, 0, -0.7918265, 3620.255, 0, 991.0326)
-metadata/building_name = "birch_tree"
-
-[node name="fallen_log_16035" type="Node3D" parent="." unique_id=10107077 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.15722987, 0, -0.96673906, 0, 0.9794415, 0, 0.96673906, 0, 0.15722987, 3709.86, 0, 874.0242)
+[node name="fallen_log_15802" type="Node3D" parent="." unique_id=814268409 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-0.057077967, 0, -1.1595668, 0, 1.1609707, 0, 1.1595668, 0, -0.057077967, 3654.889, 0, 882.95184)
 metadata/building_name = "fallen_log"
 
-[node name="pine_tree_16036" type="Node3D" parent="." unique_id=769685693 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.3731368, 0, 0.8044832, 0, 0.88680565, 0, -0.8044832, 0, 0.3731368, 3666.986, 0, 923.1025)
-metadata/building_name = "pine_tree"
-
-[node name="mushrooms_16037" type="Node3D" parent="." unique_id=1407641611 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.8430707, 0, 0.8987988, 0, 1.2323179, 0, -0.8987988, 0, -0.8430707, 3695.881, 0, 918.53186)
-metadata/building_name = "mushrooms"
-
-[node name="pine_tree_16038" type="Node3D" parent="." unique_id=1616607797 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.8066497, 0, 0.8073531, 0, 1.1412724, 0, -0.8073531, 0, -0.8066497, 3668.2588, 0, 960.7032)
-metadata/building_name = "pine_tree"
-
-[node name="birch_tree_16039" type="Node3D" parent="." unique_id=469331202 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.95132506, 0, 0.882041, 0, 1.297311, 0, -0.882041, 0, -0.95132506, 3663.1514, 0, 895.6577)
-metadata/building_name = "birch_tree"
-
-[node name="birch_tree_16040" type="Node3D" parent="." unique_id=564006249 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.82738465, 0, 0.48545563, 0, 0.9592875, 0, -0.48545563, 0, -0.82738465, 3677.0273, 0, 992.63727)
-metadata/building_name = "birch_tree"
-
-[node name="fallen_log_16041" type="Node3D" parent="." unique_id=1528950917 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.2707449, 0, 1.1561702, 0, 1.1874479, 0, -1.1561702, 0, 0.2707449, 3655.925, 0, 937.8779)
-metadata/building_name = "fallen_log"
-
-[node name="birch_tree_16042" type="Node3D" parent="." unique_id=1309933033 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.11686914, 0, -0.9920579, 0, 0.99891806, 0, 0.9920579, 0, 0.11686914, 3613.0898, 0, 899.37384)
-metadata/building_name = "birch_tree"
-
-[node name="oak_tree_16043" type="Node3D" parent="." unique_id=124785691 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.6624862, 0, 0.5333801, 0, 0.8505188, 0, -0.5333801, 0, 0.6624862, 3693.79, 0, 895.24146)
-metadata/building_name = "oak_tree"
-
-[node name="bush_16044" type="Node3D" parent="." unique_id=214700673 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-0.842989, 0, 0.49446726, 0, 0.9773067, 0, -0.49446726, 0, -0.842989, 3607.5496, 0, 832.13605)
+[node name="bush_15803" type="Node3D" parent="." unique_id=989894215 instance=ExtResource("4_snjv7")]
+transform = Transform3D(0.1659233, 0, -1.2538279, 0, 1.264759, 0, 1.2538279, 0, 0.1659233, 3736.7515, 0, 1042.0249)
 metadata/building_name = "bush"
 
-[node name="pine_tree_16045" type="Node3D" parent="." unique_id=1846583901 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(1.0449864, 0, -0.48448506, 0, 1.1518344, 0, 0.48448506, 0, 1.0449864, 3727.28, 0, 881.0255)
+[node name="fallen_log_15804" type="Node3D" parent="." unique_id=565200751 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(0.94619554, 0, -0.49734092, 0, 1.0689406, 0, 0.49734092, 0, 0.94619554, 3713.2844, 0, 983.1157)
+metadata/building_name = "fallen_log"
+
+[node name="fern_15805" type="Node3D" parent="." unique_id=1000311590 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.6481093, 0, 1.0169013, 0, 1.2058747, 0, -1.0169013, 0, -0.6481093, 3622.1091, 0, 1013.78345)
+metadata/building_name = "fern"
+
+[node name="fern_15806" type="Node3D" parent="." unique_id=719145559 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.3433267, 0, 0.8695633, 0, 0.9348869, 0, -0.8695633, 0, -0.3433267, 3667.216, 0, 1017.2058)
+metadata/building_name = "fern"
+
+[node name="mushrooms_15807" type="Node3D" parent="." unique_id=1985916626 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(0.92775637, 0, 0.10697131, 0, 0.9339029, 0, -0.10697131, 0, 0.92775637, 3690.5952, 0, 868.4433)
+metadata/building_name = "mushrooms"
+
+[node name="birch_tree_15808" type="Node3D" parent="." unique_id=421891164 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(0.9774951, 0, -0.13701579, 0, 0.9870511, 0, 0.13701579, 0, 0.9774951, 3677.215, 0, 859.80566)
+metadata/building_name = "birch_tree"
+
+[node name="pine_tree_15809" type="Node3D" parent="." unique_id=763093534 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.80249536, 0, -0.13939738, 0, 0.8145124, 0, 0.13939738, 0, 0.80249536, 3740.985, 0, 1017.50116)
 metadata/building_name = "pine_tree"
 
-[node name="rocks_small_16046" type="Node3D" parent="." unique_id=2076651694 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.7530062, 0, 0.4545552, 0, 0.8795674, 0, -0.4545552, 0, 0.7530062, 3656.5332, 0, 982.9464)
-metadata/building_name = "rocks_small"
+[node name="mushrooms_15810" type="Node3D" parent="." unique_id=1042758494 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-0.89802295, 0, 0.073430635, 0, 0.9010201, 0, -0.073430635, 0, -0.89802295, 3643.875, 0, 890.6024)
+metadata/building_name = "mushrooms"
 
-[node name="bush_16047" type="Node3D" parent="." unique_id=1980199240 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-0.066610806, 0, 0.9336445, 0, 0.93601763, 0, -0.9336445, 0, -0.066610806, 3644.2017, 0, 885.4461)
+[node name="birch_tree_15811" type="Node3D" parent="." unique_id=354162683 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(0.8651051, 0, 0.2320454, 0, 0.89568514, 0, -0.2320454, 0, 0.8651051, 3626.665, 0, 849.2316)
+metadata/building_name = "birch_tree"
+
+[node name="fern_15812" type="Node3D" parent="." unique_id=23057018 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.7842237, 0, 0.5297196, 0, 0.94636655, 0, -0.5297196, 0, -0.7842237, 3618.1865, 0, 949.67206)
+metadata/building_name = "fern"
+
+[node name="bush_15813" type="Node3D" parent="." unique_id=747048047 instance=ExtResource("4_snjv7")]
+transform = Transform3D(0.25190037, 0, -0.8828443, 0, 0.9180784, 0, 0.8828443, 0, 0.25190037, 3630.1968, 0, 965.25134)
 metadata/building_name = "bush"
 
-[node name="fallen_log_16048" type="Node3D" parent="." unique_id=1638527915 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.45926732, 0, 0.70718896, 0, 0.84323347, 0, -0.70718896, 0, -0.45926732, 3630.2842, 0, 960.48883)
-metadata/building_name = "fallen_log"
+[node name="fern_15814" type="Node3D" parent="." unique_id=616957889 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.64642125, 0, 0.97177845, 0, 1.1671392, 0, -0.97177845, 0, -0.64642125, 3625.6338, 0, 871.3555)
+metadata/building_name = "fern"
 
-[node name="pine_tree_16049" type="Node3D" parent="." unique_id=899352595 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(1.0470839, 0, -0.11856141, 0, 1.0537748, 0, 0.11856141, 0, 1.0470839, 3671.2576, 0, 821.49506)
+[node name="pine_tree_15815" type="Node3D" parent="." unique_id=1947623918 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.65895796, 0, 0.690728, 0, 0.95463645, 0, -0.690728, 0, 0.65895796, 3646.09, 0, 962.02606)
 metadata/building_name = "pine_tree"
 
-[node name="fallen_log_16050" type="Node3D" parent="." unique_id=1745821292 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.023041228, 0, -1.1365666, 0, 1.1368002, 0, 1.1365666, 0, 0.023041228, 3660.5876, 0, 1041.9791)
-metadata/building_name = "fallen_log"
-
-[node name="fallen_log_16051" type="Node3D" parent="." unique_id=1914874738 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.59932584, 0, 0.7509353, 0, 0.96077853, 0, -0.7509353, 0, -0.59932584, 3673.9854, 0, 903.2752)
-metadata/building_name = "fallen_log"
-
-[node name="oak_tree_16052" type="Node3D" parent="." unique_id=747958631 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.49830097, 0, 0.64587647, 0, 0.8157575, 0, -0.64587647, 0, 0.49830097, 3648.9148, 0, 808.3878)
+[node name="oak_tree_15816" type="Node3D" parent="." unique_id=365967454 instance=ExtResource("5_pj78e")]
+transform = Transform3D(-0.81938225, 0, -0.7040413, 0, 1.0803062, 0, 0.7040413, 0, -0.81938225, 3623.3142, 0, 876.10046)
 metadata/building_name = "oak_tree"
 
-[node name="oak_tree_16053" type="Node3D" parent="." unique_id=1414918798 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.1142209, 0, -0.99580073, 0, 1.0023301, 0, 0.99580073, 0, 0.1142209, 3634.1416, 0, 822.80634)
-metadata/building_name = "oak_tree"
-
-[node name="fern_16054" type="Node3D" parent="." unique_id=1114105162 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.4853972, 0, 0.8961883, 0, 1.0191977, 0, -0.8961883, 0, 0.4853972, 3624.2947, 0, 823.8526)
+[node name="fern_15817" type="Node3D" parent="." unique_id=1400659021 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(1.1767083, 0, 0.28655535, 0, 1.2110972, 0, -0.28655535, 0, 1.1767083, 3618.3203, 0, 920.69446)
 metadata/building_name = "fern"
 
-[node name="pine_tree_16055" type="Node3D" parent="." unique_id=698417167 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(-0.20250557, 0, 1.2160777, 0, 1.2328234, 0, -1.2160777, 0, -0.20250557, 3639.8416, 0, 912.7533)
+[node name="oak_tree_15818" type="Node3D" parent="." unique_id=1749518953 instance=ExtResource("5_pj78e")]
+transform = Transform3D(0.89876026, 0, 0.38962048, 0, 0.97957855, 0, -0.38962048, 0, 0.89876026, 3741.333, 0, 1003.68005)
+metadata/building_name = "oak_tree"
+
+[node name="fern_15819" type="Node3D" parent="." unique_id=1386981900 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(0.6982719, 0, 0.8537475, 0, 1.1029363, 0, -0.8537475, 0, 0.6982719, 3635.6816, 0, 877.2488)
+metadata/building_name = "fern"
+
+[node name="rocks_small_15820" type="Node3D" parent="." unique_id=648927175 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(0.8360892, 0, 0.14268851, 0, 0.84817755, 0, -0.14268851, 0, 0.8360892, 3656.758, 0, 883.89703)
+metadata/building_name = "rocks_small"
+
+[node name="pine_tree_15821" type="Node3D" parent="." unique_id=2051168981 instance=ExtResource("6_a413q")]
+transform = Transform3D(-0.27726164, 0, 1.0764248, 0, 1.1115595, 0, -1.0764248, 0, -0.27726164, 3738.6965, 0, 1017.80597)
 metadata/building_name = "pine_tree"
 
-[node name="oak_tree_16056" type="Node3D" parent="." unique_id=478925134 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(-1.1392257, 0, 0.30396226, 0, 1.1790794, 0, -0.30396226, 0, -1.1392257, 3671.3564, 0, 864.86304)
-metadata/building_name = "oak_tree"
-
-[node name="rocks_small_16057" type="Node3D" parent="." unique_id=2075363468 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.5568888, 0, -0.71131235, 0, 0.90337723, 0, 0.71131235, 0, -0.5568888, 3620.5898, 0, 916.6264)
-metadata/building_name = "rocks_small"
-
-[node name="mushrooms_16058" type="Node3D" parent="." unique_id=1557006115 instance=ExtResource("6_a413q")]
-transform = Transform3D(0.83696944, 0, -0.6460484, 0, 1.0573062, 0, 0.6460484, 0, 0.83696944, 3690.2585, 0, 874.30676)
-metadata/building_name = "mushrooms"
-
-[node name="mushrooms_16059" type="Node3D" parent="." unique_id=1829926566 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.45336598, 0, -0.7480108, 0, 0.8746776, 0, 0.7480108, 0, -0.45336598, 3684.785, 0, 951.74695)
-metadata/building_name = "mushrooms"
-
-[node name="fern_16060" type="Node3D" parent="." unique_id=1866935667 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(1.2045412, 0, 0.30203757, 0, 1.2418318, 0, -0.30203757, 0, 1.2045412, 3736.349, 0, 856.22437)
+[node name="fern_15822" type="Node3D" parent="." unique_id=1589728464 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-1.1906513, 0, 0.19219357, 0, 1.2060634, 0, -0.19219357, 0, -1.1906513, 3643.6914, 0, 936.6742)
 metadata/building_name = "fern"
 
-[node name="fallen_log_16061" type="Node3D" parent="." unique_id=1882624374 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.54056674, 0, -0.6946821, 0, 0.88022476, 0, 0.6946821, 0, -0.54056674, 3712.9238, 0, 931.03357)
-metadata/building_name = "fallen_log"
-
-[node name="oak_tree_16062" type="Node3D" parent="." unique_id=1827601775 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.5062283, 0, -0.7985461, 0, 0.9454856, 0, 0.7985461, 0, 0.5062283, 3701.5098, 0, 807.4645)
-metadata/building_name = "oak_tree"
-
-[node name="rocks_small_16063" type="Node3D" parent="." unique_id=357817090 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.7257231, 0, -0.51197296, 0, 0.8881387, 0, 0.51197296, 0, 0.7257231, 3697.5935, 0, 852.0413)
-metadata/building_name = "rocks_small"
-
-[node name="fern_16064" type="Node3D" parent="." unique_id=556301537 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.67284554, 0, 0.46629032, 0, 0.81862557, 0, -0.46629032, 0, 0.67284554, 3626.2961, 0, 868.16956)
-metadata/building_name = "fern"
-
-[node name="mushrooms_16065" type="Node3D" parent="." unique_id=1920959373 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.84632224, 0, 0.7562929, 0, 1.1350068, 0, -0.7562929, 0, -0.84632224, 3618.6062, 0, 854.024)
-metadata/building_name = "mushrooms"
-
-[node name="rocks_small_16066" type="Node3D" parent="." unique_id=1471092267 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.62243664, 0, 0.6391048, 0, 0.8921223, 0, -0.6391048, 0, -0.62243664, 3655.257, 0, 874.9939)
-metadata/building_name = "rocks_small"
-
-[node name="oak_tree_16067" type="Node3D" parent="." unique_id=1058474 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(1.0804358, 0, -0.26497743, 0, 1.1124542, 0, 0.26497743, 0, 1.0804358, 3607.8752, 0, 864.6157)
-metadata/building_name = "oak_tree"
-
-[node name="birch_tree_16068" type="Node3D" parent="." unique_id=1677855085 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.47757462, 0, 1.1994882, 0, 1.2910652, 0, -1.1994882, 0, -0.47757462, 3715.205, 0, 925.30884)
-metadata/building_name = "birch_tree"
-
-[node name="mushrooms_16069" type="Node3D" parent="." unique_id=775786528 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.20302553, 0, -1.2767335, 0, 1.2927753, 0, 1.2767335, 0, -0.20302553, 3642.0005, 0, 980.1556)
-metadata/building_name = "mushrooms"
-
-[node name="rocks_small_16070" type="Node3D" parent="." unique_id=2071276866 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.40031916, 0, -0.91906446, 0, 1.0024644, 0, 0.91906446, 0, 0.40031916, 3656.2864, 0, 989.1718)
-metadata/building_name = "rocks_small"
-
-[node name="bush_16071" type="Node3D" parent="." unique_id=1518737704 instance=ExtResource("4_snjv7")]
-transform = Transform3D(-0.23131904, 0, 1.2576447, 0, 1.278741, 0, -1.2576447, 0, -0.23131904, 3729.4314, 0, 852.0126)
-metadata/building_name = "bush"
-
-[node name="oak_tree_16072" type="Node3D" parent="." unique_id=982596770 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.84638035, 0, -0.73244756, 0, 1.119303, 0, 0.73244756, 0, 0.84638035, 3658.9631, 0, 978.14734)
-metadata/building_name = "oak_tree"
-
-[node name="birch_tree_16073" type="Node3D" parent="." unique_id=1259507893 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.26279765, 0, 0.99780905, 0, 1.031836, 0, -0.99780905, 0, 0.26279765, 3701.5884, 0, 897.8092)
-metadata/building_name = "birch_tree"
-
-[node name="mushrooms_16074" type="Node3D" parent="." unique_id=842376902 instance=ExtResource("6_a413q")]
-transform = Transform3D(1.1272937, 0, 0.5543986, 0, 1.256244, 0, -0.5543986, 0, 1.1272937, 3638.2058, 0, 983.22015)
-metadata/building_name = "mushrooms"
-
-[node name="birch_tree_16075" type="Node3D" parent="." unique_id=225488632 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.9855867, 0, -0.7353194, 0, 1.2296649, 0, 0.7353194, 0, 0.9855867, 3673.0823, 0, 846.9315)
-metadata/building_name = "birch_tree"
-
-[node name="mushrooms_16076" type="Node3D" parent="." unique_id=444968658 instance=ExtResource("6_a413q")]
-transform = Transform3D(-0.040430915, 0, 0.98943675, 0, 0.99026245, 0, -0.98943675, 0, -0.040430915, 3631.5474, 0, 825.4053)
-metadata/building_name = "mushrooms"
-
-[node name="birch_tree_16077" type="Node3D" parent="." unique_id=2018531505 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.41621104, 0, -0.8495142, 0, 0.9459947, 0, 0.8495142, 0, -0.41621104, 3657.3884, 0, 944.90436)
-metadata/building_name = "birch_tree"
-
-[node name="fern_16078" type="Node3D" parent="." unique_id=457575558 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(1.0252936, 0, -0.35826695, 0, 1.0860857, 0, 0.35826695, 0, 1.0252936, 3732.983, 0, 855.7229)
-metadata/building_name = "fern"
-
-[node name="fallen_log_16079" type="Node3D" parent="." unique_id=1882520547 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.78279203, 0, -0.24433042, 0, 0.820037, 0, 0.24433042, 0, 0.78279203, 3641.8796, 0, 916.5783)
-metadata/building_name = "fallen_log"
-
-[node name="fallen_log_16080" type="Node3D" parent="." unique_id=363568298 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.731631, 0, 0.8770727, 0, 1.1421648, 0, -0.8770727, 0, 0.731631, 3724.2622, 0, 970.9536)
-metadata/building_name = "fallen_log"
-
-[node name="fern_16081" type="Node3D" parent="." unique_id=1749569476 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(-0.6836917, 0, 0.7475686, 0, 1.0130613, 0, -0.7475686, 0, -0.6836917, 3706.5369, 0, 955.3556)
-metadata/building_name = "fern"
-
-[node name="oak_tree_16082" type="Node3D" parent="." unique_id=1682224087 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.3667003, 0, -0.9001134, 0, 0.971943, 0, 0.9001134, 0, 0.3667003, 3734.9458, 0, 869.49756)
-metadata/building_name = "oak_tree"
-
-[node name="fern_16083" type="Node3D" parent="." unique_id=2087678612 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(1.1626321, 0, -0.4358612, 0, 1.2416475, 0, 0.4358612, 0, 1.1626321, 3689.7734, 0, 986.6319)
-metadata/building_name = "fern"
-
-[node name="birch_tree_16084" type="Node3D" parent="." unique_id=2037338544 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.9324773, 0, -0.8008894, 0, 1.229202, 0, 0.8008894, 0, 0.9324773, 3664.094, 0, 1033.9127)
-metadata/building_name = "birch_tree"
-
-[node name="fallen_log_16085" type="Node3D" parent="." unique_id=893220388 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.6258837, 0, 0.9164299, 0, 1.1097631, 0, -0.9164299, 0, 0.6258837, 3651.5198, 0, 820.03)
-metadata/building_name = "fallen_log"
-
-[node name="fallen_log_16086" type="Node3D" parent="." unique_id=574465370 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.79382294, 0, 0.56442595, 0, 0.9740285, 0, -0.56442595, 0, -0.79382294, 3635.9185, 0, 812.5999)
-metadata/building_name = "fallen_log"
-
-[node name="fallen_log_16087" type="Node3D" parent="." unique_id=331936570 instance=ExtResource("1_v106y")]
-transform = Transform3D(0.39665407, 0, 1.0056928, 0, 1.0810885, 0, -1.0056928, 0, 0.39665407, 3648.5881, 0, 844.7745)
-metadata/building_name = "fallen_log"
-
-[node name="birch_tree_16088" type="Node3D" parent="." unique_id=705512230 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.105279885, 0, 1.0818285, 0, 1.0869392, 0, -1.0818285, 0, -0.105279885, 3654.6914, 0, 1024.5891)
-metadata/building_name = "birch_tree"
-
-[node name="fern_16089" type="Node3D" parent="." unique_id=413339169 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.84774536, 0, -0.5955688, 0, 1.0360378, 0, 0.5955688, 0, 0.84774536, 3691.607, 0, 837.7744)
-metadata/building_name = "fern"
-
-[node name="birch_tree_16090" type="Node3D" parent="." unique_id=1450186000 instance=ExtResource("5_pj78e")]
-transform = Transform3D(-0.98629135, 0, -0.14655174, 0, 0.99711984, 0, 0.14655174, 0, -0.98629135, 3684.6365, 0, 1014.47455)
-metadata/building_name = "birch_tree"
-
-[node name="rocks_small_16091" type="Node3D" parent="." unique_id=1090024555 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(-0.4180807, 0, 1.0526339, 0, 1.1326207, 0, -1.0526339, 0, -0.4180807, 3621.5994, 0, 931.84186)
-metadata/building_name = "rocks_small"
-
-[node name="pine_tree_16092" type="Node3D" parent="." unique_id=1634031841 instance=ExtResource("2_hfrhd")]
-transform = Transform3D(0.12665002, 0, 0.92716616, 0, 0.93577635, 0, -0.92716616, 0, 0.12665002, 3657.6697, 0, 813.6251)
+[node name="pine_tree_15823" type="Node3D" parent="." unique_id=2049293655 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.06717507, 0, -1.1990217, 0, 1.200902, 0, 1.1990217, 0, 0.06717507, 3673.8145, 0, 1035.732)
 metadata/building_name = "pine_tree"
 
-[node name="fern_16093" type="Node3D" parent="." unique_id=890213697 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(-0.7029038, 0, 0.9043871, 0, 1.1454213, 0, -0.9043871, 0, -0.7029038, 3696.3306, 0, 1015.1788)
-metadata/building_name = "fern"
-
-[node name="bush_16094" type="Node3D" parent="." unique_id=314188022 instance=ExtResource("4_snjv7")]
-transform = Transform3D(0.8210272, 0, -0.6280926, 0, 1.0337243, 0, 0.6280926, 0, 0.8210272, 3695.0862, 0, 874.7079)
-metadata/building_name = "bush"
-
-[node name="fern_16095" type="Node3D" parent="." unique_id=468750805 instance=ExtResource("7_w5e5v")]
-transform = Transform3D(0.9487918, 0, -0.18273692, 0, 0.9662291, 0, 0.18273692, 0, 0.9487918, 3681.5535, 0, 889.9024)
-metadata/building_name = "fern"
-
-[node name="fallen_log_16096" type="Node3D" parent="." unique_id=1629365368 instance=ExtResource("1_v106y")]
-transform = Transform3D(-1.0264368, 0, 0.084263526, 0, 1.0298897, 0, -0.084263526, 0, -1.0264368, 3607.1194, 0, 849.6342)
-metadata/building_name = "fallen_log"
-
-[node name="fallen_log_16097" type="Node3D" parent="." unique_id=1120647558 instance=ExtResource("1_v106y")]
-transform = Transform3D(-0.5999035, 0, -0.7038447, 0, 0.92481434, 0, 0.7038447, 0, -0.5999035, 3739.201, 0, 947.23944)
-metadata/building_name = "fallen_log"
-
-[node name="oak_tree_16098" type="Node3D" parent="." unique_id=853524441 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(1.0321112, 0, -0.5988031, 0, 1.1932387, 0, 0.5988031, 0, 1.0321112, 3643.171, 0, 879.4069)
-metadata/building_name = "oak_tree"
-
-[node name="oak_tree_16099" type="Node3D" parent="." unique_id=248789237 instance=ExtResource("8_2qxwp")]
-transform = Transform3D(0.65698653, 0, -0.7995967, 0, 1.0348847, 0, 0.7995967, 0, 0.65698653, 3692.736, 0, 1024.6943)
-metadata/building_name = "oak_tree"
-
-[node name="bush_16100" type="Node3D" parent="." unique_id=393603293 instance=ExtResource("4_snjv7")]
-transform = Transform3D(0.47774383, 0, 0.7981529, 0, 0.9302082, 0, -0.7981529, 0, 0.47774383, 3705.2593, 0, 904.5516)
-metadata/building_name = "bush"
-
-[node name="rocks_small_16101" type="Node3D" parent="." unique_id=375229610 instance=ExtResource("3_p8qgw")]
-transform = Transform3D(0.053257495, 0, -0.8477029, 0, 0.84937423, 0, 0.8477029, 0, 0.053257495, 3709.8308, 0, 940.2797)
-metadata/building_name = "rocks_small"
-
-[node name="birch_tree_16102" type="Node3D" parent="." unique_id=266171734 instance=ExtResource("5_pj78e")]
-transform = Transform3D(0.016272528, 0, 1.0679171, 0, 1.0680411, 0, -1.0679171, 0, 0.016272528, 3622.7668, 0, 893.21875)
+[node name="birch_tree_15824" type="Node3D" parent="." unique_id=477661103 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(0.19445753, 0, 0.8212907, 0, 0.84399766, 0, -0.8212907, 0, 0.19445753, 3624.1274, 0, 924.8249)
 metadata/building_name = "birch_tree"
 
-[node name="bench_park_16103" type="Node3D" parent="." unique_id=1407570983 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.31968018, 0, 0.9475255, 0, 1, 0, -0.9475255, 0, -0.31968018, 3742.5625, 0, 944.93005)
-metadata/building_name = "bench_park"
+[node name="mushrooms_15825" type="Node3D" parent="." unique_id=477871698 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(0.064681, 0, -1.1215981, 0, 1.1234616, 0, 1.1215981, 0, 0.064681, 3703.8413, 0, 927.79803)
+metadata/building_name = "mushrooms"
 
-[node name="park_sign_16104" type="Node3D" parent="." unique_id=1301384478 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.7777748, 0, 0.628543, 0, 1, 0, -0.628543, 0, 0.7777748, 3730.3672, 0, 1042.3304)
-metadata/building_name = "park_sign"
+[node name="fallen_log_15826" type="Node3D" parent="." unique_id=1793001778 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(0.3068362, 0, 0.9276337, 0, 0.9770633, 0, -0.9276337, 0, 0.3068362, 3733.031, 0, 973.9232)
+metadata/building_name = "fallen_log"
 
-[node name="bench_park_16105" type="Node3D" parent="." unique_id=928149578 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.9999275, 0, 0.012040475, 0, 1, 0, -0.012040475, 0, -0.9999275, 3700.4265, 0, 911.91986)
-metadata/building_name = "bench_park"
+[node name="rocks_small_15827" type="Node3D" parent="." unique_id=1201844749 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.78326213, 0, 0.93657285, 0, 1.2209293, 0, -0.93657285, 0, -0.78326213, 3639.1318, 0, 827.8947)
+metadata/building_name = "rocks_small"
 
-[node name="park_sign_16106" type="Node3D" parent="." unique_id=1971705832 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(-0.8336425, 0, -0.55230445, 0, 1, 0, 0.55230445, 0, -0.8336425, 3693.7537, 0, 829.3034)
-metadata/building_name = "park_sign"
+[node name="pine_tree_15828" type="Node3D" parent="." unique_id=764436101 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.7439407, 0, -0.41757378, 0, 0.8531211, 0, 0.41757378, 0, 0.7439407, 3608.1458, 0, 872.7347)
+metadata/building_name = "pine_tree"
 
-[node name="park_sign_16107" type="Node3D" parent="." unique_id=714076321 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(-0.9443312, 0, -0.32899624, 0, 1, 0, 0.32899624, 0, -0.9443312, 3621.1885, 0, 976.3181)
-metadata/building_name = "park_sign"
+[node name="fern_15829" type="Node3D" parent="." unique_id=771248188 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(0.45751044, 0, 0.9632331, 0, 1.0663648, 0, -0.9632331, 0, 0.45751044, 3722.1943, 0, 846.49567)
+metadata/building_name = "fern"
 
-[node name="bench_park_16108" type="Node3D" parent="." unique_id=1229960902 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(0.8135011, 0, 0.58156335, 0, 1, 0, -0.58156335, 0, 0.8135011, 3620.5125, 0, 856.9101)
-metadata/building_name = "bench_park"
+[node name="fern_15830" type="Node3D" parent="." unique_id=689556484 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(0.7635403, 0, -0.34991932, 0, 0.8399032, 0, 0.34991932, 0, 0.7635403, 3704.869, 0, 916.2215)
+metadata/building_name = "fern"
 
-[node name="bench_park_16109" type="Node3D" parent="." unique_id=476844027 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(0.18614149, 0, 0.98252296, 0, 1, 0, -0.98252296, 0, 0.18614149, 3715.7715, 0, 888.6737)
-metadata/building_name = "bench_park"
+[node name="bush_15831" type="Node3D" parent="." unique_id=1571466191 instance=ExtResource("4_snjv7")]
+transform = Transform3D(-1.1218314, 0, -0.3343291, 0, 1.1705903, 0, 0.3343291, 0, -1.1218314, 3624.8618, 0, 980.05634)
+metadata/building_name = "bush"
 
-[node name="park_sign_16110" type="Node3D" parent="." unique_id=1591674268 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.51872027, 0, -0.854944, 0, 1, 0, 0.854944, 0, 0.51872027, 3674.5203, 0, 959.44415)
-metadata/building_name = "park_sign"
+[node name="oak_tree_15832" type="Node3D" parent="." unique_id=1376015329 instance=ExtResource("5_pj78e")]
+transform = Transform3D(0.9782, 0, 0.06449843, 0, 0.9803241, 0, -0.06449843, 0, 0.9782, 3669.4475, 0, 979.5669)
+metadata/building_name = "oak_tree"
 
-[node name="park_sign_16111" type="Node3D" parent="." unique_id=759405452 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.39368674, 0, -0.91924465, 0, 1, 0, 0.91924465, 0, 0.39368674, 3659.5898, 0, 1032.4535)
-metadata/building_name = "park_sign"
+[node name="fern_15833" type="Node3D" parent="." unique_id=1222060350 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-1.1592654, 0, 0.50543565, 0, 1.2646587, 0, -0.50543565, 0, -1.1592654, 3713.7935, 0, 857.81635)
+metadata/building_name = "fern"
 
-[node name="park_sign_16112" type="Node3D" parent="." unique_id=496697374 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.9988711, 0, 0.047503706, 0, 1, 0, -0.047503706, 0, 0.9988711, 3655.7778, 0, 1003.65686)
-metadata/building_name = "park_sign"
+[node name="mushrooms_15834" type="Node3D" parent="." unique_id=1981471355 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(0.845303, 0, 0.07029502, 0, 0.8482208, 0, -0.07029502, 0, 0.845303, 3741.3218, 0, 996.32886)
+metadata/building_name = "mushrooms"
 
-[node name="park_sign_16113" type="Node3D" parent="." unique_id=1010882827 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.56981075, 0, 0.8217759, 0, 1, 0, -0.8217759, 0, 0.56981075, 3705.1428, 0, 1002.0749)
-metadata/building_name = "park_sign"
+[node name="fern_15835" type="Node3D" parent="." unique_id=1183147883 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(1.0341974, 0, 0.086801425, 0, 1.0378337, 0, -0.086801425, 0, 1.0341974, 3715.7659, 0, 1010.63824)
+metadata/building_name = "fern"
 
-[node name="park_sign_16114" type="Node3D" parent="." unique_id=663283661 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.91536194, 0, -0.402632, 0, 1, 0, 0.402632, 0, 0.91536194, 3624.4963, 0, 909.54626)
-metadata/building_name = "park_sign"
+[node name="fern_15836" type="Node3D" parent="." unique_id=1651833981 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.40550417, 0, 0.9215627, 0, 1.0068324, 0, -0.9215627, 0, -0.40550417, 3627.4602, 0, 935.3223)
+metadata/building_name = "fern"
 
-[node name="park_sign_16115" type="Node3D" parent="." unique_id=271515575 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.8389595, 0, 0.54419386, 0, 1, 0, -0.54419386, 0, 0.8389595, 3673.6487, 0, 938.15356)
-metadata/building_name = "park_sign"
+[node name="rocks_small_15837" type="Node3D" parent="." unique_id=36993242 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(0.9456299, 0, -0.20792973, 0, 0.96822035, 0, 0.20792973, 0, 0.9456299, 3636.2246, 0, 1039.972)
+metadata/building_name = "rocks_small"
 
-[node name="bench_park_16116" type="Node3D" parent="." unique_id=1513763004 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(0.95115185, 0, 0.3087234, 0, 1, 0, -0.3087234, 0, 0.95115185, 3636.2815, 0, 1026.9336)
-metadata/building_name = "bench_park"
+[node name="rocks_small_15838" type="Node3D" parent="." unique_id=1605409872 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.38304582, 0, 1.1480237, 0, 1.2102407, 0, -1.1480237, 0, -0.38304582, 3691.8367, 0, 814.7604)
+metadata/building_name = "rocks_small"
 
-[node name="bench_park_16117" type="Node3D" parent="." unique_id=832547 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.7926553, 0, 0.6096701, 0, 1, 0, -0.6096701, 0, -0.7926553, 3676.3442, 0, 966.90894)
-metadata/building_name = "bench_park"
+[node name="oak_tree_15839" type="Node3D" parent="." unique_id=362689610 instance=ExtResource("5_pj78e")]
+transform = Transform3D(-0.034613952, 0, -0.9043416, 0, 0.9050038, 0, 0.9043416, 0, -0.034613952, 3645.3308, 0, 997.9772)
+metadata/building_name = "oak_tree"
 
-[node name="bench_park_16118" type="Node3D" parent="." unique_id=1849201840 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(0.7267398, 0, -0.68691283, 0, 1, 0, 0.68691283, 0, 0.7267398, 3667.9907, 0, 870.8958)
-metadata/building_name = "bench_park"
+[node name="fallen_log_15840" type="Node3D" parent="." unique_id=844181376 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(0.90575063, 0, -0.40214297, 0, 0.99101114, 0, 0.40214297, 0, 0.90575063, 3719.289, 0, 942.5163)
+metadata/building_name = "fallen_log"
 
-[node name="park_sign_16119" type="Node3D" parent="." unique_id=1517043236 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.9228419, 0, -0.385179, 0, 1, 0, 0.385179, 0, 0.9228419, 3731.5676, 0, 810.50446)
-metadata/building_name = "park_sign"
+[node name="bush_15841" type="Node3D" parent="." unique_id=1853951860 instance=ExtResource("4_snjv7")]
+transform = Transform3D(-0.4232019, 0, -0.69355345, 0, 0.8124754, 0, 0.69355345, 0, -0.4232019, 3632.9182, 0, 971.3889)
+metadata/building_name = "bush"
 
-[node name="park_sign_16120" type="Node3D" parent="." unique_id=917805349 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.9345925, 0, 0.35572022, 0, 1, 0, -0.35572022, 0, 0.9345925, 3708.3066, 0, 894.5468)
-metadata/building_name = "park_sign"
+[node name="fallen_log_15842" type="Node3D" parent="." unique_id=135895449 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(0.051256485, 0, -0.8359343, 0, 0.83750427, 0, 0.8359343, 0, 0.051256485, 3649.3774, 0, 1006.6229)
+metadata/building_name = "fallen_log"
 
-[node name="bench_park_16121" type="Node3D" parent="." unique_id=1508403422 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.59858066, 0, 0.8010626, 0, 1, 0, -0.8010626, 0, -0.59858066, 3715.395, 0, 824.5056)
-metadata/building_name = "bench_park"
+[node name="rocks_small_15843" type="Node3D" parent="." unique_id=262130578 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(0.5936611, 0, 0.59124386, 0, 0.8378561, 0, -0.59124386, 0, 0.5936611, 3626.387, 0, 1035.0193)
+metadata/building_name = "rocks_small"
 
-[node name="park_sign_16122" type="Node3D" parent="." unique_id=493589559 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(-0.52381945, 0, -0.8518293, 0, 1, 0, 0.8518293, 0, -0.52381945, 3722.7944, 0, 905.15424)
-metadata/building_name = "park_sign"
+[node name="birch_tree_15844" type="Node3D" parent="." unique_id=1601880510 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(0.9099842, 0, 0.8106928, 0, 1.2187264, 0, -0.8106928, 0, 0.9099842, 3661.8582, 0, 960.1114)
+metadata/building_name = "birch_tree"
 
-[node name="bench_park_16123" type="Node3D" parent="." unique_id=784415512 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.7868152, 0, -0.61718863, 0, 1, 0, 0.61718863, 0, -0.7868152, 3653.9026, 0, 962.83246)
-metadata/building_name = "bench_park"
+[node name="mushrooms_15845" type="Node3D" parent="." unique_id=1714106712 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(0.96001196, 0, 0.8695998, 0, 1.2953095, 0, -0.8695998, 0, 0.96001196, 3664.3855, 0, 885.5515)
+metadata/building_name = "mushrooms"
 
-[node name="park_sign_16124" type="Node3D" parent="." unique_id=102373821 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.86341655, 0, -0.5044917, 0, 1, 0, 0.5044917, 0, 0.86341655, 3724.45, 0, 824.283)
-metadata/building_name = "park_sign"
+[node name="mushrooms_15846" type="Node3D" parent="." unique_id=1094946383 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(0.6954045, 0, 0.71416235, 0, 0.99680257, 0, -0.71416235, 0, 0.6954045, 3652.4204, 0, 889.01556)
+metadata/building_name = "mushrooms"
 
-[node name="bench_park_16125" type="Node3D" parent="." unique_id=237827204 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(0.33833694, 0, -0.941025, 0, 1, 0, 0.941025, 0, 0.33833694, 3686.1418, 0, 823.29144)
-metadata/building_name = "bench_park"
+[node name="mushrooms_15847" type="Node3D" parent="." unique_id=180918834 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-1.0045569, 0, -0.45809257, 0, 1.1040758, 0, 0.45809257, 0, -1.0045569, 3688.694, 0, 1000.2474)
+metadata/building_name = "mushrooms"
 
-[node name="bench_park_16126" type="Node3D" parent="." unique_id=562724555 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.94502014, 0, -0.3270122, 0, 1, 0, 0.3270122, 0, -0.94502014, 3657.5737, 0, 892.9567)
-metadata/building_name = "bench_park"
+[node name="fern_15848" type="Node3D" parent="." unique_id=459865639 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.5121328, 0, -1.1394506, 0, 1.2492508, 0, 1.1394506, 0, -0.5121328, 3733.1838, 0, 811.92346)
+metadata/building_name = "fern"
 
-[node name="bench_park_16127" type="Node3D" parent="." unique_id=1872594359 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(0.03073609, 0, 0.9995275, 0, 1, 0, -0.9995275, 0, 0.03073609, 3667.2986, 0, 815.4705)
-metadata/building_name = "bench_park"
+[node name="fallen_log_15849" type="Node3D" parent="." unique_id=1996968874 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(1.22512, 0, -0.016404616, 0, 1.2252297, 0, 0.016404616, 0, 1.22512, 3651.553, 0, 883.1836)
+metadata/building_name = "fallen_log"
 
-[node name="park_sign_16128" type="Node3D" parent="." unique_id=838147817 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.7978876, 0, -0.6028062, 0, 1, 0, 0.6028062, 0, 0.7978876, 3667.6616, 0, 975.9514)
-metadata/building_name = "park_sign"
+[node name="fern_15850" type="Node3D" parent="." unique_id=730126785 instance=ExtResource("7_w5e5v")]
+transform = Transform3D(-0.79769164, 0, 0.7883755, 0, 1.1215382, 0, -0.7883755, 0, -0.79769164, 3717.0432, 0, 893.6677)
+metadata/building_name = "fern"
 
-[node name="bench_park_16129" type="Node3D" parent="." unique_id=2033582071 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.1696984, 0, -0.98549604, 0, 1, 0, 0.98549604, 0, -0.1696984, 3656.5889, 0, 1000.29486)
-metadata/building_name = "bench_park"
+[node name="oak_tree_15851" type="Node3D" parent="." unique_id=848083386 instance=ExtResource("5_pj78e")]
+transform = Transform3D(0.50014913, 0, 1.0362505, 0, 1.1506364, 0, -1.0362505, 0, 0.50014913, 3649.4045, 0, 1036.7996)
+metadata/building_name = "oak_tree"
 
-[node name="park_sign_16130" type="Node3D" parent="." unique_id=1142525574 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.99764115, 0, 0.06864526, 0, 1, 0, -0.06864526, 0, 0.99764115, 3702.3337, 0, 946.9691)
-metadata/building_name = "park_sign"
+[node name="pine_tree_15852" type="Node3D" parent="." unique_id=1639437612 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.5041514, 0, 0.8296616, 0, 0.97082806, 0, -0.8296616, 0, 0.5041514, 3617.0354, 0, 1040.34)
+metadata/building_name = "pine_tree"
 
-[node name="bench_park_16131" type="Node3D" parent="." unique_id=1031933182 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(0.6208089, 0, -0.78396195, 0, 1, 0, 0.78396195, 0, 0.6208089, 3682.7263, 0, 933.69)
-metadata/building_name = "bench_park"
+[node name="rocks_small_15853" type="Node3D" parent="." unique_id=2092955515 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.51498795, 0, -0.6442406, 0, 0.8247779, 0, 0.6442406, 0, -0.51498795, 3640.2288, 0, 1001.73224)
+metadata/building_name = "rocks_small"
 
-[node name="park_sign_16132" type="Node3D" parent="." unique_id=968250092 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.22321174, 0, 0.97477, 0, 1, 0, -0.97477, 0, 0.22321174, 3625.2512, 0, 1021.14703)
-metadata/building_name = "park_sign"
+[node name="mushrooms_15854" type="Node3D" parent="." unique_id=647062801 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-1.2054933, 0, 0.04248288, 0, 1.2062416, 0, -0.04248288, 0, -1.2054933, 3719.5383, 0, 1034.5798)
+metadata/building_name = "mushrooms"
 
-[node name="bench_park_16133" type="Node3D" parent="." unique_id=1660311623 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.9560848, 0, 0.2930902, 0, 1, 0, -0.2930902, 0, -0.9560848, 3693.2346, 0, 819.0647)
-metadata/building_name = "bench_park"
+[node name="bush_15855" type="Node3D" parent="." unique_id=1877643432 instance=ExtResource("4_snjv7")]
+transform = Transform3D(0.86843127, 0, -0.00354291, 0, 0.86843854, 0, 0.00354291, 0, 0.86843127, 3639.696, 0, 816.10333)
+metadata/building_name = "bush"
 
-[node name="bench_park_16134" type="Node3D" parent="." unique_id=270200909 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.9134006, 0, -0.4070619, 0, 1, 0, 0.4070619, 0, -0.9134006, 3725.5542, 0, 1030.0414)
-metadata/building_name = "bench_park"
+[node name="birch_tree_15856" type="Node3D" parent="." unique_id=391719141 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(-1.0292219, 0, -0.65575385, 0, 1.2203732, 0, 0.65575385, 0, -1.0292219, 3714.0894, 0, 986.8711)
+metadata/building_name = "birch_tree"
 
-[node name="park_sign_16135" type="Node3D" parent="." unique_id=1810807369 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(0.7604935, 0, -0.6493455, 0, 1, 0, 0.6493455, 0, 0.7604935, 3642.3918, 0, 863.9161)
-metadata/building_name = "park_sign"
+[node name="fallen_log_15857" type="Node3D" parent="." unique_id=388423419 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(1.0395676, 0, -0.4681182, 0, 1.1401032, 0, 0.4681182, 0, 1.0395676, 3686.4397, 0, 950.56305)
+metadata/building_name = "fallen_log"
 
-[node name="bench_park_16136" type="Node3D" parent="." unique_id=778938350 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.45969397, 0, 0.8880774, 0, 1, 0, -0.8880774, 0, -0.45969397, 3645.0476, 0, 951.67633)
-metadata/building_name = "bench_park"
+[node name="birch_tree_15858" type="Node3D" parent="." unique_id=353168452 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(-0.38248146, 0, 0.97630566, 0, 1.0485537, 0, -0.97630566, 0, -0.38248146, 3698.9702, 0, 837.99817)
+metadata/building_name = "birch_tree"
 
-[node name="park_sign_16137" type="Node3D" parent="." unique_id=592554805 instance=ExtResource("10_qpj4p")]
-transform = Transform3D(-0.4703277, 0, 0.8824918, 0, 1, 0, -0.8824918, 0, -0.4703277, 3737.976, 0, 1040.7094)
-metadata/building_name = "park_sign"
+[node name="bush_15859" type="Node3D" parent="." unique_id=394306033 instance=ExtResource("4_snjv7")]
+transform = Transform3D(0.78905606, 0, -0.6223725, 0, 1.0049661, 0, 0.6223725, 0, 0.78905606, 3647.7559, 0, 953.5074)
+metadata/building_name = "bush"
 
-[node name="bench_park_16138" type="Node3D" parent="." unique_id=1914270512 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(-0.23469198, 0, 0.9720698, 0, 1, 0, -0.9720698, 0, -0.23469198, 3742.874, 0, 833.7028)
-metadata/building_name = "bench_park"
+[node name="mushrooms_15860" type="Node3D" parent="." unique_id=1571777150 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(0.835025, 0, -0.95314413, 0, 1.2671821, 0, 0.95314413, 0, 0.835025, 3706.64, 0, 841.3232)
+metadata/building_name = "mushrooms"
 
-[node name="bench_park_16139" type="Node3D" parent="." unique_id=858969986 instance=ExtResource("9_pwvaq")]
-transform = Transform3D(0.5025981, 0, 0.8645202, 0, 1, 0, -0.8645202, 0, 0.5025981, 3710.9521, 0, 945.5642)
-metadata/building_name = "bench_park"
+[node name="bush_15861" type="Node3D" parent="." unique_id=683977150 instance=ExtResource("4_snjv7")]
+transform = Transform3D(0.2344368, 0, -1.1986748, 0, 1.2213852, 0, 1.1986748, 0, 0.2344368, 3732.4783, 0, 1025.228)
+metadata/building_name = "bush"
+
+[node name="mushrooms_15862" type="Node3D" parent="." unique_id=290651546 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-1.0003376, 0, 0.09289407, 0, 1.0046415, 0, -0.09289407, 0, -1.0003376, 3725.2878, 0, 945.4383)
+metadata/building_name = "mushrooms"
+
+[node name="rocks_small_15863" type="Node3D" parent="." unique_id=1035857131 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.36597916, 0, -1.1458118, 0, 1.2028406, 0, 1.1458118, 0, -0.36597916, 3638.894, 0, 853.5196)
+metadata/building_name = "rocks_small"
+
+[node name="pine_tree_15864" type="Node3D" parent="." unique_id=1611624861 instance=ExtResource("6_a413q")]
+transform = Transform3D(-1.2136564, 0, 0.12579723, 0, 1.2201586, 0, -0.12579723, 0, -1.2136564, 3696.643, 0, 1014.0216)
+metadata/building_name = "pine_tree"
+
+[node name="bush_15865" type="Node3D" parent="." unique_id=1431515986 instance=ExtResource("4_snjv7")]
+transform = Transform3D(-0.29693848, 0, 0.760775, 0, 0.8166708, 0, -0.760775, 0, -0.29693848, 3737.099, 0, 911.54785)
+metadata/building_name = "bush"
+
+[node name="birch_tree_15866" type="Node3D" parent="." unique_id=814215596 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(-0.43794045, 0, -0.7004659, 0, 0.8261019, 0, 0.7004659, 0, -0.43794045, 3607.8413, 0, 1005.41644)
+metadata/building_name = "birch_tree"
+
+[node name="bush_15867" type="Node3D" parent="." unique_id=1104986346 instance=ExtResource("4_snjv7")]
+transform = Transform3D(1.0621865, 0, -0.64867246, 0, 1.2445948, 0, 0.64867246, 0, 1.0621865, 3679.4158, 0, 1040.3103)
+metadata/building_name = "bush"
+
+[node name="oak_tree_15868" type="Node3D" parent="." unique_id=835989066 instance=ExtResource("5_pj78e")]
+transform = Transform3D(0.78834414, 0, -0.6534457, 0, 1.023952, 0, 0.6534457, 0, 0.78834414, 3641.8406, 0, 888.8461)
+metadata/building_name = "oak_tree"
+
+[node name="rocks_small_15869" type="Node3D" parent="." unique_id=72215471 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.39691505, 0, 0.8928692, 0, 0.97711664, 0, -0.8928692, 0, -0.39691505, 3720.3123, 0, 861.9437)
+metadata/building_name = "rocks_small"
+
+[node name="birch_tree_15870" type="Node3D" parent="." unique_id=2023716802 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(1.1331618, 0, 0.112789504, 0, 1.1387613, 0, -0.112789504, 0, 1.1331618, 3645.6663, 0, 1012.2267)
+metadata/building_name = "birch_tree"
+
+[node name="pine_tree_15871" type="Node3D" parent="." unique_id=986786329 instance=ExtResource("6_a413q")]
+transform = Transform3D(0.883003, 0, -0.64579034, 0, 1.0939559, 0, 0.64579034, 0, 0.883003, 3690.2705, 0, 870.72595)
+metadata/building_name = "pine_tree"
+
+[node name="birch_tree_15872" type="Node3D" parent="." unique_id=696958274 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(-0.8404633, 0, -0.13725099, 0, 0.85159636, 0, 0.13725099, 0, -0.8404633, 3643.0835, 0, 1001.9552)
+metadata/building_name = "birch_tree"
+
+[node name="fallen_log_15873" type="Node3D" parent="." unique_id=25186361 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(0.5018372, 0, -1.1020654, 0, 1.2109454, 0, 1.1020654, 0, 0.5018372, 3729.353, 0, 915.50336)
+metadata/building_name = "fallen_log"
+
+[node name="birch_tree_15874" type="Node3D" parent="." unique_id=953776122 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(0.8674175, 0, 0.5125165, 0, 1.007515, 0, -0.5125165, 0, 0.8674175, 3636.207, 0, 851.1519)
+metadata/building_name = "birch_tree"
+
+[node name="rocks_small_15875" type="Node3D" parent="." unique_id=88079508 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.3176895, 0, 0.80591637, 0, 0.8662724, 0, -0.80591637, 0, -0.3176895, 3735.6948, 0, 818.2917)
+metadata/building_name = "rocks_small"
+
+[node name="pine_tree_15876" type="Node3D" parent="." unique_id=488780884 instance=ExtResource("6_a413q")]
+transform = Transform3D(1.0974603, 0, -0.099127054, 0, 1.101928, 0, 0.099127054, 0, 1.0974603, 3640.465, 0, 841.9954)
+metadata/building_name = "pine_tree"
+
+[node name="rocks_small_15877" type="Node3D" parent="." unique_id=836535206 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(0.60872716, 0, -0.98674417, 0, 1.1594019, 0, 0.98674417, 0, 0.60872716, 3699.5364, 0, 909.4247)
+metadata/building_name = "rocks_small"
+
+[node name="rocks_small_15878" type="Node3D" parent="." unique_id=466526408 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(-0.75056446, 0, -0.9191902, 0, 1.1867003, 0, 0.9191902, 0, -0.75056446, 3617.0234, 0, 818.48724)
+metadata/building_name = "rocks_small"
+
+[node name="rocks_small_15879" type="Node3D" parent="." unique_id=788274946 instance=ExtResource("8_2qxwp")]
+transform = Transform3D(0.7041472, 0, -1.0419059, 0, 1.2575338, 0, 1.0419059, 0, 0.7041472, 3665.9402, 0, 835.21094)
+metadata/building_name = "rocks_small"
+
+[node name="birch_tree_15880" type="Node3D" parent="." unique_id=1611419621 instance=ExtResource("9_pwvaq")]
+transform = Transform3D(0.49717522, 0, -1.0267115, 0, 1.140754, 0, 1.0267115, 0, 0.49717522, 3697.4883, 0, 870.81287)
+metadata/building_name = "birch_tree"
+
+[node name="fallen_log_15881" type="Node3D" parent="." unique_id=2018478887 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(0.9657877, 0, 0.40302354, 0, 1.0465056, 0, -0.40302354, 0, 0.9657877, 3688.8818, 0, 1024.7695)
+metadata/building_name = "fallen_log"
+
+[node name="mushrooms_15882" type="Node3D" parent="." unique_id=1158635970 instance=ExtResource("10_qpj4p")]
+transform = Transform3D(-0.6499535, 0, -0.8357367, 0, 1.0587234, 0, 0.8357367, 0, -0.6499535, 3647.6863, 0, 958.23785)
+metadata/building_name = "mushrooms"
+
+[node name="fallen_log_15883" type="Node3D" parent="." unique_id=104686829 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-1.0577676, 0, -0.27425438, 0, 1.0927433, 0, 0.27425438, 0, -1.0577676, 3654.3777, 0, 890.7691)
+metadata/building_name = "fallen_log"
+
+[node name="bush_15884" type="Node3D" parent="." unique_id=135579260 instance=ExtResource("4_snjv7")]
+transform = Transform3D(1.0516827, 0, -0.29778346, 0, 1.0930285, 0, 0.29778346, 0, 1.0516827, 3661.961, 0, 993.69965)
+metadata/building_name = "bush"
+
+[node name="fallen_log_15885" type="Node3D" parent="." unique_id=1049959730 instance=ExtResource("3_p8qgw")]
+transform = Transform3D(-0.3724805, 0, -1.0189774, 0, 1.0849224, 0, 1.0189774, 0, -0.3724805, 3735.8665, 0, 816.2871)
+metadata/building_name = "fallen_log"
+
+[node name="bush_15886" type="Node3D" parent="." unique_id=45415201 instance=ExtResource("4_snjv7")]
+transform = Transform3D(1.2868208, 0, 0.032454737, 0, 1.2872299, 0, -0.032454737, 0, 1.2868208, 3659.348, 0, 950.05347)
+metadata/building_name = "bush"

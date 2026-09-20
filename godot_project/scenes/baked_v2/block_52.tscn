@@ -1,50 +1,71 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://assets/buildings/house_tudor.glb" id="1_07gkb"]
-[ext_resource type="PackedScene" path="res://assets/buildings/bungalow.glb" id="2_o1h2i"]
-[ext_resource type="PackedScene" path="res://assets/buildings/suburban_house_v2.glb" id="3_68hn0"]
-[ext_resource type="PackedScene" path="res://assets/foliage/hedge.glb" id="4_gs0dg"]
-[ext_resource type="PackedScene" path="res://assets/environment/bench_park.glb" id="5_anmce"]
-[ext_resource type="PackedScene" path="res://assets/environment/garden_gnome.glb" id="6_1ccpw"]
+[ext_resource type="PackedScene" path="res://assets/buildings/house_tudor.glb" id="1_o1h2i"]
+[ext_resource type="PackedScene" path="res://assets/buildings/bungalow.glb" id="2_68hn0"]
+[ext_resource type="PackedScene" path="res://assets/buildings/suburban_house_v2.glb" id="3_gs0dg"]
+[ext_resource type="PackedScene" path="res://assets/buildings/house_ranch.glb" id="4_anmce"]
+[ext_resource type="PackedScene" path="res://assets/foliage/hedge.glb" id="5_1ccpw"]
+[ext_resource type="PackedScene" path="res://assets/foliage/birch_tree.glb" id="6_8w2ry"]
+[ext_resource type="PackedScene" path="res://assets/foliage/oak_tree.glb" id="7_p3u72"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8w2ry"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h1ovw"]
 albedo_color = Color(0.35, 0.52, 0.2, 1)
 roughness = 0.85
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_p3u72"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_himbo"]
 size = Vector2(200, 150)
 
-[node name="Block_52" type="Node3D" unique_id=1344919517]
+[node name="Block_52" type="Node3D" unique_id=525991718]
 
-[node name="DistrictGround_3691" type="MeshInstance3D" parent="." unique_id=864297953]
+[node name="DistrictGround_3802" type="MeshInstance3D" parent="." unique_id=740685789]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 700, 0.01, 1425)
-material_override = SubResource("StandardMaterial3D_8w2ry")
-mesh = SubResource("PlaneMesh_p3u72")
+material_override = SubResource("StandardMaterial3D_h1ovw")
+mesh = SubResource("PlaneMesh_himbo")
 
-[node name="house_tudor_3692" type="Node3D" parent="." unique_id=1232658065 instance=ExtResource("1_07gkb")]
-transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 752.5, 0, 1425)
+[node name="house_tudor_3803" type="Node3D" parent="." unique_id=1232658065 instance=ExtResource("1_o1h2i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 670, 0, 1481)
 metadata/building_name = "house_tudor"
 
-[node name="bungalow_3693" type="Node3D" parent="." unique_id=1088849483 instance=ExtResource("2_o1h2i")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 700, 0, 1477.5)
+[node name="bungalow_3804" type="Node3D" parent="." unique_id=1088849483 instance=ExtResource("2_68hn0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 685, 0, 1481)
 metadata/building_name = "bungalow"
 
-[node name="house_tudor_3694" type="Node3D" parent="." unique_id=211905336 instance=ExtResource("1_07gkb")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 647.5, 0, 1425)
+[node name="house_tudor_3805" type="Node3D" parent="." unique_id=1425700573 instance=ExtResource("1_o1h2i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 700, 0, 1481)
 metadata/building_name = "house_tudor"
 
-[node name="suburban_house_v2_3695" type="Node3D" parent="." unique_id=240856332 instance=ExtResource("3_68hn0")]
-transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, 700, 0, 1372.5)
+[node name="suburban_house_v2_3806" type="Node3D" parent="." unique_id=240856332 instance=ExtResource("3_gs0dg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 715, 0, 1481)
 metadata/building_name = "suburban_house_v2"
 
-[node name="hedge_3696" type="Node3D" parent="." unique_id=453923166 instance=ExtResource("4_gs0dg")]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 700, 0, 1425)
+[node name="house_ranch_3807" type="Node3D" parent="." unique_id=1957649439 instance=ExtResource("4_anmce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 730, 0, 1481)
+metadata/building_name = "house_ranch"
+
+[node name="hedge_3808" type="Node3D" parent="." unique_id=453923166 instance=ExtResource("5_1ccpw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 670, 0, 1491)
 metadata/building_name = "hedge"
 
-[node name="bench_park_3697" type="Node3D" parent="." unique_id=1407570983 instance=ExtResource("5_anmce")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 705, 0, 1428)
-metadata/building_name = "bench_park"
+[node name="hedge_3809" type="Node3D" parent="." unique_id=1630789028 instance=ExtResource("5_1ccpw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 685, 0, 1491)
+metadata/building_name = "hedge"
 
-[node name="garden_gnome_3698" type="Node3D" parent="." unique_id=1023188749 instance=ExtResource("6_1ccpw")]
-transform = Transform3D(0.63224524, 0, -0.7747683, 0, 1, 0, 0.7747683, 0, 0.63224524, 696, 0, 1423)
-metadata/building_name = "garden_gnome"
+[node name="hedge_3810" type="Node3D" parent="." unique_id=320320238 instance=ExtResource("5_1ccpw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 700, 0, 1491)
+metadata/building_name = "hedge"
+
+[node name="hedge_3811" type="Node3D" parent="." unique_id=1795974746 instance=ExtResource("5_1ccpw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 715, 0, 1491)
+metadata/building_name = "hedge"
+
+[node name="hedge_3812" type="Node3D" parent="." unique_id=461321713 instance=ExtResource("5_1ccpw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 730, 0, 1491)
+metadata/building_name = "hedge"
+
+[node name="birch_tree_3813" type="Node3D" parent="." unique_id=820401252 instance=ExtResource("6_8w2ry")]
+transform = Transform3D(-0.21361783, 0, 0.7968807, 0, 0.825016, 0, -0.7968807, 0, -0.21361783, 726.92, 0, 1454.2194)
+metadata/building_name = "birch_tree"
+
+[node name="oak_tree_3814" type="Node3D" parent="." unique_id=2115474487 instance=ExtResource("7_p3u72")]
+transform = Transform3D(-1.1265078, 0, 0.19212155, 0, 1.1427732, 0, -0.19212155, 0, -1.1265078, 713.01855, 0, 1418.9691)
+metadata/building_name = "oak_tree"

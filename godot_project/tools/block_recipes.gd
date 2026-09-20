@@ -135,14 +135,51 @@ const PROP_POOLS := {
 	"parks": ["bench_park", "picnic_table", "playground_slide", "swing_set", "seesaw", "water_fountain", "park_sign", "trash_can"],
 }
 
-# === PICK RECIPE ===
-static func pick_recipe(district: String, seed: int) -> String:
+# === PICK RECIPE (adjacency-aware) ===
+# Picks a recipe for the given district, preferring ones not already chosen by neighbors.
+# This makes adjacent blocks get different recipe variants — visual variety.
+#
+# neighbor_recipes: list of recipe names already chosen by this block's neighbors.
+# Strategy:
+# 1. Get all recipes for this district
+# 2. Filter out ones used by neighbors (if possible)
+# 3. If all recipes are used by neighbors, fall back to least-used neighbor recipe
+# 4. Pick randomly from remaining candidates (seeded by block coords)
+static func pick_recipe(district: String, seed: int, neighbor_recipes: Array = []) -> String:
 	var recipes: Array = RECIPES.get(district, [])
 	if recipes.is_empty():
 		return "empty_block"
 	var crng := RandomNumberGenerator.new()
 	crng.seed = seed
-	return recipes[crng.randi() % recipes.size()]
+
+	# If no neighbor info, just pick randomly (backward-compat)
+	if neighbor_recipes.is_empty():
+		return recipes[crng.randi() % recipes.size()]
+
+	# Count how many neighbors used each recipe
+	var neighbor_counts: Dictionary = {}
+	for r in neighbor_recipes:
+		neighbor_counts[r] = int(neighbor_counts.get(r, 0)) + 1
+
+	# Find recipes not used by any neighbor (preferred)
+	var candidates: Array = []
+	for r in recipes:
+		if not neighbor_counts.has(r):
+			candidates.append(r)
+
+	# If all recipes are used by neighbors, use least-used ones
+	if candidates.is_empty():
+		var min_count: int = 999
+		for r in recipes:
+			var c: int = int(neighbor_counts.get(r, 0))
+			if c < min_count:
+				min_count = c
+				candidates = [r]
+			elif c == min_count:
+				candidates.append(r)
+
+	# Pick from candidates (seeded)
+	return candidates[crng.randi() % candidates.size()]
 
 # === APPLY RECIPE ===
 static func apply_recipe(recipe_name: String, block: Dictionary, seed: int) -> Dictionary:

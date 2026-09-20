@@ -1,50 +1,248 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://assets/buildings/police_station.glb" id="1_w0f10"]
-[ext_resource type="PackedScene" path="res://assets/environment/street_light.glb" id="2_nrywc"]
-[ext_resource type="PackedScene" path="res://assets/environment/trash_can.glb" id="3_2bybg"]
-[ext_resource type="PackedScene" path="res://assets/environment/bench_park.glb" id="4_apiu0"]
-[ext_resource type="PackedScene" path="res://assets/environment/planter_box.glb" id="5_ehhnm"]
-[ext_resource type="PackedScene" path="res://assets/environment/bollard.glb" id="6_hiaun"]
+[ext_resource type="PackedScene" path="res://assets/buildings/police_station.glb" id="1_2bybg"]
+[ext_resource type="PackedScene" path="res://assets/buildings/bank_branch.glb" id="2_apiu0"]
+[ext_resource type="PackedScene" path="res://assets/buildings/parking_garage.glb" id="3_ehhnm"]
+[ext_resource type="PackedScene" path="res://assets/environment/bollard.glb" id="4_hiaun"]
+[ext_resource type="PackedScene" path="res://assets/environment/street_light.glb" id="5_edait"]
+[ext_resource type="PackedScene" path="res://assets/environment/bench_park.glb" id="6_6hyby"]
+[ext_resource type="PackedScene" path="res://assets/environment/planter_box.glb" id="7_41vs4"]
+[ext_resource type="PackedScene" path="res://assets/environment/trash_can.glb" id="8_vl4o2"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_edait"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ujr6f"]
 albedo_color = Color(0.4, 0.38, 0.35, 1)
 roughness = 0.85
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_6hyby"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_abvms"]
 size = Vector2(200, 150)
 
-[node name="Block_45" type="Node3D" unique_id=1913690384]
+[node name="Block_45" type="Node3D" unique_id=99420336]
 
-[node name="DistrictGround_2928" type="MeshInstance3D" parent="." unique_id=427085822]
+[node name="DistrictGround_3265" type="MeshInstance3D" parent="." unique_id=412970088]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 700, 0.01, 75)
-material_override = SubResource("StandardMaterial3D_edait")
-mesh = SubResource("PlaneMesh_6hyby")
+material_override = SubResource("StandardMaterial3D_ujr6f")
+mesh = SubResource("PlaneMesh_abvms")
 
-[node name="police_station_2929" type="Node3D" parent="." unique_id=1976274204 instance=ExtResource("1_w0f10")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 700, 0, 22)
+[node name="police_station_3266" type="Node3D" parent="." unique_id=1976274204 instance=ExtResource("1_2bybg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 622, 0, 17)
 metadata/building_name = "police_station"
 
-[node name="street_light_2930" type="Node3D" parent="." unique_id=382411635 instance=ExtResource("2_nrywc")]
-transform = Transform3D(0.9726874, 0, -0.232119, 0, 1, 0, 0.232119, 0, 0.9726874, 747.0788, 0, 91.04578)
+[node name="bank_branch_3267" type="Node3D" parent="." unique_id=198574802 instance=ExtResource("2_apiu0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 652, 0, 17)
+metadata/building_name = "bank_branch"
+
+[node name="police_station_3268" type="Node3D" parent="." unique_id=759708895 instance=ExtResource("1_2bybg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 682, 0, 17)
+metadata/building_name = "police_station"
+
+[node name="bank_branch_3269" type="Node3D" parent="." unique_id=361662306 instance=ExtResource("2_apiu0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 712, 0, 17)
+metadata/building_name = "bank_branch"
+
+[node name="parking_garage_3270" type="Node3D" parent="." unique_id=1106626941 instance=ExtResource("3_ehhnm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 742, 0, 17)
+metadata/building_name = "parking_garage"
+
+[node name="parking_garage_3271" type="Node3D" parent="." unique_id=1885199072 instance=ExtResource("3_ehhnm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 772, 0, 17)
+metadata/building_name = "parking_garage"
+
+[node name="bollard_3272" type="Node3D" parent="." unique_id=1500941010 instance=ExtResource("4_hiaun")]
+transform = Transform3D(-0.9856574, 0, -0.16875859, 0, 1, 0, 0.16875859, 0, -0.9856574, 748.1228, 0, 136.5461)
+metadata/building_name = "bollard"
+
+[node name="street_light_3273" type="Node3D" parent="." unique_id=382411635 instance=ExtResource("5_edait")]
+transform = Transform3D(-0.3717303, 0, 0.9283408, 0, 1, 0, -0.9283408, 0, -0.3717303, 713.47797, 0, 90.59908)
 metadata/building_name = "street_light"
 
-[node name="trash_can_2931" type="Node3D" parent="." unique_id=82307847 instance=ExtResource("3_2bybg")]
-transform = Transform3D(-0.38478088, 0, -0.92300797, 0, 1, 0, 0.92300797, 0, -0.38478088, 764.7492, 0, 126.89986)
-metadata/building_name = "trash_can"
-
-[node name="bench_park_2932" type="Node3D" parent="." unique_id=1407570983 instance=ExtResource("4_apiu0")]
-transform = Transform3D(0.86694294, 0, -0.4984074, 0, 1, 0, 0.4984074, 0, 0.86694294, 614.79816, 0, 22.778812)
+[node name="bench_park_3274" type="Node3D" parent="." unique_id=1407570983 instance=ExtResource("6_6hyby")]
+transform = Transform3D(-0.45881292, 0, 0.8885329, 0, 1, 0, -0.8885329, 0, -0.45881292, 735.3415, 0, 80.13123)
 metadata/building_name = "bench_park"
 
-[node name="planter_box_2933" type="Node3D" parent="." unique_id=650994319 instance=ExtResource("5_ehhnm")]
-transform = Transform3D(-0.9641029, 0, 0.26552892, 0, 1, 0, -0.26552892, 0, -0.9641029, 631.9523, 0, 40.650974)
-metadata/building_name = "planter_box"
+[node name="bollard_3275" type="Node3D" parent="." unique_id=454572056 instance=ExtResource("4_hiaun")]
+transform = Transform3D(-0.9224198, 0, -0.3861887, 0, 1, 0, 0.3861887, 0, -0.9224198, 679.1942, 0, 77.79026)
+metadata/building_name = "bollard"
 
-[node name="street_light_2934" type="Node3D" parent="." unique_id=1643036660 instance=ExtResource("2_nrywc")]
-transform = Transform3D(0.9442462, 0, 0.3292403, 0, 1, 0, -0.3292403, 0, 0.9442462, 646.2535, 0, 122.99031)
+[node name="bench_park_3276" type="Node3D" parent="." unique_id=273015386 instance=ExtResource("6_6hyby")]
+transform = Transform3D(0.6622736, 0, 0.7492621, 0, 1, 0, -0.7492621, 0, 0.6622736, 679.6339, 0, 9.758823)
+metadata/building_name = "bench_park"
+
+[node name="street_light_3277" type="Node3D" parent="." unique_id=835653000 instance=ExtResource("5_edait")]
+transform = Transform3D(0.99927384, 0, 0.038102925, 0, 1, 0, -0.038102925, 0, 0.99927384, 616.8176, 0, 120.18088)
 metadata/building_name = "street_light"
 
-[node name="bollard_2935" type="Node3D" parent="." unique_id=1500941010 instance=ExtResource("6_hiaun")]
-transform = Transform3D(-0.48716208, 0, -0.8733116, 0, 1, 0, 0.8733116, 0, -0.48716208, 631.4177, 0, 77.53755)
+[node name="street_light_3278" type="Node3D" parent="." unique_id=297114313 instance=ExtResource("5_edait")]
+transform = Transform3D(-0.84998065, 0, -0.5268139, 0, 1, 0, 0.5268139, 0, -0.84998065, 620.7341, 0, 139.36742)
+metadata/building_name = "street_light"
+
+[node name="planter_box_3279" type="Node3D" parent="." unique_id=650994319 instance=ExtResource("7_41vs4")]
+transform = Transform3D(0.72526157, 0, -0.6884734, 0, 1, 0, 0.6884734, 0, 0.72526157, 722.28876, 0, 107.260475)
+metadata/building_name = "planter_box"
+
+[node name="bench_park_3280" type="Node3D" parent="." unique_id=1229057836 instance=ExtResource("6_6hyby")]
+transform = Transform3D(-0.16118985, 0, 0.9869234, 0, 1, 0, -0.9869234, 0, -0.16118985, 739.67004, 0, 36.0077)
+metadata/building_name = "bench_park"
+
+[node name="bollard_3281" type="Node3D" parent="." unique_id=1537177290 instance=ExtResource("4_hiaun")]
+transform = Transform3D(0.2743664, 0, -0.9616252, 0, 1, 0, 0.9616252, 0, 0.2743664, 654.6073, 0, 69.71102)
+metadata/building_name = "bollard"
+
+[node name="bollard_3282" type="Node3D" parent="." unique_id=1769515145 instance=ExtResource("4_hiaun")]
+transform = Transform3D(-0.8816728, 0, 0.47186124, 0, 1, 0, -0.47186124, 0, -0.8816728, 771.838, 0, 95.20752)
+metadata/building_name = "bollard"
+
+[node name="bench_park_3283" type="Node3D" parent="." unique_id=304658413 instance=ExtResource("6_6hyby")]
+transform = Transform3D(-0.41498694, 0, -0.90982735, 0, 1, 0, 0.90982735, 0, -0.41498694, 652.2791, 0, 52.277664)
+metadata/building_name = "bench_park"
+
+[node name="bollard_3284" type="Node3D" parent="." unique_id=1748499879 instance=ExtResource("4_hiaun")]
+transform = Transform3D(-0.09021628, 0, 0.9959222, 0, 1, 0, -0.9959222, 0, -0.09021628, 643.24005, 0, 44.337383)
+metadata/building_name = "bollard"
+
+[node name="bollard_3285" type="Node3D" parent="." unique_id=1949003299 instance=ExtResource("4_hiaun")]
+transform = Transform3D(-0.059837803, 0, -0.9982081, 0, 1, 0, 0.9982081, 0, -0.059837803, 659.3142, 0, 132.05005)
+metadata/building_name = "bollard"
+
+[node name="trash_can_3286" type="Node3D" parent="." unique_id=82307847 instance=ExtResource("8_vl4o2")]
+transform = Transform3D(-0.968695, 0, -0.24825406, 0, 1, 0, 0.24825406, 0, -0.968695, 623.2703, 0, 95.73848)
+metadata/building_name = "trash_can"
+
+[node name="planter_box_3287" type="Node3D" parent="." unique_id=1074158186 instance=ExtResource("7_41vs4")]
+transform = Transform3D(0.9929287, 0, 0.11871235, 0, 1, 0, -0.11871235, 0, 0.9929287, 613.99896, 0, 142.56125)
+metadata/building_name = "planter_box"
+
+[node name="street_light_3288" type="Node3D" parent="." unique_id=1846104184 instance=ExtResource("5_edait")]
+transform = Transform3D(-0.32821777, 0, 0.9446021, 0, 1, 0, -0.9446021, 0, -0.32821777, 777.94653, 0, 92.0836)
+metadata/building_name = "street_light"
+
+[node name="trash_can_3289" type="Node3D" parent="." unique_id=1835481490 instance=ExtResource("8_vl4o2")]
+transform = Transform3D(-0.973961, 0, -0.22671576, 0, 1, 0, 0.22671576, 0, -0.973961, 665.7212, 0, 63.981014)
+metadata/building_name = "trash_can"
+
+[node name="bench_park_3290" type="Node3D" parent="." unique_id=2084072054 instance=ExtResource("6_6hyby")]
+transform = Transform3D(-0.90507156, 0, -0.42525935, 0, 1, 0, 0.42525935, 0, -0.90507156, 619.4575, 0, 137.6707)
+metadata/building_name = "bench_park"
+
+[node name="bench_park_3291" type="Node3D" parent="." unique_id=474450953 instance=ExtResource("6_6hyby")]
+transform = Transform3D(-0.101290725, 0, -0.9948569, 0, 1, 0, 0.9948569, 0, -0.101290725, 628.5263, 0, 37.001644)
+metadata/building_name = "bench_park"
+
+[node name="street_light_3292" type="Node3D" parent="." unique_id=53618576 instance=ExtResource("5_edait")]
+transform = Transform3D(-0.8693817, 0, 0.49414107, 0, 1, 0, -0.49414107, 0, -0.8693817, 669.7163, 0, 32.49872)
+metadata/building_name = "street_light"
+
+[node name="street_light_3293" type="Node3D" parent="." unique_id=1664469104 instance=ExtResource("5_edait")]
+transform = Transform3D(-0.32999426, 0, -0.94398296, 0, 1, 0, 0.94398296, 0, -0.32999426, 792.38074, 0, 34.161476)
+metadata/building_name = "street_light"
+
+[node name="trash_can_3294" type="Node3D" parent="." unique_id=1380018770 instance=ExtResource("8_vl4o2")]
+transform = Transform3D(-0.28186026, 0, 0.9594555, 0, 1, 0, -0.9594555, 0, -0.28186026, 737.468, 0, 131.66306)
+metadata/building_name = "trash_can"
+
+[node name="planter_box_3295" type="Node3D" parent="." unique_id=1032281704 instance=ExtResource("7_41vs4")]
+transform = Transform3D(-0.51599824, 0, 0.8565897, 0, 1, 0, -0.8565897, 0, -0.51599824, 741.69965, 0, 116.10479)
+metadata/building_name = "planter_box"
+
+[node name="bench_park_3296" type="Node3D" parent="." unique_id=1075556830 instance=ExtResource("6_6hyby")]
+transform = Transform3D(0.50470674, 0, 0.86329085, 0, 1, 0, -0.86329085, 0, 0.50470674, 791.2654, 0, 126.93308)
+metadata/building_name = "bench_park"
+
+[node name="bollard_3297" type="Node3D" parent="." unique_id=52741976 instance=ExtResource("4_hiaun")]
+transform = Transform3D(0.47617128, 0, 0.87935257, 0, 1, 0, -0.87935257, 0, 0.47617128, 669.2359, 0, 122.475426)
+metadata/building_name = "bollard"
+
+[node name="bench_park_3298" type="Node3D" parent="." unique_id=1720468218 instance=ExtResource("6_6hyby")]
+transform = Transform3D(0.5563536, 0, -0.8309456, 0, 1, 0, 0.8309456, 0, 0.5563536, 779.32434, 0, 27.976322)
+metadata/building_name = "bench_park"
+
+[node name="bollard_3299" type="Node3D" parent="." unique_id=81853773 instance=ExtResource("4_hiaun")]
+transform = Transform3D(0.082284845, 0, 0.99660885, 0, 1, 0, -0.99660885, 0, 0.082284845, 614.39185, 0, 128.15302)
+metadata/building_name = "bollard"
+
+[node name="trash_can_3300" type="Node3D" parent="." unique_id=2036826169 instance=ExtResource("8_vl4o2")]
+transform = Transform3D(-0.99871516, 0, 0.050676238, 0, 1, 0, -0.050676238, 0, -0.99871516, 782.967, 0, 38.56801)
+metadata/building_name = "trash_can"
+
+[node name="bollard_3301" type="Node3D" parent="." unique_id=1897499843 instance=ExtResource("4_hiaun")]
+transform = Transform3D(0.684775, 0, -0.7287546, 0, 1, 0, 0.7287546, 0, 0.684775, 693.0056, 0, 98.26128)
+metadata/building_name = "bollard"
+
+[node name="bollard_3302" type="Node3D" parent="." unique_id=1922125178 instance=ExtResource("4_hiaun")]
+transform = Transform3D(-0.91732913, 0, -0.3981297, 0, 1, 0, 0.3981297, 0, -0.91732913, 608.09644, 0, 72.23703)
+metadata/building_name = "bollard"
+
+[node name="street_light_3303" type="Node3D" parent="." unique_id=658794606 instance=ExtResource("5_edait")]
+transform = Transform3D(-0.80493957, 0, -0.59335685, 0, 1, 0, 0.59335685, 0, -0.80493957, 738.2812, 0, 63.503273)
+metadata/building_name = "street_light"
+
+[node name="bollard_3304" type="Node3D" parent="." unique_id=1753248660 instance=ExtResource("4_hiaun")]
+transform = Transform3D(0.9702166, 0, -0.24223915, 0, 1, 0, 0.24223915, 0, 0.9702166, 636.257, 0, 27.943426)
+metadata/building_name = "bollard"
+
+[node name="bench_park_3305" type="Node3D" parent="." unique_id=347638997 instance=ExtResource("6_6hyby")]
+transform = Transform3D(0.90798223, 0, 0.41900867, 0, 1, 0, -0.41900867, 0, 0.90798223, 732.8854, 0, 104.98823)
+metadata/building_name = "bench_park"
+
+[node name="bollard_3306" type="Node3D" parent="." unique_id=1775440541 instance=ExtResource("4_hiaun")]
+transform = Transform3D(0.031809404, 0, 0.99949396, 0, 1, 0, -0.99949396, 0, 0.031809404, 693.16125, 0, 42.0256)
+metadata/building_name = "bollard"
+
+[node name="trash_can_3307" type="Node3D" parent="." unique_id=1721525833 instance=ExtResource("8_vl4o2")]
+transform = Transform3D(-0.9560749, 0, -0.2931225, 0, 1, 0, 0.2931225, 0, -0.9560749, 697.90967, 0, 138.4348)
+metadata/building_name = "trash_can"
+
+[node name="planter_box_3308" type="Node3D" parent="." unique_id=107021575 instance=ExtResource("7_41vs4")]
+transform = Transform3D(-0.71953744, 0, 0.69445366, 0, 1, 0, -0.69445366, 0, -0.71953744, 624.35425, 0, 14.08301)
+metadata/building_name = "planter_box"
+
+[node name="bollard_3309" type="Node3D" parent="." unique_id=1456578036 instance=ExtResource("4_hiaun")]
+transform = Transform3D(-0.25900415, 0, -0.9658762, 0, 1, 0, 0.9658762, 0, -0.25900415, 771.49066, 0, 30.906378)
+metadata/building_name = "bollard"
+
+[node name="bollard_3310" type="Node3D" parent="." unique_id=453726220 instance=ExtResource("4_hiaun")]
+transform = Transform3D(0.15700409, 0, 0.98759794, 0, 1, 0, -0.98759794, 0, 0.15700409, 737.9411, 0, 84.36878)
+metadata/building_name = "bollard"
+
+[node name="planter_box_3311" type="Node3D" parent="." unique_id=493454978 instance=ExtResource("7_41vs4")]
+transform = Transform3D(-0.6813847, 0, 0.7319255, 0, 1, 0, -0.7319255, 0, -0.6813847, 625.00073, 0, 39.254772)
+metadata/building_name = "planter_box"
+
+[node name="bollard_3312" type="Node3D" parent="." unique_id=1042002855 instance=ExtResource("4_hiaun")]
+transform = Transform3D(-0.920941, 0, 0.38970205, 0, 1, 0, -0.38970205, 0, -0.920941, 668.4708, 0, 102.886246)
+metadata/building_name = "bollard"
+
+[node name="trash_can_3313" type="Node3D" parent="." unique_id=241294144 instance=ExtResource("8_vl4o2")]
+transform = Transform3D(-0.13608104, 0, 0.9906977, 0, 1, 0, -0.9906977, 0, -0.13608104, 668.3009, 0, 81.46815)
+metadata/building_name = "trash_can"
+
+[node name="street_light_3314" type="Node3D" parent="." unique_id=1534448723 instance=ExtResource("5_edait")]
+transform = Transform3D(-0.7107226, 0, 0.7034724, 0, 1, 0, -0.7034724, 0, -0.7107226, 744.71924, 0, 137.68251)
+metadata/building_name = "street_light"
+
+[node name="bench_park_3315" type="Node3D" parent="." unique_id=1705573468 instance=ExtResource("6_6hyby")]
+transform = Transform3D(-0.7153175, 0, 0.6987996, 0, 1, 0, -0.6987996, 0, -0.7153175, 695.2561, 0, 68.429726)
+metadata/building_name = "bench_park"
+
+[node name="bollard_3316" type="Node3D" parent="." unique_id=276026686 instance=ExtResource("4_hiaun")]
+transform = Transform3D(0.7047862, 0, -0.7094198, 0, 1, 0, 0.7094198, 0, 0.7047862, 640.1159, 0, 99.732254)
+metadata/building_name = "bollard"
+
+[node name="bench_park_3317" type="Node3D" parent="." unique_id=77942158 instance=ExtResource("6_6hyby")]
+transform = Transform3D(0.9301257, 0, -0.3672412, 0, 1, 0, 0.3672412, 0, 0.9301257, 712.8417, 0, 55.08063)
+metadata/building_name = "bench_park"
+
+[node name="planter_box_3318" type="Node3D" parent="." unique_id=1765654868 instance=ExtResource("7_41vs4")]
+transform = Transform3D(0.12335606, 0, -0.9923625, 0, 1, 0, 0.9923625, 0, 0.12335606, 699.39386, 0, 75.1517)
+metadata/building_name = "planter_box"
+
+[node name="street_light_3319" type="Node3D" parent="." unique_id=1602635884 instance=ExtResource("5_edait")]
+transform = Transform3D(0.8980875, 0, 0.43981686, 0, 1, 0, -0.43981686, 0, 0.8980875, 633.9276, 0, 11.745683)
+metadata/building_name = "street_light"
+
+[node name="street_light_3320" type="Node3D" parent="." unique_id=169444332 instance=ExtResource("5_edait")]
+transform = Transform3D(-0.5704724, 0, -0.8213168, 0, 1, 0, 0.8213168, 0, -0.5704724, 779.0706, 0, 8.8188)
+metadata/building_name = "street_light"
+
+[node name="bollard_3321" type="Node3D" parent="." unique_id=1593025489 instance=ExtResource("4_hiaun")]
+transform = Transform3D(0.44858292, 0, 0.8937412, 0, 1, 0, -0.8937412, 0, 0.44858292, 738.5024, 0, 101.278534)
 metadata/building_name = "bollard"
