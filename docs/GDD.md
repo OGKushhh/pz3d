@@ -1,7 +1,7 @@
 # MAZAR — UNIFIED GAME DESIGN DOCUMENT
 
 > **Version:** 2.0
-> **Status:** Pre-production → vertical slice. Lore semi-locked. Path B locked. Tier 1 production: 216 active GLBs. City gen V2 (recipe-driven, road-first, block-based) with hand-crafted believable reference profiles. 8 biomes (no river, no wetlands — removed 2026-09-21). Map Y×Y placeholder (size 12 km² locked, dimensions TBD).
+> **Status:** Pre-production → vertical slice. Lore semi-locked. Path B locked. Tier 1 production: 216 active GLBs. City gen V2 (recipe-driven, road-first, block-based) with hand-crafted believable reference profiles. 9 biomes (no river, no wetlands — coastal beach retained on S+SE edge per user hand-authored map, 2026-09-21). Map dimensions locked from hand-authored top-down map: 4.6 km × 3.0 km ≈ 13.8 km².
 > **Repo location:** `/home/z/my-project/docs/GDD.md` (canonical — see `STATUS.md` for what's current vs archived)
 > **Working title:** *Mazar*
 > **Engine:** Godot 4.7.2 (glTF 2.0 native, Compatibility renderer default for Low preset)
@@ -44,8 +44,8 @@ No place is safe.
 1. **Authored skeleton, procedural flesh.** Landmarks, roads, and POIs are hand-placed. Buildings and props fill the authored skeleton procedurally. Procedural interiors provide replayability; the exterior shell is fixed. 🧪 *(under testing — see §10.1 + §10.6)*
 2. **Sound is gameplay.** Zombies hear you. Gunshots draw them. Stealth matters. Generators hum. Footsteps echo.
 3. **Roguelite progression.** Permadeath in sandbox; meta-upgrades persist. Find your old body, loot your old loot.
-4. **Biome identity.** Each of the 8 biomes has loot focus, difficulty, vibe, weather, time-cycle identity.
-5. **Travel as exploration.** Not optimization. Forest hides. Roads force detours.
+4. **Biome identity.** Each of the 9 biomes has loot focus, difficulty, vibe, weather, time-cycle identity.
+5. **Travel as exploration.** Not optimization. Sea blocks south + east edges. Forest hides north. Coast is a hard boundary.
 6. **All three combat modes.** Stealth, guns, melee — all viable, all situational. Shooting is the addictive hook (Valorant-feel).
 7. **Civic, not sacred.** Mazar's landmarks are civic (water tower, grain silo, hospital, government palace). No religious buildings. Faith lives in the people, not the skyline.
 8. **Runs on millions of PCs.** Low preset baseline: 2GB VRAM / 4GB RAM / 1080p / 60 FPS. High preset scales up.
@@ -59,9 +59,9 @@ No place is safe.
 
 ## 2.1 The Nation
 
-The Republic of Mazar is a small nation on the edge of a forgotten region. Its capital, the National City of Mazar, sits in a wide valley bordered by forests and farmland. The nation is small — you can drive across it in a day — but it was once one of the most prosperous places in the region. People came from around the world to live here, to work, to study, to find shelter. It was a nation of trade, of education, of faith, of stability. That was a long time ago.
+The Republic of Mazar is a coastal nation on the edge of a forgotten sea. Its capital, the National City of Mazar, sits on a wide bay where the sea meets the eastern forest. The nation is small — you can drive across it in a day — but it was once one of the most prosperous places in the region. People came from around the world to live here, to work, to study, to find shelter. It was a nation of trade, of education, of faith, of stability. That was a long time ago.
 
-The Mazarani people are conservative and religious. Their faith shaped their culture, their laws, and their daily rhythms. But religion in Mazar was never a spectacle — there were no grand monuments to it. It was quiet, personal, woven into the fabric of ordinary life. The nation's landmarks were civic, not sacred: the water tower, the grain silo, the hospital, the government palace, the stadium, the railway station, the grand bazaar. Those were the places that defined Mazar. The faith lived in the people, not in the skyline.
+The Mazarani people are conservative and religious. Their faith shaped their culture, their laws, and their daily rhythms. But religion in Mazar was never a spectacle — there were no grand monuments to it. It was quiet, personal, woven into the fabric of ordinary life. The nation's landmarks were civic, not sacred: the lighthouse, the water tower, the grain silo, the hospital, the government palace, the stadium, the railway station, the grand bazaar. Those were the places that defined Mazar. The faith lived in the people, not in the skyline.
 
 **Sarran** is an old Mazarani name, preserved in the city's streets and districts:
 - **Sarran Street** — the main road through Old Town
@@ -163,59 +163,98 @@ And somewhere in the city, buried in the ruins of the old royal palace, or hidde
 
 ## 2.12 The City — Geography
 
-The city is a single contiguous urban area surrounded by forest and farmland. Roads connect all districts; no water barriers. Travel between any two districts is via road networks (highway → arterial → local).
+The National City of Mazar sits on a wide bay. The sea forms the **southern + eastern** edges of the map (hard boundaries — player cannot walk on water). The northern edge is dense forest. The western edge opens to farmland + suburbs.
 
-**Inner districts:**
-- **Downtown** — the capital district: hospital, police HQ, government buildings
-- **Commercial Strip** — once-bustling bazaars and shops, now looted
-- **Industrial Park** — manufacturing and rail, outposts here
+**Map layout (per hand-authored top-down map, 2026-09-21):**
 
-**Outer districts:**
-- **Suburbia** — middle-class homes from the Long Peace, now empty
-- **Parks & Greenways** — old public gardens, walking trails, playgrounds
-- **Farmland** — Mazar's food basket: olive groves, wheat, irrigation canals
-- **Forest** — the border region, enemy infiltration routes, hidden bunkers
+```
+            N (forest edge — dense trees, hunting cabins, logging camps)
+            ↑
+   ┌─────────────────────────────────────────────────────────────────┐
+   │                                                                 │
+W  │  Suburbia       Parks &       Farmland      Industrial Park    │  E
+   │  (power         Greenways    (grain silo,  (power plant,       │
+   │  substation)    (old royal   fields)        water tower,       │
+   │                 palace)                     railway station)  │
+   │                                                                 │
+   │  ─────────  Main Highway (East-West)  ─────────                │
+   │                                                                 │
+   │              Commercial Strip  ──→  Downtown                  │
+   │              (Grand Bazaar,         (Hospital, Police HQ,      │
+   │               Broadcast Tower)       Govt Palace, Fire          │
+   │                                    Station, Stadium)          │
+   │                                                                 │
+   │                       Coastal Beach                            │
+   │                       (Lighthouse, Harbor,                    │
+   │                        Pier)                                  │
+   │                                                                 │
+   │                                            Fort Sarran         │
+   │                                            (peninsula,         │
+   │                                             bridge access)     │
+   └─────────────────────────────────────────────────────────────────┘
+            ↓
+            S (SEA — hard boundary, beach + lighthouse)
+```
 
-**Restricted:**
-- **Military Zone / Quarantine** — ground zero, the lab, Fort Sarran
+**Districts (West → East, top to bottom):**
+
+- **Suburbia** — far west, residential grid, power substation, subway entrance
+- **Parks & Greenways** — west-central, organic green, Old Royal Palace
+- **Farmland** — central-north, fields, Grain Silo, irrigation
+- **Industrial Park** — northeast corner, power plant, water tower, railway
+- **Forest** — entire northern edge (above all districts), logging camps + hunting cabins
+- **Commercial Strip** — diagonal band SW→NE, Grand Bazaar + Broadcast Tower
+- **Downtown** — east-central urban core, Hospital + Police HQ + Government Palace + Fire Station + Stadium
+- **Coastal Beach** — south + southeast edge, Lighthouse + Harbor + Pier
+- **Military Zone / Fort Sarran** — eastern peninsula, bridge access only, endgame raid
 
 **Underground:**
-- **Subway** — public transit + secret military transport tunnels
+- **Subway** — public transit + secret military transport tunnels (entries in Suburbia, Parks, Downtown)
 
-## 2.13 The 8 Biomes
+**Sea access (hard boundaries):**
+- South edge: beach + lighthouse (Coastal Beach biome)
+- East edge: bay + Fort Sarran peninsula (Military Zone + Coastal overlap)
 
-> **UPDATED 2026-09-21.** Removed River & Wetlands + Coastal Beach (no river, no water in v1). Subway moved out of biome list (kept as underground layer, not a surface biome). 8 surface biomes total.
+## 2.13 The 9 Biomes
+
+> **UPDATED 2026-09-21.** Coastal Beach added back (per hand-authored top-down map). Removed River + Wetlands (no river — different concept from coast). Subway moved out of biome list (kept as underground layer). 9 surface biomes total.
 
 | # | Biome | Lore Role | Loot Focus | Difficulty | Zombie Density | Weather | POIs | Base Potential |
 |---|---|---|---|---|---|---|---|---|
-| **1** | Suburbia | Middle-class homes from the Long Peace. Now empty. | Food, clothes, tools, batteries, basic meds, family cars | Low | Low–Medium | Mild autumn, overcast, light rain | Houses, school, corner store, gas station, cul-de-sacs | **High** — starter base |
-| **2** | Commercial Strip | Once-bustling bazaars and shops. Now looted. | Meds, food, fuel, weapons, electronics, clothing | Medium–High | Medium–High | Overcast, rain, blackouts | Diner, motel, pharmacy, supermarket, gun store, bazaar | Medium |
-| **3** | Industrial Park | Manufacturing and rail. Outposts here. | Metal, tools, generators, fuel, chemicals | Medium | Medium | Industrial smog, acid rain, cold drizzle | Warehouses, factories, rail depot, water tower, outposts | **High** |
+| **1** | Suburbia | Middle-class homes from the Long Peace. Now empty. | Food, clothes, tools, batteries, basic meds, family cars | Low | Low–Medium | Mild autumn, overcast, light rain | Houses, school, corner store, gas station, cul-de-sacs, power substation | **High** — starter base |
+| **2** | Commercial Strip | Once-bustling bazaars and shops. Now looted. | Meds, food, fuel, weapons, electronics, clothing | Medium–High | Medium–High | Overcast, rain, blackouts | Diner, motel, pharmacy, supermarket, gun store, bazaar, broadcast tower | Medium |
+| **3** | Industrial Park | Manufacturing and rail. Outposts here. | Metal, tools, generators, fuel, chemicals | Medium | Medium | Industrial smog, acid rain, cold drizzle | Warehouses, factories, rail depot, water tower, power plant, outposts | **High** |
 | **4** | Farmland | Mazar's food basket. Olive groves, wheat, irrigation canals. | Crops, seeds, canned goods, fuel, animals | Low–Medium | Low | Heat waves, dust, thunderstorms | Farms, orchards, barns, grain silos, windmill | **High** |
 | **5** | Forest | Border region. Enemy infiltration routes. Hidden bunkers. | Wood, herbs, hunting gear, camp supplies | Medium | Low | Fog, cold rain, early dusk | Ranger station, hunting cabins, campsite, cave, logging camp | Medium–High |
-| **6** | Parks & Greenways | Old public gardens, walking trails, playgrounds. | Water, snacks, gardening tools, seeds, meds | Low | Low | Sunny, breezy, morning mist | Playground, botanical garden, picnic area, pond, trailhead | Low–Medium |
-| **7** | Downtown | Capital district. Hospital, police HQ, government buildings. | Best meds, guns, ammo, armor, electronics, intel | High–Very High | Very High | Neon night, rain, smog, blackouts | Hospital, police HQ, government palace, stadium, apartments | **Low** — death trap |
-| **8** | Military Zone / Quarantine | Ground zero. Operation Living Troop lab. Fort Sarran. | Military gear, MREs, hazmat suits, radios, advanced meds, weapons | Extreme | Extreme | Toxic fog, ashfall, cold wind, unnatural silence | Military fort, field hospital, hazmat tents, convoy wrecks, bunker entrance | None — endgame raid only |
+| **6** | Parks & Greenways | Old public gardens, walking trails, playgrounds. | Water, snacks, gardening tools, seeds, meds | Low | Low | Sunny, breezy, morning mist | Playground, botanical garden, picnic area, pond, trailhead, old royal palace | Low–Medium |
+| **7** | Coastal Beach | Southern shoreline. Lighthouse, fishing. Once-busy tourist + fisher area. | Fish, clean water, boat fuel, herbs, fishing gear, driftwood | Medium | Low–Medium | Sea mist, heavy rain, flooding, fog | Lighthouse, harbor office, fishing huts, pier, houseboats | Low–Medium |
+| **8** | Downtown | Capital district. Hospital, police HQ, government buildings. | Best meds, guns, ammo, armor, electronics, intel | High–Very High | Very High | Neon night, rain, smog, blackouts | Hospital, police HQ, government palace, stadium, fire station | **Low** — death trap |
+| **9** | Military Zone / Quarantine | Fort Sarran — ground zero. Operation Living Troop lab. | Military gear, MREs, hazmat suits, radios, advanced meds, weapons | Extreme | Extreme | Toxic fog, ashfall, cold wind, unnatural silence | Military fort (peninsula), field hospital, hazmat tents, convoy wrecks, bunker entrance | None — endgame raid only |
 
 **Subway (underground layer):** Public transit + secret military transport tunnels. Electronics, non-perishable food, batteries, rare lore. Medium–High difficulty, clustered zombies. Stations, platforms, maintenance tunnels, secret cargo rooms. Low–Medium base potential.
 
-**Military Zone placement:** eastern edge of the city (Fort Sarran is on the eastern edge per lore). Gated by keycard/quest/radio rumor. One road in, one road out. 1-2 city blocks or one fenced compound. High risk/reward side exploration.
+**Military Zone placement:** eastern peninsula (Fort Sarran juts into the bay). Connected to mainland by a single bridge — chokepoint + gated access. One road in, one road out. High risk/reward side exploration.
 
 ## 2.14 Civic Landmarks
 
 No religious buildings. The nation's landmarks are civic:
 
-1. The Water Tower (Industrial Park)
-2. The Grain Silo (Farmland)
-3. The Hospital (Downtown)
-4. The Police HQ (Downtown)
-5. The Government Palace — now junta HQ (Downtown)
-6. The Stadium (Downtown)
-7. The Old Royal Palace — abandoned, sealed (Downtown or Suburbia edge)
-8. The Fort — Fort Sarran (Military Zone)
-9. The Broadcast Tower (Downtown or Industrial)
-10. The Railway Station (Industrial Park)
-11. The Grand Bazaar / Souq (Commercial Strip)
+1. The Lighthouse (Coastal Beach — southwestern point)
+2. The Harbor Office (Coastal Beach — south pier)
+3. The Water Tower (Industrial Park)
+4. The Grain Silo (Farmland)
+5. The Hospital (Downtown)
+6. The Police HQ (Downtown)
+7. The Government Palace — now junta HQ (Downtown)
+8. The Fire Station (Downtown)
+9. The Stadium (Downtown — southeastern edge, near coast)
+10. The Old Royal Palace — abandoned, sealed (Parks & Greenways)
+11. The Fort — Fort Sarran (Military Zone — eastern peninsula)
+12. The Broadcast Tower (Commercial Strip)
+13. The Railway Station (Industrial Park)
+14. The Grand Bazaar / Souq (Commercial Strip)
+15. Suburbia Power Substation (Suburbia)
+16. Industrial Power Plant (Industrial Park — NE corner)
 
 ## 2.15 Zombies
 
@@ -363,7 +402,7 @@ Per-district fixed loot table. Within the table, rarity is random:
 - Uncommon — 30%
 - Rare — 10%
 
-### All 8 biome tables:
+### All 9 biome tables:
 
 | District | Common (60%) | Uncommon (30%) | Rare (10%) |
 |---|---|---|---|
@@ -371,6 +410,7 @@ Per-district fixed loot table. Within the table, rarity is random:
 | Police HQ (Downtown) | Pistol Ammo | Shotgun Ammo | Tier 2 Armor |
 | Industrial Park | Scrap Metal, Canned Food | Noise Grenade Parts | Rare Crafting Component |
 | Subway | Flashlight Battery, Clean Water | Electronics | Lore Fragment (story item) |
+| Coastal Beach | Fish, Driftwood | Boat Fuel | Hermetic Container (rare storage) |
 | Suburbia | Canned Food, Batteries | Household Tools | Car Keys (random vehicle) |
 | Parks & Greenways | Snacks, Water | Seeds | Fishing Rod |
 | Forest | Wood, Herbs | Hunting Gear | Animal Trap |
