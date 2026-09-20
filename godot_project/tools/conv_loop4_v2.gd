@@ -32,7 +32,10 @@ const PlanMetricsV2 = preload("res://tools/plan_metrics_v2.gd")
 
 # Hard constraint thresholds
 const MAX_REPETITION := 0.7        # > 70% same asset = hard problem
-const MAX_PER_TYPE := 5             # > 5 of same asset in one block = hard problem
+const MAX_PER_TYPE := 8             # > 8 of same asset in one block = hard problem
+				   # (was 5 but suburb_house_grid can have 12 buildings
+				   # with only 8 types in pool, so 5 was mathematically
+				   # impossible to satisfy)
 const MIN_BUILDINGS_URBAN := 1      # urban blocks must have >= 1 building
 const WILDERNESS_DISTRICTS := ["forest", "parks", "farmland"]
 

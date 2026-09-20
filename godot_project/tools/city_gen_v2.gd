@@ -29,15 +29,18 @@ const LOCAL_SPACING: float = 150.0      # local streets every 150m within blocks
 
 # === DISTRICT ANCHORS ===
 # Each anchor seeds a district. Blocks near an anchor get that district.
+# User feedback: "50% less the sparse spaces between major towns"
+# Old radii were 700-800m, creating huge sparse suburbia fillers (151/300 blocks).
+# New radii are 50% smaller — towns are denser, with thinner forest/park gaps.
 const ANCHORS: Array = [
-	{"pos": Vector3(800, 0, 600), "type": "downtown", "radius": 700},
-	{"pos": Vector3(2800, 0, 800), "type": "commercial", "radius": 600},
-	{"pos": Vector3(2000, 0, 2200), "type": "suburbia", "radius": 800},
-	{"pos": Vector3(600, 0, 2200), "type": "farmland", "radius": 700},
-	{"pos": Vector3(3500, 0, 2500), "type": "industrial", "radius": 500},
-	{"pos": Vector3(1800, 0, 400), "type": "military", "radius": 350},
-	{"pos": Vector3(3500, 0, 500), "type": "forest", "radius": 500},
-	{"pos": Vector3(500, 0, 1000), "type": "parks", "radius": 400},
+	{"pos": Vector3(800, 0, 600), "type": "downtown", "radius": 350},
+	{"pos": Vector3(2800, 0, 800), "type": "commercial", "radius": 300},
+	{"pos": Vector3(2000, 0, 2200), "type": "suburbia", "radius": 400},
+	{"pos": Vector3(600, 0, 2200), "type": "farmland", "radius": 350},
+	{"pos": Vector3(3500, 0, 2500), "type": "industrial", "radius": 250},
+	{"pos": Vector3(1800, 0, 400), "type": "military", "radius": 175},
+	{"pos": Vector3(3500, 0, 500), "type": "forest", "radius": 250},
+	{"pos": Vector3(500, 0, 1000), "type": "parks", "radius": 200},
 ]
 
 # District properties
@@ -186,11 +189,13 @@ static func generate_blocks(roads: Array) -> Array:
 
 # === DISTRICT ASSIGNMENT ===
 # Each block gets a district based on nearest anchor.
+# Default: "forest" (wilderness) — so gaps between major towns are dense forest,
+# not sparse suburbia. This matches PZ reference: forest fills gaps between towns.
 static func assign_districts(blocks: Array) -> void:
 	for block in blocks:
 		var center: Vector3 = block.center
 		var best_dist: float = 99999.0
-		var best_type: String = "suburbia"  # default
+		var best_type: String = "forest"  # default — wilderness fills gaps between towns
 		for anchor in ANCHORS:
 			var d: float = center.distance_to(anchor.pos)
 			if d < anchor.radius and d < best_dist:

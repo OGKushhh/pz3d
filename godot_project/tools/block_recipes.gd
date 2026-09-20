@@ -578,11 +578,11 @@ static func _suburb_house_grid(result: Dictionary, min_x: float, min_z: float, w
 		var bx: float = min_x + MIN_SETBACK + row_offset_x + col * lot_w + lot_w * 0.5
 		var jitter: float = crng.randf_range(-1.0, 1.0)
 		# North house
-		var bname_n: String = _pick_unique(houses, crng, type_counts, 2)
+		var bname_n: String = _pick_unique(houses, crng, type_counts, 3)
 		_add_building(result, Vector3(bx + jitter, 0, north_z), 180.0 + crng.randf_range(-2, 2), bname_n)
 		type_counts[bname_n] = int(type_counts.get(bname_n, 0)) + 1
 		# South house
-		var bname_s: String = _pick_unique(houses, crng, type_counts, 2)
+		var bname_s: String = _pick_unique(houses, crng, type_counts, 3)
 		_add_building(result, Vector3(bx - jitter, 0, south_z), 0.0 + crng.randf_range(-2, 2), bname_s)
 		type_counts[bname_s] = int(type_counts.get(bname_s, 0)) + 1
 		# Front yard: mailbox + small tree (north side)
@@ -626,7 +626,7 @@ static func _suburb_single_row(result: Dictionary, min_x: float, min_z: float, w
 	var type_counts: Dictionary = {}
 	for col in range(cols):
 		var bx: float = min_x + MIN_SETBACK + row_offset_x + col * lot_w + lot_w * 0.5
-		var bname: String = _pick_unique(houses, crng, type_counts, 2)
+		var bname: String = _pick_unique(houses, crng, type_counts, 3)
 		_add_building(result, Vector3(bx, 0, house_z), 0.0, bname)
 		type_counts[bname] = int(type_counts.get(bname, 0)) + 1
 		# Front yard
@@ -689,7 +689,7 @@ static func _suburb_row_houses(result: Dictionary, min_x: float, min_z: float, w
 	var type_counts: Dictionary = {}
 	for col in range(cols):
 		var bx: float = min_x + MIN_SETBACK + row_offset_x + col * unit_w + unit_w * 0.5
-		var bname: String = _pick_unique(houses, crng, type_counts, 2)
+		var bname: String = _pick_unique(houses, crng, type_counts, 3)
 		_add_building(result, Vector3(bx, 0, house_z), 0.0, bname)
 		type_counts[bname] = int(type_counts.get(bname, 0)) + 1
 	# Front yard: hedge along the row
@@ -716,7 +716,7 @@ static func _suburb_cul_de_sac(result: Dictionary, min_x: float, min_z: float, w
 		var angle: float = (float(i) / float(count)) * TAU
 		var bx: float = center.x + cos(angle) * radius
 		var bz: float = center.z + sin(angle) * radius
-		var bname: String = _pick_unique(houses, crng, type_counts, 2)
+		var bname: String = _pick_unique(houses, crng, type_counts, 3)
 		var rot: float = rad_to_deg(atan2(bx - center.x, bz - center.z)) + 180.0
 		_add_building(result, Vector3(bx, 0, bz), rot, bname)
 		type_counts[bname] = int(type_counts.get(bname, 0)) + 1
