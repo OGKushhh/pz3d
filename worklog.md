@@ -2351,3 +2351,12 @@ Other remaining issues (not repetition):
 - empty_chunk (2): Farmland with 0 buildings  
 - low_density (5): Farmland too sparse
 → These are density tuning issues, separate from repetition.
+
+---
+Task ID: session-14-cogito-separation-and-city-gen-remake
+Agent: main (Super Z)
+Task: User: "first i want you to separate cogito own level with our main map, let them share mechanics. then DO the remake, i agree on it, we learn from our mistakes"
+
+Two tasks:
+1. Separate Cogito demo levels from our main map (they share mechanics but are independent scenes)
+2. Remake city gen from scratch (top-down, road-first, block-based, no river/wetlands)
