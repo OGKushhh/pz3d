@@ -135,22 +135,70 @@ const PROP_POOLS := {
 	"parks": ["bench_park", "picnic_table", "playground_slide", "swing_set", "seesaw", "water_fountain", "park_sign", "trash_can"],
 }
 
-# === PICK RECIPE (adjacency-aware) ===
-# Picks a recipe for the given district, preferring ones not already chosen by neighbors.
-# This makes adjacent blocks get different recipe variants — visual variety.
+# === TRANSITION RECIPES ===
+# Recipes for blocks at district boundaries. Mix elements of both districts.
+# Key: "districtA_to_districtB" — used when this block is in districtA and
+# at least one neighbor is in districtB.
+const TRANSITION_RECIPES := {
+	# Suburbia ↔ Commercial: houses + a corner store
+	"suburbia_to_commercial": "suburb_commercial_transition",
+	"commercial_to_suburbia": "suburb_commercial_transition",
+	# Suburbia ↔ Farmland: house + barn + scattered hay
+	"suburbia_to_farmland": "suburb_farm_transition",
+	"farmland_to_suburbia": "suburb_farm_transition",
+	# Suburbia ↔ Forest: house + dense trees on one side
+	"suburbia_to_forest": "suburb_forest_transition",
+	"forest_to_suburbia": "suburb_forest_transition",
+	# Suburbia ↔ Parks: house + garden elements
+	"suburbia_to_parks": "suburb_park_transition",
+	"parks_to_suburbia": "suburb_park_transition",
+	# Downtown ↔ Commercial: tower + small shop
+	"downtown_to_commercial": "downtown_commercial_transition",
+	"commercial_to_downtown": "downtown_commercial_transition",
+	# Downtown ↔ Industrial: warehouse + parking garage
+	"downtown_to_industrial": "downtown_industrial_transition",
+	"industrial_to_downtown": "downtown_industrial_transition",
+	# Commercial ↔ Industrial: storefront + warehouse
+	"commercial_to_industrial": "commercial_industrial_transition",
+	"industrial_to_commercial": "commercial_industrial_transition",
+	# Farmland ↔ Forest: cabin + barn + trees
+	"farmland_to_forest": "farm_forest_transition",
+	"forest_to_farmland": "farm_forest_transition",
+	# Forest ↔ Parks: dense trees + benches
+	"forest_to_parks": "forest_park_transition",
+	"parks_to_forest": "forest_park_transition",
+	# Military ↔ Farmland: checkpoint + barn
+	"military_to_farmland": "military_farm_transition",
+	"farmland_to_military": "military_farm_transition",
+	# Military ↔ Forest: bunker + trees
+	"military_to_forest": "military_forest_transition",
+	"forest_to_military": "military_forest_transition",
+}
+
+# === PICK RECIPE (adjacency-aware + transition-aware) ===
+# Picks a recipe for the given block, preferring ones not chosen by neighbors.
+# If the block is at a district boundary (transition block), uses a transition
+# recipe that mixes elements of both districts.
 #
 # neighbor_recipes: list of recipe names already chosen by this block's neighbors.
-# Strategy:
-# 1. Get all recipes for this district
-# 2. Filter out ones used by neighbors (if possible)
-# 3. If all recipes are used by neighbors, fall back to least-used neighbor recipe
-# 4. Pick randomly from remaining candidates (seeded by block coords)
-static func pick_recipe(district: String, seed: int, neighbor_recipes: Array = []) -> String:
+# is_transition: true if any neighbor has a different district.
+# transition_partner: the different district name (if is_transition is true).
+static func pick_recipe(district: String, seed: int, neighbor_recipes: Array = [], is_transition: bool = false, transition_partner: String = "") -> String:
+	var crng := RandomNumberGenerator.new()
+	crng.seed = seed
+
+	# If this is a transition block, try to use a transition recipe first.
+	# Transition recipes are the priority — they create the soft district edges.
+	if is_transition and transition_partner != "":
+		var transition_key: String = "%s_to_%s" % [district, transition_partner]
+		if TRANSITION_RECIPES.has(transition_key):
+			return TRANSITION_RECIPES[transition_key]
+		# Fall back: no specific transition recipe for this pair, use normal recipe
+
+	# Normal (non-transition) recipe picking
 	var recipes: Array = RECIPES.get(district, [])
 	if recipes.is_empty():
 		return "empty_block"
-	var crng := RandomNumberGenerator.new()
-	crng.seed = seed
 
 	# If no neighbor info, just pick randomly (backward-compat)
 	if neighbor_recipes.is_empty():
@@ -251,6 +299,29 @@ static func apply_recipe(recipe_name: String, block: Dictionary, seed: int) -> D
 			_military_bunker_block(result, min_x, min_z, w, d, center, crng)
 		"military_fortress_block":
 			_military_fortress_block(result, min_x, min_z, w, d, center, crng)
+		# === TRANSITION RECIPES (district boundaries) ===
+		"suburb_commercial_transition":
+			_suburb_commercial_transition(result, min_x, min_z, w, d, center, crng)
+		"suburb_farm_transition":
+			_suburb_farm_transition(result, min_x, min_z, w, d, center, crng)
+		"suburb_forest_transition":
+			_suburb_forest_transition(result, min_x, min_z, w, d, center, crng)
+		"suburb_park_transition":
+			_suburb_park_transition(result, min_x, min_z, w, d, center, crng)
+		"downtown_commercial_transition":
+			_downtown_commercial_transition(result, min_x, min_z, w, d, center, crng)
+		"downtown_industrial_transition":
+			_downtown_industrial_transition(result, min_x, min_z, w, d, center, crng)
+		"commercial_industrial_transition":
+			_commercial_industrial_transition(result, min_x, min_z, w, d, center, crng)
+		"farm_forest_transition":
+			_farm_forest_transition(result, min_x, min_z, w, d, center, crng)
+		"forest_park_transition":
+			_forest_park_transition(result, min_x, min_z, w, d, center, crng)
+		"military_farm_transition":
+			_military_farm_transition(result, min_x, min_z, w, d, center, crng)
+		"military_forest_transition":
+			_military_forest_transition(result, min_x, min_z, w, d, center, crng)
 		_:
 			_empty_block(result, min_x, min_z, w, d, center, crng)
 
@@ -882,3 +953,187 @@ static func _scatter_foliage_in_area(result: Dictionary, pool: Array, area_x: fl
 		var fx: float = area_x + crng.randf() * area_w
 		var fz: float = area_z + crng.randf() * area_d
 		_add_foliage(result, Vector3(fx, 0, fz), crng.randf() * 360.0, _pick(pool, crng), crng.randf_range(0.8, 1.3))
+
+# =====================================================
+# === TRANSITION RECIPES (district boundaries) ===
+# Each transition block mixes elements of two districts.
+# =====================================================
+
+# Suburbia ↔ Commercial: 2 houses + corner store
+static func _suburb_commercial_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var max_x: float = min_x + w
+	var max_z: float = min_z + d
+	var houses: Array = POOLS.suburbia.houses
+	var stores: Array = POOLS.commercial.stores
+	if houses.is_empty() or stores.is_empty():
+		_suburb_house_grid(result, min_x, min_z, w, d, center, crng)
+		return
+	# 2 houses on north side
+	var house_z: float = min_z + MIN_SETBACK + 12
+	_add_building(result, Vector3(center.x - 20, 0, house_z), 180.0, _pick(houses, crng))
+	_add_building(result, Vector3(center.x + 20, 0, house_z), 180.0, _pick(houses, crng))
+	# Corner store on south side (facing the commercial neighbor)
+	var store_z: float = max_z - MIN_SETBACK - 12
+	_add_building(result, Vector3(center.x, 0, store_z), 0.0, _pick(stores, crng))
+	# Front yards + mailbox
+	_add_prop(result, Vector3(center.x - 20, 0, house_z - 8), 0.0, "mailbox")
+	_add_prop(result, Vector3(center.x + 20, 0, house_z - 8), 0.0, "mailbox")
+	# Parking meter near store
+	_add_prop(result, Vector3(center.x + 10, 0, store_z + 6), 0.0, "parking_meter")
+	# Trees in yard
+	_add_foliage(result, Vector3(center.x, 0, center.z), crng.randf() * 360.0, _pick(FOLIAGE_POOLS.suburbia, crng), 1.0)
+
+# Suburbia ↔ Farmland: house + barn + hay bales
+static func _suburb_farm_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var max_x: float = min_x + w
+	var max_z: float = min_z + d
+	var houses: Array = POOLS.suburbia.houses
+	var utility: Array = POOLS.farmland.utility
+	if houses.is_empty() or utility.is_empty():
+		_suburb_house_grid(result, min_x, min_z, w, d, center, crng)
+		return
+	# House on suburb side
+	_add_building(result, Vector3(min_x + MIN_SETBACK + 15, 0, min_z + MIN_SETBACK + 12), 90.0, _pick(houses, crng))
+	# Barn on farm side
+	_add_building(result, Vector3(max_x - MIN_SETBACK - 20, 0, max_z - MIN_SETBACK - 15), 270.0, _pick(utility, crng))
+	# Hay bales scattered
+	_scatter_props(result, PROP_POOLS.farmland, min_x, min_z, w, d, int(w * d / 800.0), crng, MIN_SETBACK)
+	# Some trees
+	_add_foliage(result, Vector3(center.x, 0, center.z), crng.randf() * 360.0, _pick(FOLIAGE_POOLS.suburbia, crng), 1.0)
+	_add_prop(result, Vector3(min_x + MIN_SETBACK + 5, 0, min_z + MIN_SETBACK + 20), 0.0, "mailbox")
+
+# Suburbia ↔ Forest: house + dense trees on forest side
+static func _suburb_forest_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var houses: Array = POOLS.suburbia.houses
+	if houses.is_empty():
+		_forest_dense_trees(result, min_x, min_z, w, d, center, crng)
+		return
+	# House on suburb side (north)
+	var house_z: float = min_z + MIN_SETBACK + 12
+	_add_building(result, Vector3(center.x, 0, house_z), 180.0, _pick(houses, crng))
+	_add_prop(result, Vector3(center.x, 0, house_z - 8), 0.0, "mailbox")
+	# Dense trees on south half (forest side)
+	var forest_pool: Array = FOLIAGE_POOLS.forest
+	var forest_area_z: float = house_z + 15
+	var forest_area_d: float = (min_z + d - MIN_SETBACK) - forest_area_z
+	if forest_area_d > 0:
+		_scatter_foliage_in_area(result, forest_pool, min_x + MIN_SETBACK, forest_area_z, w - MIN_SETBACK * 2, forest_area_d, int((w - MIN_SETBACK * 2) * forest_area_d / 100.0), crng)
+
+# Suburbia ↔ Parks: house + garden elements
+static func _suburb_park_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var max_x: float = min_x + w
+	var max_z: float = min_z + d
+	var houses: Array = POOLS.suburbia.houses
+	if houses.is_empty():
+		_park_central_green(result, min_x, min_z, w, d, center, crng)
+		return
+	# House on suburb side
+	_add_building(result, Vector3(min_x + MIN_SETBACK + 15, 0, min_z + MIN_SETBACK + 12), 90.0, _pick(houses, crng))
+	# Park elements on park side
+	_add_prop(result, Vector3(max_x - MIN_SETBACK - 15, 0, max_z - MIN_SETBACK - 10), 0.0, "bench_park")
+	_add_prop(result, Vector3(max_x - MIN_SETBACK - 25, 0, max_z - MIN_SETBACK - 20), 0.0, "picnic_table")
+	# Garden foliage
+	_scatter_foliage(result, FOLIAGE_POOLS.parks, min_x, min_z, w, d, int(w * d / 400.0), crng, MIN_SETBACK)
+	_add_prop(result, Vector3(min_x + MIN_SETBACK + 5, 0, min_z + MIN_SETBACK + 20), 0.0, "mailbox")
+
+# Downtown ↔ Commercial: tower + small shop
+static func _downtown_commercial_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var towers: Array = POOLS.downtown.towers
+	var stores: Array = POOLS.commercial.stores
+	if towers.is_empty() or stores.is_empty():
+		_downtown_tower_block(result, min_x, min_z, w, d, center, crng)
+		return
+	# Tower on downtown side (north)
+	_add_building(result, Vector3(center.x, 0, min_z + MIN_SETBACK + 20), 180.0, _pick(towers, crng))
+	# Small shop on commercial side (south)
+	_add_building(result, Vector3(center.x, 0, max_z_after(min_z, d) - MIN_SETBACK - 12), 0.0, _pick(stores, crng))
+	# Bollards + parking meter
+	_scatter_props(result, PROP_POOLS.downtown, min_x, min_z, w, d, 4, crng, MIN_SETBACK + 5.0)
+
+# Downtown ↔ Industrial: parking garage + warehouse
+static func _downtown_industrial_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var warehouses: Array = POOLS.industrial.warehouses
+	if warehouses.is_empty():
+		_downtown_parking_block(result, min_x, min_z, w, d, center, crng)
+		return
+	# Parking garage on downtown side
+	_add_building(result, Vector3(center.x, 0, min_z + MIN_SETBACK + 20), 0.0, "parking_garage")
+	# Warehouse on industrial side
+	_add_building(result, Vector3(center.x, 0, max_z_after(min_z, d) - MIN_SETBACK - 20), 0.0, _pick(warehouses, crng))
+	# Shipping containers
+	_scatter_props(result, PROP_POOLS.industrial, min_x, min_z, w, d, 4, crng, MIN_SETBACK + 5.0)
+
+# Commercial ↔ Industrial: storefront + warehouse
+static func _commercial_industrial_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var stores: Array = POOLS.commercial.stores
+	var warehouses: Array = POOLS.industrial.warehouses
+	if stores.is_empty() or warehouses.is_empty():
+		_commercial_strip(result, min_x, min_z, w, d, center, crng)
+		return
+	# Storefront on commercial side
+	_add_building(result, Vector3(center.x - 15, 0, min_z + MIN_SETBACK + 12), 180.0, _pick(stores, crng))
+	# Warehouse on industrial side
+	_add_building(result, Vector3(center.x + 15, 0, max_z_after(min_z, d) - MIN_SETBACK - 15), 0.0, _pick(warehouses, crng))
+	# Dumpsters + parking
+	_scatter_props(result, PROP_POOLS.industrial, min_x, min_z, w, d, 4, crng, MIN_SETBACK + 5.0)
+
+# Farmland ↔ Forest: cabin + barn + trees
+static func _farm_forest_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var max_x: float = min_x + w
+	var max_z: float = min_z + d
+	var cabins: Array = POOLS.forest.cabins
+	var utility: Array = POOLS.farmland.utility
+	# Cabin on forest side
+	if not cabins.is_empty():
+		_add_building(result, Vector3(min_x + MIN_SETBACK + 15, 0, min_z + MIN_SETBACK + 12), 90.0, _pick(cabins, crng))
+	# Barn on farm side
+	if not utility.is_empty():
+		_add_building(result, Vector3(max_x - MIN_SETBACK - 20, 0, max_z - MIN_SETBACK - 15), 270.0, _pick(utility, crng))
+	# Dense forest trees
+	_scatter_foliage(result, FOLIAGE_POOLS.forest, min_x, min_z, w, d, int(w * d / 400.0), crng, MIN_SETBACK)
+	# Hay bales
+	_scatter_props(result, PROP_POOLS.farmland, min_x, min_z, w, d, 3, crng, MIN_SETBACK + 10.0)
+
+# Forest ↔ Parks: dense trees + benches + playground
+static func _forest_park_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var max_x: float = min_x + w
+	var max_z: float = min_z + d
+	# Trees on forest side
+	_scatter_foliage_in_area(result, FOLIAGE_POOLS.forest, min_x + MIN_SETBACK, min_z + MIN_SETBACK, (w - MIN_SETBACK * 2) * 0.5, d - MIN_SETBACK * 2, int(w * d / 300.0), crng)
+	# Park props on park side
+	_add_prop(result, Vector3(max_x - MIN_SETBACK - 15, 0, max_z - MIN_SETBACK - 10), 0.0, "bench_park")
+	_add_prop(result, Vector3(max_x - MIN_SETBACK - 25, 0, max_z - MIN_SETBACK - 20), 0.0, "picnic_table")
+	_add_prop(result, Vector3(max_x - MIN_SETBACK - 10, 0, max_z - MIN_SETBACK - 25), 0.0, "swing_set")
+	# Some park foliage
+	_scatter_foliage_in_area(result, FOLIAGE_POOLS.parks, max_x - MIN_SETBACK - (w * 0.4), min_z + MIN_SETBACK, (w * 0.4) - MIN_SETBACK, d - MIN_SETBACK * 2, int(w * d / 600.0), crng)
+
+# Military ↔ Farmland: checkpoint + barn
+static func _military_farm_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var max_x: float = min_x + w
+	var max_z: float = min_z + d
+	var utility: Array = POOLS.farmland.utility
+	# Checkpoint on military side
+	_add_building(result, Vector3(min_x + MIN_SETBACK + 15, 0, min_z + MIN_SETBACK + 12), 90.0, "military_checkpoint")
+	# Barn on farm side
+	if not utility.is_empty():
+		_add_building(result, Vector3(max_x - MIN_SETBACK - 20, 0, max_z - MIN_SETBACK - 15), 270.0, _pick(utility, crng))
+	# Barriers + hay
+	_scatter_props(result, PROP_POOLS.military, min_x, min_z, w, d, 3, crng, MIN_SETBACK + 5.0)
+	_scatter_props(result, PROP_POOLS.farmland, min_x, min_z, w, d, 3, crng, MIN_SETBACK + 10.0)
+
+# Military ↔ Forest: bunker + trees
+static func _military_forest_transition(result: Dictionary, min_x: float, min_z: float, w: float, d: float, center: Vector3, crng: RandomNumberGenerator):
+	var max_x: float = min_x + w
+	var max_z: float = min_z + d
+	# Bunker on military side
+	_add_building(result, Vector3(min_x + MIN_SETBACK + 15, 0, min_z + MIN_SETBACK + 12), 90.0, "bunker_entrance")
+	# Watchtower at corner
+	_add_building(result, Vector3(min_x + MIN_SETBACK + 5, 0, max_z - MIN_SETBACK - 5), 0.0, "watchtower")
+	# Dense forest trees on forest side
+	_scatter_foliage_in_area(result, FOLIAGE_POOLS.forest, max_x - MIN_SETBACK - (w * 0.5), min_z + MIN_SETBACK, (w * 0.5) - MIN_SETBACK, d - MIN_SETBACK * 2, int(w * d / 300.0), crng)
+	# Barbed wire
+	_add_prop(result, Vector3(center.x, 0, min_z + MIN_SETBACK + 25), 0.0, "barbed_wire_fence")
+
+# Helper: compute max_z inline (used by transition recipes)
+static func max_z_after(min_z: float, d: float) -> float:
+	return min_z + d

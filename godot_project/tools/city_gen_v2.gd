@@ -201,8 +201,10 @@ static func assign_districts(blocks: Array) -> void:
 # === BLOCK PLANNING (recipe-driven, adjacency-aware) ===
 # Plan a single block using BlockRecipes — exact placement, not RNG scatter.
 # neighbor_recipes: list of recipe names chosen by already-planned neighbors.
-# Used to avoid placing the same recipe in adjacent blocks (visual variety).
-static func plan_block(block: Dictionary, seed: int, neighbor_recipes: Array = []) -> Dictionary:
+#   Used to avoid placing the same recipe in adjacent blocks (visual variety).
+# neighbor_districts: list of districts of all neighbors.
+#   Used to detect transition blocks (block at district boundary).
+static func plan_block(block: Dictionary, seed: int, neighbor_recipes: Array = [], neighbor_districts: Array = []) -> Dictionary:
 	var district: String = block.district
 	var center: Vector3 = block.center
 	var w: float = block.width
@@ -221,11 +223,24 @@ static func plan_block(block: Dictionary, seed: int, neighbor_recipes: Array = [
 		"foliage": [],
 		"props": [],
 		"recipe": "",
+		"is_transition": false,
+		"transition_pair": "",
 	}
 
-	# Pick a recipe for this block — adjacency-aware (avoids neighbor duplicates)
-	var recipe_name: String = BlockRecipes.pick_recipe(district, seed + int(center.x) * 31 + int(center.z) * 17, neighbor_recipes)
+	# Detect transition: any neighbor has a different district
+	var is_transition: bool = false
+	var transition_partner: String = ""
+	for nd in neighbor_districts:
+		if nd != district:
+			is_transition = true
+			transition_partner = nd
+			break
+
+	# Pick a recipe — adjacency-aware + transition-aware
+	var recipe_name: String = BlockRecipes.pick_recipe(district, seed + int(center.x) * 31 + int(center.z) * 17, neighbor_recipes, is_transition, transition_partner)
 	plan["recipe"] = recipe_name
+	plan["is_transition"] = is_transition
+	plan["transition_pair"] = transition_partner
 
 	# Apply the recipe — returns {buildings, foliage, props} with exact placements
 	var result: Dictionary = BlockRecipes.apply_recipe(recipe_name, block, seed)
@@ -270,7 +285,8 @@ static func generate_map(seed: int = 1337) -> Dictionary:
 	for i in range(blocks.size()):
 		var block: Dictionary = blocks[i]
 		var neighbor_recipes: Array = _get_neighbor_recipes(i, adjacency, chosen_recipes)
-		var plan := plan_block(block, seed, neighbor_recipes)
+		var neighbor_districts: Array = _get_neighbor_districts(i, adjacency, blocks)
+		var plan := plan_block(block, seed, neighbor_recipes, neighbor_districts)
 		plans.append(plan)
 		chosen_recipes[i] = plan.recipe
 
@@ -363,6 +379,21 @@ static func _get_neighbor_recipes(block_index: int, adjacency: Dictionary, chose
 	for n in neighbors:
 		if chosen_recipes.has(n):
 			result.append(chosen_recipes[n])
+	return result
+
+# Get districts of all neighbors (used to detect transition blocks)
+# Returns array of unique district names. If any neighbor has a different
+# district than this block, this is a transition block.
+static func _get_neighbor_districts(block_index: int, adjacency: Dictionary, blocks: Array) -> Array:
+	var result: Array = []
+	var seen: Dictionary = {}
+	var neighbors: Array = adjacency.get(block_index, [])
+	for n in neighbors:
+		if n < blocks.size():
+			var d: String = blocks[n].district
+			if not seen.has(d):
+				seen[d] = true
+				result.append(d)
 	return result
 
 static func _avg_neighbors(adjacency: Dictionary) -> float:

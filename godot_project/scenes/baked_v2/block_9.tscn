@@ -1,70 +1,187 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://assets/buildings/house_modern.glb" id="1_kywfu"]
-[ext_resource type="PackedScene" path="res://assets/buildings/suburban_house_v2.glb" id="2_3wc44"]
-[ext_resource type="PackedScene" path="res://assets/buildings/house_ranch.glb" id="3_sdvc6"]
-[ext_resource type="PackedScene" path="res://assets/buildings/house_cape_cod.glb" id="4_wdx8g"]
-[ext_resource type="PackedScene" path="res://assets/foliage/hedge.glb" id="5_ig87v"]
-[ext_resource type="PackedScene" path="res://assets/foliage/birch_tree.glb" id="6_n5kb4"]
+[ext_resource type="PackedScene" path="res://assets/buildings/house_modern.glb" id="1_3wc44"]
+[ext_resource type="PackedScene" path="res://assets/buildings/barn.glb" id="2_sdvc6"]
+[ext_resource type="PackedScene" path="res://assets/foliage/bush.glb" id="3_wdx8g"]
+[ext_resource type="PackedScene" path="res://assets/environment/hay_bale.glb" id="4_ig87v"]
+[ext_resource type="PackedScene" path="res://assets/environment/irrigation_canal.glb" id="5_n5kb4"]
+[ext_resource type="PackedScene" path="res://assets/environment/wood_fence_post.glb" id="6_8t2fw"]
+[ext_resource type="PackedScene" path="res://assets/environment/mailbox.glb" id="7_mud4r"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8t2fw"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bqpu1"]
 albedo_color = Color(0.35, 0.52, 0.2, 1)
 roughness = 0.85
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_mud4r"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_1fh7v"]
 size = Vector2(150, 200)
 
-[node name="Block_9" type="Node3D" unique_id=1603327415]
+[node name="Block_9" type="Node3D" unique_id=426663824]
 
-[node name="DistrictGround_437" type="MeshInstance3D" parent="." unique_id=1374108213]
+[node name="DistrictGround_628" type="MeshInstance3D" parent="." unique_id=1365852097]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 75, 0.01, 1700)
-material_override = SubResource("StandardMaterial3D_8t2fw")
-mesh = SubResource("PlaneMesh_mud4r")
+material_override = SubResource("StandardMaterial3D_bqpu1")
+mesh = SubResource("PlaneMesh_1fh7v")
 
-[node name="house_modern_438" type="Node3D" parent="." unique_id=1663668118 instance=ExtResource("1_kywfu")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 0, 1781)
+[node name="house_modern_629" type="Node3D" parent="." unique_id=1663668118 instance=ExtResource("1_3wc44")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 22, 0, 1619)
 metadata/building_name = "house_modern"
 
-[node name="suburban_house_v2_439" type="Node3D" parent="." unique_id=240856332 instance=ExtResource("2_3wc44")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, 1781)
-metadata/building_name = "suburban_house_v2"
+[node name="barn_630" type="Node3D" parent="." unique_id=1535378639 instance=ExtResource("2_sdvc6")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 123, 0, 1778)
+metadata/building_name = "barn"
 
-[node name="house_ranch_440" type="Node3D" parent="." unique_id=1957649439 instance=ExtResource("3_sdvc6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 75, 0, 1781)
-metadata/building_name = "house_ranch"
+[node name="bush_631" type="Node3D" parent="." unique_id=564319108 instance=ExtResource("3_wdx8g")]
+transform = Transform3D(0.55661196, 0, 0.83077264, 0, 1, 0, -0.83077264, 0, 0.55661196, 75, 0, 1700)
+metadata/building_name = "bush"
 
-[node name="suburban_house_v2_441" type="Node3D" parent="." unique_id=1361101693 instance=ExtResource("2_3wc44")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 0, 1781)
-metadata/building_name = "suburban_house_v2"
+[node name="hay_bale_632" type="Node3D" parent="." unique_id=1512329224 instance=ExtResource("4_ig87v")]
+transform = Transform3D(-0.10633182, 0, 0.9943307, 0, 1, 0, -0.9943307, 0, -0.10633182, 36.354893, 0, 1746.7487)
+metadata/building_name = "hay_bale"
 
-[node name="house_cape_cod_442" type="Node3D" parent="." unique_id=570702686 instance=ExtResource("4_wdx8g")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 105, 0, 1781)
-metadata/building_name = "house_cape_cod"
+[node name="hay_bale_633" type="Node3D" parent="." unique_id=2068090002 instance=ExtResource("4_ig87v")]
+transform = Transform3D(-0.29280877, 0, 0.95617104, 0, 1, 0, -0.95617104, 0, -0.29280877, 56.167217, 0, 1653.2549)
+metadata/building_name = "hay_bale"
 
-[node name="hedge_443" type="Node3D" parent="." unique_id=453923166 instance=ExtResource("5_ig87v")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 0, 1791)
-metadata/building_name = "hedge"
+[node name="irrigation_canal_634" type="Node3D" parent="." unique_id=1731609292 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(-0.5331522, 0, -0.8460193, 0, 1, 0, 0.8460193, 0, -0.5331522, 81.96552, 0, 1748.852)
+metadata/building_name = "irrigation_canal"
 
-[node name="hedge_444" type="Node3D" parent="." unique_id=41166587 instance=ExtResource("5_ig87v")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, 1791)
-metadata/building_name = "hedge"
+[node name="irrigation_canal_635" type="Node3D" parent="." unique_id=559255956 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(-0.8574574, 0, -0.514555, 0, 1, 0, 0.514555, 0, -0.8574574, 141.99226, 0, 1683.7886)
+metadata/building_name = "irrigation_canal"
 
-[node name="hedge_445" type="Node3D" parent="." unique_id=845328567 instance=ExtResource("5_ig87v")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 75, 0, 1791)
-metadata/building_name = "hedge"
+[node name="hay_bale_636" type="Node3D" parent="." unique_id=825860524 instance=ExtResource("4_ig87v")]
+transform = Transform3D(-0.89812213, 0, 0.4397461, 0, 1, 0, -0.4397461, 0, -0.89812213, 12.297996, 0, 1676.8015)
+metadata/building_name = "hay_bale"
 
-[node name="hedge_446" type="Node3D" parent="." unique_id=1829986744 instance=ExtResource("5_ig87v")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 0, 1791)
-metadata/building_name = "hedge"
+[node name="wood_fence_post_637" type="Node3D" parent="." unique_id=2004081582 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(-0.22196823, 0, -0.9750539, 0, 1, 0, 0.9750539, 0, -0.22196823, 137.6674, 0, 1694.9135)
+metadata/building_name = "wood_fence_post"
 
-[node name="hedge_447" type="Node3D" parent="." unique_id=1426332089 instance=ExtResource("5_ig87v")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 105, 0, 1791)
-metadata/building_name = "hedge"
+[node name="irrigation_canal_638" type="Node3D" parent="." unique_id=1072526942 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(-0.20772348, 0, -0.97818756, 0, 1, 0, 0.97818756, 0, -0.20772348, 48.19613, 0, 1769.6361)
+metadata/building_name = "irrigation_canal"
 
-[node name="birch_tree_448" type="Node3D" parent="." unique_id=820401252 instance=ExtResource("6_n5kb4")]
-transform = Transform3D(0.007854142, 0, 0.948615, 0, 0.9486475, 0, -0.948615, 0, 0.007854142, 57.521645, 0, 1667.736)
-metadata/building_name = "birch_tree"
+[node name="wood_fence_post_639" type="Node3D" parent="." unique_id=112935810 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(0.9030954, 0, 0.42943993, 0, 1, 0, -0.42943993, 0, 0.9030954, 91.38194, 0, 1667.8195)
+metadata/building_name = "wood_fence_post"
 
-[node name="birch_tree_449" type="Node3D" parent="." unique_id=274226196 instance=ExtResource("6_n5kb4")]
-transform = Transform3D(1.1916395, 0, 0.5102706, 0, 1.296295, 0, -0.5102706, 0, 1.1916395, 78.84128, 0, 1735.1245)
-metadata/building_name = "birch_tree"
+[node name="hay_bale_640" type="Node3D" parent="." unique_id=733083411 instance=ExtResource("4_ig87v")]
+transform = Transform3D(-0.5300573, 0, -0.84796184, 0, 1, 0, 0.84796184, 0, -0.5300573, 86.54207, 0, 1622.2961)
+metadata/building_name = "hay_bale"
+
+[node name="irrigation_canal_641" type="Node3D" parent="." unique_id=1880078332 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(-0.876704, 0, 0.48103032, 0, 1, 0, -0.48103032, 0, -0.876704, 19.869026, 0, 1787.4534)
+metadata/building_name = "irrigation_canal"
+
+[node name="hay_bale_642" type="Node3D" parent="." unique_id=2035374092 instance=ExtResource("4_ig87v")]
+transform = Transform3D(-0.11529809, 0, 0.99333096, 0, 1, 0, -0.99333096, 0, -0.11529809, 63.939857, 0, 1769.0674)
+metadata/building_name = "hay_bale"
+
+[node name="hay_bale_643" type="Node3D" parent="." unique_id=68850191 instance=ExtResource("4_ig87v")]
+transform = Transform3D(-0.26367715, 0, 0.964611, 0, 1, 0, -0.964611, 0, -0.26367715, 25.008938, 0, 1652.6333)
+metadata/building_name = "hay_bale"
+
+[node name="irrigation_canal_644" type="Node3D" parent="." unique_id=290031311 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(-0.12261214, 0, -0.99245465, 0, 1, 0, 0.99245465, 0, -0.12261214, 93.66961, 0, 1707.0323)
+metadata/building_name = "irrigation_canal"
+
+[node name="irrigation_canal_645" type="Node3D" parent="." unique_id=242067161 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(0.84419423, 0, -0.5360374, 0, 1, 0, 0.5360374, 0, 0.84419423, 20.99198, 0, 1743.5206)
+metadata/building_name = "irrigation_canal"
+
+[node name="wood_fence_post_646" type="Node3D" parent="." unique_id=1424987060 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(-0.6047741, 0, -0.79639703, 0, 1, 0, 0.79639703, 0, -0.6047741, 68.62991, 0, 1735.0801)
+metadata/building_name = "wood_fence_post"
+
+[node name="hay_bale_647" type="Node3D" parent="." unique_id=485903770 instance=ExtResource("4_ig87v")]
+transform = Transform3D(0.90509933, 0, -0.4252002, 0, 1, 0, 0.4252002, 0, 0.90509933, 138.10677, 0, 1711.5951)
+metadata/building_name = "hay_bale"
+
+[node name="wood_fence_post_648" type="Node3D" parent="." unique_id=1960294427 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(-0.5874579, 0, -0.80925477, 0, 1, 0, 0.80925477, 0, -0.5874579, 85.20009, 0, 1614.3927)
+metadata/building_name = "wood_fence_post"
+
+[node name="hay_bale_649" type="Node3D" parent="." unique_id=137613016 instance=ExtResource("4_ig87v")]
+transform = Transform3D(-0.047570378, 0, -0.99886787, 0, 1, 0, 0.99886787, 0, -0.047570378, 93.525665, 0, 1779.8492)
+metadata/building_name = "hay_bale"
+
+[node name="hay_bale_650" type="Node3D" parent="." unique_id=1327258091 instance=ExtResource("4_ig87v")]
+transform = Transform3D(0.933587, 0, -0.35835072, 0, 1, 0, 0.35835072, 0, 0.933587, 130.78168, 0, 1615.7501)
+metadata/building_name = "hay_bale"
+
+[node name="irrigation_canal_651" type="Node3D" parent="." unique_id=457809166 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(0.3000983, 0, 0.95390826, 0, 1, 0, -0.95390826, 0, 0.3000983, 51.575363, 0, 1682.8491)
+metadata/building_name = "irrigation_canal"
+
+[node name="hay_bale_652" type="Node3D" parent="." unique_id=682955848 instance=ExtResource("4_ig87v")]
+transform = Transform3D(0.035446685, 0, 0.9993716, 0, 1, 0, -0.9993716, 0, 0.035446685, 62.2588, 0, 1696.6304)
+metadata/building_name = "hay_bale"
+
+[node name="wood_fence_post_653" type="Node3D" parent="." unique_id=1071031075 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(-0.77087665, 0, 0.6369844, 0, 1, 0, -0.6369844, 0, -0.77087665, 109.95076, 0, 1683.0879)
+metadata/building_name = "wood_fence_post"
+
+[node name="irrigation_canal_654" type="Node3D" parent="." unique_id=806332973 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(-0.26841438, 0, -0.96330357, 0, 1, 0, 0.96330357, 0, -0.26841438, 123.54864, 0, 1722.3967)
+metadata/building_name = "irrigation_canal"
+
+[node name="irrigation_canal_655" type="Node3D" parent="." unique_id=1573317279 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(0.9999249, 0, 0.0122566465, 0, 1, 0, -0.0122566465, 0, 0.9999249, 62.058292, 0, 1758.0367)
+metadata/building_name = "irrigation_canal"
+
+[node name="wood_fence_post_656" type="Node3D" parent="." unique_id=1240064477 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(0.026144462, 0, 0.99965817, 0, 1, 0, -0.99965817, 0, 0.026144462, 116.34805, 0, 1616.2789)
+metadata/building_name = "wood_fence_post"
+
+[node name="wood_fence_post_657" type="Node3D" parent="." unique_id=849438752 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(-0.99342406, 0, 0.114492945, 0, 1, 0, -0.114492945, 0, -0.99342406, 43.339825, 0, 1703.7484)
+metadata/building_name = "wood_fence_post"
+
+[node name="irrigation_canal_658" type="Node3D" parent="." unique_id=1743764677 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(0.9969018, 0, 0.0786558, 0, 1, 0, -0.0786558, 0, 0.9969018, 87.85328, 0, 1696.8553)
+metadata/building_name = "irrigation_canal"
+
+[node name="hay_bale_659" type="Node3D" parent="." unique_id=1120220152 instance=ExtResource("4_ig87v")]
+transform = Transform3D(0.97911316, 0, 0.20331615, 0, 1, 0, -0.20331615, 0, 0.97911316, 136.81366, 0, 1711.7611)
+metadata/building_name = "hay_bale"
+
+[node name="hay_bale_660" type="Node3D" parent="." unique_id=442999516 instance=ExtResource("4_ig87v")]
+transform = Transform3D(-0.9731978, 0, 0.22996967, 0, 1, 0, -0.22996967, 0, -0.9731978, 131.76057, 0, 1644.486)
+metadata/building_name = "hay_bale"
+
+[node name="wood_fence_post_661" type="Node3D" parent="." unique_id=1401605160 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(0.02036432, 0, -0.99979264, 0, 1, 0, 0.99979264, 0, 0.02036432, 50.74203, 0, 1608.6515)
+metadata/building_name = "wood_fence_post"
+
+[node name="wood_fence_post_662" type="Node3D" parent="." unique_id=2106128938 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(-0.869575, 0, -0.49380082, 0, 1, 0, 0.49380082, 0, -0.869575, 53.127186, 0, 1656.8746)
+metadata/building_name = "wood_fence_post"
+
+[node name="hay_bale_663" type="Node3D" parent="." unique_id=293432723 instance=ExtResource("4_ig87v")]
+transform = Transform3D(0.49459714, 0, 0.8691223, 0, 1, 0, -0.8691223, 0, 0.49459714, 70.033264, 0, 1684.4891)
+metadata/building_name = "hay_bale"
+
+[node name="irrigation_canal_664" type="Node3D" parent="." unique_id=1332689679 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(0.98655856, 0, -0.16340823, 0, 1, 0, 0.16340823, 0, 0.98655856, 16.943182, 0, 1789.5522)
+metadata/building_name = "irrigation_canal"
+
+[node name="wood_fence_post_665" type="Node3D" parent="." unique_id=1300060774 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(-0.96106946, 0, -0.2763069, 0, 1, 0, 0.2763069, 0, -0.96106946, 130.29369, 0, 1759.6465)
+metadata/building_name = "wood_fence_post"
+
+[node name="wood_fence_post_666" type="Node3D" parent="." unique_id=2034058177 instance=ExtResource("6_8t2fw")]
+transform = Transform3D(0.99832755, 0, 0.057810713, 0, 1, 0, -0.057810713, 0, 0.99832755, 59.948605, 0, 1760.2666)
+metadata/building_name = "wood_fence_post"
+
+[node name="irrigation_canal_667" type="Node3D" parent="." unique_id=1984987863 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(-0.5450083, 0, 0.83843064, 0, 1, 0, -0.83843064, 0, -0.5450083, 45.79702, 0, 1759.1824)
+metadata/building_name = "irrigation_canal"
+
+[node name="irrigation_canal_668" type="Node3D" parent="." unique_id=1771324060 instance=ExtResource("5_n5kb4")]
+transform = Transform3D(0.21587601, 0, -0.97642076, 0, 1, 0, 0.97642076, 0, 0.21587601, 42.796867, 0, 1789.7604)
+metadata/building_name = "irrigation_canal"
+
+[node name="mailbox_669" type="Node3D" parent="." unique_id=1355149892 instance=ExtResource("7_mud4r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 1627)
+metadata/building_name = "mailbox"

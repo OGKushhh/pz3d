@@ -1,58 +1,49 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://assets/buildings/motel.glb" id="1_4mnyv"]
-[ext_resource type="PackedScene" path="res://assets/environment/dumpster.glb" id="2_5lk8y"]
-[ext_resource type="PackedScene" path="res://assets/environment/traffic_cone.glb" id="3_7le8k"]
-[ext_resource type="PackedScene" path="res://assets/environment/parking_meter.glb" id="4_tcor0"]
-[ext_resource type="PackedScene" path="res://assets/environment/shopping_cart.glb" id="5_8a7f0"]
-[ext_resource type="PackedScene" path="res://assets/environment/bollard.glb" id="6_srjks"]
+[ext_resource type="PackedScene" path="res://assets/buildings/house_cape_cod.glb" id="1_4p3bo"]
+[ext_resource type="PackedScene" path="res://assets/buildings/grocery_store.glb" id="2_4mnyv"]
+[ext_resource type="PackedScene" path="res://assets/foliage/maple_tree.glb" id="3_5lk8y"]
+[ext_resource type="PackedScene" path="res://assets/environment/mailbox.glb" id="4_7le8k"]
+[ext_resource type="PackedScene" path="res://assets/environment/parking_meter.glb" id="5_tcor0"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tuskl"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8a7f0"]
 albedo_color = Color(0.45, 0.43, 0.4, 1)
 roughness = 0.85
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_2vi1t"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_srjks"]
 size = Vector2(200, 250)
 
-[node name="Block_211" type="Node3D" unique_id=419228812]
+[node name="Block_211" type="Node3D" unique_id=2024578432]
 
-[node name="DistrictGround_10590" type="MeshInstance3D" parent="." unique_id=591536634]
+[node name="DistrictGround_10422" type="MeshInstance3D" parent="." unique_id=1433661435]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2900, 0.01, 275)
-material_override = SubResource("StandardMaterial3D_tuskl")
-mesh = SubResource("PlaneMesh_2vi1t")
+material_override = SubResource("StandardMaterial3D_8a7f0")
+mesh = SubResource("PlaneMesh_srjks")
 
-[node name="motel_10591" type="Node3D" parent="." unique_id=311069947 instance=ExtResource("1_4mnyv")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2900, 0, 275)
-metadata/building_name = "motel"
+[node name="house_cape_cod_10423" type="Node3D" parent="." unique_id=570702686 instance=ExtResource("1_4p3bo")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 2880, 0, 169)
+metadata/building_name = "house_cape_cod"
 
-[node name="dumpster_10592" type="Node3D" parent="." unique_id=1696713097 instance=ExtResource("2_5lk8y")]
-transform = Transform3D(-0.3800149, 0, 0.92498034, 0, 1, 0, -0.92498034, 0, -0.3800149, 2841.6023, 0, 199.1656)
-metadata/building_name = "dumpster"
+[node name="house_cape_cod_10424" type="Node3D" parent="." unique_id=680595332 instance=ExtResource("1_4p3bo")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 2920, 0, 169)
+metadata/building_name = "house_cape_cod"
 
-[node name="traffic_cone_10593" type="Node3D" parent="." unique_id=1762129719 instance=ExtResource("3_7le8k")]
-transform = Transform3D(0.98935795, 0, 0.14550196, 0, 1, 0, -0.14550196, 0, 0.98935795, 2960.1663, 0, 228.5157)
-metadata/building_name = "traffic_cone"
+[node name="grocery_store_10425" type="Node3D" parent="." unique_id=1746001679 instance=ExtResource("2_4mnyv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2900, 0, 381)
+metadata/building_name = "grocery_store"
 
-[node name="parking_meter_10594" type="Node3D" parent="." unique_id=809718202 instance=ExtResource("4_tcor0")]
-transform = Transform3D(0.999967, 0, 0.008129721, 0, 1, 0, -0.008129721, 0, 0.999967, 2887.9695, 0, 361.66425)
+[node name="maple_tree_10426" type="Node3D" parent="." unique_id=1268234087 instance=ExtResource("3_5lk8y")]
+transform = Transform3D(0.5932878, 0, 0.8049904, 0, 1, 0, -0.8049904, 0, 0.5932878, 2900, 0, 275)
+metadata/building_name = "maple_tree"
+
+[node name="mailbox_10427" type="Node3D" parent="." unique_id=1355149892 instance=ExtResource("4_7le8k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2880, 0, 161)
+metadata/building_name = "mailbox"
+
+[node name="mailbox_10428" type="Node3D" parent="." unique_id=213931100 instance=ExtResource("4_7le8k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2920, 0, 161)
+metadata/building_name = "mailbox"
+
+[node name="parking_meter_10429" type="Node3D" parent="." unique_id=809718202 instance=ExtResource("5_tcor0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2910, 0, 387)
 metadata/building_name = "parking_meter"
-
-[node name="shopping_cart_10595" type="Node3D" parent="." unique_id=418436494 instance=ExtResource("5_8a7f0")]
-transform = Transform3D(-0.962035, 0, -0.27292612, 0, 1, 0, 0.27292612, 0, -0.962035, 2919.7476, 0, 268.7198)
-metadata/building_name = "shopping_cart"
-
-[node name="dumpster_10596" type="Node3D" parent="." unique_id=783017648 instance=ExtResource("2_5lk8y")]
-transform = Transform3D(0.691127, 0, -0.7227333, 0, 1, 0, 0.7227333, 0, 0.691127, 2828.0063, 0, 308.33777)
-metadata/building_name = "dumpster"
-
-[node name="dumpster_10597" type="Node3D" parent="." unique_id=2095935474 instance=ExtResource("2_5lk8y")]
-transform = Transform3D(-0.5858217, 0, -0.81043994, 0, 1, 0, 0.81043994, 0, -0.5858217, 2954.4534, 0, 260.06693)
-metadata/building_name = "dumpster"
-
-[node name="parking_meter_10598" type="Node3D" parent="." unique_id=790988205 instance=ExtResource("4_tcor0")]
-transform = Transform3D(0.6287109, 0, 0.7776391, 0, 1, 0, -0.7776391, 0, 0.6287109, 2854.2375, 0, 336.5672)
-metadata/building_name = "parking_meter"
-
-[node name="bollard_10599" type="Node3D" parent="." unique_id=1500941010 instance=ExtResource("6_srjks")]
-transform = Transform3D(-0.5041044, 0, -0.86364275, 0, 1, 0, 0.86364275, 0, -0.5041044, 2848.2878, 0, 252.25835)
-metadata/building_name = "bollard"
