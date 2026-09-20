@@ -74,14 +74,19 @@ func _unhandled_input(event: InputEvent) -> void:
 	# T = toggle fly mode
 	if event is InputEventKey and event.pressed and event.keycode == KEY_T:
 		_fly_mode = not _fly_mode
-		if _fly_mode:
-			velocity = Vector3.ZERO
-		# Toggle collision shapes
+		# Always reset velocity on toggle:
+		# - ON: stop falling/running from normal mode
+		# - OFF: don't carry fly momentum into walk mode (would launch player)
+		velocity = Vector3.ZERO
+		# Toggle collision shapes (disable when flying, re-enable when walking)
 		if standing_collision_shape:
 			standing_collision_shape.set_deferred("disabled", _fly_mode)
 		if crouching_collision_shape:
 			crouching_collision_shape.set_deferred("disabled", _fly_mode)
-		print("[MazarPlayer] fly mode %s" % ("ON" if _fly_mode else "OFF"))
+		# Make sure mouse is captured (in case ESC was hit)
+		if _fly_mode:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		print("[MazarPlayer] fly mode %s — pos %s" % ["ON" if _fly_mode else "OFF", global_position])
 
 	# F8 = dump scene state for middleware
 	if event is InputEventKey and event.pressed and event.keycode == KEY_F8:
@@ -89,18 +94,34 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	if _fly_mode:
-		# Fly mode: free 3D movement, no gravity, no collision
+		# Fly mode: free 3D movement using CAMERA basis (not body basis).
+		# Body only yaws (Y rotation); head pitches (X rotation).
+		# Using transform.basis (body) would make W move horizontally even
+		# when looking at the sky. Using camera.global_basis makes W move
+		# in the look direction — proper fly mode.
 		var i := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-		var dir := (transform.basis * Vector3(i.x, 0, i.y)).normalized()
-		velocity = dir * FLY_SPEED
+		var cam_basis := camera.global_transform.basis
+		# Forward is -Z in Godot. Camera looks down its -Z axis.
+		var forward := -cam_basis.z
+		var right := cam_basis.x
+		var dir := Vector3.ZERO
+		# WASD relative to camera (W = forward where you're looking)
+		# i.y = -1 when W pressed (forward), +1 when S pressed (back)
+		dir += forward * -i.y
+		dir += right * i.x
+		# Vertical: Space = up, C = down (independent of look direction)
 		if Input.is_action_pressed("jump"):
-			velocity.y = FLY_SPEED
-		elif Input.is_action_pressed("crouch"):
-			velocity.y = -FLY_SPEED
-		else:
-			velocity.y = 0
+			dir.y += 1.0
+		if Input.is_action_pressed("crouch"):
+			dir.y -= 1.0
+		# Normalize to prevent diagonal speed boost
+		if dir.length() > 0.01:
+			dir = dir.normalized()
+		# Sprint = 3x speed
+		var speed := FLY_SPEED
 		if Input.is_action_pressed("sprint"):
-			velocity *= 3.0
+			speed *= 3.0
+		velocity = dir * speed
 		global_position += velocity * delta
 		return
 
