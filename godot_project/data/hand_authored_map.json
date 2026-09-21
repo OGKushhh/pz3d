@@ -1,0 +1,135 @@
+{
+  "_meta": {
+    "description": "Hand-authored map data — for side test only. Does NOT replace city_gen_v2.gd (procedural gen stays as-is).",
+    "purpose": "Lets us test what a hand-authored city layout feels like vs procedural, while still using BlockRecipes to fill buildings within each district.",
+    "version": "1.0",
+    "created": "2026-09-21",
+    "notes": [
+      "Map size: 4000 x 3000 m = 12 km²",
+      "9 districts (forest, suburbia, parks, farmland, industrial, downtown, commercial, coastal, military)",
+      "Each district has center + radius + shape + notes",
+      "Landmarks are placed at exact positions",
+      "Highways are polyline paths (list of waypoints)",
+      "Coastal road runs along south edge",
+      "Military bridge is single-access to Fort Sarran peninsula"
+    ]
+  },
+  "map_size": [4000, 3000],
+
+  "districts": [
+    {
+      "name": "forest",
+      "center": [2000, 200],
+      "radius": 500,
+      "extends_to_edge": ["north"],
+      "shape": "horizontal_strip",
+      "notes": "dense pines, logging camps, hunting cabins"
+    },
+    {
+      "name": "suburbia",
+      "center": [400, 900],
+      "radius": 450,
+      "shape": "grid_neighborhood",
+      "notes": "residential, cul-de-sacs, starter zone"
+    },
+    {
+      "name": "parks",
+      "center": [1600, 600],
+      "radius": 350,
+      "shape": "irregular_green",
+      "notes": "tree-lined, playgrounds, subway entrance"
+    },
+    {
+      "name": "farmland",
+      "center": [1400, 900],
+      "radius": 400,
+      "shape": "large_lots",
+      "notes": "crops, barns, low density"
+    },
+    {
+      "name": "industrial",
+      "center": [3200, 400],
+      "radius": 500,
+      "shape": "large_blocks",
+      "notes": "warehouses, rail, power plant"
+    },
+    {
+      "name": "downtown",
+      "center": [3300, 1000],
+      "radius": 400,
+      "shape": "dense_grid",
+      "notes": "tall buildings, civic landmarks"
+    },
+    {
+      "name": "commercial",
+      "center": [2000, 1300],
+      "radius": 500,
+      "shape": "strip_diagonal",
+      "axis": [0.7, 0.7],
+      "notes": "shops along a diagonal corridor"
+    },
+    {
+      "name": "coastal",
+      "center": [1500, 2400],
+      "radius": 600,
+      "extends_to_edge": ["south"],
+      "shape": "southern_strip",
+      "notes": "fishing huts, lighthouse, beach"
+    },
+    {
+      "name": "military",
+      "center": [3650, 1200],
+      "radius": 250,
+      "shape": "peninsula",
+      "connection": "single_bridge_west",
+      "notes": "Fort Sarran, extreme danger, endgame"
+    }
+  ],
+
+  "landmarks": [
+    { "name": "Subway Entrance",              "district": "parks",       "pos": [1400, 500],  "type": "civic" },
+    { "name": "Suburbia Power Substation",    "district": "suburbia",    "pos": [150, 700],   "type": "utility" },
+    { "name": "The Old Royal Palace",         "district": "suburbia",    "pos": [900, 1500],  "type": "hero" },
+    { "name": "The Grain Silo",               "district": "farmland",    "pos": [1400, 1300], "type": "hero" },
+    { "name": "The Grand Bazaar",              "district": "commercial",  "pos": [2100, 1400], "type": "hero" },
+    { "name": "The Broadcast Tower",          "district": "commercial",  "pos": [2200, 1600], "type": "hero" },
+    { "name": "The Hospital",                 "district": "downtown",    "pos": [3200, 900],  "type": "hero" },
+    { "name": "The Police HQ",                "district": "downtown",    "pos": [3400, 1000], "type": "hero" },
+    { "name": "The Government Palace",        "district": "downtown",    "pos": [3500, 1100], "type": "hero" },
+    { "name": "The Stadium",                  "district": "downtown",    "pos": [3600, 1200], "type": "hero" },
+    { "name": "The Fire Station",             "district": "commercial",  "pos": [2300, 1500], "type": "emergency" },
+    { "name": "The Water Tower",              "district": "industrial",  "pos": [3100, 200],  "type": "hero" },
+    { "name": "The Railway Station",          "district": "industrial",  "pos": [3100, 700],  "type": "hero" },
+    { "name": "Industrial Power Plant",       "district": "industrial",  "pos": [3800, 100],  "type": "utility" },
+    { "name": "The Lighthouse",               "district": "coastal",     "pos": [1500, 2600], "type": "hero" },
+    { "name": "Fort Sarran",                  "district": "military",    "pos": [3650, 1200], "type": "endgame" }
+  ],
+
+  "highways": [
+    {
+      "name": "Sarran Highway",
+      "path": [[0, 1500], [2000, 1500], [4000, 1500]],
+      "width": 12,
+      "note": "main east-west spine"
+    },
+    {
+      "name": "Mazar Highway",
+      "path": [[2000, 0], [2000, 1500], [2000, 3000]],
+      "width": 12,
+      "note": "main north-south spine"
+    }
+  ],
+
+  "coastal_road": {
+    "path": [[0, 2200], [1000, 2300], [2000, 2400], [3000, 2300]],
+    "width": 8,
+    "note": "runs along the beach"
+  },
+
+  "military_bridge": {
+    "from": [3400, 1200],
+    "to": [3600, 1200],
+    "width": 8,
+    "note": "single access to Fort Sarran"
+  }
+}
