@@ -62,22 +62,22 @@ const DISTRICT_COLORS := {
 }
 
 # === Landmark -> asset_name mapping (uses city_manifest.json asset names) ===
-# Assets that don't exist yet are marked "skip" — we record position but place nothing.
+# All landmarks now have assets (built in Blender, 2026-09-24)
 const LANDMARK_ASSETS := {
-	"Subway Entrance": "skip",  # no asset
-	"Suburbia Power Substation": "skip",  # no asset
+	"Subway Entrance": "subway_entrance",
+	"Suburbia Power Substation": "power_substation",
 	"The Old Royal Palace": "old_royal_palace",
 	"The Grain Silo": "grain_silo",
-	"The Grand Bazaar": "skip",  # no asset (use store_supermarket as fallback?)
+	"The Grand Bazaar": "grand_bazaar",
 	"The Broadcast Tower": "broadcast_tower",
 	"The Hospital": "hospital",
 	"The Police HQ": "police_station",
 	"The Government Palace": "government_palace",
 	"The Stadium": "stadium",
-	"The Fire Station": "skip",  # no asset
-	"The Water Tower": "water_tower_small",  # NOTE: in environment/, not buildings/
+	"The Fire Station": "fire_station",
+	"The Water Tower": "water_tower_small",
 	"The Railway Station": "railway_station",
-	"Industrial Power Plant": "skip",  # no asset
+	"Industrial Power Plant": "power_plant",
 	"The Lighthouse": "lighthouse",
 	"Fort Sarran": "fort_sarran",
 }
@@ -127,6 +127,20 @@ func _init():
 		_render_polyline_road(root, map_data.coastal_road.path, map_data.coastal_road.width, C_ARTERIAL)
 		print("  Coastal road: 1 placed")
 
+	# 4b. Arterials (mid-tier roads connecting districts)
+	var arterial_count: int = 0
+	for arterial in map_data.get("arterials", []):
+		_render_polyline_road(root, arterial.path, arterial.width, C_ARTERIAL)
+		arterial_count += 1
+	print("  Arterials: %d placed" % arterial_count)
+
+	# 4c. Local streets (small roads within districts)
+	var local_count: int = 0
+	for local in map_data.get("local_streets", []):
+		_render_polyline_road(root, local.path, local.width, C_LOCAL)
+		local_count += 1
+	print("  Local streets: %d placed" % local_count)
+
 	# 5. Military bridge
 	if map_data.has("military_bridge"):
 		var b: Dictionary = map_data.military_bridge
@@ -134,8 +148,13 @@ func _init():
 		print("  Military bridge: 1 placed")
 
 	# 6. Landmarks (exact positions from JSON)
-	_place_landmarks(root, map_data.landmarks)
+	var skipped_landmark_names: Array = []
+	_place_landmarks(root, map_data.landmarks, skipped_landmark_names)
 	print("  Landmarks: %d placed, %d skipped (no asset)" % [placed_count, skipped_landmarks])
+	if not skipped_landmark_names.is_empty():
+		print("    Skipped landmark names:")
+		for lm_name in skipped_landmark_names:
+			print("      - %s" % lm_name)
 
 	# 7. Buildings within each district (via BlockRecipes)
 	var buildings_placed: int = 0
@@ -342,17 +361,19 @@ func _render_bridge(root: Node3D, start: Vector3, end: Vector3, width: float):
 	_plane(root, "Bridge", center, length, width, C_BRIDGE, Y_ROAD + 0.5, yaw)  # raised 0.5m above road
 
 # === LANDMARKS ===
-func _place_landmarks(root: Node3D, landmarks: Array):
+func _place_landmarks(root: Node3D, landmarks: Array, skipped_names: Array):
 	for lm in landmarks:
 		var lm_name: String = lm.name
 		var pos: Vector3 = Vector3(lm.pos[0], 0, lm.pos[1])
 		var asset_name: String = LANDMARK_ASSETS.get(lm_name, "skip")
 		if asset_name == "skip":
 			skipped_landmarks += 1
+			skipped_names.append(lm_name + " (mapped to skip)")
 			continue
 		var scene: PackedScene = _get_asset(asset_name)
 		if scene == null:
 			skipped_landmarks += 1
+			skipped_names.append(lm_name + " (asset '" + asset_name + "' not found in manifest)")
 			continue
 		var inst: Node3D = scene.instantiate()
 		inst.position = pos
